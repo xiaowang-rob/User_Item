@@ -2,7 +2,7 @@
 git上传
 1.上传至git暂存区
 git add file.xxx 单个文件
-git add ..xxx 多个文件
+git add . 多个文件
 2.提交到本地仓库
 git commit -m"提交信息说明"
 3.推送到Github仓库
