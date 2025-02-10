@@ -3,6 +3,7 @@
 "nono\main.o"
 "nono\gpio.o"
 "nono\adc.o"
+"nono\rtc.o"
 "nono\spi.o"
 "nono\tim.o"
 "nono\usart.o"
@@ -24,6 +25,8 @@
 "nono\stm32f4xx_hal_cortex.o"
 "nono\stm32f4xx_hal.o"
 "nono\stm32f4xx_hal_exti.o"
+"nono\stm32f4xx_hal_rtc.o"
+"nono\stm32f4xx_hal_rtc_ex.o"
 "nono\stm32f4xx_hal_spi.o"
 "nono\stm32f4xx_hal_tim.o"
 "nono\stm32f4xx_hal_tim_ex.o"
@@ -31,6 +34,8 @@
 "nono\system_stm32f4xx.o"
 "nono\tft.o"
 "nono\tft_init.o"
+"nono\voide_control.o"
+"nono\clock.o"
 --strict --scatter "Nono\Nono.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

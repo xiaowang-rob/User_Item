@@ -3,58 +3,68 @@
 <pre>
 <h1>礦ision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: μVision V5.41.0.0
-Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: w 2434857072@qq.com, xc, LIC=65ISZ-JZLRR-304NC-73QEK-QZ6PR-WNWX3
+IDE-Version: μVision V5.37.0.0
+Copyright (C) 2022 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: fbi fbi, fbi, LIC=CZLZX-HM5P4-FWP2N-Y3V5Q-3VTY4-MB1SD
  
 Tool Versions:
-Toolchain:       MDK-ARM Plus  Version: 5.41.0.0
-Toolchain Path:  A:\Keil5\ARM\ARMCLANG\Bin
-C Compiler:      ArmClang.exe V6.22
-Assembler:       Armasm.exe V6.22
-Linker/Locator:  ArmLink.exe V6.22
-Library Manager: ArmAr.exe V6.22
-Hex Converter:   FromElf.exe V6.22
-CPU DLL:         SARMCM3.DLL V5.41.0.0
+Toolchain:       MDK-ARM Plus  Version: 5.37.0.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.37.0.0
 Dialog DLL:      DCM.DLL V1.17.5.0
-Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.0.0
-Dialog DLL:      TCM.DLL V1.56.4.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.9.0
+Dialog DLL:      TCM.DLL V1.56.1.0
  
 <h2>Project:</h2>
-A:\STM32CubeMX_project\Nono\MDK-ARM\Nono.uvprojx
-Project File Date:  01/17/2025
+D:\CubeMX_project\Nono\MDK-ARM\Nono.uvprojx
+Project File Date:  01/21/2025
 
 <h2>Output:</h2>
-*** Using Compiler 'V6.22', folder: 'A:\Keil5\ARM\ARMCLANG\Bin'
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Nono'
-compiling main.c...
+compiling clock.c...
+../Users/Inc/tft.h(50): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Users/Inc/TFT_init.h(31): warning:  #1295-D: Deprecated declaration LCD_Initshow - give arg types
+  void LCD_Initshow();                                                      // 鏄剧ず鍒濆鍖?
+../Users/Inc/TFT_init.h(32): warning:  #1-D: last line of file ends without a newline
+  #endif                                                                    // TFT_init_H
+..\Users\Src\clock.c(67): warning:  #1-D: last line of file ends without a newline
+  }
+..\Users\Src\clock.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=14498 RO-data=69250 RW-data=12 ZI-data=3484  
+Program Size: Code=13096 RO-data=152300 RW-data=16 ZI-data=3648  
 FromELF: creating hex file...
-"Nono\Nono.axf" - 0 Error(s), 0 Warning(s).
+"Nono\Nono.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
 Package Vendor: ARM
-                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
-                ARM::CMSIS@6.1.0
+                http://www.keil.com/pack/ARM.CMSIS.5.9.0.pack
+                ARM.CMSIS.5.9.0
                 CMSIS (Common Microcontroller Software Interface Standard)
-   * Component: CORE Version: 6.1.0
+   * Component: CORE Version: 5.6.0
 
 Package Vendor: Keil
-                https://www.keil.com/pack/Keil.STM32F4xx_DFP.3.0.0.pack
-                Keil::STM32F4xx_DFP@3.0.0
-                STMicroelectronics STM32F4 Series Device Support
+                https://www.keil.com/pack/Keil.STM32F4xx_DFP.2.17.1.pack
+                Keil.STM32F4xx_DFP.2.17.1
+                STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
 
 <h2>Collection of Component include folders:</h2>
   ./RTE/_Nono
-  A:/Keil5_pack/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+  C:/Users/王旭东/AppData/Local/Arm/Packs/ARM/CMSIS/5.9.0/CMSIS/Core/Include
+  C:/Users/王旭东/AppData/Local/Arm/Packs/Keil/STM32F4xx_DFP/2.17.1/Drivers/CMSIS/Device/ST/STM32F4xx/Include
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE@6.1.0
+   * Component: ARM::CMSIS:CORE:5.6.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

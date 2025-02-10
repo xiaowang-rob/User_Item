@@ -1,6 +1,7 @@
 #include "TFT.h"
-#include "TFT_init.h"
+
 #include "Words.h"
+#include "TFT_init.h"
 /******************************************************************************
       函数说明：在指定区域填充颜色
       入口数据：xsta,ysta   起始坐标
@@ -405,6 +406,65 @@ void LCD_ShowChinese32x32(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint1
 }
 
 /******************************************************************************
+      函数说明：显示单个64x64汉字
+      入口数据：x,y显示坐标
+                *s 要显示的汉字
+                fc 字的颜色
+                bc 字的背景色
+                sizey 字号
+                mode:  0非叠加模式  1叠加模式
+      返回值：  无
+******************************************************************************/
+void LCD_ShowChinese64x64(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode)
+{
+    uint8_t i, j, m = 0;
+    uint16_t k;
+    uint16_t HZnum;       // 汉字数目
+    uint16_t TypefaceNum; // 一个字符所占字节大小
+    uint16_t x0 = x;
+    TypefaceNum = (sizey / 8 + ((sizey % 8) ? 1 : 0)) * sizey;
+    HZnum = sizeof(tfont64) / sizeof(typFNT_GB64); // 统计汉字数目
+    for (k = 0; k < HZnum; k++)
+    {
+        if ((tfont64[k].Index[0] == *(s)) && (tfont64[k].Index[1] == *(s + 1)))
+        {
+            LCD_Address_Set(x, y, x + sizey - 1, y + sizey - 1);
+            for (i = 0; i < TypefaceNum; i++)
+            {
+                for (j = 0; j < 8; j++)
+                {
+                    if (!mode) // 非叠加方式
+                    {
+                        if (tfont64[k].Msk[i] & (0x01 << j))
+                            LCD_WR_DATA16(fc);
+                        else
+                            LCD_WR_DATA16(bc);
+                        m++;
+                        if (m % sizey == 0)
+                        {
+                            m = 0;
+                            break;
+                        }
+                    }
+                    else // 叠加方式
+                    {
+                        if (tfont64[k].Msk[i] & (0x01 << j))
+                            LCD_DrawPoint(x, y, fc); // 画一个点
+                        x++;
+                        if ((x - x0) == sizey)
+                        {
+                            x = x0;
+                            y++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        continue; // 查找到对应点阵字库立即退出，防止多个汉字重复取模带来影响
+    }
+}
+/******************************************************************************
       函数说明：显示单个字符
       入口数据：x,y显示坐标
                 num 要显示的字符
@@ -433,6 +493,8 @@ void LCD_ShowChar(uint16_t x, uint16_t y, uint8_t num, uint16_t fc, uint16_t bc,
             temp = ascii_2412[num][i]; // 调用12x24字体
         else if (sizey == 32)
             temp = ascii_3216[num][i]; // 调用16x32字体
+        else if (sizey == 64)
+            temp = ascii_6432[num][i]; // 调用32x64字体
         else
             return;
         for (t = 0; t < 8; t++)
@@ -521,13 +583,13 @@ void LCD_ShowIntNum(uint16_t x, uint16_t y, uint16_t num, uint8_t len, uint16_t 
         {
             if (temp == 0)
             {
-                LCD_ShowChar(x + t * sizex, y, ' ', fc, bc, sizey, 0);
+                LCD_ShowChar(x + t * sizex, y, ' ', fc, bc, sizey, 1);
                 continue;
             }
             else
                 enshow = 1;
         }
-        LCD_ShowChar(x + t * sizex, y, temp + 48, fc, bc, sizey, 0);
+        LCD_ShowChar(x + t * sizex, y, temp + 48, fc, bc, sizey, 1);
     }
 }
 

@@ -1,7 +1,7 @@
-#ifndef __LCD_H
-#define __LCD_H
-
+#ifndef __LCD_H__
+#define __LCD_H__
 #include "main.h"
+
 
 void LCD_Fill(uint16_t xsta, uint16_t ysta, uint16_t xend, uint16_t yend, uint16_t color);  // 指定区域填充颜色
 void LCD_DrawPoint(uint16_t x, uint16_t y, uint16_t color);                                 // 在指定位置画一个点
@@ -14,6 +14,7 @@ void LCD_ShowChinese12x12(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint1
 void LCD_ShowChinese16x16(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode); // 显示单个16x16汉字
 void LCD_ShowChinese24x24(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode); // 显示单个24x24汉字
 void LCD_ShowChinese32x32(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode); // 显示单个32x32汉字
+void LCD_ShowChinese64x64(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode); // 显示单个64x64汉字
 
 void LCD_ShowChar(uint16_t x, uint16_t y, uint8_t num, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode);        // 显示一个字符
 void LCD_ShowString(uint16_t x, uint16_t y, const uint8_t *p, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode); // 显示字符串

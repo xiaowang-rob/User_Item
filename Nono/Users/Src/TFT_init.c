@@ -1,13 +1,14 @@
 #include "TFT_init.h"
 #include "tim.h"
 #include "spi.h"
-#include "gpio.h"
+#include "TFT.h"
+#include "photoes.h"
 /*PWM控制屏幕亮度
-ARR=1000
+level 0-100
 */
-void LCD_BLK(uint16_t lelve)
+void LCD_BLK(uint8_t level)
 {
-    __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_3, lelve);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, level);
 }
 
 /*片选成功
@@ -34,10 +35,6 @@ void LCD_WR_DATA8(uint8_t dat)
 */
 void LCD_WR_DATA16(uint16_t dat)
 {
-//    uint8_t buf[2] = {0, 0};
-//    buf[0] = dat;
-//    buf[1] = dat >> 8;
-
     LCD_WR8(dat >> 8);
     LCD_WR8(dat);
 }
@@ -73,20 +70,19 @@ void LCD_Init(void)
     LCD_RES_Set();
     HAL_Delay(100);
 
-    LCD_BLK(100); // 打开背光 等级为100
-    HAL_Delay(100);
+    LCD_BLK(100);
 
-    LCD_WR_REG(0xFE);
+    LCD_WR_REG(0xFE); // 寄存器使能
     LCD_WR_REG(0xEF);
 
-    LCD_WR_REG(0x84);
+    LCD_WR_REG(0x84); // 删掉则是镜像模式
     LCD_WR_DATA8(0x40);
 
-    LCD_WR_REG(0xB6);
+    LCD_WR_REG(0xB6); // 屏幕功能配置
     LCD_WR_DATA8(0x00);
     LCD_WR_DATA8(0x20);
 
-    LCD_WR_REG(0x36);
+    LCD_WR_REG(0x36); // 作用是扫描模式
     if (USE_HORIZONTAL == 0)
         LCD_WR_DATA8(0x08);
     else if (USE_HORIZONTAL == 1)
@@ -96,18 +92,17 @@ void LCD_Init(void)
     else
         LCD_WR_DATA8(0xA8);
 
-    LCD_WR_REG(0x3A);
+    LCD_WR_REG(0x3A); // 颜色模式选择，确定每个像素由几bits组成
     LCD_WR_DATA8(0x05);
 
-    LCD_WR_REG(0xC3);
+    LCD_WR_REG(0xC3); // 电源控制
     LCD_WR_DATA8(0x13);
     LCD_WR_REG(0xC4);
     LCD_WR_DATA8(0x13);
-
     LCD_WR_REG(0xC9);
     LCD_WR_DATA8(0x22);
 
-    LCD_WR_REG(0xF0);
+    LCD_WR_REG(0xF0); // 伽马设置
     LCD_WR_DATA8(0x45);
     LCD_WR_DATA8(0x09);
     LCD_WR_DATA8(0x08);
@@ -115,7 +110,7 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x26);
     LCD_WR_DATA8(0x2A);
 
-    LCD_WR_REG(0xF1);
+    LCD_WR_REG(0xF1); // 伽马设置
     LCD_WR_DATA8(0x43);
     LCD_WR_DATA8(0x70);
     LCD_WR_DATA8(0x72);
@@ -123,7 +118,7 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x37);
     LCD_WR_DATA8(0x6F);
 
-    LCD_WR_REG(0xF2);
+    LCD_WR_REG(0xF2); // 伽马设置
     LCD_WR_DATA8(0x45);
     LCD_WR_DATA8(0x09);
     LCD_WR_DATA8(0x08);
@@ -131,7 +126,7 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x26);
     LCD_WR_DATA8(0x2A);
 
-    LCD_WR_REG(0xF3);
+    LCD_WR_REG(0xF3); // 伽马设置
     LCD_WR_DATA8(0x43);
     LCD_WR_DATA8(0x70);
     LCD_WR_DATA8(0x72);
@@ -139,7 +134,7 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x37);
     LCD_WR_DATA8(0x6F);
 
-    LCD_WR_REG(0xE8);
+    LCD_WR_REG(0xE8); // 帧率
     LCD_WR_DATA8(0x34);
 
     LCD_WR_REG(0x66);
@@ -166,11 +161,19 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x32);
     LCD_WR_DATA8(0x98);
 
-    LCD_WR_REG(0x35);
-    LCD_WR_REG(0x21);
+    //     LCD_WR_REG(0x51);//亮度
+    //     LCD_WR_DATA8(0xff);
 
-    LCD_WR_REG(0x11);
-    HAL_Delay(120);
-    LCD_WR_REG(0x29);
-    HAL_Delay(20);
+    LCD_WR_REG(0x34); // 剪切效果线打开0x35，关闭是0x34
+
+    LCD_WR_REG(0x21); // 颜色反转  20是关闭,21是打开
+
+    LCD_WR_REG(0x11); // 退出休眠模式，10是睡眠模式
+
+    LCD_WR_REG(0x29); // 开始显示
+}
+
+void LCD_Initshow()
+{
+    LCD_ShowPicture(0, 0, 240, 232, xinyue);
 }
