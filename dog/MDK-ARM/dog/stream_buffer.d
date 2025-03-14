@@ -1,0 +1,14 @@
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+dog\stream_buffer.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+dog\stream_buffer.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+dog\stream_buffer.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+dog\stream_buffer.o: ../Core/Inc/FreeRTOSConfig.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+dog\stream_buffer.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h

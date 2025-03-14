@@ -1,0 +1,18 @@
+voice_change/controllerfunctions.o: \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\ControllerFunctions.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_init_f32.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Include\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdint.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\math.h \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_init_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_init_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_reset_f32.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_reset_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_pid_reset_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_sin_cos_f32.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Include\arm_common_tables.h \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Include\arm_math.h \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\ControllerFunctions\arm_sin_cos_q31.c

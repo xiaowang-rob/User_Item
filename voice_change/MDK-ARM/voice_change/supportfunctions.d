@@ -1,0 +1,28 @@
+voice_change/supportfunctions.o: \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\SupportFunctions.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_copy_f32.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Include\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdint.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\math.h \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_copy_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_copy_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_copy_q7.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_fill_f32.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_fill_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_fill_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_fill_q7.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_float_to_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_float_to_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_float_to_q7.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q15_to_float.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q15_to_q31.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q15_to_q7.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q31_to_float.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q31_to_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q31_to_q7.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q7_to_float.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q7_to_q15.c \
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\DSP\Source\SupportFunctions\arm_q7_to_q31.c

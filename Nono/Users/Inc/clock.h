@@ -1,6 +1,6 @@
 
 #include "main.h"
-
+#include "stdbool.h"
 typedef struct TimeData
 {
 
@@ -15,8 +15,8 @@ typedef struct TimeData
     
 } clock_data;
 
-void clock_init(clock_data *time);                 // 获取WiFi时间对RTC_time结构体初始化
-void clock_calibration(clock_data *Time_Standard); // 固定时间对RTC time时间进行校准
-void clock_run_time(clock_data *time);             // 显示时分
-void clock_run_date(clock_data *time);             // 显示年月日周
-void clock_run_second(clock_data *time);           // 显示秒
+bool clock_init();                                 // 获取WiFi时间对RTC_time结构体初始化
+void clock_calibration(); // 固定时间对RTC time时间进行校准
+void clock_run_time();                             // 显示时分
+void clock_run_date();                             // 显示年月日周
+void clock_run_second();                           // 显示秒

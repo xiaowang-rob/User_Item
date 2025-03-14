@@ -65,6 +65,8 @@ void LCD_Address_Set(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 
 void LCD_Init(void)
 {
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // 打开背光控制PWM输出
+
     LCD_RES_Clr(); // 复位
     HAL_Delay(100);
     LCD_RES_Set();
@@ -161,9 +163,6 @@ void LCD_Init(void)
     LCD_WR_DATA8(0x32);
     LCD_WR_DATA8(0x98);
 
-    //     LCD_WR_REG(0x51);//亮度
-    //     LCD_WR_DATA8(0xff);
-
     LCD_WR_REG(0x34); // 剪切效果线打开0x35，关闭是0x34
 
     LCD_WR_REG(0x21); // 颜色反转  20是关闭,21是打开
@@ -171,6 +170,8 @@ void LCD_Init(void)
     LCD_WR_REG(0x11); // 退出休眠模式，10是睡眠模式
 
     LCD_WR_REG(0x29); // 开始显示
+
+    LCD_Fill(0, 0, 240, 240, BLACK);
 }
 
 void LCD_Initshow()

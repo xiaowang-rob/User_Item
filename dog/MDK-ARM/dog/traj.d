@@ -1,0 +1,10 @@
+dog\traj.o: ..\DogControl\src\traj.c
+dog\traj.o: ../DogControl/inc/traj.h
+dog\traj.o: ../Middlewares/ST/ARM/DSP/Inc/arm_math.h
+dog\traj.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
+dog\traj.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+dog\traj.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
+dog\traj.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+dog\traj.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+dog\traj.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\float.h
+dog\traj.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h

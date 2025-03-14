@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp.sp
+--cpu=Cortex-M4.fp
 "nono\startup_stm32f405xx.o"
 "nono\main.o"
 "nono\gpio.o"
@@ -36,7 +36,10 @@
 "nono\tft_init.o"
 "nono\voide_control.o"
 "nono\clock.o"
---strict --scatter "Nono\Nono.sct"
+"nono\led.o"
+"nono\bt_wifi_voice.o"
+"nono\general_control.o"
+--library_type=microlib --strict --scatter "Nono\Nono.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "Nono.map" -o Nono\Nono.axf

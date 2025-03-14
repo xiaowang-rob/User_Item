@@ -1,0 +1,12 @@
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+dog\port.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+dog\port.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+dog\port.o: ../Core/Inc/FreeRTOSConfig.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+dog\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h

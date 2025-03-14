@@ -1,0 +1,81 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.28.0.0
+Copyright (C) 2019 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 11 11, 11, LIC=SDA0P-MS3AX-DY6V3-AQ35A-TU5XH-SR48H
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.28.0.0
+Toolchain Path:  A:\Keil\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.28.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      Segger\JL2CM3.dll V2.99.36.0
+Dialog DLL:      TCM.DLL V1.36.2.0
+ 
+<h2>Project:</h2>
+A:\Downloads\qq\dog\MDK-ARM\dog.uvprojx
+Project File Date:  03/04/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'A:\Keil\Keil_v5\ARM\ARMCC\Bin'
+Build target 'dog'
+compiling main.c...
+../DogControl/inc/traj.h(15): warning:  #1-D: last line of file ends without a newline
+  void Cycloid(float *x, float *y, float H, float L, float x0, float y0, float t, float Nonlinear);
+../User/inc/leg.h(4): warning:  #1295-D: Deprecated declaration PWM_turn_init - give arg types
+  bool PWM_turn_init();
+../User/inc/leg.h(11): warning:  #1295-D: Deprecated declaration LEG_move_down - give arg types
+  bool LEG_move_down();
+../DogControl/inc/body.h(24): warning:  #1295-D: Deprecated declaration BodyInit - give arg types
+  void BodyInit();
+../User/inc/LED.h(4): warning:  #1295-D: Deprecated declaration LED_free - give arg types
+  void LED_free();
+../User/inc/LED.h(5): warning:  #1-D: last line of file ends without a newline
+  void LGB_mode_1();
+../User/inc/LED.h(5): warning:  #1295-D: Deprecated declaration LGB_mode_1 - give arg types
+  void LGB_mode_1();
+../User/inc/leg.h(4): warning:  #1295-D: Deprecated declaration PWM_turn_init - give arg types
+  bool PWM_turn_init();
+../User/inc/leg.h(11): warning:  #1295-D: Deprecated declaration LEG_move_down - give arg types
+  bool LEG_move_down();
+../Core/Src/main.c(236): warning:  #940-D: missing return statement at end of non-void function "PWM_turn" 
+  }
+../Core/Src/main.c: 10 warnings, 0 errors
+linking...
+Program Size: Code=15002 RO-data=458 RW-data=124 ZI-data=5172  
+FromELF: creating hex file...
+"dog\dog.axf" - 0 Error(s), 10 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.5.1.pack
+                ARM.CMSIS.5.5.1
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.2.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.STM32F4xx_DFP.2.13.0.pack
+                Keil.STM32F4xx_DFP.2.13.0
+                STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_dog
+  A:\Keil\Arm\Packs\ARM\CMSIS\5.5.1\CMSIS\Core\Include
+  A:\Keil\Arm\Packs\Keil\STM32F4xx_DFP\2.13.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.2.0
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>

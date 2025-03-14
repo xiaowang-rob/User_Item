@@ -2,91 +2,78 @@
 #include "tft.h"
 #include "rtc.h"
 #include "TFT_init.h"
-/******************************************************************************
-      º¯ÊýËµÃ÷£ºÊ±ÖÓÊý¾Ý³õÊ¼»¯
-      Èë¿ÚÊý¾Ý£ºtime ´¢´æÊ±¼äÈÕÆÚµÄ½á¹¹Ìå
-      ·µ»ØÖµ£º  ÎÞ
-******************************************************************************/
-void clock_init(clock_data *time)
-{
-    RTC_TimeTypeDef time_standard;
-    RTC_DateTypeDef date_standard;
-    HAL_RTC_GetDate(&hrtc, &date_standard, RTC_FORMAT_BIN);
-    HAL_RTC_GetTime(&hrtc, &time_standard, RTC_FORMAT_BIN);
+#include "bt_wifi_voice.h"
+RTC_TimeTypeDef RTC_Time; // æ—¶é—´æ•°æ®ç»“æž„ä½“å˜é‡?
+RTC_DateTypeDef RTC_Date;
 
-    //    time->year = date_standard.Year;
-    //    time->month = date_standard.Month;
-    //    time->day = date_standard.Date;
-    //    time->week = date_standard.WeekDay;
-    //    time->hour = time_standard.Hours;
-    //    time->minute = time_standard.Minutes;
-    //    time->second = time_standard.Seconds;
+/******************************************************************************
+      å‡½æ•°è¯´æ˜Žï¼šæ—¶é’Ÿæ•°æ®åˆå§‹åŒ–
+      å…¥å£æ•°æ®ï¼šTime å‚¨å­˜æ—¶é—´æ—¥æœŸçš„ç»“æž„ä½“
+      è¿”å›žå€¼ï¼š æ— 
+******************************************************************************/
+bool clock_init()
+{
+    clock_calibration();
+    return true;
 }
 /******************************************************************************
-      º¯ÊýËµÃ÷£º¶¨Ê±ÓÃWiFi»ñÈ¡UTFÊ±¼ä¶ÔrtcÊ±ÖÓ½á¹¹ÌåÐ£×¼
-      Èë¿ÚÊý¾Ý£ºtime ´¢´æÊ±¼äÈÕÆÚµÄ½á¹¹Ìå
-      ·µ»ØÖµ£º  ÎÞ
+      å‡½æ•°è¯´æ˜Žï¼šå®šæ—¶ç”¨WiFièŽ·å–UTFæ—¶é—´å¯¹rtcæ—¶é’Ÿç»“æž„ä½“æ ¡éªŒ?
+      å…¥å£æ•°æ®ï¼šTime å‚¨å­˜æ—¶é—´æ—¥æœŸçš„ç»“æž„ä½“
+      è¿”å›žå€¼ï¼š  æ— 
 ******************************************************************************/
-void clock_calibration(clock_data *time)
+void clock_calibration()
 {
+    ESP32_SntpSetRtc();	
 }
 /******************************************************************************
-      º¯ÊýËµÃ÷£ºÏÔÊ¾Ê±·Ö
-      Èë¿ÚÊý¾Ý£ºtime ´¢´æÊ±¼äÈÕÆÚµÄ½á¹¹Ìå
-      ·µ»ØÖµ£º  ÎÞ
+      å‡½æ•°è¯´æ˜Žï¼šæ˜¾ç¤ºæ—¶é—´
+      å…¥å£æ•°æ®ï¼šTime å‚¨å­˜æ—¶é—´æ—¥æœŸçš„ç»“æž„ä½“
+      è¿”å›žå€¼ï¼š  æ— 
 ******************************************************************************/
-void clock_run_time(clock_data *time)
+void clock_run_time()
 {
-    uint16_t i = time->minute;
-    RTC_TimeTypeDef time_standard;
-    HAL_RTC_GetTime(&hrtc, &time_standard, RTC_FORMAT_BIN);
-    time->hour = time_standard.Hours;
-    time->minute = time_standard.Minutes;
-    if (time->second != i)
+    uint16_t refresh = RTC_Time.Minutes;
+    HAL_RTC_GetDate(&hrtc, &RTC_Date, RTC_FORMAT_BIN);
+    HAL_RTC_GetTime(&hrtc, &RTC_Time, RTC_FORMAT_BIN);
+    if (RTC_Time.Minutes != refresh)
     {
         LCD_Initshow();
     }
-    LCD_ShowIntNum(40, 88, time_standard.Hours, 2, WHITE, BLACK, 64);
-    LCD_ShowChar(104, 88, (uint8_t)':', BLUE, BLACK, 64, 1);
-    LCD_ShowIntNum(136, 88, time_standard.Minutes, 2, WHITE, BLACK, 64);
+    LCD_ShowIntNum(40, 88, RTC_Time.Hours, 2, BLACK, WHITE, 64);
+    LCD_ShowChar(104, 88, (uint8_t)':', BLUE, WHITE, 64, 1);
+		LCD_ShowIntNum(136, 88, RTC_Time.Minutes/10, 1, BLACK, WHITE, 64);
+    LCD_ShowIntNum(168, 88, RTC_Time.Minutes%10, 1, BLACK, WHITE, 64);
 }
 /******************************************************************************
-      º¯ÊýËµÃ÷£ºÈÕÆÚÏÔÊ¾
-      Èë¿ÚÊý¾Ý£ºtime ´¢´æÊ±¼äÈÕÆÚµÄ½á¹¹Ìå
-      ·µ»ØÖµ£º  ÎÞ
+      å‡½æ•°è¯´æ˜Žï¼šæ—¥æœŸæ˜¾ç¤º?
+      å…¥å£æ•°æ®ï¼šTime å‚¨å­˜æ—¶é—´æ—¥æœŸçš„ç»“æž„ä½“
+      è¿”å›žå€¼ï¼š  æ— 
 ******************************************************************************/
-void clock_run_date(clock_data *time)
+void clock_run_date()
 {
-    RTC_DateTypeDef date_standard;
-    HAL_RTC_GetDate(&hrtc, &date_standard, RTC_FORMAT_BIN);
-    time->year = date_standard.Year;
-    time->month = date_standard.Month;
-    time->day = date_standard.Date;
-    time->week = date_standard.WeekDay;
-    LCD_ShowIntNum(24, 24, 20, 2, WHITE, BLACK, 64);
-    LCD_ShowIntNum(88, 24, date_standard.Year, 2, WHITE, BLACK, 64);
-    LCD_ShowChinese64x64(152, 24, (uint8_t *)"Äê", BLUE, BLACK, 64, 1);
-    LCD_ShowIntNum(56, 88, time->month, 2, WHITE, BLACK, 64);
-    LCD_ShowChinese64x64(120, 88, (uint8_t *)"ÔÂ", BLUE, BLACK, 64, 1);
-    LCD_ShowIntNum(56, 152, time->day, 2, WHITE, BLACK, 64);
-    LCD_ShowChinese64x64(120, 152, (uint8_t *)"ÈÕ", BLUE, BLACK, 64, 1);
+    HAL_RTC_GetDate(&hrtc, &RTC_Date, RTC_FORMAT_BIN);
+    HAL_RTC_GetTime(&hrtc, &RTC_Time, RTC_FORMAT_BIN);
+    LCD_ShowIntNum(72, 24, 20, 2, BLACK, WHITE, 32);
+    LCD_ShowIntNum(104, 24, RTC_Date.Year, 2, BLACK, WHITE, 32);
+    LCD_ShowChinese32x32(136, 24, (uint8_t *)"å¹´", BLUE, WHITE, 32, 1);
+    LCD_ShowIntNum(56, 152, RTC_Date.Month, 2, BLACK, WHITE, 32);
+    LCD_ShowChinese32x32(88, 152, (uint8_t *)"æœˆ", BLUE, WHITE, 32, 1);
+    LCD_ShowIntNum(120, 152, RTC_Date.Date, 2, BLACK, WHITE, 32);
+    LCD_ShowChinese32x32(152, 152, (uint8_t *)"æ—¥", BLUE, WHITE, 32, 1);
 }
 /******************************************************************************
-      º¯ÊýËµÃ÷£ºÃëµÄÏÔÊ¾
-      Èë¿ÚÊý¾Ý£ºtime ´¢´æÊ±¼äÈÕÆÚµÄ½á¹¹Ìå
-      ·µ»ØÖµ£º  ÎÞ
+      å‡½æ•°è¯´æ˜Žï¼šç§’çš„æ˜¾ç¤º?
+      å…¥å£æ•°æ®ï¼šTime å‚¨å­˜æ—¶é—´æ—¥æœŸçš„ç»“æž„ä½“
+      è¿”å›žå€¼ï¼š   æ— 
 ******************************************************************************/
-void clock_run_second(clock_data *time)
+void clock_run_second()
 {
-    uint16_t i = time->second;
-    RTC_TimeTypeDef time_standard;
-    RTC_DateTypeDef date_standard;
-    HAL_RTC_GetDate(&hrtc, &date_standard, RTC_FORMAT_BIN);
-    HAL_RTC_GetTime(&hrtc, &time_standard, RTC_FORMAT_BIN);
-    time->second = time_standard.Seconds;
-    if (time->second != i)
+    uint16_t refresh = RTC_Time.Seconds;
+    HAL_RTC_GetDate(&hrtc, &RTC_Date, RTC_FORMAT_BIN);
+    HAL_RTC_GetTime(&hrtc, &RTC_Time, RTC_FORMAT_BIN);
+    if (RTC_Time.Seconds != refresh)
     {
         LCD_Initshow();
     }
-    LCD_ShowIntNum(88, 88, time->second, 2, WHITE, BLACK, 64);
+    LCD_ShowIntNum(88, 88, RTC_Time.Seconds, 2, BLACK, WHITE, 64);
 }

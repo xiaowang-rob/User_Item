@@ -11,6 +11,9 @@
         "voide_control.h": "c",
         "spi.h": "c",
         "usart.h": "c",
-        "bt.h": "c"
-    }
+        "bt.h": "c",
+        "compare": "c",
+        "stdint.h": "c"
+    },
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

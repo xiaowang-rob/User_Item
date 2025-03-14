@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "arm_math.h": "c"
+    },
+    "cmake.sourceDirectory": "D:/CubeMX_project/voice_change/Drivers/CMSIS/DSP/Source/FastMathFunctions"
+}

@@ -1,0 +1,16 @@
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+dog\tasks.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+dog\tasks.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+dog\tasks.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+dog\tasks.o: A:\Keil\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+dog\tasks.o: ../Core/Inc/FreeRTOSConfig.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+dog\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stack_macros.h
