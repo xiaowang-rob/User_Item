@@ -49,4 +49,5 @@ voice_change/usb_buffer_part.o: ..\User\Src\usb_buffer_part.c \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_core.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ioreq.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h \
-  ..\Core\Inc\i2s.h ..\Core\Inc\main.h
+  ..\User\Inc\I2S_MC.h ..\USB_DEVICE\App\usb_device.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h

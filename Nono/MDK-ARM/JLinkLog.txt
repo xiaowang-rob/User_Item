@@ -1,24 +1,13 @@
-T4290 007:075.893   SEGGER J-Link V7.98c Log File
-T4290 007:076.008   DLL Compiled: Aug  7 2024 15:37:06
-T4290 007:076.019   Logging started @ 2025-01-18 08:18
-T4290 007:076.029   Process: A:\Keil5\UV4\UV4.exe
-T4290 007:076.044 - 7076.040ms
-T4290 007:076.061 JLINK_SetWarnOutHandler(...)
-T4290 007:076.072 - 0.012ms
-T4290 007:076.087 JLINK_OpenEx(...)
-T4290 007:077.501   
-  ***** Error: 
-T4290 007:077.526   Cannot connect to J-Link.
-T4290 007:077.582 - 1.495ms returns "Cannot connect to J-Link."
-T4290 007:077.733 
-  ***** Warning: 
-T4290 007:077.761 API Error: API JLINK_GetHardwareVersion function called before JLINKARM_Open()
-T4290 007:077.780 JLINK_GetHardwareVersion()
-T4290 007:078.813   
-  ***** Error: 
-T4290 007:078.948   Cannot connect to J-Link.
-T4290 007:078.971 - 1.191ms
-T4290 016:924.910 JLINK_Close()
-T4290 016:924.994 - 0.083ms
-T4290 016:924.998   
-T4290 016:925.002   Closed
+
+T31E4 333:962 SEGGER J-Link V6.46 Log File (0000ms, 0003ms total)
+T31E4 333:962 DLL Compiled: May 23 2019 17:49:56 (0000ms, 0003ms total)
+T31E4 333:962 Logging started @ 2025-03-18 20:14 (0000ms, 0003ms total)
+T31E4 333:962 JLINK_SetWarnOutHandler(...) (0000ms, 0003ms total)
+T31E4 333:962 JLINK_OpenEx(...)
+  ***** Error: Cannot connect to J-Link via USB.  returns "Cannot connect to J-Link via USB." (0001ms, 0004ms total)
+
+  ***** API Error: API JLINK_GetHardwareVersion function called before JLINKARM_Open()
+T31E4 333:963 
+  ***** Error: Cannot connect to J-Link via USB.JLINK_Close() (0000ms, 0004ms total)
+T31E4 336:295  (0000ms, 0004ms total)
+T31E4 336:295 Closed (0000ms, 0004ms total)

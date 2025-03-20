@@ -1,9 +1,9 @@
 /**
- *  @file USB_Audio_Port.h
+ *  @file usb_buffer_part.h
  *
- *  @date 2021-06-01
+ *  @date 2025-03-14
  *
- *  @author aron566
+ *  @author xiaowang
  *
  *  @brief
  *
@@ -16,7 +16,7 @@
 #include "main.h"
 /** Exported macros-----------------------------------------------------------*/
 #define AUDIO_PORT_CHANNEL_NUMS 2U        /**< MIC音频通道数*/
-#define MONO_CHANNEL_SEL 2U               /**< 0使用L声道 1使用R声道 2配置MONO*/
+#define MONO_CHANNEL_SEL 1U               /**< 0使用L声道 1使用R声道 2配置MONO*/
 #define AUDIO_PORT_USBD_AUDIO_FREQ 16000U /**< 设置音频采样率*/
 
 /*音频类终端类型定义*/
@@ -35,7 +35,7 @@
 
 #define AUDIO_PORT_IN_EP_DIR_ID 0x81  /**< (Direction=IN EndpointID=1)*/
 #define AUDIO_PORT_OUT_EP_DIR_ID 0x01 /**< (Direction=OUT EndpointID=1)*/
-#define USB_RX_BUF_SIZE_MAX 1024
+// #define USB_RX_BUF_SIZE_MAX 1024
 /*立体声配置*/
 #if AUDIO_PORT_CHANNEL_NUMS == 2
 /*使用L+R声道*/
@@ -74,31 +74,19 @@ extern "C"
 {
 #endif
   /** Private defines ----------------------------------------------------------*/
-  /*环形缓冲区*/
-  typedef struct CQ_BUFFER
-  {
-    uint16_t *pHead;
-    uint16_t *pTail;
-    uint16_t *write;
-    uint16_t *read;
-    uint32_t size;
-  } CQ_handleTypeDef;
-  void I2S_MC_DMA_Init();
-
-  void CQ_16_init(CQ_handleTypeDef *hCq, uint16_t *pBuffer, uint16_t BufferSize);
-  void CQ_16putData(CQ_handleTypeDef *hCq, const uint16_t *data, uint32_t size);
-  void CQ_16getData(CQ_handleTypeDef *hCq, uint16_t *pData, uint32_t size);
-  uint32_t CQ_getLength(CQ_handleTypeDef *hCq);
+  
   /** Exported typedefines -----------------------------------------------------*/
 
   /** Exported constants -------------------------------------------------------*/
 
   /** Exported variables -------------------------------------------------------*/
   /** Exported functions prototypes --------------------------------------------*/
-	/*音频数据传输初始化*/
-	void USB_Audio_Port_Init(void);
+  /*音频数据传输初始化*/
+  void USB_Audio_Port_Init(void); // user
   /*是否可以更新音频数据*/
   bool USB_Audio_Port_Can_Update_Data(void);
+  /*向音频数据区更新双声道音频数据*/
+  void USB_Audio_Port_Put_Data(const int16_t *Left_Audio, const int16_t *Right_Audio);
   /*向USB缓冲区数据加入数据*/
   static inline void USB_Audio_Port_Put_Audio_Data(const int16_t *Data, uint32_t Size);
   /*初始化音频输出端点*/

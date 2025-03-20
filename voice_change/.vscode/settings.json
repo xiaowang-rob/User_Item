@@ -1,6 +1,10 @@
 {
-    "files.associations": {
-        "arm_math.h": "c"
-    },
-    "cmake.sourceDirectory": "D:/CubeMX_project/voice_change/Drivers/CMSIS/DSP/Source/FastMathFunctions"
+  "files.associations": {
+    "arm_math.h": "c",
+    "usbd_audio.h": "c",
+    "compare": "c",
+    "usb_buffer_part.h": "c"
+  },
+  "cmake.sourceDirectory": "D:/CubeMX_project/voice_change/Drivers/CMSIS/DSP/Source/FastMathFunctions",
+  "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

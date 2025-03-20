@@ -37,7 +37,6 @@ void LED_run()
         RED_pwm(0);
         HAL_Delay(100);
         break;
-
     default:
         break;
     }

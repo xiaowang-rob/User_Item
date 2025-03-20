@@ -52,7 +52,6 @@ void MX_I2S2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN I2S2_Init 2 */
-  I2S_MC_DMA_Init();
   /* USER CODE END I2S2_Init 2 */
 
 }
@@ -109,9 +108,9 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
     hdma_spi2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_spi2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_spi2_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_spi2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_spi2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_spi2_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_spi2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_spi2_rx.Init.Mode = DMA_NORMAL;
     hdma_spi2_rx.Init.Priority = DMA_PRIORITY_HIGH;
     hdma_spi2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_spi2_rx) != HAL_OK)

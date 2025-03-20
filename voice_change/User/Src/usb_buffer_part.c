@@ -10,7 +10,7 @@
  *  @brief USB音频类接口，对外提供音频更新及输出接口
  *
  *  @details 1、开启对应FS中断，中断处理和初始化位于usbd_conf.c
- *           2、16k采样，双声道，10ms出320点数据
+ *           2、16k采样，单声道，10ms出320点数据
  *           3、1ms间隔发送，10ms发送10次，每次发送320/10 = 32点数据 数据大小64字节（16bit*32）
  *           4、接收来自MIC数据，10ms来一次每次双通道160点*2
  *  @version V1.0
@@ -19,7 +19,8 @@
 /* Private includes ----------------------------------------------------------*/
 #include "usb_buffer_part.h"
 #include "usbd_audio.h"
-#include "i2s.h"
+#include "I2S_MC.h"
+#include "usb_device.h"
 /** Use C compiler -----------------------------------------------------------*/
 #ifdef __cplusplus ///< use C compiler
 extern "C"
@@ -27,8 +28,8 @@ extern "C"
 #endif
 /** Private typedef ----------------------------------------------------------*/
 /** Private macros -----------------------------------------------------------*/
-// #define USB_RX_BUF_SIZE_MAX 1024 /**< 接收缓冲区设置1024*2Bytes*/
-#define STEREO_FRAME_SIZE 1024
+#define USB_RX_BUF_SIZE_MAX 1024 /**< 接收缓冲区设置1024*2Bytes*/
+#define STEREO_FRAME_SIZE STEREO_PCM_FRAME_SIZE*2U   // 音频数据存储大小
 
 #define USB_PORT_AUDIO_OUT_PACKET AUDIO_PORT_OUT_SIZE /**< 一次发送大小字节数*/
 #define USB_PORT_AUDIO_BUF_SIZE AUDIO_TOTAL_BUF_SIZE
@@ -38,86 +39,12 @@ extern "C"
   /** Public variables ---------------------------------------------------------*/
   /** Private variables --------------------------------------------------------*/
   /*音频缓冲区*/
-  static CQ_handleTypeDef USB_Audio_Data_Handle;
+  CQ_handleTypeDef USB_Audio_Data_Handle;
   static int16_t USB_Audio_Receive_Buf[STEREO_FRAME_SIZE] = {0};
   static uint16_t USB_Audio_Send_Buf[USB_RX_BUF_SIZE_MAX];
   /** Private function prototypes ----------------------------------------------*/
 
   /** Private user code --------------------------------------------------------*/
-
-
-  void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
-  {
-    if (hi2s == &hi2s2)
-    {
-      USB_Audio_Port_Put_Audio_Data(USB_Audio_Receive_Buf, 4);
-    }
-  }
-
-  void I2S_MC_DMA_Init()
-  {
-    HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)USB_Audio_Receive_Buf, 4);
-  }
-	  /**
-   ******************************************************************
-   * @brief   环形缓冲区函数声名
-   * @param   [in]None.
-   * @return  None.
-   * @author  xiaowang
-   * @version V2.0
-   * @date    2025-3-13
-   ******************************************************************
-   */
-  void CQ_16_init(CQ_handleTypeDef *hCq, uint16_t *pBuffer, uint16_t BufferSize)
-  {
-    hCq->pHead = pBuffer;
-    hCq->pTail = pBuffer + BufferSize;
-    hCq->read = pBuffer;
-    hCq->write = pBuffer;
-    hCq->size = 0;
-  }
-  void CQ_16putData(CQ_handleTypeDef *hCq, const uint16_t *data, uint32_t size)
-  {
-
-    if (hCq->size + size < USB_RX_BUF_SIZE_MAX)
-    {
-      for (int i = 0; i < size; i++)
-      {
-        if (hCq->write >= hCq->pTail)
-        {
-          hCq->write = hCq->pHead;
-        }
-        *(hCq->write) = *(data);
-        hCq->write++;
-        data++;
-      }
-      hCq->size += size;
-    }
-  }
-
-  void CQ_16getData(CQ_handleTypeDef *hCq, uint16_t *pData, uint32_t size)
-  {
-    if (hCq->size - size >= 0)
-    {
-      for (int i = 0; i < size; i++)
-      {
-        if (hCq->read >= hCq->pTail)
-        {
-          hCq->read = hCq->pHead;
-        }
-        *(pData) = *(hCq->read);
-				*(hCq->read)=0;
-        hCq->read++;
-        pData++;
-      }
-      hCq->size -= size;
-
-    }
-  }
-  uint32_t CQ_getLength(CQ_handleTypeDef *hCq)
-  {
-    return hCq->size;
-  }
 
   /**
    ******************************************************************
@@ -460,7 +387,7 @@ extern "C"
    */
   bool USB_Audio_Port_Can_Update_Data(void)
   {
-    if (USB_Audio_Data_Handle.size - CQ_getLength(&USB_Audio_Data_Handle) >= STEREO_FRAME_SIZE)
+    if (USB_Audio_Data_Handle.size - CQ_getLength(&USB_Audio_Data_Handle) >STEREO_FRAME_SIZE)
     {
       return true;
     }

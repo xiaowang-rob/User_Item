@@ -22,13 +22,11 @@ Dialog DLL:      TCM.DLL V1.36.2.0
  
 <h2>Project:</h2>
 A:\Git repositories\Embedded-Code\Embedded-Code\Nono\MDK-ARM\Nono.uvprojx
-Project File Date:  03/10/2025
+Project File Date:  03/18/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.12', folder: 'A:\Keil\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Nono'
-assembling startup_stm32f405xx.s...
-compiling gpio.c...
 ../Core/Src/freertos.c(21): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include\FreeRTOS.h(62): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h(52): error: 'portmacro.h' file not found
@@ -44,1193 +42,107 @@ compiling freertos.c...
                  ^~~~~~~~~~~~~
 1 error generated.
 compiling main.c...
-../Core/Src/adc.c(21): warning: In file included from...
-../Core/Inc\adc.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(86): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfConversion' [-Wpadded]
-  uint32_t NbrOfConversion;              /*!< Specifies the number of ranks that will be converted within the regular group sequencer.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(93): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfDiscConversion' [-Wpadded]
-  uint32_t NbrOfDiscConversion;          /*!< Specifies the number of discontinuous conversions in which the  main sequence of regular group (parameter NbrOfConversion) will be subdivided.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(59): warning: padding size of 'ADC_InitTypeDef' with 3 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(208): warning: padding struct 'ADC_HandleTypeDef' with 3 bytes to align 'State' [-Wpadded]
-  __IO uint32_t                 State;                       /*!< ADC communication state */
-                                ^
-../Core/Src/adc.c(21): warning: In file included from...
-../Core/Inc\adc.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-5 warnings generated.
-compiling adc.c...
-../Core/Src/rtc.c(21): warning: In file included from...
-../Core/Inc\rtc.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(391): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(165): warning: padding size of 'RTC_HandleTypeDef' with 2 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-1 warning generated.
 compiling rtc.c...
-../Core/Src/spi.c(21): warning: In file included from...
-../Core/Inc\spi.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(403): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_spi.h(134): warning: padding struct 'struct __SPI_HandleTypeDef' with 2 bytes to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
-                             ^
-../Core/Src/spi.c(21): warning: In file included from...
-../Core/Inc\spi.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-2 warnings generated.
+compiling adc.c...
+compiling gpio.c...
 compiling spi.c...
-../Core/Src/tim.c(21): warning: In file included from...
-../Core/Inc\tim.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Core/Src/tim.c(21): warning: In file included from...
-../Core/Inc\tim.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-3 warnings generated.
 compiling tim.c...
-../Core/Src/usart.c(21): warning: In file included from...
-../Core/Inc\usart.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(411): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_uart.h(195): warning: padding struct 'struct __UART_HandleTypeDef' with 1 byte to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
-                                ^
-../Core/Src/usart.c(21): warning: In file included from...
-../Core/Inc\usart.h(29): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-2 warnings generated.
-compiling usart.c...
-../Core/Src/stm32f4xx_it.c(74): warning: function 'NMI_Handler' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Core/Src/stm32f4xx_it.c(89): warning: function 'HardFault_Handler' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Core/Src/stm32f4xx_it.c(104): warning: function 'MemManage_Handler' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Core/Src/stm32f4xx_it.c(119): warning: function 'BusFault_Handler' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Core/Src/stm32f4xx_it.c(134): warning: function 'UsageFault_Handler' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Core/Src/stm32f4xx_it.c(21): warning: In file included from...
-../Core/Inc\main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Core/Src/stm32f4xx_it.c(21): warning: In file included from...
-../Core/Inc\main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Core/Src/stm32f4xx_it.c(21): warning: In file included from...
-../Core/Inc\main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(411): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_uart.h(195): warning: padding struct 'struct __UART_HandleTypeDef' with 1 byte to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
-                                ^
-9 warnings generated.
-compiling stm32f4xx_it.c...
 compiling stm32f4xx_hal_msp.c...
-../Core/Src/stm32f4xx_hal_timebase_tim.c(21): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Core/Src/stm32f4xx_hal_timebase_tim.c(21): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Core/Src/stm32f4xx_hal_timebase_tim.c(28): warning: no previous extern declaration for non-static variable 'htim1' [-Wmissing-variable-declarations]
-TIM_HandleTypeDef        htim1;
-                         ^
-4 warnings generated.
+compiling stm32f4xx_it.c...
+compiling usart.c...
 compiling stm32f4xx_hal_timebase_tim.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c(248): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(86): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfConversion' [-Wpadded]
-  uint32_t NbrOfConversion;              /*!< Specifies the number of ranks that will be converted within the regular group sequencer.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(93): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfDiscConversion' [-Wpadded]
-  uint32_t NbrOfDiscConversion;          /*!< Specifies the number of discontinuous conversions in which the  main sequence of regular group (parameter NbrOfConversion) will be subdivided.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(59): warning: padding size of 'ADC_InitTypeDef' with 3 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(208): warning: padding struct 'ADC_HandleTypeDef' with 3 bytes to align 'State' [-Wpadded]
-  __IO uint32_t                 State;                       /*!< ADC communication state */
-                                ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c(248): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c(1752): warning: code will never be executed [-Wunreachable-code]
-      tmpADC_Common->CCR &= ~ADC_CCR_VBATE;
-      ^~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c(1739): warning: code will never be executed [-Wunreachable-code]
-      tmpADC_Common->CCR &= ~ADC_CCR_TSVREFE;
-      ^~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c(248): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(152): warning: padding struct 'ADC_AnalogWDGConfTypeDef' with 3 bytes to align 'WatchdogNumber' [-Wpadded]
-  uint32_t WatchdogNumber;    /*!< Reserved for future use, can be set to 0 */
-           ^
-8 warnings generated.
-compiling stm32f4xx_hal_adc.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c(86): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(86): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfConversion' [-Wpadded]
-  uint32_t NbrOfConversion;              /*!< Specifies the number of ranks that will be converted within the regular group sequencer.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(93): warning: padding struct 'ADC_InitTypeDef' with 3 bytes to align 'NbrOfDiscConversion' [-Wpadded]
-  uint32_t NbrOfDiscConversion;          /*!< Specifies the number of discontinuous conversions in which the  main sequence of regular group (parameter NbrOfConversion) will be subdivided.
-           ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(59): warning: padding size of 'ADC_InitTypeDef' with 3 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(208): warning: padding struct 'ADC_HandleTypeDef' with 3 bytes to align 'State' [-Wpadded]
-  __IO uint32_t                 State;                       /*!< ADC communication state */
-                                ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c(86): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c(86): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_adc.h(554): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h(96): warning: padding struct 'ADC_InjectionConfTypeDef' with 2 bytes to align 'ExternalTrigInjecConv' [-Wpadded]
-  uint32_t ExternalTrigInjecConv;                /*!< Selects the external event used to trigger the conversion start of injected group.
-           ^
-6 warnings generated.
-compiling stm32f4xx_hal_adc_ex.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c(922): warning: ISO C requires a translation unit to contain at least one declaration [-Wempty-translation-unit]
-^
-1 warning generated.
 compiling stm32f4xx_ll_adc.c...
+compiling stm32f4xx_hal_adc_ex.c...
 compiling stm32f4xx_hal_rcc.c...
+compiling stm32f4xx_hal_adc.c...
 compiling stm32f4xx_hal_rcc_ex.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c(76): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(335): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(60): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'NbSectorsToErase' [-Wpadded]
-  __IO uint32_t               NbSectorsToErase;   /*Internal variable to save the remaining sectors to erase in IT context*/
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(64): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'Sector' [-Wpadded]
-  __IO uint32_t               Sector;             /*Internal variable to define the current sector which is erasing*/
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(72): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t               ErrorCode;          /* FLASH error code                    */
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c(104): warning: no previous extern declaration for non-static variable 'pFlash' [-Wmissing-variable-declarations]
-FLASH_ProcessTypeDef pFlash;
-                     ^
-4 warnings generated.
 compiling stm32f4xx_hal_flash.c...
 compiling stm32f4xx_hal_flash_ramfunc.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(62): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(335): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(60): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'NbSectorsToErase' [-Wpadded]
-  __IO uint32_t               NbSectorsToErase;   /*Internal variable to save the remaining sectors to erase in IT context*/
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(64): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'Sector' [-Wpadded]
-  __IO uint32_t               Sector;             /*Internal variable to define the current sector which is erasing*/
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(72): warning: padding struct 'FLASH_ProcessTypeDef' with 3 bytes to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t               ErrorCode;          /* FLASH error code                    */
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(268): warning: implicit conversion loses integer precision: 'uint32_t' (aka 'unsigned int') to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    FLASH_Erase_Sector(pEraseInit->Sector, pEraseInit->VoltageRange);
-    ~~~~~~~~~~~~~~~~~~                     ~~~~~~~~~~~~^~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(310): warning: implicit conversion loses integer precision: 'uint32_t' (aka 'unsigned int') to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    status = FLASH_OB_RDP_LevelConfig(pOBInit->RDPLevel);
-             ~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~^~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(324): warning: implicit conversion loses integer precision: 'uint32_t' (aka 'unsigned int') to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    status = FLASH_OB_BOR_LevelConfig(pOBInit->BORLevel);
-             ~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~^~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(62): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(335): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_flash.h(295): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h(67): warning: padding size of 'FLASH_OBProgramInitTypeDef' with 3 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(948): warning: unused parameter 'Banks' [-Wunused-parameter]
-static void FLASH_MassErase(uint8_t VoltageRange, uint32_t Banks)
-                                                           ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(1027): warning: unused parameter 'Banks' [-Wunused-parameter]
-static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
-                                                                         ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c(1063): warning: unused parameter 'Banks' [-Wunused-parameter]
-static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
-                                                                          ^
-10 warnings generated.
 compiling stm32f4xx_hal_flash_ex.c...
 compiling stm32f4xx_hal_gpio.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c(39): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-1 warning generated.
 compiling stm32f4xx_hal_dma_ex.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c(289): warning: cast from function call of type 'uint32_t' (aka 'unsigned int') to non-matching type 'DMA_Base_Registers *' [-Wbad-function-cast]
-  regs = (DMA_Base_Registers *)DMA_CalcBaseAndBitshift(hdma);
-                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c(97): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c(351): warning: cast from function call of type 'uint32_t' (aka 'unsigned int') to non-matching type 'DMA_Base_Registers *' [-Wbad-function-cast]
-  regs = (DMA_Base_Registers *)DMA_CalcBaseAndBitshift(hdma);
-                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c(977): warning: enumeration value 'HAL_DMA_XFER_ALL_CB_ID' not explicitly handled in switch [-Wswitch-enum]
-    switch (CallbackID)
-            ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c(1073): warning: default label in switch which covers all enumeration values [-Wcovered-switch-default]
-    default:
-    ^
-5 warnings generated.
 compiling stm32f4xx_hal_dma.c...
 compiling stm32f4xx_hal_pwr.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c(215): warning: function 'HAL_NVIC_SystemReset' could be declared with attribute 'noreturn' [-Wmissing-noreturn]
-{
-^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c(81): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(291): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_cortex.h(52): warning: padding struct 'MPU_Region_InitTypeDef' with 2 bytes to align 'BaseAddress' [-Wpadded]
-  uint32_t               BaseAddress;           /*!< Specifies the base address of the region to protect.                           */
-                         ^
-2 warnings generated.
-compiling stm32f4xx_hal_cortex.c...
 compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_hal_cortex.c...
 compiling stm32f4xx_hal.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c(379): warning: default label in switch which covers all enumeration values [-Wcovered-switch-default]
-    default:
-    ^
-1 warning generated.
 compiling stm32f4xx_hal_exti.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc.c(185): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(391): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(165): warning: padding size of 'RTC_HandleTypeDef' with 2 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(155): warning: padding struct 'RTC_AlarmTypeDef' with 3 bytes to align 'Alarm' [-Wpadded]
-  uint32_t Alarm;                /*!< Specifies the alarm .
-           ^
-2 warnings generated.
 compiling stm32f4xx_hal_rtc.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rtc_ex.c(126): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(391): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(165): warning: padding size of 'RTC_HandleTypeDef' with 2 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-1 warning generated.
 compiling stm32f4xx_hal_rtc_ex.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(200): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(403): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_spi.h(134): warning: padding struct 'struct __SPI_HandleTypeDef' with 2 bytes to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
-                             ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(200): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(836): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(846): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-        hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(1038): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-        *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)hspi->Instance->DR;
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(1213): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(1231): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-        hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(1249): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-        *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)hspi->Instance->DR;
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(1303): warning: implicit conversion loses integer precision: 'volatile uint32_t' (aka 'volatile unsigned int') to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-        (*(uint8_t *)hspi->pRxBuffPtr) = hspi->Instance->DR;
-                                       ~ ~~~~~~~~~~~~~~~~^~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(3230): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-  *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)(hspi->Instance->DR);
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(3286): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-  hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(3401): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-  *((uint16_t *)hspi->pRxBuffPtr) = (uint16_t)(hspi->Instance->DR);
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c(3460): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-  hspi->Instance->DR = *((const uint16_t *)hspi->pTxBuffPtr);
-                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-13 warnings generated.
 compiling stm32f4xx_hal_spi.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c(81): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c(81): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-3 warnings generated.
-compiling stm32f4xx_hal_tim_ex.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c(186): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c(186): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-3 warnings generated.
-compiling stm32f4xx_hal_tim.c...
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(258): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(411): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_uart.h(195): warning: padding struct 'struct __UART_HandleTypeDef' with 1 byte to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
-                                ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(258): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(1162): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      pdata16bits = (const uint16_t *) pData;
-                    ^~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(1249): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      pdata16bits = (uint16_t *) pData;
-                    ^~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(1618): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      pdata16bits = (uint16_t *) pData;
-                    ^~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(3538): warning: cast from 'const uint8_t *' (aka 'const unsigned char *') to 'const uint16_t *' (aka 'const unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      tmp = (const uint16_t *) huart->pTxBuffPtr;
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c(3605): warning: cast from 'uint8_t *' (aka 'unsigned char *') to 'uint16_t *' (aka 'unsigned short *') increases required alignment from 1 to 2 [-Wcast-align]
-      pdata16bits = (uint16_t *) huart->pRxBuffPtr;
-                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-7 warnings generated.
-compiling stm32f4xx_hal_uart.c...
 compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_tim.c...
+compiling stm32f4xx_hal_uart.c...
 compiling voide_control.c...
-../Users/Src/TFT.c(1): warning: In file included from...
-../Users/Inc\TFT.h(50): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
 ../Users/Src/TFT.c(3): warning: In file included from...
-../Users/Inc\Words.h(4): warning: no previous extern declaration for non-static variable 'ascii_1206' [-Wmissing-variable-declarations]
-const unsigned char ascii_1206[][12] = {
-                    ^
-../Users/Inc\Words.h(103): warning: no previous extern declaration for non-static variable 'ascii_1608' [-Wmissing-variable-declarations]
-const unsigned char ascii_1608[][16] = {
-                    ^
-../Users/Inc\Words.h(200): warning: no previous extern declaration for non-static variable 'ascii_2412' [-Wmissing-variable-declarations]
-const unsigned char ascii_2412[][48] = {
-                    ^
-../Users/Inc\Words.h(298): warning: no previous extern declaration for non-static variable 'ascii_3216' [-Wmissing-variable-declarations]
-const unsigned char ascii_3216[][64] = {
-                    ^
-../Users/Inc\Words.h(396): warning: no previous extern declaration for non-static variable 'ascii_6432' [-Wmissing-variable-declarations]
-const unsigned char ascii_6432[][256] =
-                    ^
 ../Users/Inc\Words.h(502): warning: initializer-string for char array is too long
     "��", 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFE, 0x03, 0x22, 0x02, 0x22, 0x02, 0x22, 0x02, 0xFE, 0x03,
     ^~~~
-../Users/Inc\Words.h(502): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFE, 0x03, 0x22, 0x02, 0x22, 0x02, 0x22, 0x02, 0xFE, 0x03,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(502): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFE, 0x03, 0x22, 0x02, 0x22, 0x02, 0x22, 0x02, 0xFE, 0x03,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(504): warning: initializer-string for char array is too long
     "��", 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x20, 0x00, 0xFF, 0x07, 0x04, 0x01,
     ^~~~
-../Users/Inc\Words.h(504): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x20, 0x00, 0xFF, 0x07, 0x04, 0x01,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(504): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x04, 0x01, 0xFC, 0x01, 0x20, 0x00, 0xFF, 0x07, 0x04, 0x01,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(506): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0xFE, 0x07, 0x02, 0x04, 0xFA, 0x04, 0x02, 0x04, 0x02, 0x04, 0xFE, 0x05, 0x52, 0x04, 0x52, 0x04,
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                {
-../Users/Inc\Words.h(506): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0xFE, 0x07, 0x02, 0x04, 0xFA, 0x04, 0x02, 0x04, 0x02, 0x04, 0xFE, 0x05, 0x52, 0x04, 0x52, 0x04,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(508): warning: initializer-string for char array is too long
     "��", 0x10, 0x00, 0x10, 0x00, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01,
     ^~~~
-../Users/Inc\Words.h(508): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x10, 0x00, 0x10, 0x00, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(508): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x10, 0x00, 0x10, 0x00, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01, 0xFF, 0x01, 0x11, 0x01, 0x11, 0x01,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(510): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0xFC, 0x01, 0x80, 0x00, 0x40, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFF, 0x07, 0x20, 0x00,
     ^~~~
-../Users/Inc\Words.h(510): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0xFC, 0x01, 0x80, 0x00, 0x40, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFF, 0x07, 0x20, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(510): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0xFC, 0x01, 0x80, 0x00, 0x40, 0x00, 0x20, 0x00, 0x20, 0x00, 0xFF, 0x07, 0x20, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(501): warning: no previous extern declaration for non-static variable 'tfont12' [-Wmissing-variable-declarations]
-const typFNT_GB12 tfont12[] = {
-                  ^
 ../Users/Inc\Words.h(523): warning: initializer-string for char array is too long
     "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10,
     ^~~~
-../Users/Inc\Words.h(523): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(523): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(525): warning: initializer-string for char array is too long
     "��", 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x80, 0x00, 0xFF, 0x7F, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(525): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x80, 0x00, 0xFF, 0x7F, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(525): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x08, 0x08, 0xF8, 0x0F, 0x80, 0x00, 0xFF, 0x7F, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(527): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0x00, 0x00, 0xFE, 0x3F, 0x02, 0x20, 0xF2, 0x27, 0x02, 0x20, 0x02, 0x20, 0xFA, 0x2F, 0x22, 0x21,
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                {
-../Users/Inc\Words.h(527): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0x00, 0x00, 0xFE, 0x3F, 0x02, 0x20, 0xF2, 0x27, 0x02, 0x20, 0x02, 0x20, 0xFA, 0x2F, 0x22, 0x21,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(529): warning: initializer-string for char array is too long
     "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10, 0xFC, 0x1F,
     ^~~~
-../Users/Inc\Words.h(529): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10, 0xFC, 0x1F,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(529): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10, 0xFC, 0x1F,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(531): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0xFE, 0x1F, 0x00, 0x08, 0x00, 0x04, 0x00, 0x02, 0x80, 0x01, 0x80, 0x00, 0xFF, 0x7F,
     ^~~~
-../Users/Inc\Words.h(531): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0xFE, 0x1F, 0x00, 0x08, 0x00, 0x04, 0x00, 0x02, 0x80, 0x01, 0x80, 0x00, 0xFF, 0x7F,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(531): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0xFE, 0x1F, 0x00, 0x08, 0x00, 0x04, 0x00, 0x02, 0x80, 0x01, 0x80, 0x00, 0xFF, 0x7F,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(521): warning: no previous extern declaration for non-static variable 'tfont16' [-Wmissing-variable-declarations]
-const typFNT_GB16 tfont16[] = {
-                  ^
 ../Users/Inc\Words.h(543): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(543): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(543): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(549): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x06, 0xC0, 0xFF, 0x07, 0x40, 0x00, 0x06, 0xC0,
     ^~~~
-../Users/Inc\Words.h(549): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x06, 0xC0, 0xFF, 0x07, 0x40, 0x00, 0x06, 0xC0,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(549): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x06, 0xC0, 0xFF, 0x07, 0x40, 0x00, 0x06, 0xC0,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(555): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x30, 0xF8, 0xFF, 0x1F, 0x08, 0x00, 0x10, 0x08,
-                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                {
-../Users/Inc\Words.h(555): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "<U+0530>", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x30, 0xF8, 0xFF, 0x1F, 0x08, 0x00, 0x10, 0x08,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(561): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(561): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(561): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x08, 0x00, 0x00, 0x08, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(567): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0xF0, 0xFF, 0x0F, 0x00, 0x00, 0x06, 0x00,
     ^~~~
-../Users/Inc\Words.h(567): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0xF0, 0xFF, 0x0F, 0x00, 0x00, 0x06, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(567): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0xF0, 0xFF, 0x0F, 0x00, 0x00, 0x06, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(541): warning: no previous extern declaration for non-static variable 'tfont24' [-Wmissing-variable-declarations]
-const typFNT_GB24 tfont24[] = {
-                  ^
 ../Users/Inc\Words.h(583): warning: initializer-string for char array is too long
   "年", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x30,0x00,0x00,0x00,0x70,0x00,0x00,
   ^~~~
-../Users/Inc\Words.h(583): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-  "年", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x30,0x00,0x00,0x00,0x70,0x00,0x00,
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        {
-../Users/Inc\Words.h(583): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-  "年", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x30,0x00,0x00,0x00,0x70,0x00,0x00,
-  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  {
 ../Users/Inc\Words.h(591): warning: initializer-string for char array is too long
 "月", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0C,0xC0,0x00,
 ^~~~
-../Users/Inc\Words.h(591): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-"月", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0C,0xC0,0x00,
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      {
-../Users/Inc\Words.h(591): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-"月", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0C,0xC0,0x00,
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-{
 ../Users/Inc\Words.h(599): warning: initializer-string for char array is too long
 "日", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 ^~~~
-../Users/Inc\Words.h(599): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-"日", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      {
-../Users/Inc\Words.h(599): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-"日", 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-{
-../Users/Inc\Words.h(581): warning: no previous extern declaration for non-static variable 'tfont32' [-Wmissing-variable-declarations]
-const typFNT_GB32 tfont32[] = {
-                  ^
 ../Users/Inc\Words.h(617): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(617): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(617): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0x00, 0x00, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(625): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(625): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(625): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x01, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x07, 0xF0, 0x03, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
 ../Users/Inc\Words.h(633): warning: initializer-string for char array is too long
     "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0xF8, 0x03, 0x00, 0x00,
     ^~~~
-../Users/Inc\Words.h(633): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0xF8, 0x03, 0x00, 0x00,
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          {
-../Users/Inc\Words.h(633): warning: suggest braces around initialization of subobject [-Wmissing-braces]
-    "��", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7C, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x00, 0xF8, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFC, 0x01, 0xF8, 0x03, 0x00, 0x00,
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    {
-../Users/Inc\Words.h(615): warning: no previous extern declaration for non-static variable 'tfont64' [-Wmissing-variable-declarations]
-const typFNT_GB64 tfont64[] = {
-                  ^
-../Users/Src/TFT.c(4): warning: In file included from...
-../Users/Inc\TFT_init.h(31): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LCD_Initshow();                                                      // 显示初始化
-                 ^
-                  void
-../Users/Inc\TFT_init.h(32): warning: no newline at end of file [-Wnewline-eof]
-#endif                                                                    // TFT_init_H
-                                                                                       ^
-../Users/Src/TFT.c(77): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(uRow, uCol, color); // 画点
-        ~~~~~~~~~~~~~ ^~~~
-../Users/Src/TFT.c(77): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(uRow, uCol, color); // 画点
-        ~~~~~~~~~~~~~       ^~~~
-../Users/Src/TFT.c(122): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - b, y0 - a, color); // 3
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(122): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - b, y0 - a, color); // 3
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(123): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + b, y0 - a, color); // 0
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(123): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + b, y0 - a, color); // 0
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(124): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - a, y0 + b, color); // 1
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(124): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - a, y0 + b, color); // 1
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(125): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - a, y0 - b, color); // 2
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(125): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - a, y0 - b, color); // 2
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(126): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + b, y0 + a, color); // 4
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(126): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + b, y0 + a, color); // 4
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(127): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + a, y0 - b, color); // 5
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(127): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + a, y0 - b, color); // 5
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(128): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + a, y0 + b, color); // 6
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(128): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 + a, y0 + b, color); // 6
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(129): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - b, y0 + a, color); // 7
-        ~~~~~~~~~~~~~ ~~~^~~
-../Users/Src/TFT.c(129): warning: implicit conversion loses integer precision: 'int' to 'uint16_t' (aka 'unsigned short') [-Wimplicit-int-conversion]
-        LCD_DrawPoint(x0 - b, y0 + a, color); // 7
-        ~~~~~~~~~~~~~         ~~~^~~
-../Users/Src/TFT.c(611): warning: implicit conversion turns floating-point number into integer: 'float' to 'uint16_t' (aka 'unsigned short') [-Wfloat-conversion]
-    num1 = num * 100;
-         ~ ~~~~^~~~~
-92 warnings generated.
+18 warnings generated.
 compiling TFT.c...
-../Users/Src/LED.c(1): warning: In file included from...
-../Users/Inc\LED.h(16): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LED_nomal();
-              ^
-               void
-../Users/Inc\LED.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LED_error1();
-               ^
-                void
-../Users/Inc\LED.h(20): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LED_run();
-            ^
-             void
-../Users/Inc\LED.h(22): warning: no newline at end of file [-Wnewline-eof]
-void LED_mode(int mode);
-                        ^
+compiling clock.c...
 ../Users/Src/LED.c(2): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2\cmsis_os.h(126): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include\FreeRTOS.h(62): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h(52): error: 'portmacro.h' file not found
         #include "portmacro.h"
                  ^~~~~~~~~~~~~
-4 warnings and 1 error generated.
+1 error generated.
 compiling LED.c...
-../Users/Src/clock.c(1): warning: In file included from...
-../Users/Inc\clock.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool clock_init();                                 // 获取WiFi时间对RTC_time结构体初始化
-               ^
-                void
-../Users/Inc\clock.h(19): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_calibration(); // 固定时间对RTC time时间进行校准
-                      ^
-                       void
-../Users/Inc\clock.h(20): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_time();                             // 显示时分
-                   ^
-                    void
-../Users/Inc\clock.h(21): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_date();                             // 显示年月日周
-                   ^
-                    void
-../Users/Inc\clock.h(22): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_second();                           // 显示秒
-                     ^
-                      void
-../Users/Src/clock.c(2): warning: non-portable path to file '"TFT.h"'; specified path differs in case from file name on disk [-Wnonportable-include-path]
-#include "tft.h"
-         ^~~~~~~
-         "TFT.h"
-../Users/Src/clock.c(2): warning: In file included from...
-../Users/Inc\tft.h(50): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-../Users/Src/clock.c(4): warning: In file included from...
-../Users/Inc\TFT_init.h(31): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LCD_Initshow();                                                      // 显示初始化
-                 ^
-                  void
-../Users/Inc\TFT_init.h(32): warning: no newline at end of file [-Wnewline-eof]
-#endif                                                                    // TFT_init_H
-                                                                                       ^
-../Users/Src/clock.c(5): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(15): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool RingBuffer_Init();                                  // 环形缓存区初始化
-                    ^
-                     void
-../Users/Inc\bt_wifi_voice.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void FreeRingBuffer();                                   // 释放环形缓存区
-                   ^
-                    void
-../Users/Inc\bt_wifi_voice.h(23): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_Init();
-               ^
-                void
-../Users/Inc\bt_wifi_voice.h(24): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_SntpSetRtc();
-                     ^
-                      void
-../Users/Inc\bt_wifi_voice.h(24): warning: no newline at end of file [-Wnewline-eof]
-bool ESP32_SntpSetRtc();
-                        ^
-../Users/Src/clock.c(14): warning: no previous prototype for function 'clock_init' [-Wmissing-prototypes]
-bool clock_init()
-     ^
-../Users/Inc\clock.h(18): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-bool clock_init();                                 // 获取WiFi时间对RTC_time结构体初始化
-     ^
-                void
-../Users/Src/clock.c(24): warning: no previous prototype for function 'clock_calibration' [-Wmissing-prototypes]
-void clock_calibration()
-     ^
-../Users/Inc\clock.h(19): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void clock_calibration(); // 固定时间对RTC time时间进行校准
-     ^
-                       void
-../Users/Src/clock.c(33): warning: no previous prototype for function 'clock_run_time' [-Wmissing-prototypes]
-void clock_run_time()
-     ^
-../Users/Inc\clock.h(20): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void clock_run_time();                             // 显示时分
-     ^
-                    void
-../Users/Src/clock.c(1): warning: In file included from...
-../Users/Inc\clock.h(2): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(391): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(165): warning: padding size of 'RTC_HandleTypeDef' with 2 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Users/Src/clock.c(52): warning: no previous prototype for function 'clock_run_date' [-Wmissing-prototypes]
-void clock_run_date()
-     ^
-../Users/Inc\clock.h(21): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void clock_run_date();                             // 显示年月日周
-     ^
-                    void
-../Users/Src/clock.c(79): warning: no newline at end of file [-Wnewline-eof]
-}
- ^
-../Users/Src/clock.c(69): warning: no previous prototype for function 'clock_run_second' [-Wmissing-prototypes]
-void clock_run_second()
-     ^
-../Users/Inc\clock.h(22): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void clock_run_second();                           // 显示秒
-     ^
-                      void
-../Users/Src/clock.c(6): warning: no previous extern declaration for non-static variable 'RTC_Time' [-Wmissing-variable-declarations]
-RTC_TimeTypeDef RTC_Time; // 时间数据结构体变量?
-                ^
-../Users/Src/clock.c(7): warning: no previous extern declaration for non-static variable 'RTC_Date' [-Wmissing-variable-declarations]
-RTC_DateTypeDef RTC_Date;
-                ^
-23 warnings generated.
-compiling clock.c...
-../Users/Src/TFT_init.c(1): warning: In file included from...
-../Users/Inc\TFT_init.h(31): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LCD_Initshow();                                                      // 显示初始化
-                 ^
-                  void
-../Users/Inc\TFT_init.h(32): warning: no newline at end of file [-Wnewline-eof]
-#endif                                                                    // TFT_init_H
-                                                                                       ^
-../Users/Src/TFT_init.c(4): warning: In file included from...
-../Users/Inc\TFT.h(50): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-../Users/Src/TFT_init.c(5): warning: In file included from...
-../Users/Inc\photoes.h(1): warning: no previous extern declaration for non-static variable 'xinyue' [-Wmissing-variable-declarations]
-const unsigned char xinyue[111368] = { 0X10,0X10,0X00,0XF0,0X00,0XE8,0X01,0X1B,
-                    ^
-../Users/Src/TFT_init.c(1): warning: In file included from...
-../Users/Inc\TFT_init.h(4): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(407): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(343): warning: padding struct 'TIM_HandleTypeDef' with 3 bytes to align 'hdma' [-Wpadded]
-  DMA_HandleTypeDef                  *hdma[7];          /*!< DMA Handlers array
-                                      ^
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_tim.h(337): warning: padding size of 'TIM_HandleTypeDef' with 1 byte to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Users/Src/TFT_init.c(1): warning: In file included from...
-../Users/Inc\TFT_init.h(4): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Users/Src/TFT_init.c(1): warning: In file included from...
-../Users/Inc\TFT_init.h(4): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(403): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_spi.h(134): warning: padding struct 'struct __SPI_HandleTypeDef' with 2 bytes to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
-                             ^
-../Users/Src/TFT_init.c(39): warning: implicit conversion loses integer precision: 'uint16_t' (aka 'unsigned short') to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    LCD_WR8(dat);
-    ~~~~~~~ ^~~
-../Users/Src/TFT_init.c(180): warning: no newline at end of file [-Wnewline-eof]
-}
- ^
-../Users/Src/TFT_init.c(177): warning: no previous prototype for function 'LCD_Initshow' [-Wmissing-prototypes]
-void LCD_Initshow()
-     ^
-../Users/Inc\TFT_init.h(31): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void LCD_Initshow();                                                      // 显示初始化
-     ^
-                  void
-11 warnings generated.
 compiling TFT_init.c...
-../Users/Src/bt_wifi_voice.c(8): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(15): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool RingBuffer_Init();                                  // 环形缓存区初始化
-                    ^
-                     void
-../Users/Inc\bt_wifi_voice.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void FreeRingBuffer();                                   // 释放环形缓存区
-                   ^
-                    void
-../Users/Inc\bt_wifi_voice.h(23): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_Init();
-               ^
-                void
-../Users/Inc\bt_wifi_voice.h(24): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_SntpSetRtc();
-                     ^
-                      void
-../Users/Inc\bt_wifi_voice.h(24): warning: no newline at end of file [-Wnewline-eof]
-bool ESP32_SntpSetRtc();
-                        ^
-../Users/Src/bt_wifi_voice.c(11): warning: In file included from...
-../Users/Inc\TFT.h(50): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-../Users/Src/bt_wifi_voice.c(19): warning: no previous extern declaration for non-static variable 'DATA_flag' [-Wmissing-variable-declarations]
-uint8_t DATA_flag = 0;
-        ^
-../Users/Src/bt_wifi_voice.c(20): warning: no previous extern declaration for non-static variable 'TxData_len' [-Wmissing-variable-declarations]
-uint8_t TxData_len = 0;
-        ^
-../Users/Src/bt_wifi_voice.c(21): warning: no previous extern declaration for non-static variable 'RxData_len' [-Wmissing-variable-declarations]
-uint8_t RxData_len = 0;
-        ^
-../Users/Src/bt_wifi_voice.c(22): warning: no previous extern declaration for non-static variable 'OK_flag' [-Wmissing-variable-declarations]
-uint8_t OK_flag = 0;
-        ^
-../Users/Src/bt_wifi_voice.c(48): warning: declaration shadows a variable in the global scope [-Wshadow]
-      uint8_t RxData_len = strlen((char *)Usart_buffer);
-              ^
-../Users/Src/bt_wifi_voice.c(21): note: previous declaration is here
-uint8_t RxData_len = 0;
-        ^
-../Users/Src/bt_wifi_voice.c(48): warning: implicit conversion loses integer precision: 'unsigned int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-      uint8_t RxData_len = strlen((char *)Usart_buffer);
-              ~~~~~~~~~~   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../Users/Src/bt_wifi_voice.c(8): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(1): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(411): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_uart.h(195): warning: padding struct 'struct __UART_HandleTypeDef' with 1 byte to align 'ErrorCode' [-Wpadded]
-  __IO uint32_t                 ErrorCode;        /*!< UART Error code                    */
-                                ^
-../Users/Src/bt_wifi_voice.c(8): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(1): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(287): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_dma.h(148): warning: padding struct 'struct __DMA_HandleTypeDef' with 2 bytes to align 'Parent' [-Wpadded]
-  void                       *Parent;                                                          /*!< Parent object state                    */ 
-                              ^
-../Users/Src/bt_wifi_voice.c(8): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(6): warning: padding size of 'struct Ring_Buffer' with 3 bytes to alignment boundary [-Wpadded]
-typedef struct Ring_Buffer
-               ^
-../Users/Src/bt_wifi_voice.c(62): warning: no previous prototype for function 'RingBuffer_Init' [-Wmissing-prototypes]
-bool RingBuffer_Init() // 环形缓存区初始化
-     ^
-../Users/Inc\bt_wifi_voice.h(15): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-bool RingBuffer_Init();                                  // 环形缓存区初始化
-     ^
-                     void
-../Users/Src/bt_wifi_voice.c(93): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    uint8_t taillen = RX_buffer.tail - RX_buffer.write;
-            ~~~~~~~   ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-../Users/Src/bt_wifi_voice.c(114): warning: implicit conversion loses integer precision: 'int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-    uint8_t taillen = RX_buffer.tail - RX_buffer.read;
-            ~~~~~~~   ~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
-../Users/Src/bt_wifi_voice.c(131): warning: no previous prototype for function 'FreeRingBuffer' [-Wmissing-prototypes]
-void FreeRingBuffer() // 释放环形缓存区
-     ^
-../Users/Inc\bt_wifi_voice.h(18): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void FreeRingBuffer();                                   // 释放环形缓存区
-     ^
-                    void
-../Users/Src/bt_wifi_voice.c(138): warning: implicit conversion loses integer precision: 'unsigned int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-  TxData_len = strlen(AT);
-             ~ ^~~~~~~~~~
-../Users/Src/bt_wifi_voice.c(155): warning: implicit conversion loses integer precision: 'unsigned int' to 'uint8_t' (aka 'unsigned char') [-Wimplicit-int-conversion]
-  TxData_len = strlen(AT);
-             ~ ^~~~~~~~~~
-../Users/Src/bt_wifi_voice.c(173): warning: no previous prototype for function 'ESP32_Init' [-Wmissing-prototypes]
-bool ESP32_Init()
-     ^
-../Users/Inc\bt_wifi_voice.h(23): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-bool ESP32_Init();
-     ^
-                void
-../Users/Src/bt_wifi_voice.c(197): warning: no previous prototype for function 'ESP32_SntpSetRtc' [-Wmissing-prototypes]
-bool ESP32_SntpSetRtc()
-     ^
-../Users/Inc\bt_wifi_voice.h(24): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-bool ESP32_SntpSetRtc();
-     ^
-                      void
-../Users/Src/bt_wifi_voice.c(8): warning: In file included from...
-../Users/Inc\bt_wifi_voice.h(1): warning: In file included from...
-../Core/Inc/main.h(30): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal.h(29): warning: In file included from...
-../Core/Inc\stm32f4xx_hal_conf.h(391): warning: In file included from...
-../Drivers/STM32F4xx_HAL_Driver/Inc\stm32f4xx_hal_rtc.h(165): warning: padding size of 'RTC_HandleTypeDef' with 2 bytes to alignment boundary [-Wpadded]
-typedef struct
-        ^
-../Users/Src/bt_wifi_voice.c(16): warning: no previous extern declaration for non-static variable 'RX_buffer' [-Wmissing-variable-declarations]
-RingBufferTypedef RX_buffer;
-                  ^
-../Users/Src/bt_wifi_voice.c(17): warning: no previous extern declaration for non-static variable 'BUFFER' [-Wmissing-variable-declarations]
-uint8_t BUFFER[RX_Buffer_MAX]; // 存储空间
-        ^
-../Users/Src/bt_wifi_voice.c(18): warning: no previous extern declaration for non-static variable 'Usart_buffer' [-Wmissing-variable-declarations]
-uint8_t Usart_buffer[RX_Buffer_MAX];
-        ^
-../Users/Src/bt_wifi_voice.c(23): warning: no previous extern declaration for non-static variable 'GETDate' [-Wmissing-variable-declarations]
-  RTC_DateTypeDef GETDate;
-                  ^
-../Users/Src/bt_wifi_voice.c(24): warning: no previous extern declaration for non-static variable 'GETTime' [-Wmissing-variable-declarations]
-  RTC_TimeTypeDef GETTime;
-                  ^
-29 warnings generated.
 compiling bt_wifi_voice.c...
-../Users/Src/general_control.c(1): warning: In file included from...
-../Users/Inc\general_control.h(3): warning: In file included from...
-../Users/Inc/TFT_init.h(31): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void LCD_Initshow();                                                      // 显示初始化
-                 ^
-                  void
-../Users/Inc/TFT_init.h(32): warning: no newline at end of file [-Wnewline-eof]
-#endif                                                                    // TFT_init_H
-                                                                                       ^
-../Users/Src/general_control.c(1): warning: In file included from...
-../Users/Inc\general_control.h(4): warning: In file included from...
-../Users/Inc/TFT.h(50): warning: no newline at end of file [-Wnewline-eof]
-#endif
-      ^
-../Users/Src/general_control.c(1): warning: In file included from...
-../Users/Inc\general_control.h(5): warning: In file included from...
-../Users/Inc/clock.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool clock_init();                                 // 获取WiFi时间对RTC_time结构体初始化
-               ^
-                void
-../Users/Inc/clock.h(19): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_calibration(); // 固定时间对RTC time时间进行校准
-                      ^
-                       void
-../Users/Inc/clock.h(20): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_time();                             // 显示时分
-                   ^
-                    void
-../Users/Inc/clock.h(21): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_date();                             // 显示年月日周
-                   ^
-                    void
-../Users/Inc/clock.h(22): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void clock_run_second();                           // 显示秒
-                     ^
-                      void
-../Users/Src/general_control.c(1): warning: In file included from...
-../Users/Inc\general_control.h(6): warning: In file included from...
-../Users/Inc/bt_wifi_voice.h(15): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool RingBuffer_Init();                                  // 环形缓存区初始化
-                    ^
-                     void
-../Users/Inc/bt_wifi_voice.h(18): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void FreeRingBuffer();                                   // 释放环形缓存区
-                   ^
-                    void
-../Users/Inc/bt_wifi_voice.h(23): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_Init();
-               ^
-                void
-../Users/Inc/bt_wifi_voice.h(24): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-bool ESP32_SntpSetRtc();
-                     ^
-                      void
-../Users/Inc/bt_wifi_voice.h(24): warning: no newline at end of file [-Wnewline-eof]
-bool ESP32_SntpSetRtc();
-                        ^
-../Users/Src/general_control.c(1): warning: In file included from...
-../Users/Inc\general_control.h(8): warning: this function declaration is not a prototype [-Wstrict-prototypes]
-void ALL_Init();
-             ^
-              void
-../Users/Inc\general_control.h(8): warning: no newline at end of file [-Wnewline-eof]
-void ALL_Init();
-                ^
-../Users/Src/general_control.c(33): warning: no newline at end of file [-Wnewline-eof]
-}       
-        ^
-../Users/Src/general_control.c(8): warning: no previous prototype for function 'ALL_Init' [-Wmissing-prototypes]
-void ALL_Init()
-     ^
-../Users/Inc\general_control.h(8): note: this declaration is not a prototype; add 'void' to make it a prototype for a zero-parameter function
-void ALL_Init();
-     ^
-              void
-17 warnings generated.
-compiling general_control.c...
 ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c(28): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include\FreeRTOS.h(62): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h(52): error: 'portmacro.h' file not found
@@ -1259,6 +171,7 @@ compiling list.c...
                  ^~~~~~~~~~~~~
 1 error generated.
 compiling queue.c...
+compiling general_control.c...
 ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c(38): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include\FreeRTOS.h(62): warning: In file included from...
 ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h(52): error: 'portmacro.h' file not found
@@ -1301,7 +214,7 @@ compiling cmsis_os2.c...
                  ^~~~~~~~~~~~~
 1 error generated.
 compiling port.c...
-"Nono\Nono.axf" - 13 Error(s), 269 Warning(s).
+"Nono\Nono.axf" - 13 Error(s), 18 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -1325,7 +238,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.2.0
 Target not created.
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

@@ -38,4 +38,5 @@ voice_change/i2s_mc.o: ..\User\Src\I2S_MC.c ..\User\Inc\I2S_MC.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\User\Inc\usb_buffer_part.h \
-  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h \
+  ..\Core\Inc\i2s.h ..\Core\Inc\main.h

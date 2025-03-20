@@ -46,4 +46,5 @@ voice_change/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdlib.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h \
   ..\Core\Inc\gpio.h ..\User\Inc\I2C_LCD.h ..\User\Inc\I2S_MC.h \
-  ..\User\Inc\LED.h
+  ..\User\Inc\LED.h ..\User\Inc\usb_buffer_part.h \
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h
