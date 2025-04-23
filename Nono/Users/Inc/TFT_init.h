@@ -28,5 +28,5 @@ void LCD_WR_DATA16(uint16_t dat);                                         // 写
 void LCD_WR_REG(uint8_t dat);                                             // 写入一个指令
 void LCD_Address_Set(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2); // 设置坐标函数
 void LCD_Init(void);                                                      // LCD初始化
-void LCD_Initshow();                                                      // 显示初始化
+
 #endif                                                                    // TFT_init_H

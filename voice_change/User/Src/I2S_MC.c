@@ -2,15 +2,31 @@
 #include "usb_buffer_part.h"
 #include "i2s.h"
 
-int16_t PCM_DMA[STEREO_PCM_FRAME_SIZE] = {0};
+// uint32_t PCM_DMA[STEREO_PCM_FRAME_SIZE] = {0};
+uint16_t PCM_DMA[64] = {0};
+uint32_t val24[32];
+int32_t val32[32];
 static uint32_t CQ_Len = 0;
-uint8_t OK_Flag = 0;
+uint32_t RC_num = 0;
 /*音频数据DMA接收回调函数*/
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
     if (hi2s == &hi2s2)
     {
-        OK_Flag = 1;
+        //        for (uint8_t i = 0; i < 32; i++)
+        //        {
+        //            val24[i] = ((uint32_t)PCM_DMA[i] << 8) + (uint32_t)(PCM_DMA[i + 1] >> 8);
+        //            if (val24[i] & 0x800000)
+        //            {
+        //                val32[i] = 0xff000000 | val24[i];
+        //            }
+        //            else
+        //            {
+        //                val32[i] = val24[i];
+        //            }
+        //        }
+        // if (USB_Audio_Port_Can_Update_Data() == true)
+        //   USB_Audio_Port_Put_Data(PCM_DMA, PCM_DMA);
     }
 }
 
@@ -18,17 +34,8 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 void MicroPhone_Init()
 {
 USB_Audio_Port_Init();
-HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)PCM_DMA, STEREO_PCM_FRAME_SIZE);
-while (1)
-{
-    if (OK_Flag)
-    {
-        if (USB_Audio_Port_Can_Update_Data() == true)
-            USB_Audio_Port_Put_Data((int16_t *)PCM_DMA, (int16_t *)PCM_DMA);
-        OK_Flag = 0;
-        HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)PCM_DMA, STEREO_PCM_FRAME_SIZE);
-    }
-}
+// HAL_I2S_Receive_DMA(&hi2s2, (uint16_t *)PCM_DMA, STEREO_PCM_FRAME_SIZE);
+HAL_I2S_Receive_DMA(&hi2s2, PCM_DMA, 128);
 }
 
 /**
@@ -43,7 +50,7 @@ while (1)
  * @date    2025-3-13
  ******************************************************************
  */
-void CQ_16_init(CQ_handleTypeDef *hCq, uint16_t *pBuffer, uint16_t BufferSize)
+void CQ_32_init(CQ_handleTypeDef *hCq, uint32_t *pBuffer, uint16_t BufferSize)
 {
     hCq->pHead = pBuffer;
     hCq->pTail = pBuffer + BufferSize - 1;
@@ -64,7 +71,7 @@ void CQ_16_init(CQ_handleTypeDef *hCq, uint16_t *pBuffer, uint16_t BufferSize)
  * @date    2025-3-13
  ******************************************************************
  */
-void CQ_16putData(CQ_handleTypeDef *hCq, const uint16_t *data, uint32_t size)
+void CQ_32putData(CQ_handleTypeDef *hCq, const uint32_t *data, uint16_t size)
 {
 
     if (*hCq->length + size < (hCq->pTail - hCq->pHead))
@@ -94,7 +101,7 @@ void CQ_16putData(CQ_handleTypeDef *hCq, const uint16_t *data, uint32_t size)
  * @date    2025-3-13
  ******************************************************************
  */
-void CQ_16getData(CQ_handleTypeDef *hCq, uint16_t *pData, uint32_t size)
+void CQ_32getData(CQ_handleTypeDef *hCq, uint32_t *pData, uint16_t size)
 {
     if (hCq->length - size >= 0)
     {

@@ -10,8 +10,9 @@
 #include <string.h>
 #include "TFT.h"
 #include "rtc.h"
+#include "cmsis_os.h"
 
-#define init_number 10
+
 #define RX_Buffer_MAX 256
 RingBufferTypedef RX_buffer;
 uint8_t BUFFER[RX_Buffer_MAX]; // 存储空间
@@ -26,6 +27,7 @@ uint8_t OK_flag = 0;    // AT指令正确发送标志
 RTC_DateTypeDef GETDate;
 RTC_TimeTypeDef GETTime;
 
+uint8_t init_number=3;//ESP32初始化次数
 /*
 回调函数
 对三个串口发送返回数据集中处理
@@ -131,7 +133,7 @@ bool ESP32_send_AT(char *AT)
   HAL_UART_Receive_IT(&huart2, Usart_buffer, TxData_len + 6);
   while (!OK_flag)
   {
-    HAL_Delay(1);
+    osDelay(1);
     if (i++ > 1000)
       return false;
   }
@@ -149,7 +151,7 @@ bool ESP32_query_AT(char *AT, uint8_t *data, uint8_t size)
   HAL_UART_Receive_IT(&huart2, Usart_buffer, size);
   while (!OK_flag)
   {
-    HAL_Delay(1);
+    osDelay(1);
     if (i++ > 1000)
       return false;
   }
@@ -163,23 +165,25 @@ bool ESP32_query_AT(char *AT, uint8_t *data, uint8_t size)
 }
 bool ESP32_Init()
 {
-  for (int i = 0; i < init_number; i++)
+  for (int i = 0; i < init_number;init_number--)
   {
     if (ESP32_send_AT("AT\r\n"))
     {
       while ((ESP32_send_AT("AT+CIPSNTPCFG=1,8,\"cn.ntp.org.cn\",\"ntp.sjtu.edu.cn\"\r\n")) == 0)
-        HAL_Delay(1);
-      HAL_Delay(1000);
+        osDelay(1);
+      osDelay(1000);
       return true;
     }
     else
     {
-      while (!ESP32_send_AT("AT+RST\r\n"))
+      if (init_number == 1)
       {
-        HAL_Delay(1);
+        ESP32_send_AT("AT+RST\r\n");
+        osDelay(1000);
+        ESP32_Init();
+				init_number--;
       }
-      HAL_Delay(5000);
-      ESP32_Init();
+      osDelay(1000);
     }
   }
   return false;
@@ -276,7 +280,7 @@ bool ESP32_SntpSetRtc()
   GETDate.Month = month;
   GETDate.Date = (SNTP_Time[22] - 48) + (SNTP_Time[21] - 48) * 10;
   GETDate.WeekDay = weekday;
-  GETTime.Seconds = (uint8_t)((SNTP_Time[31] - 48) + (SNTP_Time[30] - 48) * 10);
+  GETTime.Seconds = (uint8_t)((SNTP_Time[31] - 48) + (SNTP_Time[30] - 48) * 10 + 2);
   GETTime.Minutes = (uint8_t)((SNTP_Time[28] - 48) + (SNTP_Time[27] - 48) * 10);
   GETTime.Hours = (uint8_t)((SNTP_Time[25] - 48) + (SNTP_Time[24] - 48) * 10);
   HAL_RTC_SetTime(&hrtc, &GETTime, RTC_FORMAT_BIN);

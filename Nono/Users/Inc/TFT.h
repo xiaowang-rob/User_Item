@@ -23,7 +23,7 @@ void LCD_ShowIntNum(uint16_t x, uint16_t y, uint16_t num, uint8_t len, uint16_t 
 void LCD_ShowFloatNum1(uint16_t x, uint16_t y, float num, uint8_t len, uint16_t fc, uint16_t bc, uint8_t sizey);      // 显示两位小数变量
 
 void LCD_ShowPicture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, const uint8_t pic[]); // 显示图片
-
+void LCD_Initshow();                                                      // 显示初始化
 // 画笔颜色
 #define WHITE 0xFFFF
 #define BLACK 0x0000

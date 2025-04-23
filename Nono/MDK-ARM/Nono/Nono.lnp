@@ -4,6 +4,7 @@
 "nono\gpio.o"
 "nono\freertos.o"
 "nono\adc.o"
+"nono\dma.o"
 "nono\rtc.o"
 "nono\spi.o"
 "nono\tim.o"
@@ -51,6 +52,8 @@
 "nono\tft.o"
 "nono\tft_init.o"
 "nono\voide_control.o"
+"nono\expression.o"
+"nono\sensor.o"
 --strict --scatter "Nono\Nono.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

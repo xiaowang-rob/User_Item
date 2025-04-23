@@ -39,4 +39,5 @@ nono/general_control.o: ..\Users\Src\general_control.c \
   ..\Users\Inc\TFT_init.h ..\Users\Inc\TFT.h ..\Users\Inc\clock.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h \
   ..\Users\Inc\bt_wifi_voice.h \
-  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h
+  A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h ..\Core\Inc\tim.h \
+  ..\Core\Inc\main.h

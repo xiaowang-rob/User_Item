@@ -10,9 +10,9 @@
  *  @brief USB音频类接口，对外提供音频更新及输出接口
  *
  *  @details 1、开启对应FS中断，中断处理和初始化位于usbd_conf.c
- *           2、16k采样，单声道，10ms出320点数据
+ *           2、16k采样，双声道，10ms出320点数据
  *           3、1ms间隔发送，10ms发送10次，每次发送320/10 = 32点数据 数据大小64字节（16bit*32）
- *           4、接收来自MIC数据，10ms来一次每次双通道160点*2
+ *           4、接收来自MIC数据，10ms来一次每次双通道160点*2  IIS接收数据采样率为16/1ms=16k采样
  *  @version V1.0
  */
 /** Includes -----------------------------------------------------------------*/
@@ -31,7 +31,7 @@ extern "C"
 #define USB_RX_BUF_SIZE_MAX 1024 /**< 接收缓冲区设置1024*2Bytes*/
 #define STEREO_FRAME_SIZE STEREO_PCM_FRAME_SIZE*2U   // 音频数据存储大小
 
-#define USB_PORT_AUDIO_OUT_PACKET AUDIO_PORT_OUT_SIZE /**< 一次发送大小字节数*/
+#define USB_PORT_AUDIO_OUT_PACKET AUDIO_PORT_OUT_SIZE /**< 一次发送大小字数*/
 #define USB_PORT_AUDIO_BUF_SIZE AUDIO_TOTAL_BUF_SIZE
 #define USB_PORT_AUDIO_IN_EP AUDIO_PORT_IN_EP_DIR_ID
 #define USB_PORT_AUDIO_OUT_EP AUDIO_PORT_OUT_EP_DIR_ID
@@ -40,8 +40,8 @@ extern "C"
   /** Private variables --------------------------------------------------------*/
   /*音频缓冲区*/
   CQ_handleTypeDef USB_Audio_Data_Handle;
-  static int16_t USB_Audio_Receive_Buf[STEREO_FRAME_SIZE] = {0};
-  static uint16_t USB_Audio_Send_Buf[USB_RX_BUF_SIZE_MAX];
+  static int32_t USB_Audio_Receive_Buf[STEREO_FRAME_SIZE] = {0};
+  static uint32_t USB_Audio_Send_Buf[USB_RX_BUF_SIZE_MAX];
   /** Private function prototypes ----------------------------------------------*/
 
   /** Private user code --------------------------------------------------------*/
@@ -59,7 +59,7 @@ extern "C"
   void USB_Audio_Port_Init(void)
   {
     /*初始化接收音频缓冲区*/
-    CQ_16_init(&USB_Audio_Data_Handle, USB_Audio_Send_Buf, USB_RX_BUF_SIZE_MAX);
+    CQ_32_init(&USB_Audio_Data_Handle, USB_Audio_Send_Buf, USB_RX_BUF_SIZE_MAX);
   }
 
   /**
@@ -73,9 +73,9 @@ extern "C"
    * @date    2021-06-04
    ******************************************************************
    */
-  static inline void USB_Audio_Port_Put_Audio_Data(const int16_t *Data, uint32_t Size)
+  static inline void USB_Audio_Port_Put_Audio_Data(const int32_t *Data, uint32_t Size)
   {
-    CQ_16putData(&USB_Audio_Data_Handle, (const uint16_t *)Data, Size);
+    CQ_32putData(&USB_Audio_Data_Handle, (const uint32_t *)Data, Size);
   }
 
   /** Public application code --------------------------------------------------*/
@@ -128,14 +128,14 @@ extern "C"
 
         if (haudio->offset == AUDIO_OFFSET_UNKNOWN)
         {
-          ((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(&haudio->buffer[0], AUDIO_TOTAL_BUF_SIZE / 2U, AUDIO_CMD_START);
+          ((USBD_AUDIO_ItfTypeDef *)pdev->pUserData)->AudioCmd(&haudio->buffer[0], AUDIO_TOTAL_BUF_SIZE / 4U, AUDIO_CMD_START);
           haudio->offset = AUDIO_OFFSET_NONE;
         }
       }
 
       if (haudio->rd_enable == 0U)
       {
-        if (haudio->wr_ptr == (AUDIO_TOTAL_BUF_SIZE / 2U))
+        if (haudio->wr_ptr == (AUDIO_TOTAL_BUF_SIZE / 4U))
         {
           haudio->rd_enable = 1U;
         }
@@ -167,11 +167,11 @@ extern "C"
     USBD_AUDIO_HandleTypeDef *haudio = (USBD_AUDIO_HandleTypeDef *)pdev->pClassData;
 
     USBD_LL_FlushEP(pdev, USB_PORT_AUDIO_IN_EP);
-    if (CQ_getLength(&USB_Audio_Data_Handle) < USB_PORT_AUDIO_OUT_PACKET / 2)
+    if (CQ_getLength(&USB_Audio_Data_Handle) < USB_PORT_AUDIO_OUT_PACKET / 4)
     {
       return (uint8_t)USBD_BUSY;
     }
-    CQ_16getData(&USB_Audio_Data_Handle, (uint16_t *)haudio->buffer, USB_PORT_AUDIO_OUT_PACKET / 2);
+    CQ_32getData(&USB_Audio_Data_Handle, (uint32_t *)haudio->buffer, USB_PORT_AUDIO_OUT_PACKET / 4);
     return USBD_LL_Transmit(pdev, USB_PORT_AUDIO_IN_EP, haudio->buffer, USB_PORT_AUDIO_OUT_PACKET);
   }
 
@@ -362,7 +362,7 @@ extern "C"
    * @date    2021-06-01
    ******************************************************************
    */
-  void USB_Audio_Port_Put_Data(const int16_t *Left_Audio, const int16_t *Right_Audio)
+  void USB_Audio_Port_Put_Data(const int32_t *Left_Audio, const int32_t *Right_Audio)
   {
     /*更新USB音频数据*/
     int index = 0, i = 0;

@@ -46,9 +46,9 @@ nono/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\task.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\include\list.h \
   ..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS_V2\cmsis_os2.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\main.h ..\Core\Inc\rtc.h \
-  ..\Core\Inc\spi.h ..\Core\Inc\tim.h ..\Core\Inc\usart.h \
-  ..\Core\Inc\gpio.h ..\Users\Inc\general_control.h \
+  ..\Core\Inc\adc.h ..\Core\Inc\main.h ..\Core\Inc\dma.h \
+  ..\Core\Inc\rtc.h ..\Core\Inc\spi.h ..\Core\Inc\tim.h \
+  ..\Core\Inc\usart.h ..\Core\Inc\gpio.h ..\Users\Inc\general_control.h \
   ..\Users\Inc\TFT_init.h ..\Users\Inc\TFT.h ..\Users\Inc\clock.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h \
-  ..\Users\Inc\bt_wifi_voice.h
+  ..\Users\Inc\bt_wifi_voice.h ..\Users\Inc\sensor.h

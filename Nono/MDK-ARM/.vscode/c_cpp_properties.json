@@ -6,6 +6,9 @@
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Core\\Inc",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Drivers\\STM32F4xx_HAL_Driver\\Inc",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Drivers\\STM32F4xx_HAL_Driver\\Inc\\Legacy",
+                "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Middlewares\\Third_Party\\FreeRTOS\\Source\\include",
+                "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Middlewares\\Third_Party\\FreeRTOS\\Source\\CMSIS_RTOS_V2",
+                "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\GCC\\ARM_CM4F",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Drivers\\CMSIS\\Device\\ST\\STM32F4xx\\Include",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Drivers\\CMSIS\\Include",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Users\\Inc",
@@ -16,6 +19,8 @@
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\MDK-ARM",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Core\\Src",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Drivers\\STM32F4xx_HAL_Driver\\Src",
+                "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Middlewares\\Third_Party\\FreeRTOS\\Source",
+                "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Middlewares\\Third_Party\\FreeRTOS\\Source\\portable\\MemMang",
                 "a:\\Git repositories\\Embedded-Code\\Embedded-Code\\Nono\\Users\\Src"
             ],
             "defines": [

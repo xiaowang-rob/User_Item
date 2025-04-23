@@ -2,6 +2,7 @@
 
 #include "Words.h"
 #include "TFT_init.h"
+#include "photoes.h"
 /******************************************************************************
       函数说明：在指定区域填充颜色
       入口数据：xsta,ysta   起始坐标
@@ -644,4 +645,8 @@ void LCD_ShowPicture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, co
             k++;
         }
     }
+}
+void LCD_Initshow()
+{  LCD_Fill(0, 0, 240, 240, BLACK);
+    //LCD_ShowPicture(0, 0, 240, 232, xinyue);
 }

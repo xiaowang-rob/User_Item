@@ -37,4 +37,5 @@ nono/clock.o: ..\Users\Src\clock.c ..\Users\Inc\clock.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h \
   ..\Users\Inc\tft.h ..\Core\Inc\rtc.h ..\Core\Inc\main.h \
-  ..\Users\Inc\TFT_init.h ..\Users\Inc\bt_wifi_voice.h
+  ..\Users\Inc\TFT_init.h ..\Users\Inc\bt_wifi_voice.h \
+  ..\Users\Inc\sensor.h

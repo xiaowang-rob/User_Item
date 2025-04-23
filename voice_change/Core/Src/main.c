@@ -19,20 +19,19 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
-#include "i2c.h"
 #include "i2s.h"
 #include "spi.h"
 #include "tim.h"
-#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "I2C_LCD.h"
+#include "ST7735s.h"
 #include "I2S_MC.h"
 #include "LED.h"
 #include "usb_buffer_part.h"
+#include "LCD.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +65,8 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 // I2S--text
-
+uint8_t xstr=0;
+uint8_t ystr=0;
 /* USER CODE END 0 */
 
 /**
@@ -102,24 +102,14 @@ int main(void)
   MX_TIM2_Init();
   MX_USB_DEVICE_Init();
   MX_SPI3_Init();
-  MX_UART4_Init();
-  MX_I2C1_Init();
-  MX_USART1_UART_Init();
   MX_I2S2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   LED_Init();
-  MicroPhone_Init();
-  // LCD---I2C
-  // lcd_init(hi2c1);
-  //	HAL_Delay(1000);
-  //
-  //   lcd_put_cur(0,0,hi2c1);
-  //	HAL_Delay(100);
-  //	lcd_send_string("Hello World!",hi2c1);
-  //   HAL_Delay(100);
-  //   lcd_put_cur(1, 0,hi2c1);
-  //   lcd_send_string("from xiaowang",hi2c1);
-  //
+  
+  LCD_Init();
+ 
+	MicroPhone_Init();
   // LED--GPIO
 
   // MICROPHONE----I2S
@@ -131,7 +121,7 @@ int main(void)
 
   while (1)
   {
-
+  LCD_Fill(xstr, ystr, xstr+160, ystr+80, WHITE);
   LED_run();
     /* USER CODE END WHILE */
 
@@ -188,27 +178,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM1 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

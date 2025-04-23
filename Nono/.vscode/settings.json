@@ -1,19 +1,21 @@
 {
     "files.associations": {
-        "clock.h": "c",
-        "words.h": "c",
-        "tft_init.h": "c",
-        "photoes.h": "c",
-        "main.h": "c",
-        "tft.h": "c",
-        "tim.h": "c",
-        "rtc.h": "c",
-        "voide_control.h": "c",
-        "spi.h": "c",
-        "usart.h": "c",
-        "bt.h": "c",
-        "compare": "c",
-        "stdint.h": "c"
+      "clock.h": "c",
+      "words.h": "c",
+      "tft_init.h": "c",
+      "photoes.h": "c",
+      "main.h": "c",
+      "tft.h": "c",
+      "tim.h": "c",
+      "rtc.h": "c",
+      "voide_control.h": "c",
+      "spi.h": "c",
+      "usart.h": "c",
+      "bt.h": "c",
+      "compare": "c",
+      "stdint.h": "c",
+      "adc.h": "c",
+      "general_control.h": "c"
     },
     "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

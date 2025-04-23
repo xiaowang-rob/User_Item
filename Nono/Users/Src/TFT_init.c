@@ -2,7 +2,7 @@
 #include "tim.h"
 #include "spi.h"
 #include "TFT.h"
-#include "photoes.h"
+#include "cmsis_os.h"
 /*PWM控制屏幕亮度
 level 0-100
 */
@@ -170,11 +170,7 @@ void LCD_Init(void)
     LCD_WR_REG(0x11); // 退出休眠模式，10是睡眠模式
 
     LCD_WR_REG(0x29); // 开始显示
-
+		HAL_Delay(100);
     LCD_Fill(0, 0, 240, 240, BLACK);
 }
 
-void LCD_Initshow()
-{
-    LCD_ShowPicture(0, 0, 240, 232, xinyue);
-}

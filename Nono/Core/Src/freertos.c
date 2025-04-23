@@ -27,6 +27,9 @@
 /* USER CODE BEGIN Includes */
 #include "general_control.h"
 #include "LED.h"
+#include "expression.h"
+#include "tim.h"
+#include "sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +55,7 @@
 osThreadId_t MainHandle;
 const osThreadAttr_t Main_attributes = {
   .name = "Main",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
 /* Definitions for LED */
@@ -129,7 +132,10 @@ void StartMainTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-   clock_run_time();
+    //	clock_run_second(64);
+    //  clock_run_time(64);
+    EYE_BLINK(GRAYBLUE, 10);
+		Sensor_show_power_temp();
   }
   /* USER CODE END StartMainTask */
 }
@@ -147,7 +153,7 @@ void StartLED(void *argument)
   /* Infinite loop */
   for(;;)
   {
- LED_run();
+//    LED_run();
   }
   /* USER CODE END StartLED */
 }

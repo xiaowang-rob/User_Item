@@ -49,4 +49,6 @@ nono/freertos.o: ..\Core\Src\freertos.c \
   ..\Users\Inc\general_control.h ..\Users\Inc\TFT_init.h \
   ..\Users\Inc\TFT.h ..\Users\Inc\clock.h \
   A:\Keil\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h \
-  ..\Users\Inc\bt_wifi_voice.h ..\Users\Inc\LED.h
+  ..\Users\Inc\bt_wifi_voice.h ..\Users\Inc\LED.h \
+  ..\Users\Inc\expression.h ..\Core\Inc\tim.h ..\Core\Inc\main.h \
+  ..\Users\Inc\sensor.h

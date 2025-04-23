@@ -16,7 +16,7 @@
 #include "main.h"
 /** Exported macros-----------------------------------------------------------*/
 #define AUDIO_PORT_CHANNEL_NUMS 2U        /**< MIC音频通道数*/
-#define MONO_CHANNEL_SEL 1U               /**< 0使用L声道 1使用R声道 2配置MONO*/
+#define MONO_CHANNEL_SEL 2U               /**< 0使用L声道 1使用R声道 2配置MONO*/
 #define AUDIO_PORT_USBD_AUDIO_FREQ 16000U /**< 设置音频采样率*/
 
 /*音频类终端类型定义*/
@@ -35,7 +35,6 @@
 
 #define AUDIO_PORT_IN_EP_DIR_ID 0x81  /**< (Direction=IN EndpointID=1)*/
 #define AUDIO_PORT_OUT_EP_DIR_ID 0x01 /**< (Direction=OUT EndpointID=1)*/
-// #define USB_RX_BUF_SIZE_MAX 1024
 /*立体声配置*/
 #if AUDIO_PORT_CHANNEL_NUMS == 2
 /*使用L+R声道*/
@@ -61,11 +60,11 @@
 /*轮询时间间隔*/
 #define AUDIO_PORT_FS_BINTERVAL 1U /**< 1ms一次轮询*/
 /*音频传输大小设置*/
-#define AUDIO_PORT_PACKET_SZE(frq) (uint8_t)(((frq * 2U * 2U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) & 0xFFU), \
-                                   (uint8_t)((((frq * 2U * 2U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) >> 8) & 0xFFU)
+#define AUDIO_PORT_PACKET_SZE(frq) (uint8_t)(((frq * 2U * 4U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) & 0xFFU), \
+                                   (uint8_t)((((frq * 2U * 4U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) >> 8) & 0xFFU)
 
-#define AUDIO_PORT_OUT_SIZE ((AUDIO_PORT_USBD_AUDIO_FREQ * 2U * 2U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) /**< 音频发送大小Byte*/
-#define AUDIO_PORT_BUF_SIZE AUDIO_PORT_OUT_SIZE * 4                                                      /**< 音频缓冲区大小 大于3的偶数倍*/
+#define AUDIO_PORT_OUT_SIZE ((AUDIO_PORT_USBD_AUDIO_FREQ * 2U * 4U) / (1000U / AUDIO_PORT_FS_BINTERVAL)) /**< 音频发送大小Word  16000*2*4/1000=128*/
+#define AUDIO_PORT_BUF_SIZE AUDIO_PORT_OUT_SIZE * 4                                                      /**< 音频缓冲区大小 大于3的偶数倍 128*4=512*/
 /** Private includes ---------------------------------------------------------*/
 
 /** Use C compiler -----------------------------------------------------------*/
@@ -86,9 +85,9 @@ extern "C"
   /*是否可以更新音频数据*/
   bool USB_Audio_Port_Can_Update_Data(void);
   /*向音频数据区更新双声道音频数据*/
-  void USB_Audio_Port_Put_Data(const int16_t *Left_Audio, const int16_t *Right_Audio);
+  void USB_Audio_Port_Put_Data(const int32_t *Left_Audio, const int32_t *Right_Audio);
   /*向USB缓冲区数据加入数据*/
-  static inline void USB_Audio_Port_Put_Audio_Data(const int16_t *Data, uint32_t Size);
+  static inline void USB_Audio_Port_Put_Audio_Data(const int32_t *Data, uint32_t Size);
   /*初始化音频输出端点*/
   uint8_t USB_Audio_Port_EP_IN_Init(void *xpdev, uint8_t cfgidx);
   /*初始化音频输入端点*/
