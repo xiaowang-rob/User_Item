@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "adc.h": "c",
+        "main.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "tim.h": "c",
+        "base_parameters.h": "c",
+        "stm32f4xx_hal_def.h": "c",
+        "can.h": "c",
+        "dma.h": "c",
+        "stm32f4xx_hal_can.h": "c",
+        "stm32_hal_legacy.h": "c",
+        "stm32f405xx.h": "c",
+        "stm32f4xx_hal_conf.h": "c",
+        "stm32f4xx_hal_spi.h": "c",
+        "stm32f4xx_hal_flash.h": "c",
+        "stm32f4xx_hal_dma.h": "c",
+        "stdint.h": "c",
+        "stdbool.h": "c",
+        "spi.h": "c",
+        "string.h": "c",
+        "stdlib.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}
