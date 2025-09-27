@@ -1,5 +1,6 @@
 #include "encoder.h"
 #include "string.h"
+
 ENCODER_t encoder_g = {0};
 
 /**

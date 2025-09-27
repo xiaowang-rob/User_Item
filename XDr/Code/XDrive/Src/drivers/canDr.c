@@ -80,13 +80,13 @@ u8 CAN_Send_Msg(u8 *msg, u8 len)
     }
 
     // 发送CAN消息 - 将消息添加到发送邮箱
-    if (HAL_CAN_AddTxMessage(&hcan, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
+    if (HAL_CAN_AddTxMessage(&hcan2, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
     {
         return 1; // 添加到发送邮箱失败，返回错误码1
     }
 
     // 等待发送完成 - 等待所有发送邮箱都空闲（表示消息已发送）
-    while (HAL_CAN_GetTxMailboxesFreeLevel(&hcan) != 3) // 3个发送邮箱都空闲时返回3
+    while (HAL_CAN_GetTxMailboxesFreeLevel(&hcan2) != 3) // 3个发送邮箱都空闲时返回3
     {
         // 空循环等待发送完成
         // 注意：这里是一个阻塞等待，会一直占用CPU直到发送完成
