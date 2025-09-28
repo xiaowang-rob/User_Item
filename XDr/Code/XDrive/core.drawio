@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="HVilZgKc1jR6jSf_f8j0" name="第 1 页">
-        <mxGraphModel dx="2802" dy="1162" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="872" dy="332" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -40,7 +40,7 @@
                 <mxCell id="86" value="" style="edgeStyle=none;html=1;" parent="1" source="48" target="85" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="168" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="48" target="167">
+                <mxCell id="168" value="" style="edgeStyle=none;html=1;" parent="1" source="48" target="167" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="48" value="辅助功能" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
@@ -94,7 +94,7 @@
                 <mxCell id="67" value="数据流监控" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="670" y="790" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="69" value="上位机打波&lt;div&gt;串口打波&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="69" value="上位机打波&lt;div&gt;串口打波/串口查询&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="830" y="793" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="74" value="" style="edgeStyle=none;html=1;" parent="1" source="71" target="73" edge="1">
@@ -349,13 +349,13 @@
                 <mxCell id="164" value="status feedback" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
                     <mxGeometry x="1290" y="1470" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="170" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="167" target="169">
+                <mxCell id="170" value="" style="edgeStyle=none;html=1;" parent="1" source="167" target="169" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="167" value="USB CDC上位机" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="167" value="USB CDC上位机" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="670" y="1390" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="169" value="pyQT&lt;div&gt;c++QT&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="169" value="pyQT&lt;div&gt;c++QT&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="830" y="1390" width="120" height="60" as="geometry"/>
                 </mxCell>
             </root>

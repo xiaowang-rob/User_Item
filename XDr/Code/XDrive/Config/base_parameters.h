@@ -2,7 +2,6 @@
 #define __BASE_PARAMETERS_H
 #include "main.h"
 #include "spi.h"
-#define rate_CurrentSample 42.6749f // 电流采样 电流与电压比值
 
 /*
 编码器选择

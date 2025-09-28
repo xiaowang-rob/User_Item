@@ -1,7 +1,7 @@
 #include "adcDr.h"
 #include "adc.h"
 #include "tim.h"
-#include "base_parameters.h"
+#include "system_parameters.h"
 
 u16 ADC1_buffer[3];
 u8 ADC2_buffer[4];
@@ -25,9 +25,9 @@ void ADC_slamp_change(u16 compare)
 {
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_4, compare);
 }
-void ADC_GET_Voltage(float *Udc)
+void ADC_GET_Voltage(float *Vbus)
 {
-    *Udc=(float)ADC2_buffer[3] * ADCval_to_Vol;
+    *Vbus = (float)ADC2_buffer[3] * ADCval_to_Vol;
 }
 u8 tempIndex = 0;
 void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, u8 *Temperature)

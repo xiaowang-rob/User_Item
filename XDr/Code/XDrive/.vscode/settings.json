@@ -19,7 +19,16 @@
         "stdbool.h": "c",
         "spi.h": "c",
         "string.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "math_fast.h": "c",
+        "cmath": "c",
+        "adcdr.h": "c",
+        "limits": "c",
+        "usart.h": "c",
+        "usartdr.h": "c",
+        "usart_protocol.h": "c",
+        "usbd_cdc_if.h": "c",
+        "usbd_cdc.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
