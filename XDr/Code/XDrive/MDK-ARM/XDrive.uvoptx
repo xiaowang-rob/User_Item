@@ -647,7 +647,7 @@
 
   <Group>
     <GroupName>Application/User/USB_DEVICE/App</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -986,8 +986,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\drivers\usb_cdc.c</PathWithFileName>
-      <FilenameWithoutPath>usb_cdc.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\drivers\usartDr.c</PathWithFileName>
+      <FilenameWithoutPath>usartDr.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -998,8 +998,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\drivers\usartDr.c</PathWithFileName>
-      <FilenameWithoutPath>usartDr.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\drivers\usbDr.c</PathWithFileName>
+      <FilenameWithoutPath>usbDr.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

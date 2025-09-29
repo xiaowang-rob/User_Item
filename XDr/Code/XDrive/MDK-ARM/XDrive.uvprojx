@@ -1499,14 +1499,14 @@
               <FilePath>..\Src\drivers\svpwm.c</FilePath>
             </File>
             <File>
-              <FileName>usb_cdc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\usb_cdc.c</FilePath>
-            </File>
-            <File>
               <FileName>usartDr.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\drivers\usartDr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbDr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\drivers\usbDr.c</FilePath>
             </File>
           </Files>
         </Group>

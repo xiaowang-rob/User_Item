@@ -9,27 +9,23 @@ typedef enum
     Data,
     Cmd,
     Ask
-} msgID_e;
-typedef enum
-{
-    sum,
-    id
-} Check_e;
+} USART_MSG_ID_e;
 typedef struct
 {
-    msgID_e msgID;
     u8 head;
-    u8 tail;
+    USART_MSG_ID_e msgID;
     u8 len;
-    u8 Index;
     u8 data[Max_Data_Length];
+    u8 check;
+    u8 tail;
 } Usart_Farme_t;
 
 void usartDrInit();
 void usartSendByte(u8 *data);
 void usartSendData(u8 *data, u8 len);
-void usart_frame_send(msgID_e id, u8 *data, u8 len);
-
+void usartRecvByte(u8 *data);
+void usart_frame_send(USART_MSG_ID_e id, u8 *data, u8 len);
+void usart_farmedata_deal(u8 *id, u8 *data, u8 *len);
 // 发送单个浮点数（VOFA+ Float 格式）
 void vofa_send_float(float value);
 

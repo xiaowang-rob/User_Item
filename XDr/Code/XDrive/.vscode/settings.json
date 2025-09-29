@@ -28,7 +28,12 @@
         "usartdr.h": "c",
         "usart_protocol.h": "c",
         "usbd_cdc_if.h": "c",
-        "usbd_cdc.h": "c"
+        "usbd_cdc.h": "c",
+        "usbd_def.h": "c",
+        "usbd_core.h": "c",
+        "usbd_ioreq.h": "c",
+        "usbd_ctlreq.h": "c",
+        "usbd_conf.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
