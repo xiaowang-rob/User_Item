@@ -1921,55 +1921,82 @@ Section Cross References
     usbdr.o(.text.usbRecvByte) refers to memcpya.o(.text) for __aeabi_memcpy
     usbdr.o(.text.usbRecvByte) refers to usbdr.o(.text.usb_FrameData_deal) for usb_FrameData_deal
     usbdr.o(.ARM.exidx.text.usbRecvByte) refers to usbdr.o(.text.usbRecvByte) for [Anonymous Symbol]
-    math_fast.o(.text.clark_transform) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
     math_fast.o(.ARM.exidx.text.clark_transform) refers to math_fast.o(.text.clark_transform) for [Anonymous Symbol]
-    math_fast.o(.text.inv_clark_transform) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
     math_fast.o(.ARM.exidx.text.inv_clark_transform) refers to math_fast.o(.text.inv_clark_transform) for [Anonymous Symbol]
-    math_fast.o(.text.park_transform) refers to math_fast.o(.text.fast_sin) for fast_sin
-    math_fast.o(.text.park_transform) refers to math_fast.o(.text.fast_cos) for fast_cos
+    math_fast.o(.text.park_transform) refers to arm_sin_f32.o(.text.arm_sin_f32) for arm_sin_f32
+    math_fast.o(.text.park_transform) refers to arm_cos_f32.o(.text.arm_cos_f32) for arm_cos_f32
     math_fast.o(.ARM.exidx.text.park_transform) refers to math_fast.o(.text.park_transform) for [Anonymous Symbol]
-    math_fast.o(.text.fast_sin) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    math_fast.o(.text.fast_sin) refers to math_fast.o(.bss.fast_sin_table) for fast_sin_table
-    math_fast.o(.ARM.exidx.text.fast_sin) refers to math_fast.o(.text.fast_sin) for [Anonymous Symbol]
-    math_fast.o(.text.fast_cos) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    math_fast.o(.text.fast_cos) refers to math_fast.o(.bss.fast_cos_table) for fast_cos_table
-    math_fast.o(.ARM.exidx.text.fast_cos) refers to math_fast.o(.text.fast_cos) for [Anonymous Symbol]
-    math_fast.o(.text.inv_park_transform) refers to math_fast.o(.text.fast_sin) for fast_sin
-    math_fast.o(.text.inv_park_transform) refers to math_fast.o(.text.fast_cos) for fast_cos
+    math_fast.o(.text.inv_park_transform) refers to arm_sin_f32.o(.text.arm_sin_f32) for arm_sin_f32
+    math_fast.o(.text.inv_park_transform) refers to arm_cos_f32.o(.text.arm_cos_f32) for arm_cos_f32
     math_fast.o(.ARM.exidx.text.inv_park_transform) refers to math_fast.o(.text.inv_park_transform) for [Anonymous Symbol]
-    math_fast.o(.text.init_fast_sincos_table) refers to sinf.o(i.__hardfp_sinf) for __hardfp_sinf
-    math_fast.o(.text.init_fast_sincos_table) refers to math_fast.o(.bss.fast_sin_table) for fast_sin_table
-    math_fast.o(.text.init_fast_sincos_table) refers to cosf.o(i.__hardfp_cosf) for __hardfp_cosf
-    math_fast.o(.text.init_fast_sincos_table) refers to math_fast.o(.bss.fast_cos_table) for fast_cos_table
-    math_fast.o(.ARM.exidx.text.init_fast_sincos_table) refers to math_fast.o(.text.init_fast_sincos_table) for [Anonymous Symbol]
-    cosf.o(i.__hardfp_cosf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    cosf.o(i.__hardfp_cosf) refers to rredf.o(i.__mathlib_rredf2) for __mathlib_rredf2
-    cosf.o(i.__hardfp_cosf) refers to errno.o(i.__set_errno) for __set_errno
-    cosf.o(i.__hardfp_cosf) refers to funder.o(i.__mathlib_flt_invalid) for __mathlib_flt_invalid
-    cosf.o(i.__hardfp_cosf) refers to funder.o(i.__mathlib_flt_infnan) for __mathlib_flt_infnan
-    cosf.o(i.__softfp_cosf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    cosf.o(i.__softfp_cosf) refers to cosf.o(i.__hardfp_cosf) for __hardfp_cosf
-    cosf.o(i.cosf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    cosf.o(i.cosf) refers to cosf.o(i.__hardfp_cosf) for __hardfp_cosf
-    fmodf.o(i.__hardfp_fmodf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    fmodf.o(i.__hardfp_fmodf) refers to frem.o(.text) for _frem
-    fmodf.o(i.__hardfp_fmodf) refers to errno.o(i.__set_errno) for __set_errno
-    fmodf.o(i.__hardfp_fmodf) refers to funder.o(i.__mathlib_flt_invalid) for __mathlib_flt_invalid
-    fmodf.o(i.__softfp_fmodf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    fmodf.o(i.__softfp_fmodf) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    fmodf.o(i.fmodf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    fmodf.o(i.fmodf) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    sinf.o(i.__hardfp_sinf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    sinf.o(i.__hardfp_sinf) refers to rredf.o(i.__mathlib_rredf2) for __mathlib_rredf2
-    sinf.o(i.__hardfp_sinf) refers to fpclassifyf.o(i.__ARM_fpclassifyf) for __ARM_fpclassifyf
-    sinf.o(i.__hardfp_sinf) refers to funder.o(i.__mathlib_flt_underflow) for __mathlib_flt_underflow
-    sinf.o(i.__hardfp_sinf) refers to errno.o(i.__set_errno) for __set_errno
-    sinf.o(i.__hardfp_sinf) refers to funder.o(i.__mathlib_flt_invalid) for __mathlib_flt_invalid
-    sinf.o(i.__hardfp_sinf) refers to funder.o(i.__mathlib_flt_infnan) for __mathlib_flt_infnan
-    sinf.o(i.__softfp_sinf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    sinf.o(i.__softfp_sinf) refers to sinf.o(i.__hardfp_sinf) for __hardfp_sinf
-    sinf.o(i.sinf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    sinf.o(i.sinf) refers to sinf.o(i.__hardfp_sinf) for __hardfp_sinf
+    math_fast.o(.ARM.exidx.text.fast_roundf) refers to math_fast.o(.text.fast_roundf) for [Anonymous Symbol]
+    math_fast.o(.ARM.exidx.text.fast_absf) refers to math_fast.o(.text.fast_absf) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.smo_sensorless_init) refers to smo.o(.text.smo_sensorless_init) for [Anonymous Symbol]
+    smo.o(.text.smo_sensorless_update) refers to atan2f.o(i.__hardfp_atan2f) for __hardfp_atan2f
+    smo.o(.ARM.exidx.text.smo_sensorless_update) refers to smo.o(.text.smo_sensorless_update) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.smo_sensorless_get_theta) refers to smo.o(.text.smo_sensorless_get_theta) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.smo_sensorless_get_omega) refers to smo.o(.text.smo_sensorless_get_omega) for [Anonymous Symbol]
+    smo.o(.text.param_tuning_init) refers to memseta.o(.text) for __aeabi_memclr4
+    smo.o(.ARM.exidx.text.param_tuning_init) refers to smo.o(.text.param_tuning_init) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.sensorless_param_tuning_start) refers to smo.o(.text.sensorless_param_tuning_start) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.encoder_param_tuning_start) refers to smo.o(.text.encoder_param_tuning_start) for [Anonymous Symbol]
+    smo.o(.text.sensorless_param_tuning_update) refers to smo.o(.text.tune_resistance_correct) for tune_resistance_correct
+    smo.o(.text.sensorless_param_tuning_update) refers to smo.o(.text.tune_inductance_correct) for tune_inductance_correct
+    smo.o(.text.sensorless_param_tuning_update) refers to smo.o(.text.sensorless_tune_flux) for sensorless_tune_flux
+    smo.o(.ARM.exidx.text.sensorless_param_tuning_update) refers to smo.o(.text.sensorless_param_tuning_update) for [Anonymous Symbol]
+    smo.o(.text.tune_resistance_correct) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
+    smo.o(.ARM.exidx.text.tune_resistance_correct) refers to smo.o(.text.tune_resistance_correct) for [Anonymous Symbol]
+    smo.o(.text.tune_inductance_correct) refers to smo.o(.bss.tune_inductance_correct.i_alpha_prev) for tune_inductance_correct.i_alpha_prev
+    smo.o(.text.tune_inductance_correct) refers to smo.o(.bss.tune_inductance_correct.i_beta_prev) for tune_inductance_correct.i_beta_prev
+    smo.o(.text.tune_inductance_correct) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
+    smo.o(.ARM.exidx.text.tune_inductance_correct) refers to smo.o(.text.tune_inductance_correct) for [Anonymous Symbol]
+    smo.o(.text.sensorless_tune_flux) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
+    smo.o(.ARM.exidx.text.sensorless_tune_flux) refers to smo.o(.text.sensorless_tune_flux) for [Anonymous Symbol]
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_pole_pairs_correct) for tune_pole_pairs_correct
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_resistance_correct) for tune_resistance_correct
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_inductance_correct) for tune_inductance_correct
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_flux_correct) for tune_flux_correct
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_inertia_correct) for tune_inertia_correct
+    smo.o(.text.encoder_param_tuning_update) refers to smo.o(.text.tune_friction_correct) for tune_friction_correct
+    smo.o(.ARM.exidx.text.encoder_param_tuning_update) refers to smo.o(.text.encoder_param_tuning_update) for [Anonymous Symbol]
+    smo.o(.text.tune_pole_pairs_correct) refers to atan2f.o(i.__hardfp_atan2f) for __hardfp_atan2f
+    smo.o(.text.tune_pole_pairs_correct) refers to smo.o(.bss.tune_pole_pairs_correct.mech_prev) for tune_pole_pairs_correct.mech_prev
+    smo.o(.text.tune_pole_pairs_correct) refers to smo.o(.bss.tune_pole_pairs_correct.elec_prev) for tune_pole_pairs_correct.elec_prev
+    smo.o(.text.tune_pole_pairs_correct) refers to math_fast.o(.text.fast_absf) for fast_absf
+    smo.o(.text.tune_pole_pairs_correct) refers to math_fast.o(.text.fast_roundf) for fast_roundf
+    smo.o(.ARM.exidx.text.tune_pole_pairs_correct) refers to smo.o(.text.tune_pole_pairs_correct) for [Anonymous Symbol]
+    smo.o(.text.tune_flux_correct) refers to math_fast.o(.text.fast_absf) for fast_absf
+    smo.o(.text.tune_flux_correct) refers to sqrtf.o(i.__hardfp_sqrtf) for __hardfp_sqrtf
+    smo.o(.ARM.exidx.text.tune_flux_correct) refers to smo.o(.text.tune_flux_correct) for [Anonymous Symbol]
+    smo.o(.text.tune_inertia_correct) refers to smo.o(.bss.tune_inertia_correct.omega_prev) for tune_inertia_correct.omega_prev
+    smo.o(.text.tune_inertia_correct) refers to arm_cos_f32.o(.text.arm_cos_f32) for arm_cos_f32
+    smo.o(.text.tune_inertia_correct) refers to arm_sin_f32.o(.text.arm_sin_f32) for arm_sin_f32
+    smo.o(.text.tune_inertia_correct) refers to math_fast.o(.text.fast_absf) for fast_absf
+    smo.o(.ARM.exidx.text.tune_inertia_correct) refers to smo.o(.text.tune_inertia_correct) for [Anonymous Symbol]
+    smo.o(.text.tune_friction_correct) refers to math_fast.o(.text.fast_absf) for fast_absf
+    smo.o(.text.tune_friction_correct) refers to arm_cos_f32.o(.text.arm_cos_f32) for arm_cos_f32
+    smo.o(.text.tune_friction_correct) refers to arm_sin_f32.o(.text.arm_sin_f32) for arm_sin_f32
+    smo.o(.ARM.exidx.text.tune_friction_correct) refers to smo.o(.text.tune_friction_correct) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_state) refers to smo.o(.text.param_tuning_get_state) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_pole_pairs) refers to smo.o(.text.param_tuning_get_pole_pairs) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_Rs) refers to smo.o(.text.param_tuning_get_Rs) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_Ls) refers to smo.o(.text.param_tuning_get_Ls) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_Psi_f) refers to smo.o(.text.param_tuning_get_Psi_f) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_J) refers to smo.o(.text.param_tuning_get_J) for [Anonymous Symbol]
+    smo.o(.ARM.exidx.text.param_tuning_get_B) refers to smo.o(.text.param_tuning_get_B) for [Anonymous Symbol]
+    arm_cos_f32.o(.text.arm_cos_f32) refers to arm_common_tables.o(.rodata.sinTable_f32) for sinTable_f32
+    arm_cos_f32.o(.ARM.exidx.text.arm_cos_f32) refers to arm_cos_f32.o(.text.arm_cos_f32) for [Anonymous Symbol]
+    arm_sin_f32.o(.text.arm_sin_f32) refers to arm_common_tables.o(.rodata.sinTable_f32) for sinTable_f32
+    arm_sin_f32.o(.ARM.exidx.text.arm_sin_f32) refers to arm_sin_f32.o(.text.arm_sin_f32) for [Anonymous Symbol]
+    atan2f.o(i.__hardfp_atan2f) refers (Special) to iusefp.o(.text) for __I$use$fp
+    atan2f.o(i.__hardfp_atan2f) refers to fpclassifyf.o(i.__ARM_fpclassifyf) for __ARM_fpclassifyf
+    atan2f.o(i.__hardfp_atan2f) refers to funder.o(i.__mathlib_flt_underflow) for __mathlib_flt_underflow
+    atan2f.o(i.__hardfp_atan2f) refers to errno.o(i.__set_errno) for __set_errno
+    atan2f.o(i.__hardfp_atan2f) refers to funder.o(i.__mathlib_flt_infnan2) for __mathlib_flt_infnan2
+    atan2f.o(i.__softfp_atan2f) refers (Special) to iusefp.o(.text) for __I$use$fp
+    atan2f.o(i.__softfp_atan2f) refers to atan2f.o(i.__hardfp_atan2f) for __hardfp_atan2f
+    atan2f.o(i.atan2f) refers (Special) to iusefp.o(.text) for __I$use$fp
+    atan2f.o(i.atan2f) refers to atan2f.o(i.__hardfp_atan2f) for __hardfp_atan2f
     sqrtf.o(i.__hardfp_sqrtf) refers (Special) to iusefp.o(.text) for __I$use$fp
     sqrtf.o(i.__hardfp_sqrtf) refers to errno.o(i.__set_errno) for __set_errno
     sqrtf.o(i.__softfp_sqrtf) refers (Special) to iusefp.o(.text) for __I$use$fp
@@ -1987,9 +2014,6 @@ Section Cross References
     uldiv.o(.text) refers to llshl.o(.text) for __aeabi_llsl
     rand.o(.text) refers to rand.o(.data) for .data
     fpclassifyf.o(i.__ARM_fpclassifyf) refers (Special) to iusefp.o(.text) for __I$use$fp
-    rredf.o(i.__mathlib_rredf2) refers (Special) to iusefp.o(.text) for __I$use$fp
-    rredf.o(i.__mathlib_rredf2) refers to rredf.o(.constdata) for .constdata
-    rredf.o(.constdata) refers (Special) to iusefp.o(.text) for __I$use$fp
     entry2.o(.ARM.Collect$$$$00000001) refers to entry2.o(.ARM.Collect$$$$00002712) for __lit__00000000
     entry2.o(.ARM.Collect$$$$00002712) refers to startup_stm32f405xx.o(STACK) for __initial_sp
     entry2.o(__vectab_stack_and_reset_area) refers to startup_stm32f405xx.o(STACK) for __initial_sp
@@ -2000,10 +2024,7 @@ Section Cross References
     errno.o(i.__aeabi_errno_addr) refers to errno.o(.data) for .data
     errno.o(i.__read_errno) refers to errno.o(.data) for .data
     errno.o(i.__set_errno) refers to errno.o(.data) for .data
-    frem.o(.text) refers (Special) to iusefp.o(.text) for __I$use$fp
-    frem.o(.text) refers to fepilogue.o(.text) for _float_epilogue
     init.o(.text) refers to entry5.o(.ARM.Collect$$$$00000004) for __main_after_scatterload
-    fepilogue.o(.text) refers (Special) to iusefp.o(.text) for __I$use$fp
 
 
 ==============================================================================
@@ -3505,29 +3526,198 @@ Removing Unused input sections from the image.
     Removing crc.o(.text), (0 bytes).
     Removing filter.o(.text), (0 bytes).
     Removing math_fast.o(.text), (0 bytes).
-    Removing math_fast.o(.text.clark_transform), (72 bytes).
+    Removing math_fast.o(.text.clark_transform), (60 bytes).
     Removing math_fast.o(.ARM.exidx.text.clark_transform), (8 bytes).
-    Removing math_fast.o(.text.inv_clark_transform), (156 bytes).
+    Removing math_fast.o(.text.inv_clark_transform), (92 bytes).
     Removing math_fast.o(.ARM.exidx.text.inv_clark_transform), (8 bytes).
     Removing math_fast.o(.text.park_transform), (116 bytes).
     Removing math_fast.o(.ARM.exidx.text.park_transform), (8 bytes).
-    Removing math_fast.o(.text.fast_sin), (208 bytes).
-    Removing math_fast.o(.ARM.exidx.text.fast_sin), (8 bytes).
-    Removing math_fast.o(.text.fast_cos), (208 bytes).
-    Removing math_fast.o(.ARM.exidx.text.fast_cos), (8 bytes).
     Removing math_fast.o(.text.inv_park_transform), (116 bytes).
     Removing math_fast.o(.ARM.exidx.text.inv_park_transform), (8 bytes).
-    Removing math_fast.o(.text.init_fast_sincos_table), (124 bytes).
-    Removing math_fast.o(.ARM.exidx.text.init_fast_sincos_table), (8 bytes).
-    Removing math_fast.o(.bss.fast_sin_table), (4096 bytes).
-    Removing math_fast.o(.bss.fast_cos_table), (4096 bytes).
+    Removing math_fast.o(.text.fast_roundf), (30 bytes).
+    Removing math_fast.o(.ARM.exidx.text.fast_roundf), (8 bytes).
+    Removing math_fast.o(.text.fast_absf), (22 bytes).
+    Removing math_fast.o(.ARM.exidx.text.fast_absf), (8 bytes).
     Removing ring_buffer.o(.text), (0 bytes).
     Removing smo.o(.text), (0 bytes).
+    Removing smo.o(.text.smo_sensorless_init), (104 bytes).
+    Removing smo.o(.ARM.exidx.text.smo_sensorless_init), (8 bytes).
+    Removing smo.o(.text.smo_sensorless_update), (488 bytes).
+    Removing smo.o(.ARM.exidx.text.smo_sensorless_update), (8 bytes).
+    Removing smo.o(.text.smo_sensorless_get_theta), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.smo_sensorless_get_theta), (8 bytes).
+    Removing smo.o(.text.smo_sensorless_get_omega), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.smo_sensorless_get_omega), (8 bytes).
+    Removing smo.o(.text.param_tuning_init), (240 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_init), (8 bytes).
+    Removing smo.o(.text.sensorless_param_tuning_start), (26 bytes).
+    Removing smo.o(.ARM.exidx.text.sensorless_param_tuning_start), (8 bytes).
+    Removing smo.o(.text.encoder_param_tuning_start), (26 bytes).
+    Removing smo.o(.ARM.exidx.text.encoder_param_tuning_start), (8 bytes).
+    Removing smo.o(.text.sensorless_param_tuning_update), (584 bytes).
+    Removing smo.o(.ARM.exidx.text.sensorless_param_tuning_update), (8 bytes).
+    Removing smo.o(.text.tune_resistance_correct), (368 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_resistance_correct), (8 bytes).
+    Removing smo.o(.text.tune_inductance_correct), (436 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_inductance_correct), (8 bytes).
+    Removing smo.o(.text.sensorless_tune_flux), (296 bytes).
+    Removing smo.o(.ARM.exidx.text.sensorless_tune_flux), (8 bytes).
+    Removing smo.o(.text.encoder_param_tuning_update), (732 bytes).
+    Removing smo.o(.ARM.exidx.text.encoder_param_tuning_update), (8 bytes).
+    Removing smo.o(.text.tune_pole_pairs_correct), (404 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_pole_pairs_correct), (8 bytes).
+    Removing smo.o(.text.tune_flux_correct), (308 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_flux_correct), (8 bytes).
+    Removing smo.o(.text.tune_inertia_correct), (484 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_inertia_correct), (8 bytes).
+    Removing smo.o(.text.tune_friction_correct), (460 bytes).
+    Removing smo.o(.ARM.exidx.text.tune_friction_correct), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_state), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_state), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_pole_pairs), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_pole_pairs), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_Rs), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_Rs), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_Ls), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_Ls), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_Psi_f), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_Psi_f), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_J), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_J), (8 bytes).
+    Removing smo.o(.text.param_tuning_get_B), (14 bytes).
+    Removing smo.o(.ARM.exidx.text.param_tuning_get_B), (8 bytes).
+    Removing smo.o(.bss.tune_pole_pairs_correct.mech_prev), (4 bytes).
+    Removing smo.o(.bss.tune_pole_pairs_correct.elec_prev), (4 bytes).
+    Removing smo.o(.bss.tune_inductance_correct.i_alpha_prev), (4 bytes).
+    Removing smo.o(.bss.tune_inductance_correct.i_beta_prev), (4 bytes).
+    Removing smo.o(.bss.tune_inertia_correct.omega_prev), (4 bytes).
+    Removing smo.o(.bss.tune_inertia_correct.time_prev), (4 bytes).
+    Removing smo.o(.bss.tune_friction_correct.time_prev), (4 bytes).
     Removing state_machine.o(.text), (0 bytes).
-    Removing frem.o(.text), (82 bytes).
-    Removing fepilogue.o(.text), (110 bytes).
+    Removing arm_cos_f32.o(.text), (0 bytes).
+    Removing arm_cos_f32.o(.text.arm_cos_f32), (152 bytes).
+    Removing arm_cos_f32.o(.ARM.exidx.text.arm_cos_f32), (8 bytes).
+    Removing arm_sin_f32.o(.text), (0 bytes).
+    Removing arm_sin_f32.o(.text.arm_sin_f32), (144 bytes).
+    Removing arm_sin_f32.o(.ARM.exidx.text.arm_sin_f32), (8 bytes).
+    Removing arm_common_tables.o(.text), (0 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevTable), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_16), (256 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_32), (512 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_64), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_128), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_256), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_512), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_1024), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_2048), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_4096), (65536 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_16), (128 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_32), (256 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_64), (512 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_128), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_256), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_512), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_1024), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_2048), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_4096), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_16_q31), (96 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_32_q31), (192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_64_q31), (384 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_128_q31), (768 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_256_q31), (1536 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_512_q31), (3072 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_1024_q31), (6144 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_2048_q31), (12288 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_4096_q31), (24576 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_16_q15), (48 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_32_q15), (96 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_64_q15), (192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_128_q15), (384 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_256_q15), (768 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_512_q15), (1536 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_1024_q15), (3072 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_2048_q15), (6144 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_4096_q15), (12288 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_16), (24 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_32), (48 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_64), (112 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_128), (224 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_256), (480 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_512), (960 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_1024), (1984 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_2048), (3968 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTableF64_4096), (8064 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable16), (40 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable32), (96 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable64), (112 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable128), (416 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable256), (880 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable512), (896 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable1024), (3600 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable2048), (7616 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable4096), (8064 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_16), (24 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_32), (48 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_64), (112 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_128), (224 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_256), (480 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_512), (960 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_1024), (1984 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_2048), (3968 bytes).
+    Removing arm_common_tables.o(.rodata.armBitRevIndexTable_fixed_4096), (8064 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_32), (256 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_64), (512 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_128), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_256), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_512), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_1024), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_2048), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoefF64_rfft_4096), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_32), (128 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_64), (256 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_128), (512 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_256), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_512), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_1024), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_2048), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.twiddleCoef_rfft_4096), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefA), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefB), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefAQ31), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefBQ31), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefAQ15), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.realCoefBQ15), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.Weights_128), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factors_128), (512 bytes).
+    Removing arm_common_tables.o(.rodata.Weights_512), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factors_512), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.Weights_2048), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factors_2048), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.Weights_8192), (65536 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factors_8192), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ15_128), (512 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ15_128), (256 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ15_512), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ15_512), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ15_2048), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ15_2048), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ15_8192), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ15_8192), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ31_128), (1024 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ31_128), (512 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ31_512), (4096 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ31_512), (2048 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ31_2048), (16384 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ31_2048), (8192 bytes).
+    Removing arm_common_tables.o(.rodata.WeightsQ31_8192), (65536 bytes).
+    Removing arm_common_tables.o(.rodata.cos_factorsQ31_8192), (32768 bytes).
+    Removing arm_common_tables.o(.rodata.armRecipTableQ15), (128 bytes).
+    Removing arm_common_tables.o(.rodata.armRecipTableQ31), (256 bytes).
+    Removing arm_common_tables.o(.rodata.sinTable_f32), (2052 bytes).
+    Removing arm_common_tables.o(.rodata.sinTable_q31), (2052 bytes).
+    Removing arm_common_tables.o(.rodata.sinTable_q15), (1026 bytes).
 
-1516 unused section(s) (total 109647 bytes) removed from the image.
+1685 unused section(s) (total 1025275 bytes) removed from the image.
 
 ==============================================================================
 
@@ -3559,19 +3749,17 @@ Image Symbol Table
     ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
     ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
     ../clib/microlib/stubs.s                 0x00000000   Number         0  iusefp.o ABSOLUTE
-    ../fplib/microlib/fpepilogue.c           0x00000000   Number         0  fepilogue.o ABSOLUTE
-    ../fplib/microlib/fprem.c                0x00000000   Number         0  frem.o ABSOLUTE
-    ../mathlib/cosf.c                        0x00000000   Number         0  cosf.o ABSOLUTE
-    ../mathlib/fmodf.c                       0x00000000   Number         0  fmodf.o ABSOLUTE
+    ../mathlib/atan2f.c                      0x00000000   Number         0  atan2f.o ABSOLUTE
     ../mathlib/fpclassifyf.c                 0x00000000   Number         0  fpclassifyf.o ABSOLUTE
     ../mathlib/funder.c                      0x00000000   Number         0  funder.o ABSOLUTE
-    ../mathlib/rredf.c                       0x00000000   Number         0  rredf.o ABSOLUTE
-    ../mathlib/sinf.c                        0x00000000   Number         0  sinf.o ABSOLUTE
     ../mathlib/sqrtf.c                       0x00000000   Number         0  sqrtf.o ABSOLUTE
     adaptive_control.c                       0x00000000   Number         0  adaptive_control.o ABSOLUTE
     adc.c                                    0x00000000   Number         0  adc.o ABSOLUTE
     adcDr.c                                  0x00000000   Number         0  adcdr.o ABSOLUTE
     app_main.c                               0x00000000   Number         0  app_main.o ABSOLUTE
+    arm_common_tables.c                      0x00000000   Number         0  arm_common_tables.o ABSOLUTE
+    arm_cos_f32.c                            0x00000000   Number         0  arm_cos_f32.o ABSOLUTE
+    arm_sin_f32.c                            0x00000000   Number         0  arm_sin_f32.o ABSOLUTE
     auto_calibration.c                       0x00000000   Number         0  auto_calibration.o ABSOLUTE
     can.c                                    0x00000000   Number         0  can.o ABSOLUTE
     canDr.c                                  0x00000000   Number         0  candr.o ABSOLUTE
@@ -4375,22 +4563,22 @@ Memory Map of the image
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000188   Data   RO            3    RESET               startup_stm32f405xx.o
-    0x08000188   0x08000188   0x00000000   Code   RO         2147  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x08000188   0x08000188   0x00000004   Code   RO         2180    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x0800018c   0x0800018c   0x00000004   Code   RO         2183    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2185    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2187    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x08000190   0x08000190   0x00000008   Code   RO         2188    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2190    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2192    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x08000198   0x08000198   0x00000004   Code   RO         2181    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000188   0x08000188   0x00000000   Code   RO         2328  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x08000188   0x08000188   0x00000004   Code   RO         2358    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x0800018c   0x0800018c   0x00000004   Code   RO         2361    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2363    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2365    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x08000190   0x08000190   0x00000008   Code   RO         2366    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2368    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2370    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x08000198   0x08000198   0x00000004   Code   RO         2359    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x0800019c   0x0800019c   0x00000024   Code   RO            4    .text               startup_stm32f405xx.o
-    0x080001c0   0x080001c0   0x00000062   Code   RO         2150    .text               mc_w.l(uldiv.o)
-    0x08000222   0x08000222   0x00000024   Code   RO         2155    .text               mc_w.l(memcpya.o)
-    0x08000246   0x08000246   0x00000024   Code   RO         2157    .text               mc_w.l(memseta.o)
-    0x0800026a   0x0800026a   0x0000001e   Code   RO         2194    .text               mc_w.l(llshl.o)
-    0x08000288   0x08000288   0x00000020   Code   RO         2196    .text               mc_w.l(llushr.o)
-    0x080002a8   0x080002a8   0x00000030   Code   RO         2208    .text               mc_w.l(init.o)
+    0x080001c0   0x080001c0   0x00000062   Code   RO         2331    .text               mc_w.l(uldiv.o)
+    0x08000222   0x08000222   0x00000024   Code   RO         2336    .text               mc_w.l(memcpya.o)
+    0x08000246   0x08000246   0x00000024   Code   RO         2338    .text               mc_w.l(memseta.o)
+    0x0800026a   0x0800026a   0x0000001e   Code   RO         2372    .text               mc_w.l(llshl.o)
+    0x08000288   0x08000288   0x00000020   Code   RO         2374    .text               mc_w.l(llushr.o)
+    0x080002a8   0x080002a8   0x00000030   Code   RO         2384    .text               mc_w.l(init.o)
     0x080002d8   0x080002d8   0x0000018a   Code   RO          830    .text.ADC_Init      stm32f4xx_hal_adc.o
     0x08000462   0x08000462   0x00000002   PAD
     0x08000464   0x08000464   0x00000004   Code   RO          138    .text.BusFault_Handler  stm32f4xx_it.o
@@ -4776,15 +4964,15 @@ Memory Map of the image
     0x08009ad4   0x08009ad4   0x00000040   Code   RO           11    .text.main          main.o
     0x08009b14   0x08009b14   0x00000108   Code   RO         2080    .text.usbRecvByte   usbdr.o
     0x08009c1c   0x08009c1c   0x0000000e   Code   RO         2078    .text.usb_FrameData_deal  usbdr.o
-    0x08009c2a   0x08009c2a   0x0000000e   Code   RO         2214    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x08009c38   0x08009c38   0x00000002   Code   RO         2215    i.__scatterload_null  mc_w.l(handlers.o)
-    0x08009c3a   0x08009c3a   0x0000000e   Code   RO         2216    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x08009c2a   0x08009c2a   0x0000000e   Code   RO         2388    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x08009c38   0x08009c38   0x00000002   Code   RO         2389    i.__scatterload_null  mc_w.l(handlers.o)
+    0x08009c3a   0x08009c3a   0x0000000e   Code   RO         2390    i.__scatterload_zeroinit  mc_w.l(handlers.o)
     0x08009c48   0x08009c48   0x00000010   Data   RO         1591    .rodata.AHBPrescTable  system_stm32f4xx.o
     0x08009c58   0x08009c58   0x00000008   Data   RO         1592    .rodata.APBPrescTable  system_stm32f4xx.o
     0x08009c60   0x08009c60   0x00000008   Data   RO          592    .rodata.DMA_CalcBaseAndBitshift.flagBitshiftOffset  stm32f4xx_hal_dma.o
     0x08009c68   0x08009c68   0x00000033   Data   RO         1631    .rodata.str1.1      usbd_desc.o
     0x08009c9b   0x08009c9b   0x00000001   PAD
-    0x08009c9c   0x08009c9c   0x00000020   Data   RO         2213    Region$$Table       anon$$obj.o
+    0x08009c9c   0x08009c9c   0x00000020   Data   RO         2387    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08009cc0, Size: 0x000025c8, Max: 0x0001c000, ABSOLUTE)
@@ -4887,10 +5075,10 @@ Image component sizes
       3402         30          0          0          1       8559   usbd_ctlreq.o
        572          0         51         76        256       3229   usbd_desc.o
        246          0          0          0          0       4217   usbd_ioreq.o
-       278          0          0          0        263       2127   usbdr.o
+       278          0          0          0        263       2125   usbdr.o
 
     ----------------------------------------------------------------------
-     39286        112        508        248       9424     297424   Object Totals
+     39286        112        508        248       9424     297422   Object Totals
          0          0         32          0          0          0   (incl. Generated)
        248          0          1          7          4          0   (incl. Padding)
 
@@ -4934,8 +5122,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     39616        130        508        248       9424     297264   Grand Totals
-     39616        130        508        248       9424     297264   ELF Image Totals
+     39616        130        508        248       9424     297262   Grand Totals
+     39616        130        508        248       9424     297262   ELF Image Totals
      39616        130        508        248          0          0   ROM Totals
 
 ==============================================================================

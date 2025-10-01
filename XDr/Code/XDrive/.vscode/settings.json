@@ -33,7 +33,10 @@
         "usbd_core.h": "c",
         "usbd_ioreq.h": "c",
         "usbd_ctlreq.h": "c",
-        "usbd_conf.h": "c"
+        "usbd_conf.h": "c",
+        "math.h": "c",
+        "smo.h": "c",
+        "arm_math.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
