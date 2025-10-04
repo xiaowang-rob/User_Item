@@ -16,8 +16,6 @@ typedef struct
     u8 B;
 } RGB_Color_TypeDef;
 
-#define Pixel_NUM 2 // LED数量宏定义
-
 static void Reset_Load(void); // 该函数用于将数组最后24个数据变为0，代表RESET_code
 
 // 发送最终数组
@@ -31,5 +29,10 @@ void RGB_SetOne_Color(u8 LedId, RGB_Color_TypeDef Color); // 给一个LED装载2
 void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color);
 
 void RGB_Show_64(void); // RGB写入函数
+
+void LED_ENCODER_EN(void);
+void LED_ENCODER_DIS(void);
+void LED_CANrx_EN(void);
+void LED_CANrx_DIS(void);
 
 #endif

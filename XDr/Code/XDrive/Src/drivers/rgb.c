@@ -1,6 +1,7 @@
 #include "rgb.h"
 #include "tim.h"
 #include "stdlib.h"
+#include "base_parameters.h"
 
 /*Some Static Colors------------------------------*/
 const RGB_Color_TypeDef RED = {255, 0, 0};       // 红色
@@ -73,7 +74,7 @@ static void Reset_Load(void)
 */
 static void RGB_SendArray(void)
 {
-    HAL_TIM_PWM_Start_DMA(&htim4, TIM_CHANNEL_2, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
 }
 
 /*
@@ -135,4 +136,21 @@ void RGB_Show_64(void)
     RGB_SetMore_Color(48, rand() % 8 + 48, table[rand() % 16]);
     RGB_SetMore_Color(56, rand() % 8 + 56, table[rand() % 16]);
     RGB_Flush(); // 刷新WS2812B的显示
+}
+
+void LED_ENCODER_EN(void)
+{
+    HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);
+}
+void LED_ENCODER_DIS(void)
+{
+    HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_RESET);
+}
+void LED_CANrx_EN(void)
+{
+    HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
+}
+void LED_CANrx_DIS(void)
+{
+    HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
 }

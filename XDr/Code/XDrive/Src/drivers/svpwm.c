@@ -3,11 +3,11 @@
 #include "math_fast.h"
 #include "string.h"
 #include "system_parameters.h"
-SVPWM_t svpwm_g = {0};
-void svpwm_Init(float Vbus)
+
+void svpwm_Init(SVPWM_t svpwm, float Vbus)
 {
-    memset(&svpwm_g, 0, sizeof(SVPWM_t));
-    svpwm_g.k = sqrt3 * ticpwm / Vbus;
+    memset(&svpwm, 0, sizeof(SVPWM_t));
+    svpwm.k = sqrt3 * ticpwm / Vbus;
 }
 void pwm_out(u8 channel, u16 compare)
 {
@@ -26,7 +26,7 @@ void pwm_out(u8 channel, u16 compare)
         break;
     }
 }
-void svpwm(float ualpha, float ubeta)
+void svpwm(float ualpha, float ubeta, SVPWM_t svpwm)
 {
     float U1 = ubeta;
     float U2 = sqrt3 * ualpha - ubeta;
@@ -39,34 +39,34 @@ void svpwm(float ualpha, float ubeta)
     switch (N)
     {
     case 1:
-        svpwm_g.sector = 2;
-        Tx = -2 * svpwm_g.k * U1;
-        Ty = -svpwm_g.k * U3;
+        svpwm.sector = 2;
+        Tx = -2 * svpwm.k * U1;
+        Ty = -svpwm.k * U3;
         break;
     case 2:
-        svpwm_g.sector = 6;
-        Tx = -svpwm_g.k * U3;
-        Ty = -2 * svpwm_g.k * U1;
+        svpwm.sector = 6;
+        Tx = -svpwm.k * U3;
+        Ty = -2 * svpwm.k * U1;
         break;
     case 3:
-        svpwm_g.sector = 1;
-        Tx = svpwm_g.k * U2;
-        Ty = 2 * svpwm_g.k * U1;
+        svpwm.sector = 1;
+        Tx = svpwm.k * U2;
+        Ty = 2 * svpwm.k * U1;
         break;
     case 4:
-        svpwm_g.sector = 4;
-        Tx = -2 * svpwm_g.k * U1;
-        Ty = -svpwm_g.k * U2;
+        svpwm.sector = 4;
+        Tx = -2 * svpwm.k * U1;
+        Ty = -svpwm.k * U2;
         break;
     case 5:
-        svpwm_g.sector = 3;
-        Tx = 2 * svpwm_g.k * U1;
-        Ty = svpwm_g.k * U3;
+        svpwm.sector = 3;
+        Tx = 2 * svpwm.k * U1;
+        Ty = svpwm.k * U3;
         break;
     case 6:
-        svpwm_g.sector = 5;
-        Tx = svpwm_g.k * U3;
-        Ty = svpwm_g.k * U2;
+        svpwm.sector = 5;
+        Tx = svpwm.k * U3;
+        Ty = svpwm.k * U2;
         break;
     default:
         break;
@@ -91,7 +91,7 @@ void svpwm(float ualpha, float ubeta)
     float tv1 = 0, tv2 = ticpwm;
     float tw1 = 0, tw2 = ticpwm;
 
-    switch (svpwm_g.sector)
+    switch (svpwm.sector)
     {
     case 1: // V1(100), V2(110)
         tu1 = t0;
@@ -146,15 +146,15 @@ void svpwm(float ualpha, float ubeta)
     }
 
     // 计算中心对齐 PWM 的比较值（CCR = (上升沿 + 下降沿) / 2）
-    svpwm_g.ticu = (u16)((tu1 + tu2) / 2.0f);
-    svpwm_g.ticv = (u16)((tv1 + tv2) / 2.0f);
-    svpwm_g.ticw = (u16)((tw1 + tw2) / 2.0f);
+    svpwm.ticu = (u16)((tu1 + tu2) / 2.0f);
+    svpwm.ticv = (u16)((tv1 + tv2) / 2.0f);
+    svpwm.ticw = (u16)((tw1 + tw2) / 2.0f);
     // 更新比较值
-    pwm_out(1, svpwm_g.ticu);
-    pwm_out(2, svpwm_g.ticv);
-    pwm_out(3, svpwm_g.ticw);
+    pwm_out(1, svpwm.ticu);
+    pwm_out(2, svpwm.ticv);
+    pwm_out(3, svpwm.ticw);
 }
-void svpwm_SetVbus(float Vbus)
+void svpwm_SetVbus(SVPWM_t svpwm, float Vbus)
 {
-    svpwm_g.k = sqrt3 * ticpwm / Vbus;
+    svpwm.k = sqrt3 * ticpwm / Vbus;
 }

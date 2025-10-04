@@ -11,10 +11,9 @@ typedef struct
     u16 ticv;
     u16 ticw;
 } SVPWM_t;
-extern SVPWM_t svpwm_g;
 
-void svpwm_Init(float Vbus);
-void svpwm(float ualpha, float ubeta);
-void svpwm_SetVbus(float Vbus);
+void svpwm_Init(SVPWM_t svpwm, float Vbus);
+void svpwm(float ualpha, float ubeta, SVPWM_t svpwm);
+void svpwm_SetVbus(SVPWM_t svpwm, float Vbus);
 
 #endif

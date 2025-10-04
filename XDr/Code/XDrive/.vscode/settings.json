@@ -36,7 +36,18 @@
         "usbd_conf.h": "c",
         "math.h": "c",
         "smo.h": "c",
-        "arm_math.h": "c"
+        "arm_math.h": "c",
+        "rgb.h": "c",
+        "status_feedback.h": "c",
+        "system_parameters.h": "c",
+        "svpwm.h": "c",
+        "system_statemachine.h": "c",
+        "loop_control.h": "c",
+        "foc_core.h": "c",
+        "cstdlib": "c",
+        "auto_calibration.h": "c",
+        "candr.h": "c",
+        "encoder.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

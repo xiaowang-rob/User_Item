@@ -10,10 +10,11 @@ typedef struct
     bool no_mag_flag;         // 磁场无效标志位
     bool communication_error; // 通信错误标志位
     float angle_rad;          // 弧度值
-    float angle_deg;          // 转换为角度值（0~360°）
-    float angle_offset;       // 角度偏移值
+    float angle_last;
+    float angle_inc;    // 角度增量值rad
+    float angle_deg;    // 转换为角度值（0~360°）
+    float angle_offset; // 角度偏移值
 } ENCODER_t;
-extern ENCODER_t encoder;
 
 #if ENcoder == 1 // MT6816
 // MT6816 寄存器地址定义
@@ -24,13 +25,13 @@ extern ENCODER_t encoder;
 // 状态位定义
 #define MT6816_NO_MAG_WARNING (1 << 1) // 弱磁报警位
 #define MT6816_PARITY_CHECK (1 << 0)   // 奇偶校验位
-#define MT6816_OVER_SPEED (1 << 3)     // 超速报警位
 
 #endif
 
 // 函数声明
 void ENCODER_Init(void);
 float GET_ENCODER_ANGLE_RAD(void);
+float GET_ENCODER_ANGLE_INC(void);
 void SET_ENCODER_ANGLE_OFFSET(float offset);
 
 #endif // ENCODER_H

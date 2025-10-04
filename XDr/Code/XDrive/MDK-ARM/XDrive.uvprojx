@@ -1458,11 +1458,6 @@
               <FileType>1</FileType>
               <FilePath>..\Src\control\loop_control.c</FilePath>
             </File>
-            <File>
-              <FileName>mode_manager.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\control\mode_manager.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -1529,9 +1524,14 @@
               <FilePath>..\Src\services\status_feedback.c</FilePath>
             </File>
             <File>
-              <FileName>system_monitor.c</FileName>
+              <FileName>stream_transmission.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\services\system_monitor.c</FilePath>
+              <FilePath>..\Src\services\stream_transmission.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_statemachine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\services\system_statemachine.c</FilePath>
             </File>
           </Files>
         </Group>

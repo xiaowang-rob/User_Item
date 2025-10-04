@@ -1,7 +1,10 @@
 #include "encoder.h"
 #include "string.h"
-
+#include "stdbool.h"
+#include "spi.h"
+#include "math_fast.h"
 ENCODER_t encoder_g = {0};
+static bool DealDone_flag = false;
 
 /**
  * @brief 8位SPI读写函数
@@ -40,29 +43,25 @@ static bool MT6816_ReadRegister(u8 reg_addr, u8 *data)
  * @return true: 读取成功，false: 失败
  */
 u8 valid = 0;
-bool ENCODER_ReadData()
+u8 reg03_data = 0;
+u8 reg04_data = 0;
+void ENCODER_ReadData()
 {
-    u8 reg03_data = 0;
-    u8 reg04_data = 0;
-    u8 reg05_data = 0;
-
     // 读取寄存器0x03（角度高位：Angle<13:6>）
     if (!MT6816_ReadRegister(MT6816_REG_ANGLE_HIGH, &reg03_data))
     {
-        return false;
+        return;
     }
 
     // 读取寄存器0x04（角度低位 + 状态位：Angle<5:0> + No_Mag_Warning + PC）
     if (!MT6816_ReadRegister(MT6816_REG_ANGLE_LOW, &reg04_data))
     {
-        return false;
+        DealDone_flag = false;
+        return;
     }
-
-    // 读取寄存器0x05（状态位：Over_Speed + 其他）
-    if (!MT6816_ReadRegister(MT6816_REG_STATUS, &reg05_data))
-    {
-        return false;
-    }
+}
+void ENCODER_DEALDATA()
+{
 
     // 解析14位角度值
     // reg03_data: Angle<13:6> (高8位)
@@ -75,6 +74,8 @@ bool ENCODER_ReadData()
     // 转换为角度值（0~360°）
     encoder_g.angle_deg = (float)angle_raw * 0.02197265625f;                            // *360/16384  16384 = 2^14
     encoder_g.angle_rad = encoder_g.angle_deg * 0.0174532922f + encoder_g.angle_offset; // 角度值转弧度值
+    encoder_g.angle_inc += encoder_g.angle_rad - encoder_g.angle_last;
+    encoder_g.angle_last = encoder_g.angle_rad;
     // 提取状态位（从reg04_data和reg05_data中）
     encoder_g.no_mag_flag = (reg04_data & MT6816_NO_MAG_WARNING) ? true : false;
     bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
@@ -100,7 +101,16 @@ bool ENCODER_ReadData()
         encoder_g.communication_error = true;
     else
         encoder_g.communication_error = false;
-    return ENCODER_ReadData();
+    DealDone_flag = true;
+    ENCODER_ReadData();
+}
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+    if (hspi == (&ENcoder_SPI_Get_HSPI))
+    {
+        if (DealDone_flag == false)
+            ENCODER_DEALDATA();
+    }
 }
 
 void ENCODER_Init(void)
@@ -112,7 +122,19 @@ float GET_ENCODER_ANGLE_RAD(void)
 {
     return encoder_g.angle_rad;
 }
+float GET_ENCODER_ANGLE_INC(void)
+{
+    return encoder_g.angle_inc;
+}
 void SET_ENCODER_ANGLE_OFFSET(float offset)
 {
     encoder_g.angle_offset = offset;
+}
+bool GET_ENCODER_COMMUNICATION_ERROR(void)
+{
+    return encoder_g.communication_error;
+}
+bool GET_ENCODER_NO_MAG_FLAG(void)
+{
+    return encoder_g.no_mag_flag;
 }
