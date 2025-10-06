@@ -7,12 +7,10 @@ typedef struct
 {
     u16 current_steps;
     u16 speed_steps;
-    u16 position_steps;
-    u16 updata_steps;
-    bool current_updata;
+    u16 speed_updata_steps;
+    u16 position_updata_steps;
     bool speed_updata;
     bool position_updata;
-    float Tcur;
     float Tspd;
     float Tpos;
 } f_Division_t;
@@ -54,6 +52,7 @@ extern LOOP_CON_t g_loop_con;
 
 void Frequency_division_updatta(f_Division_t *fd);
 void Frequency_division_reset(f_Division_t *fd);
+void loop_reset(void);
 void LOOP_Parameter_writing(float kfd, float Udc, float max_current, float max_speed, float kp_id, float ki_id,
                             float kp_iq, float ki_iq, float kp_speed, float ki_speed, float kp_pos, float ki_pos, float kd_pos);
 float Current_loop(float current_ref, float current_fb);

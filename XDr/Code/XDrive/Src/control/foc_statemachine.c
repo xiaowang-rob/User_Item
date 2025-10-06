@@ -1,17 +1,30 @@
 #include "foc_statemachine.h"
 #include "stdbool.h"
 #include "auto_calibration.h"
+#include "tim.h"
+#include "foc_core.h"
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM8)
+    {
+        FOC_StateMachine_updata(g_foccore.state);
+        foc_core_run();
+    }
+}
 
 bool FOC_INIT_event()
 {
-    // TODO: add code here
+    // TODO:基本参数写入+初始化
 }
 bool FOC_AUTO_TUNE_event()
 {
+    foc_enable();
     return auto_calibration_update();
 }
 void FOC_IDLE_event()
 {
+    foc_disable();
 }
 void FOC_RUNNING_event()
 {

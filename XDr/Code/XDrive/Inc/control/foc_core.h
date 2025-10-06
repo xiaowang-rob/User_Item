@@ -12,7 +12,6 @@ typedef enum
 } RUN_MODE_e;
 typedef enum
 {
-    IDLE,
     CURRENT_LOOP_CONTROL,
     SPEED_LOOP_CONTROL,
     POSITION_ABS_CONTROL, // 绝对位置控制 会以最优方式转到位置
@@ -39,7 +38,6 @@ typedef struct
     FOC_STATE_e state;
     RUN_MODE_e run_mode;
     LOOP_MODE_e loop_mode;
-    bool enable;
     float Reduction_ratio; // 减速比
     float iq_ref;
     float id_ref;
@@ -55,12 +53,19 @@ typedef struct
     float pos_gradient;
     float omega_gradient;
 
-    float align_current;
+    float align_cur;
     u32 current_steps;
     u32 align_steps;
 
-    u32 min_changeloop_steps;
+    float openloop_cur;
+    float openloop_omega;
     float changeloop_speed;
+    bool change_flag;
+    bool align_flag;
 
 } startup_mechine_t;
+
+void foc_core_run();
+void foc_disable();
+void foc_enable();
 #endif // __FOC_CORE_H

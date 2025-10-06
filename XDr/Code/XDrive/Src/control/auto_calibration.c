@@ -17,7 +17,7 @@ void auto_calibration_init(float initial_Rs, float initial_Ls,
                       Tcon);
     g_param_tuning.tune_mode = tune_mode;
     if (tune_mode == ENCODER_TUNE)
-        g_param_tuning.tune_state = PARAM_TUNE_POLE_PAIRS;
+        g_param_tuning.tune_state = PARAM_TUNE_THETA_OFFSET;
     else
         g_param_tuning.tune_state = PARAM_TUNE_RS;
     g_param_tuning.tune_samples = 0;
@@ -34,7 +34,13 @@ bool auto_calibration_update()
 
         switch (g_param_tuning.tune_state)
         {
+        case PARAM_TUNE_THETA_OFFSET:
+            g_foccore.run_mode = ENCODER_CONTROL;
+            g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
+            g_foccore.id_ref = 0.1;
+            break;
         case PARAM_TUNE_POLE_PAIRS:
+            g_foccore.run_mode = AUTO_TUNE_CONTROL;
             g_monitor.theta_elec += OMEGA_TUNE_POLE_PAIRS * g_param_tuning.dt;
             if (g_monitor.theta_elec >= M2_PI)
                 g_monitor.theta_elec -= M2_PI;
@@ -75,7 +81,7 @@ bool auto_calibration_update()
             break;
         case PARAM_TUNE_COMPLETE:
             g_foccore.run_mode = AUTO_TUNE_CONTROL;
-            g_foccore.loop_mode = IDLE;
+            g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
             g_monitor.Ualpha = 0;
             g_monitor.Ubeta = 0;
             break;
@@ -90,6 +96,7 @@ bool auto_calibration_update()
         switch (g_param_tuning.tune_state)
         {
         case PARAM_TUNE_RS:
+            g_foccore.run_mode = AUTO_TUNE_CONTROL;
             g_monitor.Ualpha = 0.5f;
             g_monitor.Ubeta = 0.5f;
             break;
@@ -106,13 +113,17 @@ bool auto_calibration_update()
             break;
         case PARAM_TUNE_COMPLETE:
             g_foccore.run_mode = AUTO_TUNE_CONTROL;
-            g_foccore.loop_mode = IDLE;
+            g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
             g_monitor.Ualpha = 0;
             g_monitor.Ubeta = 0;
             break;
         default:
             break;
         }
+    }
+    if (g_param_tuning.theta_offset_updated)
+    {
+        SET_ENCODER_ANGLE_OFFSET(g_param_tuning.theta_offset);
     }
     if (g_param_tuning.tune_state == PARAM_TUNE_COMPLETE)
     {

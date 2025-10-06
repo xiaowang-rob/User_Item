@@ -25,7 +25,6 @@ void smo_sensorless_update(smo_sensorless_t *smo,
                            float v_alpha, float v_beta,
                            float i_alpha, float i_beta)
 {
-
     // 估算电流
     smo->i_alpha_hat += ((v_alpha - smo->Rs * smo->i_alpha_hat - smo->e_alpha) / smo->Ls) * smo->dt;
     smo->i_beta_hat += ((v_beta - smo->Rs * smo->i_beta_hat - smo->e_beta) / smo->Ls) * smo->dt;
@@ -153,7 +152,7 @@ void sensorless_param_tuning_update(param_tuning_t *smo,
         break;
 
     case PARAM_TUNE_FLUX:
-        if (omega_electrical - omega_elec_last > 0.1)
+        if ((omega_electrical - omega_elec_last > 0.1) || omega_electrical == 0)
             break;
         if (tune_flux_correct(smo, omega_electrical))
             smo->tune_state = PARAM_TUNE_COMPLETE;
@@ -168,8 +167,7 @@ static float omega_last = 0;
 void encoder_param_tuning_update(param_tuning_t *smo,
                                  float v_alpha_applied, float v_beta_applied,
                                  float i_alpha, float i_beta,
-                                 float theta_mechanical,
-                                 float omega_mechanical)
+                                 float theta_mechanical, float omega_mechanical)
 {
     float omega_electrical = 0;
     float theta_electrical = 0;
@@ -195,6 +193,13 @@ void encoder_param_tuning_update(param_tuning_t *smo,
 
     switch (smo->tune_state)
     {
+    case PARAM_TUNE_THETA_OFFSET:
+        if (omega_mechanical > 0.01f)
+            break;
+        smo->theta_offset = theta_mechanical;
+        smo->theta_offset_updated = true;
+        smo->tune_state = PARAM_TUNE_POLE_PAIRS;
+        break;
     case PARAM_TUNE_POLE_PAIRS:
         if (omega_mechanical - omega_last > 1)
             break;

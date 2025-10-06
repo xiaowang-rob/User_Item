@@ -26,6 +26,21 @@ void pwm_out(u8 channel, u16 compare)
         break;
     }
 }
+void ENABLE_PWM()
+{
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+    pwm_out(1, 0);
+    pwm_out(2, 0);
+    pwm_out(3, 0);
+}
+void DISABLE_PWM()
+{
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);
+}
 void svpwm(float ualpha, float ubeta, SVPWM_t svpwm)
 {
     float U1 = ubeta;

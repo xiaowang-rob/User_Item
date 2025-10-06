@@ -47,13 +47,14 @@ typedef enum
 typedef enum
 {
     PARAM_TUNE_IDLE = 0,
-    PARAM_TUNE_POLE_PAIRS, // 极对数（首先）
-    PARAM_TUNE_RS,         // 电阻
-    PARAM_TUNE_LS,         // 电感
-    PARAM_TUNE_FLUX,       // 磁链
-    PARAM_TUNE_INERTIA,    // 惯量
-    PARAM_TUNE_FRICTION,   // 摩擦
-    PARAM_TUNE_COMPLETE    // 完成
+    PARAM_TUNE_THETA_OFFSET, // 角度偏移
+    PARAM_TUNE_POLE_PAIRS,   // 极对数（首先）
+    PARAM_TUNE_RS,           // 电阻
+    PARAM_TUNE_LS,           // 电感
+    PARAM_TUNE_FLUX,         // 磁链
+    PARAM_TUNE_INERTIA,      // 惯量
+    PARAM_TUNE_FRICTION,     // 摩擦
+    PARAM_TUNE_COMPLETE      // 完成
 } param_tune_state_t;
 
 /*****************************************参数整定*********************************** */
@@ -62,6 +63,7 @@ typedef enum
 typedef struct
 {
     // 电机参数（可更新）
+    float theta_offset;    // 角度偏移
     float Rs;              // 定子电阻
     float Ls;              // 定子电感
     float Psi_f;           // 永磁体磁链
@@ -101,13 +103,13 @@ typedef struct
     u16 history_index;
 
     // 更新标志
+    bool theta_offset_updated;
     bool Rs_updated;
     bool Ls_updated;
     bool Psi_f_updated;
     bool pole_pairs_updated;
     bool J_updated;
     bool B_updated;
-
     bool fault_flag; // 故障标志
 
 } param_tuning_t;

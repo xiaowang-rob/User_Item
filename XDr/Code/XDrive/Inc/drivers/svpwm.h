@@ -12,6 +12,8 @@ typedef struct
     u16 ticw;
 } SVPWM_t;
 
+void ENABLE_PWM();
+void DISABLE_PWM();
 void svpwm_Init(SVPWM_t svpwm, float Vbus);
 void svpwm(float ualpha, float ubeta, SVPWM_t svpwm);
 void svpwm_SetVbus(SVPWM_t svpwm, float Vbus);
