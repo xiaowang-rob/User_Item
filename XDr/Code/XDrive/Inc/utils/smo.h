@@ -25,7 +25,7 @@ typedef struct
     float omega; // 电角速度
     float theta_prev;
 } smo_sensorless_t;
-
+extern smo_sensorless_t g_smo;
 // 初始化
 void smo_sensorless_init(smo_sensorless_t *smo, float Rs, float Ls, float dt);
 
@@ -38,6 +38,11 @@ void smo_sensorless_update(smo_sensorless_t *smo,
 float smo_sensorless_get_theta(smo_sensorless_t *smo);
 float smo_sensorless_get_omega(smo_sensorless_t *smo);
 
+typedef enum
+{
+    ENCODER_TUNE,
+    SENSORLESS_TUNE,
+} TUNE_MODE_E;
 // 参数整定状态
 typedef enum
 {
@@ -78,8 +83,8 @@ typedef struct
     float e_beta_filtered;
 
     // 参数整定状态
+    TUNE_MODE_E tune_mode;
     param_tune_state_t tune_state;
-    u32 tune_counter;
     u32 tune_samples;
 
     // 用于参数计算的变量
@@ -103,6 +108,8 @@ typedef struct
     bool J_updated;
     bool B_updated;
 
+    bool fault_flag; // 故障标志
+
 } param_tuning_t;
 // 初始化--无感需要准确的极对数
 void param_tuning_init(param_tuning_t *smo,
@@ -110,9 +117,6 @@ void param_tuning_init(param_tuning_t *smo,
                        float initial_Psi_f, float initial_pole_pairs,
                        float dt);
 // 开始整定
-void sensorless_param_tuning_start(param_tuning_t *smo);
-void encoder_param_tuning_start(param_tuning_t *smo);
-
 void sensorless_param_tuning_update(param_tuning_t *smo,
                                     float v_alpha, float v_beta,
                                     float i_alpha, float i_beta, float omega_electrical);

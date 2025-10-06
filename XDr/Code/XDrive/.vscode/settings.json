@@ -47,7 +47,9 @@
         "cstdlib": "c",
         "auto_calibration.h": "c",
         "candr.h": "c",
-        "encoder.h": "c"
+        "encoder.h": "c",
+        "foc_statemachine.h": "c",
+        "startup_machine.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

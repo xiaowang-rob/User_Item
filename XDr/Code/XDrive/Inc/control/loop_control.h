@@ -57,7 +57,9 @@ void Frequency_division_reset(f_Division_t *fd);
 void LOOP_Parameter_writing(float kfd, float Udc, float max_current, float max_speed, float kp_id, float ki_id,
                             float kp_iq, float ki_iq, float kp_speed, float ki_speed, float kp_pos, float ki_pos, float kd_pos);
 float Current_loop(float current_ref, float current_fb);
+float Magnetic_loop(float id_ref, float id_fb);
 float Speed_loop(float omega_ref, float omega_fb);
-float Position_loop(float position_ref, float position_fb);
-float weak_mag_loop(float id_ref, float id_fb);
+float Position_abs_loop(float position_ref, float position_fb);
+float Position_rel_loop(float position_ref, float position_fb);
+
 #endif

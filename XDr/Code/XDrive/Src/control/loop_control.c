@@ -167,7 +167,7 @@ float Current_loop(float current_ref, float current_fb)
 {
     return PI_updata(&g_loop_con.PI_iq, current_ref, current_fb, g_loop_con.fd.Tcur);
 }
-float weak_mag_loop(float id_ref, float id_fb)
+float Magnetic_loop(float id_ref, float id_fb)
 {
     return PI_updata(&g_loop_con.PI_id, id_ref, id_fb, g_loop_con.fd.Tcur);
 }
@@ -175,7 +175,11 @@ float Speed_loop(float omega_ref, float omega_fb)
 {
     return PI_updata(&g_loop_con.PI_speed, omega_ref, omega_fb, g_loop_con.fd.Tspd);
 }
-float Position_loop(float position_ref, float position_fb)
+float Position_abs_loop(float position_ref, float position_fb)
+{
+    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
+}
+float Position_rel_loop(float position_ref, float position_fb)
 {
     return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
 }

@@ -96,7 +96,6 @@ void param_tuning_init(param_tuning_t *smo,
     smo->e_beta_filtered = 0.0f;
 
     smo->tune_state = PARAM_TUNE_IDLE;
-    smo->tune_counter = 0;
     smo->tune_samples = 0;
 
     memset(smo->i_history, 0, sizeof(smo->i_history));
@@ -111,20 +110,7 @@ void param_tuning_init(param_tuning_t *smo,
     smo->J_updated = false;
     smo->B_updated = false;
 }
-// 无感整定启动
-void sensorless_param_tuning_start(param_tuning_t *smo)
-{
-    smo->tune_state = PARAM_TUNE_RS;
-    smo->tune_counter = 0;
-    smo->tune_samples = 0;
-}
-// 有感整定启动
-void encoder_param_tuning_start(param_tuning_t *smo)
-{
-    smo->tune_state = PARAM_TUNE_POLE_PAIRS;
-    smo->tune_counter = 0;
-    smo->tune_samples = 0;
-}
+float omega_elec_last = 0;
 // 无感整定更新
 void sensorless_param_tuning_update(param_tuning_t *smo,
                                     float v_alpha, float v_beta,
@@ -167,15 +153,18 @@ void sensorless_param_tuning_update(param_tuning_t *smo,
         break;
 
     case PARAM_TUNE_FLUX:
+        if (omega_electrical - omega_elec_last > 0.1)
+            break;
         if (tune_flux_correct(smo, omega_electrical))
             smo->tune_state = PARAM_TUNE_COMPLETE;
         break;
-
     default:
         break;
     }
+    omega_elec_last = omega_electrical;
 }
 // 有感整定更新
+static float omega_last = 0;
 void encoder_param_tuning_update(param_tuning_t *smo,
                                  float v_alpha_applied, float v_beta_applied,
                                  float i_alpha, float i_beta,
@@ -203,24 +192,33 @@ void encoder_param_tuning_update(param_tuning_t *smo,
     smo->e_beta_filtered += smo->k_f * (smo->e_beta - smo->e_beta_filtered) * smo->dt;
 
     // 参数整定状态机
+
     switch (smo->tune_state)
     {
     case PARAM_TUNE_POLE_PAIRS:
+        if (omega_mechanical - omega_last > 1)
+            break;
         if (tune_pole_pairs_correct(smo, theta_mechanical))
             smo->tune_state = PARAM_TUNE_RS;
         break;
 
     case PARAM_TUNE_RS:
+        if (omega_mechanical > 0.01f)
+            break;
         if (tune_resistance_correct(smo, v_alpha_applied, v_beta_applied, i_alpha, i_beta))
             smo->tune_state = PARAM_TUNE_LS;
         break;
 
     case PARAM_TUNE_LS:
+        if (omega_mechanical > 0.01f)
+            break;
         if (tune_inductance_correct(smo, v_alpha_applied, v_beta_applied, i_alpha, i_beta))
             smo->tune_state = PARAM_TUNE_FLUX;
         break;
 
     case PARAM_TUNE_FLUX:
+        if (omega_mechanical - omega_last > 0.1)
+            break;
         omega_electrical = omega_mechanical * smo->pole_pairs;
         if (tune_flux_correct(smo, omega_electrical))
             smo->tune_state = PARAM_TUNE_INERTIA;
@@ -228,7 +226,7 @@ void encoder_param_tuning_update(param_tuning_t *smo,
 
     case PARAM_TUNE_INERTIA:
         theta_electrical = theta_mechanical * smo->pole_pairs;
-        if (tune_inertia_correct(smo, omega_mechanical, i_alpha, i_beta, theta_electrical))
+        if (tune_inertia_correct(smo, (omega_mechanical - omega_last) / smo->dt, i_alpha, i_beta, theta_electrical))
             smo->tune_state = PARAM_TUNE_FRICTION;
         break;
 
@@ -240,9 +238,11 @@ void encoder_param_tuning_update(param_tuning_t *smo,
     default:
         break;
     }
+    omega_last = omega_mechanical;
 }
 
 // 1. 极对数整定
+
 bool tune_pole_pairs_correct(param_tuning_t *smo, float theta_mechanical)
 {
     static float mech_prev = 0.0f;
@@ -276,7 +276,6 @@ bool tune_pole_pairs_correct(param_tuning_t *smo, float theta_mechanical)
     if (smo->tune_samples >= 100)
     {
         smo->pole_pairs_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
@@ -287,12 +286,6 @@ bool tune_pole_pairs_correct(param_tuning_t *smo, float theta_mechanical)
 bool tune_resistance_correct(param_tuning_t *smo, float v_alpha, float v_beta,
                              float i_alpha, float i_beta)
 {
-    if (smo->tune_counter < 100)
-    {
-        smo->tune_counter++;
-        return false;
-    }
-
     float v_mag = sqrtf(v_alpha * v_alpha + v_beta * v_beta);
     float i_mag = sqrtf(i_alpha * i_alpha + i_beta * i_beta);
 
@@ -310,8 +303,9 @@ bool tune_resistance_correct(param_tuning_t *smo, float v_alpha, float v_beta,
 
     if (smo->tune_samples >= 200)
     {
+        if (smo->Rs > 0.01f && smo->Rs < 5.0f)
+            smo->fault_flag = true;
         smo->Rs_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
@@ -348,8 +342,9 @@ bool tune_inductance_correct(param_tuning_t *smo, float v_alpha, float v_beta,
 
     if (smo->tune_samples >= 100)
     {
+        if (smo->Ls > 0.000005f && smo->Ls < 0.0002f)
+            smo->fault_flag = true;
         smo->Ls_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
@@ -380,7 +375,6 @@ bool tune_flux_correct(param_tuning_t *smo, float omega_electrical)
     if (smo->tune_samples >= 200)
     {
         smo->Psi_f_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
@@ -388,16 +382,9 @@ bool tune_flux_correct(param_tuning_t *smo, float omega_electrical)
 }
 
 // 5. 惯量整定（物理正确版）
-bool tune_inertia_correct(param_tuning_t *smo, float omega_mechanical,
+bool tune_inertia_correct(param_tuning_t *smo, float acceleration,
                           float i_alpha, float i_beta, float theta_electrical)
 {
-    static float omega_prev = 0.0f;
-    static float time_prev = 0.0f;
-
-    // 计算机械加速度
-    float acceleration = (omega_mechanical - omega_prev) / smo->dt;
-    omega_prev = omega_mechanical;
-
     // 计算转矩（基于当前参数）
     // T = 1.5 * P * [Ψf * iq + (Ld - Lq) * id * iq]
     // 简化：假设 Ld ≈ Lq，主要为永磁转矩
@@ -421,7 +408,6 @@ bool tune_inertia_correct(param_tuning_t *smo, float omega_mechanical,
     if (smo->tune_samples >= 100)
     {
         smo->J_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
@@ -460,7 +446,6 @@ bool tune_friction_correct(param_tuning_t *smo, float omega_mechanical,
     if (smo->tune_samples >= 200)
     {
         smo->B_updated = true;
-        smo->tune_counter = 0;
         smo->tune_samples = 0;
         return true;
     }
