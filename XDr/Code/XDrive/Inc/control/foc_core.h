@@ -68,4 +68,6 @@ typedef struct
 void foc_core_run();
 void foc_disable();
 void foc_enable();
+bool foc_shutdown();
+
 #endif // __FOC_CORE_H

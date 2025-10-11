@@ -16,6 +16,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 bool FOC_INIT_event()
 {
     // TODO:基本参数写入+初始化
+    return false;
 }
 bool FOC_AUTO_TUNE_event()
 {
@@ -28,25 +29,28 @@ void FOC_IDLE_event()
 }
 void FOC_RUNNING_event()
 {
+    foc_enable();
 }
 bool FOC_SHUTDOWN_event()
 {
+    return foc_shutdown();
 }
 void FOC_FAULT_event()
 {
+    foc_disable();
 }
 
-void FOC_StateMachine_updata(FOC_STATE_e *state)
+void FOC_StateMachine_updata(FOC_STATE_e state)
 {
-    switch (*state)
+    switch (state)
     {
     case FOC_INIT:
         if (FOC_INIT_event())
-            *state = FOC_IDLE;
+            FOC_CHANGE_STATE(FOC_IDLE);
         break;
     case FOC_AUTO_TUNE:
         if (FOC_AUTO_TUNE_event())
-            *state = FOC_IDLE;
+            FOC_CHANGE_STATE(FOC_IDLE);
         break;
     case FOC_IDLE:
         FOC_IDLE_event();
@@ -56,7 +60,7 @@ void FOC_StateMachine_updata(FOC_STATE_e *state)
         break;
     case FOC_SHUTDOWN:
         if (FOC_SHUTDOWN_event())
-            *state = FOC_FAULT;
+            FOC_CHANGE_STATE(FOC_FAULT);
         break;
     case FOC_FAULT:
         FOC_FAULT_event();
@@ -64,4 +68,8 @@ void FOC_StateMachine_updata(FOC_STATE_e *state)
     default:
         break;
     }
+}
+void FOC_CHANGE_STATE(FOC_STATE_e state)
+{
+    g_foccore.state = state;
 }

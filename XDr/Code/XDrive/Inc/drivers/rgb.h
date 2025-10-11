@@ -16,6 +16,16 @@ typedef struct
     u8 B;
 } RGB_Color_TypeDef;
 
+extern const RGB_Color_TypeDef RED;     // 红色
+extern const RGB_Color_TypeDef GREEN;   // 绿色
+extern const RGB_Color_TypeDef BLUE;    // 深蓝色
+extern const RGB_Color_TypeDef SKY;     // 天蓝色
+extern const RGB_Color_TypeDef MAGENTA; // 粉色
+extern const RGB_Color_TypeDef YELLOW;  // 黄色
+extern const RGB_Color_TypeDef OEANGE;  // 橘色
+extern const RGB_Color_TypeDef BLACK;   // 无颜色
+extern const RGB_Color_TypeDef WHITE;   // 白色
+
 static void Reset_Load(void); // 该函数用于将数组最后24个数据变为0，代表RESET_code
 
 // 发送最终数组
@@ -30,6 +40,8 @@ void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color);
 
 void RGB_Show_64(void); // RGB写入函数
 
+void rgb_breathe(RGB_Color_TypeDef Color);                              // 呼吸灯效果
+void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2); // 交替显示两个颜色
 void LED_ENCODER_EN(void);
 void LED_ENCODER_DIS(void);
 void LED_CANrx_EN(void);

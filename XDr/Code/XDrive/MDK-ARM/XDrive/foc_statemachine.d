@@ -1,5 +1,5 @@
-xdrive/status_feedback.o: ..\Src\services\status_feedback.c \
-  ..\Inc\services\status_feedback.h ..\Inc\control\foc_core.h \
+xdrive/foc_statemachine.o: ..\Src\control\foc_statemachine.c \
+  ..\Inc\control\foc_statemachine.h ..\Inc\control\auto_calibration.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,6 +32,4 @@ xdrive/status_feedback.o: ..\Src\services\status_feedback.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\control\foc_statemachine.h ..\Inc\drivers\rgb.h \
-  ..\Inc\drivers\encoder.h ..\Config\base_parameters.h ..\Core\Inc\spi.h \
-  ..\Inc\drivers\canDr.h
+  ..\Core\Inc\tim.h ..\Inc\control\foc_core.h

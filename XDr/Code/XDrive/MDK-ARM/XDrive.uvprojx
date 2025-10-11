@@ -1458,6 +1458,16 @@
               <FileType>1</FileType>
               <FilePath>..\Src\control\loop_control.c</FilePath>
             </File>
+            <File>
+              <FileName>foc_statemachine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\control\foc_statemachine.c</FilePath>
+            </File>
+            <File>
+              <FileName>smo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\control\smo.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1539,11 +1549,6 @@
           <GroupName>Src/utils</GroupName>
           <Files>
             <File>
-              <FileName>crc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\utils\crc.c</FilePath>
-            </File>
-            <File>
               <FileName>filter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\utils\filter.c</FilePath>
@@ -1559,14 +1564,9 @@
               <FilePath>..\Src\utils\ring_buffer.c</FilePath>
             </File>
             <File>
-              <FileName>smo.c</FileName>
+              <FileName>queue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\utils\smo.c</FilePath>
-            </File>
-            <File>
-              <FileName>state_machine.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\utils\state_machine.c</FilePath>
+              <FilePath>..\Src\utils\queue.c</FilePath>
             </File>
           </Files>
         </Group>

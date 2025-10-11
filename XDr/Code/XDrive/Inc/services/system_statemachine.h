@@ -6,6 +6,8 @@
 typedef enum
 {
     SYSTEM_INIT,
+    SYSTEM_RUNNING,
+    SYSTEM_ERROR,
 } SYSTEM_STATE_e;
 
 #endif

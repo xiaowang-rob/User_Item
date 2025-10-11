@@ -112,32 +112,53 @@ void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color)
     }
 }
 
-// 用来显示单个颜色的函数，只能从第一个开始显示，不好用
-// void RGB_RED(uint16_t Pixel_Len)
-//{
-//	uint16_t i;
-//	for(i=0;i<Pixel_Len;i++)//给对应个数LED写入红色
-//	{
-//		RGB_SetOne_Color(i,RED);
-//	}
-// }
-//
-
-// 灯管实现函数（完成本期效果的实现）
-void RGB_Show_64(void)
+#define RGB_BREATHE_rate 0.01f
+RGB_Color_TypeDef color_temp;
+u8 up_flag = 1;
+float color_index = 0;
+void rgb_breathe(RGB_Color_TypeDef Color)
 {
-    RGB_SetMore_Color(0, 63, BLACK);                          // 清空所有的LED数据
-    RGB_SetMore_Color(0, rand() % 8, table[rand() % 16]);     // 第一行随机个灯亮随机颜色
-    RGB_SetMore_Color(8, rand() % 8 + 8, table[rand() % 16]); // 第二行。。。。以此类推
-    RGB_SetMore_Color(16, rand() % 8 + 16, table[rand() % 16]);
-    RGB_SetMore_Color(24, rand() % 8 + 24, table[rand() % 16]);
-    RGB_SetMore_Color(32, rand() % 8 + 32, table[rand() % 16]);
-    RGB_SetMore_Color(40, rand() % 8 + 40, table[rand() % 16]);
-    RGB_SetMore_Color(48, rand() % 8 + 48, table[rand() % 16]);
-    RGB_SetMore_Color(56, rand() % 8 + 56, table[rand() % 16]);
+    color_temp.R = Color.R * color_index;
+    color_temp.G = Color.G * color_index;
+    color_temp.B = Color.B * color_index;
+    if (up_flag == 1)
+    {
+        if (color_index <= 1.0f)
+            color_index += RGB_BREATHE_rate;
+        else
+        {
+            up_flag = 0;
+        }
+    }
+    else
+    {
+        if (color_index >= 0.0f)
+            color_index -= RGB_BREATHE_rate;
+        else
+        {
+            up_flag = 1;
+        }
+    }
+    RGB_SetMore_Color(0, Pixel_NUM, color_temp);
     RGB_Flush(); // 刷新WS2812B的显示
 }
-
+#define RGB_ALTERNATE_steps 100
+static u16 _tic_steps = 0;
+void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2)
+{
+    if (_tic_steps == RGB_ALTERNATE_steps)
+    {
+        RGB_SetMore_Color(0, Pixel_NUM, Color1);
+        RGB_Flush(); // 刷新WS2812B的显示
+    }
+    if (_tic_steps == (RGB_ALTERNATE_steps * 2))
+    {
+        _tic_steps = 0;
+        RGB_SetMore_Color(0, Pixel_NUM, Color2);
+        RGB_Flush(); // 刷新WS2812B的显示
+    }
+    _tic_steps++;
+}
 void LED_ENCODER_EN(void)
 {
     HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);

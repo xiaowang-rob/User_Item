@@ -34,4 +34,6 @@ float GET_ENCODER_ANGLE_RAD(void);
 float GET_ENCODER_ANGLE_INC(void);
 void SET_ENCODER_ANGLE_OFFSET(float offset);
 
+bool GET_ENCODER_COMMUNICATION_ERROR(void);
+bool GET_ENCODER_NO_MAG_FLAG(void);
 #endif // ENCODER_H

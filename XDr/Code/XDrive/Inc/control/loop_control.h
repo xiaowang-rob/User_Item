@@ -47,18 +47,21 @@ typedef struct
     PI_t PI_id;
     PI_t PI_speed;
     PID_t PID_pos;
+    float position_min;
+    float position_max;
 } LOOP_CON_t;
-extern LOOP_CON_t g_loop_con;
 
-void Frequency_division_updatta(f_Division_t *fd);
-void Frequency_division_reset(f_Division_t *fd);
+void Frequency_division_updatta();
+void Frequency_division_reset();
 void loop_reset(void);
-void LOOP_Parameter_writing(float kfd, float Udc, float max_current, float max_speed, float kp_id, float ki_id,
+void LOOP_Parameter_writing(float fspeed, float fpos, float Udc, float max_current, float max_speed, float position_min, float position_max, float kp_id, float ki_id,
                             float kp_iq, float ki_iq, float kp_speed, float ki_speed, float kp_pos, float ki_pos, float kd_pos);
 float Current_loop(float current_ref, float current_fb);
 float Magnetic_loop(float id_ref, float id_fb);
 float Speed_loop(float omega_ref, float omega_fb);
 float Position_abs_loop(float position_ref, float position_fb);
 float Position_rel_loop(float position_ref, float position_fb);
+bool speed_loop_updata();
+bool position_loop_updata();
 
 #endif

@@ -1,6 +1,7 @@
 #include "smo.h"
 #include "math_fast.h"
 #include "system_parameters.h"
+
 /*无感SMO观测器*/
 void smo_sensorless_init(smo_sensorless_t *smo, float Rs, float Ls, float dt)
 {
@@ -97,10 +98,10 @@ void param_tuning_init(param_tuning_t *smo,
     smo->tune_state = PARAM_TUNE_IDLE;
     smo->tune_samples = 0;
 
-    memset(smo->i_history, 0, sizeof(smo->i_history));
-    memset(smo->v_history, 0, sizeof(smo->v_history));
-    memset(smo->speed_history, 0, sizeof(smo->speed_history));
-    smo->history_index = 0;
+    // memset(smo->i_history, 0, sizeof(smo->i_history));
+    // memset(smo->v_history, 0, sizeof(smo->v_history));
+    // memset(smo->speed_history, 0, sizeof(smo->speed_history));
+    // smo->history_index = 0;
 
     smo->Rs_updated = false;
     smo->Ls_updated = false;

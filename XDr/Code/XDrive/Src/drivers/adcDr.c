@@ -45,6 +45,7 @@ void ADC_DR_Init(void)
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_4, 1);
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)
 {
@@ -56,9 +57,9 @@ void ADC_sample_change(u16 compare)
 {
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_4, compare);
 }
-void ADC_GET_Voltage(float *Vbus)
+float ADC_GET_Voltage()
 {
-    *Vbus = (float)ADC2_buffer[3] * ADCval_to_Vol;
+    return (float)(ADC2_buffer[3] * ADCval_to_Vol);
 }
 u8 tempIndex = 0;
 void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, u8 *Temperature)

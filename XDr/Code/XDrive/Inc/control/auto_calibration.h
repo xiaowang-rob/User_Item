@@ -8,7 +8,6 @@
 
 typedef struct
 {
-    float Vbus;            // 母线电压
     float Rs;              // 定子电阻
     float Ls;              // 定子电感
     float Psi_f;           // 永磁体磁链
@@ -19,4 +18,5 @@ typedef struct
 } Motor_t;
 extern Motor_t g_Motor;
 
+bool auto_calibration_update();
 #endif

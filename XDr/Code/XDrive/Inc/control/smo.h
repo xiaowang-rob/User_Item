@@ -90,17 +90,17 @@ typedef struct
     u32 tune_samples;
 
     // 用于参数计算的变量
-    float test_voltage_alpha; // 测试电压 α
-    float test_voltage_beta;  // 测试电压 β
-    float test_current_alpha; // 测试电流 α
-    float test_current_beta;  // 测试电流 β
-    float test_speed_mech;    // 测试机械速度
+    // float test_voltage_alpha; // 测试电压 α
+    // float test_voltage_beta;  // 测试电压 β
+    // float test_current_alpha; // 测试电流 α
+    // float test_current_beta;  // 测试电流 β
+    // float test_speed_mech;    // 测试机械速度
 
     // 历史数据
-    float i_history[100];
-    float v_history[100];
-    float speed_history[100];
-    u16 history_index;
+    // float i_history[100];
+    // float v_history[100];
+    // float speed_history[100];
+    // u16 history_index;
 
     // 更新标志
     bool theta_offset_updated;

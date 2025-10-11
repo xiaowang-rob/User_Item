@@ -11,4 +11,6 @@ typedef enum
     FOC_FAULT
 } FOC_STATE_e;
 
+void FOC_StateMachine_updata(FOC_STATE_e state);
+void FOC_CHANGE_STATE(FOC_STATE_e state);
 #endif

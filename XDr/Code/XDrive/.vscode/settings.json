@@ -50,7 +50,12 @@
         "encoder.h": "c",
         "foc_statemachine.h": "c",
         "startup_machine.h": "c",
-        "usb_device.h": "c"
+        "usb_device.h": "c",
+        "protection_manager.h": "c",
+        "adaptive_control.h": "c",
+        "log.h": "c",
+        "flashdr.h": "c",
+        "stream_transmission.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

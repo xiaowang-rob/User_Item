@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="HVilZgKc1jR6jSf_f8j0" name="第 1 页">
-        <mxGraphModel dx="1301" dy="584" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1886" dy="847" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -55,7 +55,7 @@
                 <mxCell id="49" value="多模式运行" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="670" y="260" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="186" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="51" target="185">
+                <mxCell id="186" value="" style="edgeStyle=none;html=1;" parent="1" source="51" target="185" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="51" value="有感&lt;div&gt;电流、速度、位置（绝对、相对）&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -302,31 +302,31 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="149" value="usb" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="690" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="1290" y="670" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="154" value="" style="edgeStyle=none;html=1;" parent="1" source="151" target="153" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="151" value="can" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="806" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="1290" y="760" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="157" value="" style="edgeStyle=none;html=1;" parent="1" source="153" target="156" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="153" value="无线usart" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="914.5" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="1290" y="866" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="159" value="" style="edgeStyle=none;html=1;" parent="1" source="156" target="158" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="156" value="command" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="1026" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="1290" y="963" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="161" value="" style="edgeStyle=none;html=1;" parent="1" source="158" target="160" edge="1">
+                <mxCell id="188" value="" style="edgeStyle=none;html=1;" parent="1" source="158" target="187" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="158" value="system monitor" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="1130" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="1290" y="1060" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="163" value="" style="edgeStyle=none;html=1;" parent="1" source="160" target="162" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -416,8 +416,50 @@
                 <mxCell id="180" value="svpwm" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
                     <mxGeometry x="2150" y="980" width="120" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="185" value="位置模式中需要输入的位置为目标的位置&lt;div&gt;计算完减速比之后的位置需要输入减速比&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="185" value="位置模式中需要输入的位置为目标的位置&lt;div&gt;计算完减速比之后的位置需要输入减速比&lt;/div&gt;" style="whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="189" value="" style="edgeStyle=none;html=1;" parent="1" source="187" target="160" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="187" value="adaptive control" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="1290" y="1150" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="192" value="" style="edgeStyle=none;html=1;" parent="1" source="190" target="191" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="190" value="USB" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="120" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="191" value="参数写入、参数读取、流式数据读取、控制参数写入、控制模式写入、状态数据读取" style="whiteSpace=wrap;html=1;rounded=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="120" width="250" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="195" value="" style="edgeStyle=none;html=1;" parent="1" source="193" target="194" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="193" value="CAN" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="250" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="194" value="模式改写，控制参数写入、状态参数读取" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="250" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="199" value="" style="edgeStyle=none;html=1;" parent="1" source="197" target="198" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="197" value="Usart" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="360" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="198" value="流式数据读取" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="360" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="202" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="200" target="201">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="200" value="数据类型" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="130" y="560" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="201" value="控制静态参数、控制动态参数、反馈参数" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="130" y="700" width="120" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
