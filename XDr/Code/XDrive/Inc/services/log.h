@@ -4,11 +4,11 @@
 #include "main.h"
 #include "foc_core.h"
 #include "loop_control.h"
-#define Block 0
+#define LOG_Block 1
 #define Index_Sector 0
-#define Index_start_addr Block * 0x00010000 + Index_Sector * 0x00001000
+#define Index_start_addr LOG_Block * 0x00010000 + Index_Sector * 0x00001000
 #define Log_Sector_start 1
-#define Log_start_addr Block * 0x00010000 + Log_Sector_start * 0x00001000
+#define Log_start_addr LOG_Block * 0x00010000 + Log_Sector_start * 0x00001000
 
 typedef struct
 {

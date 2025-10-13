@@ -2,6 +2,7 @@
 #define __FLASH_DR_H
 
 #include "base_parameters.h"
+#include "stdbool.h"
 #define FLASH_SPI_CS_H() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 1)
 #define FLASH_SPI_CS_L() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 0)
 
@@ -12,9 +13,8 @@
 #define FLASH_SECTOR_NUM 16              // 16个扇区
 #define FLASH_BLOCK_NUM 256              // 256块
 
-void Erase_Write_data_Sector(u32 Address, u32 Write_data_NUM);
-void Read_W25Q128_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
-void Write_W25Q128_data(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-void W25Q128_Init(void);
+void FLASH_erase_sector(u32 Address, u32 Write_data_NUM);
+bool FLASH_Read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
+bool FLASH_Write_Word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
 
 #endif /* __FLASH_DR_H */

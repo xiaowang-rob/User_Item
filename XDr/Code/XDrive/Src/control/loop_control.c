@@ -2,15 +2,17 @@
 #include "string.h"
 #include "system_parameters.h"
 #include "math_fast.h"
-LOOP_CON_t loop_con = {0};
-// kfd是分频系数，划分三环频率
+LOOP_CON_t g_loop_con = {0};
+
 void Frequency_division_init(float fspeed, float fpos)
 {
-    memset(&loop_con.fd, 0, sizeof(f_Division_t));
-    loop_con.fd.speed_updata_steps = fpwm / fspeed;
-    loop_con.fd.position_updata_steps = fspeed / fpos;
-    loop_con.fd.Tspd = Tpwm * loop_con.fd.speed_updata_steps;
-    loop_con.fd.Tpos = loop_con.fd.Tspd * loop_con.fd.position_updata_steps;
+    memset(&g_loop_con.fd, 0, sizeof(f_Division_t));
+    g_loop_con.fd.fspeed_loop = fspeed;
+    g_loop_con.fd.fposition_loop = fpos;
+    g_loop_con.fd.speed_updata_steps = fpwm / fspeed;
+    g_loop_con.fd.position_updata_steps = fspeed / fpos;
+    g_loop_con.fd.Tspd = Tpwm * g_loop_con.fd.speed_updata_steps;
+    g_loop_con.fd.Tpos = g_loop_con.fd.Tspd * g_loop_con.fd.position_updata_steps;
 }
 void PI_init(PI_t *pi, float kp, float ki, float output_limit)
 {
@@ -31,25 +33,25 @@ void PID_init(PID_t *pid, float kp, float ki, float kd, float output_limit)
 }
 void Frequency_division_updatta()
 {
-    loop_con.fd.speed_updata = false;
-    loop_con.fd.position_updata = false;
-    loop_con.fd.current_steps++;
-    if (loop_con.fd.current_steps >= loop_con.fd.speed_updata_steps)
+    g_loop_con.fd.speed_updata = false;
+    g_loop_con.fd.position_updata = false;
+    g_loop_con.fd.current_steps++;
+    if (g_loop_con.fd.current_steps >= g_loop_con.fd.speed_updata_steps)
     {
-        loop_con.fd.current_steps = 0;
-        loop_con.fd.speed_updata = true;
-        loop_con.fd.speed_steps++;
-        if (loop_con.fd.speed_steps >= loop_con.fd.position_updata_steps)
+        g_loop_con.fd.current_steps = 0;
+        g_loop_con.fd.speed_updata = true;
+        g_loop_con.fd.speed_steps++;
+        if (g_loop_con.fd.speed_steps >= g_loop_con.fd.position_updata_steps)
         {
-            loop_con.fd.speed_steps = 0;
-            loop_con.fd.position_updata = true;
+            g_loop_con.fd.speed_steps = 0;
+            g_loop_con.fd.position_updata = true;
         }
     }
 }
 void Frequency_division_reset()
 {
-    loop_con.fd.current_steps = 0;
-    loop_con.fd.speed_steps = 0;
+    g_loop_con.fd.current_steps = 0;
+    g_loop_con.fd.speed_steps = 0;
 }
 // PI控制器更新
 float PI_updata(PI_t *pi, float ref, float fb, float dt)
@@ -164,52 +166,44 @@ void PID_reset(PID_t *pid)
 }
 void loop_reset(void)
 {
-    PI_reset(&loop_con.PI_id);
-    PI_reset(&loop_con.PI_iq);
-    PI_reset(&loop_con.PI_speed);
-    PID_reset(&loop_con.PID_pos);
+    PI_reset(&g_loop_con.PI_id);
+    PI_reset(&g_loop_con.PI_iq);
+    PI_reset(&g_loop_con.PI_speed);
+    PID_reset(&g_loop_con.PID_pos);
 }
 
 void LOOP_Parameter_writing(float fspeed, float fpos, float Udc, float max_current, float max_speed, float position_min, float position_max, float kp_id, float ki_id,
                             float kp_iq, float ki_iq, float kp_speed, float ki_speed, float kp_pos, float ki_pos, float kd_pos)
 {
     Frequency_division_init(fspeed, fpos);
-    PI_init(&loop_con.PI_id, kp_id, ki_id, (u32)(M_PI * Udc / 2));
-    PI_init(&loop_con.PI_iq, kp_iq, ki_iq, (u32)(M_PI * Udc / 2));
-    PI_init(&loop_con.PI_speed, kp_speed, ki_speed, max_current);
-    PID_init(&loop_con.PID_pos, kp_pos, ki_pos, kd_pos, max_speed);
-    loop_con.position_min = position_min;
-    loop_con.position_max = position_max;
+    PI_init(&g_loop_con.PI_id, kp_id, ki_id, M_PI * Udc / 2);
+    PI_init(&g_loop_con.PI_iq, kp_iq, ki_iq, M_PI * Udc / 2);
+    PI_init(&g_loop_con.PI_speed, kp_speed, ki_speed, max_current);
+    PID_init(&g_loop_con.PID_pos, kp_pos, ki_pos, kd_pos, max_speed);
+    g_loop_con.position_min = position_min;
+    g_loop_con.position_max = position_max;
 }
 float Current_loop(float current_ref, float current_fb)
 {
-    return PI_updata(&loop_con.PI_iq, current_ref, current_fb, Tpwm);
+    return PI_updata(&g_loop_con.PI_iq, current_ref, current_fb, Tpwm);
 }
 float Magnetic_loop(float id_ref, float id_fb)
 {
-    return PI_updata(&loop_con.PI_id, id_ref, id_fb, Tpwm);
+    return PI_updata(&g_loop_con.PI_id, id_ref, id_fb, Tpwm);
 }
 float Speed_loop(float omega_ref, float omega_fb)
 {
-    return PI_updata(&loop_con.PI_speed, omega_ref, omega_fb, loop_con.fd.Tspd);
+    return PI_updata(&g_loop_con.PI_speed, omega_ref, omega_fb, g_loop_con.fd.Tspd);
 }
 float Position_abs_loop(float position_ref, float position_fb)
 {
-    return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
+    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
 }
 float Position_rel_loop(float position_ref, float position_fb)
 {
-    if (position_ref > loop_con.position_max)
-        position_ref = loop_con.position_max;
-    if (position_ref < loop_con.position_min)
-        position_ref = loop_con.position_min;
-    return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
-}
-bool speed_loop_updata()
-{
-    return loop_con.fd.speed_updata;
-}
-bool position_loop_updata()
-{
-    return loop_con.fd.position_updata;
+    if (position_ref > g_loop_con.position_max)
+        position_ref = g_loop_con.position_max;
+    if (position_ref < g_loop_con.position_min)
+        position_ref = g_loop_con.position_min;
+    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
 }

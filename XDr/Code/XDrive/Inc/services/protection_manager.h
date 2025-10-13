@@ -6,6 +6,7 @@
 typedef enum
 {
     NO_FAULT,
+    MOTOR_ERROR,
     OVER_CURRENT,
     OVER_VOLTAGE,
     UNDER_VOLTAGE,
@@ -33,7 +34,8 @@ typedef struct
     bool clear_fault;
     bool log_done;
 } protection_manager_t;
+extern protection_manager_t g_protection_manager;
 
 void protection_manager_run();
-fault_t GET_Protect_fault();
+
 #endif /* __PROTECTION_MANAGER_H */

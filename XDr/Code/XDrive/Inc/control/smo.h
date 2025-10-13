@@ -25,7 +25,6 @@ typedef struct
     float omega; // 电角速度
     float theta_prev;
 } smo_sensorless_t;
-extern smo_sensorless_t g_smo;
 // 初始化
 void smo_sensorless_init(smo_sensorless_t *smo, float Rs, float Ls, float dt);
 

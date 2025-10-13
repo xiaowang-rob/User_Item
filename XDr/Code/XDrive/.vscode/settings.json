@@ -55,7 +55,9 @@
         "adaptive_control.h": "c",
         "log.h": "c",
         "flashdr.h": "c",
-        "stream_transmission.h": "c"
+        "stream_transmission.h": "c",
+        "stm32f4xx.h": "c",
+        "stddef.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

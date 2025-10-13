@@ -15,8 +15,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 bool FOC_INIT_event()
 {
-    // TODO:基本参数写入+初始化
-    return false;
+    return foc_core_init();
 }
 bool FOC_AUTO_TUNE_event()
 {

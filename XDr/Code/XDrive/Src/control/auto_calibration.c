@@ -123,6 +123,7 @@ bool auto_calibration_update()
     }
     if (g_param_tuning.theta_offset_updated)
     {
+        g_Motor.offset_angle = g_param_tuning.theta_offset;
         SET_ENCODER_ANGLE_OFFSET(g_param_tuning.theta_offset);
     }
     if (g_param_tuning.tune_state == PARAM_TUNE_COMPLETE)

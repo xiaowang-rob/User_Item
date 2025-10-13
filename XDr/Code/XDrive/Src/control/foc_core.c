@@ -8,13 +8,25 @@
 #include "smo.h"
 #include "loop_control.h"
 #include "system_parameters.h"
+#include "stream_transmission.h"
+#include "adaptive_control.h"
 
-SVPWM_t g_svpwm = {0};
 Monitor_t g_monitor = {0};
 foc_core_t g_foccore = {0};
-smo_sensorless_t g_smo = {0};
+smo_sensorless_t smo = {0};
+SVPWM_t svpwm = {0};
 startup_mechine_t startup_machine;
-void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_gradient, float align_current, float align_time, float openloop_cur, float openloop_omega, float changeloop_omega)
+
+bool foc_core_init()
+{
+    smo_sensorless_init(&smo, g_foc_parameters.motor_rs, g_foc_parameters.motor_ls, Tcon);
+    LOOP_Parameter_writing(g_foc_parameters.f_speed_loop, g_foc_parameters.f_position_loop, g_adaptive_con.Udc, g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
+                           g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_foc_parameters.kp_speed, g_foc_parameters.ki_speed, g_foc_parameters.kp_position, g_foc_parameters.ki_position, g_foc_parameters.kd_position);
+    auto_calibration_init(g_foc_parameters.motor_rs, g_foc_parameters.motor_ls, g_foc_parameters.motor_psif, g_foc_parameters.motor_polepairs, (TUNE_MODE_E)g_foc_parameters.foc_autotune_mode);
+    startup_machine_init(&g_loop_con, g_foc_parameters.startup_spe_grad, g_foc_parameters.startup_pos_grad, g_foc_parameters.align_current, g_foc_parameters.align_time, g_foc_parameters.open_loop_current, g_foc_parameters.open_loop_speed, g_foc_parameters.change_loop_speed);
+    svpwm_Init(svpwm, g_adaptive_con.Udc);
+}
+void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_gradient, float align_current, float align_time, float openloop_cur, float openloop_speed, float changeloop_speed)
 {
     memset(&startup_machine, 0, sizeof(startup_mechine_t));
     startup_machine.omega_gradient = omega_gradient * loopcon->fd.Tspd;
@@ -22,18 +34,15 @@ void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_g
     startup_machine.align_cur = align_current;
     startup_machine.align_steps = (u32)(align_time / Tcon);
     startup_machine.openloop_cur = openloop_cur;
-    startup_machine.openloop_omega = openloop_omega;
-    startup_machine.changeloop_speed = changeloop_omega;
+    startup_machine.openloop_omega = openloop_speed * M2_PI / 60.0f;
+    startup_machine.changeloop_speed = changeloop_speed * M2_PI / 60.0f;
 }
-void FOC_con_loop_start()
-{
-    ADC_DR_Init();
-}
+
 void Current_reconstruction()
 {
     float ui, vi, wi;
     ADC_GET_Current(&g_monitor.Iu, &g_monitor.Iv, &g_monitor.Iw);
-    switch (g_svpwm.sector)
+    switch (svpwm.sector)
     {
     case 1:
         ui = g_monitor.Iv + g_monitor.Iw;
@@ -91,7 +100,7 @@ void oloop_to_cloop() // 无感模式 开环切闭环
 {
     g_monitor.theta_elec += startup_machine.openloop_omega * Tcon;
     g_foccore.iq_ref = startup_machine.openloop_cur;
-    g_monitor.omega_fb = smo_sensorless_get_omega(&g_smo);
+    g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
     if (g_monitor.omega_fb > startup_machine.changeloop_speed)
         startup_machine.change_flag = true;
 }
@@ -99,18 +108,18 @@ void oloop_to_cloop() // 无感模式 开环切闭环
 u8 change_Index = 0;
 void smaple_point_change()
 {
-    switch (g_svpwm.sector)
+    switch (svpwm.sector)
     {
     case 1:
     case 4:
-        if (g_svpwm.ticu > ticDT + ticTN)
+        if (svpwm.ticu > ticDT + ticTN)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * g_svpwm.ticu)
+        else if (alltic_tsdttn > 2 * svpwm.ticu)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -127,14 +136,14 @@ void smaple_point_change()
         break;
     case 2:
     case 5:
-        if (g_svpwm.ticv > ticDT + ticTN)
+        if (svpwm.ticv > ticDT + ticTN)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * g_svpwm.ticv)
+        else if (alltic_tsdttn > 2 * svpwm.ticv)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -150,14 +159,14 @@ void smaple_point_change()
         }
         break;
     default:
-        if (g_svpwm.ticw > ticDT + ticTN)
+        if (svpwm.ticw > ticDT + ticTN)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * g_svpwm.ticw)
+        else if (alltic_tsdttn > 2 * svpwm.ticw)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -180,10 +189,10 @@ void smaple_point_change()
         ADC_sample_change(1);
         break;
     case 2:
-        ADC_sample_change(g_svpwm.ticu - tics);
+        ADC_sample_change(svpwm.ticu - tics);
         break;
     case 3:
-        ADC_sample_change(g_svpwm.ticu + ticDT + ticTN);
+        ADC_sample_change(svpwm.ticu + ticDT + ticTN);
         break;
     default:
         break;
@@ -204,11 +213,14 @@ void foc_core_run()
     case ENCODER_CONTROL:
         g_monitor.theta_elec = GET_ENCODER_ANGLE_RAD() * g_Motor.pole_pairs;
         park_transform(g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_elec, &g_monitor.id_fb, &g_monitor.iq_fb);
+        g_monitor.theta_mech = GET_ENCODER_ANGLE_RAD();
+        g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / Tcon;
+        g_monitor.theta_mech_last = g_monitor.theta_mech;
         switch (g_foccore.loop_mode)
         {
         case POSITION_ABS_CONTROL:
             g_monitor.pos_fb = GET_ENCODER_ANGLE_INC();
-            if (position_loop_updata())
+            if (g_loop_con.fd.position_updata)
             {
                 // 目标位置归一化
                 if (g_foccore.pos_ref > M2_PI)
@@ -230,10 +242,8 @@ void foc_core_run()
                 // 进位置环
                 g_foccore.omega_ref = Position_abs_loop(g_foccore.pos_con, g_monitor.pos_fb);
             }
-            g_monitor.omega_fb = (g_monitor.pos_fb - g_monitor.theta_mech_last) / Tcon;
-            g_monitor.theta_mech_last = g_monitor.pos_fb;
             // 进速度环
-            if (speed_loop_updata())
+            if (g_loop_con.fd.speed_updata)
             {
                 if (g_foccore.omega_ref - g_foccore.omega_con > startup_machine.omega_gradient)
                     g_foccore.omega_con += startup_machine.omega_gradient;
@@ -244,7 +254,7 @@ void foc_core_run()
             break;
         case POSITION_REL_CONTROL:
             g_monitor.pos_fb = GET_ENCODER_ANGLE_INC();
-            if (position_loop_updata())
+            if (g_loop_con.fd.position_updata)
             {
                 if (g_foccore.pos_ref * g_foccore.Reduction_ratio - g_foccore.pos_con > startup_machine.pos_gradient)
                     g_foccore.pos_con += startup_machine.pos_gradient;
@@ -254,9 +264,7 @@ void foc_core_run()
                     g_foccore.pos_con = g_foccore.pos_ref * g_foccore.Reduction_ratio;
                 g_foccore.omega_ref = Position_rel_loop(g_foccore.pos_con, g_monitor.pos_fb);
             }
-            g_monitor.omega_fb = (g_monitor.pos_fb - g_monitor.theta_mech_last) / Tcon;
-            g_monitor.theta_mech_last = g_monitor.pos_fb;
-            if (speed_loop_updata())
+            if (g_loop_con.fd.speed_updata)
             {
                 if (g_foccore.omega_ref - g_foccore.omega_con > startup_machine.omega_gradient)
                     g_foccore.omega_con += startup_machine.omega_gradient;
@@ -266,10 +274,7 @@ void foc_core_run()
             }
             break;
         case SPEED_LOOP_CONTROL:
-            g_monitor.theta_mech = GET_ENCODER_ANGLE_INC();
-            g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / Tcon;
-            g_monitor.theta_mech_last = g_monitor.pos_fb;
-            if (speed_loop_updata())
+            if (g_loop_con.fd.speed_updata)
             {
                 if (g_foccore.omega_ref - g_foccore.omega_con > startup_machine.omega_gradient)
                     g_foccore.omega_con += startup_machine.omega_gradient;
@@ -287,16 +292,16 @@ void foc_core_run()
             theta_align();
         else
         {
-            smo_sensorless_update(&g_smo, g_monitor.Ualpha, g_monitor.Ubeta, g_monitor.Ialpha, g_monitor.Ibeta);
+            smo_sensorless_update(&smo, g_monitor.Ualpha, g_monitor.Ubeta, g_monitor.Ialpha, g_monitor.Ibeta);
             if (!startup_machine.change_flag)
                 oloop_to_cloop();
             else
-                g_monitor.theta_elec = g_smo.theta;
+                g_monitor.theta_elec = smo.theta;
             park_transform(g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_elec, &g_monitor.id_fb, &g_monitor.iq_fb);
-            g_monitor.omega_fb = smo_sensorless_get_omega(&g_smo);
+            g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
             if (g_foccore.loop_mode == SPEED_LOOP_CONTROL)
             {
-                if (speed_loop_updata())
+                if (g_loop_con.fd.speed_updata)
                 {
                     if (g_foccore.omega_ref - g_foccore.omega_con > startup_machine.omega_gradient)
                         g_foccore.omega_con += startup_machine.omega_gradient;
@@ -317,7 +322,7 @@ void foc_core_run()
         g_monitor.uq = Current_loop(g_foccore.iq_ref, g_monitor.iq_fb);
         inv_park_transform(g_monitor.ud, g_monitor.uq, g_monitor.theta_elec, &g_monitor.Ualpha, &g_monitor.Ubeta);
     }
-    svpwm(g_monitor.Ualpha, g_monitor.Ubeta, g_svpwm);
+    svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, svpwm);
     smaple_point_change();
 }
 void foc_disable()

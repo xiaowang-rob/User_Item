@@ -40,7 +40,7 @@ const u8 adc_to_temp[121] = {
 // {
 
 // }
-void ADC_DR_Init(void)
+void ADC_DR_Init()
 {
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
@@ -57,12 +57,12 @@ void ADC_sample_change(u16 compare)
 {
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_4, compare);
 }
-float ADC_GET_Voltage()
+void ADC_GET_Voltage(float *voltage)
 {
-    return (float)(ADC2_buffer[3] * ADCval_to_Vol);
+    *voltage = ADC2_buffer[3] * ADCval_to_Vol;
 }
 u8 tempIndex = 0;
-void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, u8 *Temperature)
+void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, float *Temperature)
 {
     switch (tempIndex)
     {

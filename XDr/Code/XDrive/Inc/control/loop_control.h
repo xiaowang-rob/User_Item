@@ -5,6 +5,8 @@
 
 typedef struct
 {
+    float fspeed_loop;
+    float fposition_loop;
     u16 current_steps;
     u16 speed_steps;
     u16 speed_updata_steps;
@@ -50,7 +52,7 @@ typedef struct
     float position_min;
     float position_max;
 } LOOP_CON_t;
-
+extern LOOP_CON_t g_loop_con;
 void Frequency_division_updatta();
 void Frequency_division_reset();
 void loop_reset(void);

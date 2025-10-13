@@ -41,7 +41,7 @@ void DISABLE_PWM()
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);
 }
-void svpwm(float ualpha, float ubeta, SVPWM_t svpwm)
+void svpwm_run(float ualpha, float ubeta, SVPWM_t svpwm)
 {
     float U1 = ubeta;
     float U2 = sqrt3 * ualpha - ubeta;

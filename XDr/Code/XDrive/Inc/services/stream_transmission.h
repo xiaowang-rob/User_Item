@@ -2,11 +2,13 @@
 #define __STREAM_TRANSMISSION_H
 
 #include "main.h"
-
+#define PARAMETER_LOAD_block 0
+#define PARAMETER_LOAD_sector 0
+#define PARAMETER_LOAD_ADDr PARAMETER_LOAD_block * 0x00010000 + PARAMETER_LOAD_sector * 0x00001000
 // 反馈参数--流式数据
 typedef enum
 {
-    VBUS = 1,
+    VBUS,
     TEMP,
     THETA_elec,
     THETA_mech,
@@ -26,7 +28,7 @@ typedef enum
     REF_speed,
     REF_position_motor,
     REF_position_target,
-} Data_stream_t;
+} Data_stream_e;
 
 // 控制静态参数
 typedef enum
@@ -42,6 +44,7 @@ typedef enum
     REDUCTION_RATIO,    // 减速比
     FOC_RUN_MODE,       // 运行模式
     FOC_LOOP_MODE,      // 环路模式
+    FOC_AUTOTUNE_MODE,  // 自动调参模式
     FOC_STATUS,         // 状态
     f_CURRENT_LOOP,     // 电流环频率
     f_SPEED_LOOP,       // 速度环频率
@@ -52,7 +55,7 @@ typedef enum
     Ki_SPEED,           // 速度环积分
     Kp_POSITION,        // 位置环比例
     Ki_POSITION,        // 位置环积分
-    Kd_CURRENT,         // 电流环微分
+    Kd_POSITION,        // 位置环微分
     LIMIT_CURRENT,      // 电流限幅
     LIMIT_SPEED,        // 速度限幅
     LIMIT_POSITION_min, // 位置限幅
@@ -70,6 +73,61 @@ typedef enum
     OPEN_LOOP_CURRENT, // 开环电流
     OPEN_LOOP_SPEED,   // 开环速度
     CHANGE_LOOP_SPEED, // 切环时间
+} Parameter_e;
+
+typedef struct
+{
+    u32 None_flag;
+    float theta_offset;       // THETA_OFFSET
+    float motor_polepairs;    // MOTOR_POLEPAIRS
+    float motor_rs;           // MOTOR_RS
+    float motor_ls;           // MOTOR_LS
+    float motor_psif;         // MOTOR_Psif
+    float motor_j;            // MOTOR_J
+    float motor_b;            // MOTOR_B
+    float motor_tc;           // MOTOR_TC
+    float reduction_ratio;    // REDUCTION_RATIO
+    float foc_run_mode;       // FOC_RUN_MODE
+    float foc_loop_mode;      // FOC_LOOP_MODE
+    float foc_autotune_mode;  // FOC_AUTOTUNE_MODE
+    float foc_status;         // FOC_STATUS
+    float f_current_loop;     // f_CURRENT_LOOP
+    float f_speed_loop;       // f_SPEED_LOOP
+    float f_position_loop;    // f_POSITION_LOOP
+    float kp_current;         // Kp_CURRENT
+    float ki_current;         // Ki_CURRENT
+    float kp_speed;           // Kp_SPEED
+    float ki_speed;           // Ki_SPEED
+    float kp_position;        // Kp_POSITION
+    float ki_position;        // Ki_POSITION
+    float kd_position;        // Kd_POSITION
+    float limit_current;      // LIMIT_CURRENT
+    float limit_speed;        // LIMIT_SPEED
+    float limit_position_min; // LIMIT_POSITION_min
+    float limit_position_max; // LIMIT_POSITION_max
+    float tolerance_time;     // TOLERANCE_TIME
+    float tolerance_voltage;  // TOLERANCE_VOLTAGE
+    float tolerance_current;  // TOLERANCE_CURRENT
+    float tolerance_speed;    // TOLERANCE_SPEED
+    float tolerance_position; // TOLERANCE_POSITION
+    float startup_pos_grad;   // STARTUP_POS_GRAD
+    float startup_spe_grad;   // STARTUP_SPE_GRAD
+    float align_current;      // ALIGN_CURRENT
+    float align_time;         // ALIGN_TIME
+    float open_loop_current;  // OPEN_LOOP_CURRENT
+    float open_loop_speed;    // OPEN_LOOP_SPEED
+    float change_loop_speed;  // CHANGE_LOOP_SPEED
 } Parameter_t;
+extern Parameter_t g_foc_parameters;
+
+void stream_data_get(Data_stream_e stream, float *data);
+void parameter_set(Parameter_e parameter, float data);
+void all_parameters_set(float *data);
+void parameter_ask(Parameter_e parameter, float *data);
+void all_parameters_ask(float *data);
+void parameter_apply();
+bool parameter_save();
+void parameter_erase();
+bool parameter_init();
 
 #endif
