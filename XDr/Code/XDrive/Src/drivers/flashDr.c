@@ -137,6 +137,7 @@ bool FLASH_Read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
         pBuffer[i] = spi_Receive_one_byte(); // 循环读数
     }
     FLASH_Disable();
+		return true;
 }
 
 /* Nicky ******************************************************************* */
@@ -155,6 +156,7 @@ bool FLASH_Write_Word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
         spi_Transmit_one_byte(pBuffer[i]); // 循环写入字节数据
     FLASH_Disable();
     FLASH_Wait_Busy(); // 写完之后需要等待芯片操作完。
+		return true;
 }
 
 /* Nicky ******************************************************************* */
@@ -168,7 +170,7 @@ void FLASH_Write_Page(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
         Word_remain = NumByteToWrite; // 定位页能一次写完
     while (1)
     {
-        Write_Word(pBuffer, WriteAddr, Word_remain);
+        FLASH_Write_Word(pBuffer, WriteAddr, Word_remain);
         if (NumByteToWrite == Word_remain)
         {
             break; // 判断写完就 break
@@ -184,7 +186,4 @@ void FLASH_Write_Page(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
                 Word_remain = NumByteToWrite; // 不够256个字了
         }
     }
-}
-bool FLASH_init(void)
-{
 }

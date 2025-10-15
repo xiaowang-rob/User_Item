@@ -3,10 +3,10 @@
 #include "auto_calibration.h"
 #include "tim.h"
 #include "foc_core.h"
-
+bool FOC_start = false;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim->Instance == TIM8)
+    if (htim->Instance == TIM8 && FOC_start)
     {
         FOC_StateMachine_updata(g_foccore.state);
         foc_core_run();
@@ -71,4 +71,12 @@ void FOC_StateMachine_updata(FOC_STATE_e state)
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {
     g_foccore.state = state;
+}
+void FOC_Start_run()
+{
+    FOC_start = true;
+}
+void FOC_Stop_run()
+{
+    FOC_start = false;
 }

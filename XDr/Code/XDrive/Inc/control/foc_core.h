@@ -70,5 +70,5 @@ void foc_core_run();
 void foc_disable();
 void foc_enable();
 bool foc_shutdown();
-
+void foc_loop_mode_change(LOOP_MODE_e mode);
 #endif // __FOC_CORE_H

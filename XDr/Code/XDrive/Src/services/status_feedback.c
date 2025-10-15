@@ -4,12 +4,11 @@
 #include "encoder.h"
 #include "canDr.h"
 
-static u8 _tic = 0;
+static u16 _tic = 0;
 static u8 _encoder_state = 0;
 static u8 _canrx_tic = 0;
 void status_feedback()
 {
-
     switch (g_foccore.state)
     {
     case FOC_INIT:
@@ -33,11 +32,16 @@ void status_feedback()
     default:
         break;
     }
-    if (GET_ENCODER_NO_MAG_FLAG() == false)
+    if (GET_ENCODER_STATUS())
     {
         _encoder_state = 1;
-        if (GET_ENCODER_COMMUNICATION_ERROR() == false)
-            _encoder_state = 2;
+        if (g_foccore.run_mode == ENCODER_CONTROL)
+        {
+            if (!GET_ENCODER_NO_MAG_FLAG() && !GET_ENCODER_COMMUNICATION_ERROR())
+                _encoder_state = 2;
+            else
+                _encoder_state = 3;
+        }
     }
     else
         _encoder_state = 0;
@@ -47,6 +51,18 @@ void status_feedback()
         LED_ENCODER_EN();
         break;
     case 2: // 编码器通信正常
+        _tic++;
+        if (_tic == 1000)
+        {
+            LED_ENCODER_DIS();
+        }
+        if (_tic == 2000)
+        {
+            _tic = 0;
+            LED_ENCODER_EN();
+        }
+        break;
+    case 3: // 通讯异常
         _tic++;
         if (_tic == 100)
         {
@@ -78,4 +94,8 @@ void status_feedback()
     // }
     // else
     //     LED_CANrx_DIS();
+}
+void System_Fault_feedback()
+{
+    rgb_3_alternate(RED, GREEN, BLUE); // 红绿蓝交替
 }

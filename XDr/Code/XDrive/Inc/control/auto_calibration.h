@@ -2,7 +2,7 @@
 #define __AUTO_CALIBRATION_H
 
 #include "main.h"
-
+#include "smo.h"
 #define OMEGA_TUNE_POLE_PAIRS 200 // 约 7对 272rpm
 #define Umax_TUNE_LS 3
 

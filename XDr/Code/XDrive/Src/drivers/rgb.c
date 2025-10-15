@@ -159,6 +159,26 @@ void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2)
     }
     _tic_steps++;
 }
+void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3)
+{
+    if (_tic_steps == RGB_ALTERNATE_steps)
+    {
+        RGB_SetMore_Color(0, Pixel_NUM, Color1);
+        RGB_Flush(); // 刷新WS2812B的显示
+    }
+    if (_tic_steps == (RGB_ALTERNATE_steps * 2))
+    {
+        RGB_SetMore_Color(0, Pixel_NUM, Color2);
+        RGB_Flush(); // 刷新WS2812B的显示
+    }
+    if (_tic_steps == (RGB_ALTERNATE_steps * 3))
+    {
+        _tic_steps = 0;
+        RGB_SetMore_Color(0, Pixel_NUM, Color3);
+        RGB_Flush(); // 刷新WS2812B的显示
+    }
+    _tic_steps++;
+}
 void LED_ENCODER_EN(void)
 {
     HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);

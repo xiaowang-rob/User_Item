@@ -31,4 +31,11 @@ xdrive/system_statemachine.o: ..\Src\services\system_statemachine.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
-  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
+  ..\Inc\services\stream_transmission.h ..\Inc\drivers\adcDr.h \
+  ..\Inc\drivers\usartDr.h ..\protocol\usart_protocol.h \
+  ..\Inc\drivers\usbDr.h ..\protocol\usb_protocol.h \
+  ..\Inc\drivers\canDr.h ..\Inc\control\adaptive_control.h \
+  ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
+  ..\Inc\services\status_feedback.h ..\Inc\services\log.h \
+  ..\Inc\control\loop_control.h ..\Inc\services\protection_manager.h

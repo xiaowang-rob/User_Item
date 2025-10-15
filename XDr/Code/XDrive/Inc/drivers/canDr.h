@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-void CAN_Init(void);
+void CANDr_Init(void);
 u8 CAN_Send_Msg(u8 *msg, u8 len);
 
 #endif

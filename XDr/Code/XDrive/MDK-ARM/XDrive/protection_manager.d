@@ -34,4 +34,7 @@ xdrive/protection_manager.o: ..\Src\services\protection_manager.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
   ..\Config\system_parameters.h ..\Inc\control\adaptive_control.h \
-  ..\Inc\drivers\encoder.h ..\Config\base_parameters.h ..\Core\Inc\spi.h
+  ..\Inc\drivers\encoder.h ..\Config\base_parameters.h ..\Core\Inc\spi.h \
+  ..\Inc\services\log.h ..\Inc\control\loop_control.h \
+  ..\Inc\drivers\adcDr.h ..\Inc\control\auto_calibration.h \
+  ..\Inc\control\smo.h

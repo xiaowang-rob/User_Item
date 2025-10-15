@@ -1,5 +1,4 @@
 #include "auto_calibration.h"
-#include "smo.h"
 #include "system_parameters.h"
 #include "foc_core.h"
 #include "math_fast.h"

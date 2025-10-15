@@ -16,6 +16,17 @@ foc_core_t g_foccore = {0};
 smo_sensorless_t smo = {0};
 SVPWM_t svpwm = {0};
 startup_mechine_t startup_machine;
+void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_gradient, float align_current, float align_time, float openloop_cur, float openloop_speed, float changeloop_speed)
+{
+    memset(&startup_machine, 0, sizeof(startup_mechine_t));
+    startup_machine.omega_gradient = omega_gradient * loopcon->fd.Tspd;
+    startup_machine.pos_gradient = pos_gradient * loopcon->fd.Tpos;
+    startup_machine.align_cur = align_current;
+    startup_machine.align_steps = (u32)(align_time / Tcon);
+    startup_machine.openloop_cur = openloop_cur;
+    startup_machine.openloop_omega = openloop_speed;
+    startup_machine.changeloop_speed = changeloop_speed;
+}
 
 bool foc_core_init()
 {
@@ -25,17 +36,9 @@ bool foc_core_init()
     auto_calibration_init(g_foc_parameters.motor_rs, g_foc_parameters.motor_ls, g_foc_parameters.motor_psif, g_foc_parameters.motor_polepairs, (TUNE_MODE_E)g_foc_parameters.foc_autotune_mode);
     startup_machine_init(&g_loop_con, g_foc_parameters.startup_spe_grad, g_foc_parameters.startup_pos_grad, g_foc_parameters.align_current, g_foc_parameters.align_time, g_foc_parameters.open_loop_current, g_foc_parameters.open_loop_speed, g_foc_parameters.change_loop_speed);
     svpwm_Init(svpwm, g_adaptive_con.Udc);
-}
-void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_gradient, float align_current, float align_time, float openloop_cur, float openloop_speed, float changeloop_speed)
-{
-    memset(&startup_machine, 0, sizeof(startup_mechine_t));
-    startup_machine.omega_gradient = omega_gradient * loopcon->fd.Tspd;
-    startup_machine.pos_gradient = pos_gradient * loopcon->fd.Tpos;
-    startup_machine.align_cur = align_current;
-    startup_machine.align_steps = (u32)(align_time / Tcon);
-    startup_machine.openloop_cur = openloop_cur;
-    startup_machine.openloop_omega = openloop_speed * M2_PI / 60.0f;
-    startup_machine.changeloop_speed = changeloop_speed * M2_PI / 60.0f;
+    if (g_foccore.run_mode == ENCODER_CONTROL)
+        ENCODER_Init();
+    return true;
 }
 
 void Current_reconstruction()
@@ -96,13 +99,21 @@ void theta_align()
         startup_machine.align_flag = true;
     }
 }
-void oloop_to_cloop() // 无感模式 开环切闭环
+float openloop_omega_con = 2.0f; // 约20转
+void oloop_to_cloop()            // 无感模式 开环切闭环
 {
-    g_monitor.theta_elec += startup_machine.openloop_omega * Tcon;
+    if (openloop_omega_con < startup_machine.openloop_omega)
+        openloop_omega_con += 0.001f;
+    else
+        openloop_omega_con = startup_machine.openloop_omega;
+    g_monitor.theta_elec += openloop_omega_con * Tcon;
     g_foccore.iq_ref = startup_machine.openloop_cur;
     g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
-    if (g_monitor.omega_fb > startup_machine.changeloop_speed)
+    if (g_monitor.omega_fb > startup_machine.changeloop_speed && openloop_omega_con > startup_machine.changeloop_speed * 0.7f)
+    {
         startup_machine.change_flag = true;
+        openloop_omega_con = 2.0f;
+    }
 }
 
 u8 change_Index = 0;
@@ -296,7 +307,11 @@ void foc_core_run()
             if (!startup_machine.change_flag)
                 oloop_to_cloop();
             else
+            {
                 g_monitor.theta_elec = smo.theta;
+                if (g_foccore.omega_ref > openloop_omega_con && g_monitor.omega_fb < openloop_omega_con)
+                    startup_machine.change_flag = false;
+            }
             park_transform(g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_elec, &g_monitor.id_fb, &g_monitor.iq_fb);
             g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
             if (g_foccore.loop_mode == SPEED_LOOP_CONTROL)
@@ -336,6 +351,7 @@ void foc_disable()
         memset(&g_monitor, 0, sizeof(Monitor_t));
     }
 }
+
 void foc_enable()
 {
     if (!foc_enable_flag)
@@ -353,4 +369,8 @@ bool foc_shutdown()
         return false;
     }
     return true;
+}
+void foc_loop_mode_change(LOOP_MODE_e mode)
+{
+    g_foccore.loop_mode = mode;
 }

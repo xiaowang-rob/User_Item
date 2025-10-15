@@ -27,8 +27,23 @@ bool Tolerance_check(float *value, float max_value, float min_value, float toler
     }
     return false;
 }
-void protection_manager_init(float maxcurrent, float max_speed, float min_position, float max_position, float tolerance_time, float tolerance_voltage, float tolerance_current, float tolerance_speed, float tolerance_position)
+void protection_manager_init(float maxcurrent, float max_speed, float min_position, float max_position,
+                             float tolerance_time, float tolerance_voltage, float tolerance_current, float tolerance_speed,
+                             float tolerance_position)
 {
+    g_protection_manager.maxcurrent = maxcurrent;
+    g_protection_manager.maxspeed = max_speed;
+    g_protection_manager.minposition = min_position;
+    g_protection_manager.maxposition = max_position;
+    g_protection_manager.tolerance_time = tolerance_time;
+    g_protection_manager.tolerance_voltage = tolerance_voltage;
+    g_protection_manager.tolerance_current = tolerance_current;
+    g_protection_manager.tolerance_speed = tolerance_speed;
+    g_protection_manager.tolerance_position = tolerance_position;
+    g_protection_manager.serious_fault = false;
+    g_protection_manager.warning_fault = false;
+    g_protection_manager.clear_fault = false;
+    g_protection_manager.log_done = false;
 }
 void protection_manager_run()
 {
@@ -83,29 +98,32 @@ void protection_manager_run()
         g_protection_manager.log_done = false;
     }
     // todo:获取can状态
-    if (GET_ENCODER_NO_MAG_FLAG())
-    {
-        g_protection_manager.fault = ENCODER_MAG_WEAK;
-        g_protection_manager.warning_fault = true;
-        FOC_CHANGE_STATE(FOC_FAULT);
-    }
-    else if (g_protection_manager.fault == ENCODER_MAG_WEAK)
-    {
-        g_protection_manager.warning_fault = false;
-        g_protection_manager.fault = NO_FAULT;
-        g_protection_manager.log_done = false;
-    }
-    if (GET_ENCODER_COMMUNICATION_ERROR())
-    {
-        g_protection_manager.fault = ENCODER_COMMUNICATION_FAULT;
-        g_protection_manager.warning_fault = true;
-        FOC_CHANGE_STATE(FOC_FAULT);
-    }
-    else if (g_protection_manager.fault == ENCODER_COMMUNICATION_FAULT)
-    {
-        g_protection_manager.warning_fault = false;
-        g_protection_manager.fault = NO_FAULT;
-        g_protection_manager.log_done = false;
+    if (g_foccore.run_mode == ENCODER_CONTROL)
+    { // 有感模式启动编码器判断
+        if (GET_ENCODER_NO_MAG_FLAG())
+        {
+            g_protection_manager.fault = ENCODER_MAG_WEAK;
+            g_protection_manager.warning_fault = true;
+            FOC_CHANGE_STATE(FOC_FAULT);
+        }
+        else if (g_protection_manager.fault == ENCODER_MAG_WEAK)
+        {
+            g_protection_manager.warning_fault = false;
+            g_protection_manager.fault = NO_FAULT;
+            g_protection_manager.log_done = false;
+        }
+        if (GET_ENCODER_COMMUNICATION_ERROR())
+        {
+            g_protection_manager.fault = ENCODER_COMMUNICATION_FAULT;
+            g_protection_manager.warning_fault = true;
+            FOC_CHANGE_STATE(FOC_FAULT);
+        }
+        else if (g_protection_manager.fault == ENCODER_COMMUNICATION_FAULT)
+        {
+            g_protection_manager.warning_fault = false;
+            g_protection_manager.fault = NO_FAULT;
+            g_protection_manager.log_done = false;
+        }
     }
     if ((g_protection_manager.warning_fault || g_protection_manager.serious_fault) && !g_protection_manager.log_done)
     {
@@ -113,4 +131,9 @@ void protection_manager_run()
         log_write();
         g_protection_manager.log_done = true;
     }
+}
+
+fault_e GET_Protect_fault()
+{
+    return g_protection_manager.fault;
 }

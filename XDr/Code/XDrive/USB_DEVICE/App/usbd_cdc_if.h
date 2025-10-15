@@ -109,7 +109,7 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
-  bool usbRecvByte(u8 *data, u16 *len);
+ bool usbRecvByte(u8 *data, u8 *len);
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**

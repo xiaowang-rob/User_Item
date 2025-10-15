@@ -33,7 +33,10 @@ xdrive/foc_core.o: ..\Src\control\foc_core.c ..\Inc\control\foc_core.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\Inc\control\foc_statemachine.h ..\Inc\drivers\adcDr.h \
   ..\Inc\drivers\svpwm.h ..\Inc\control\auto_calibration.h \
-  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Inc\control\smo.h ..\Inc\utils\math_fast.h \
+  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\drivers\encoder.h \
-  ..\Config\base_parameters.h ..\Core\Inc\spi.h ..\Inc\control\smo.h \
-  ..\Inc\control\loop_control.h ..\Config\system_parameters.h
+  ..\Config\base_parameters.h ..\Core\Inc\spi.h \
+  ..\Inc\control\loop_control.h ..\Config\system_parameters.h \
+  ..\Inc\services\stream_transmission.h \
+  ..\Inc\control\adaptive_control.h

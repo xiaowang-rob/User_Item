@@ -42,6 +42,7 @@ void RGB_Show_64(void); // RGB写入函数
 
 void rgb_breathe(RGB_Color_TypeDef Color);                              // 呼吸灯效果
 void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2); // 交替显示两个颜色
+void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3);
 void LED_ENCODER_EN(void);
 void LED_ENCODER_DIS(void);
 void LED_CANrx_EN(void);

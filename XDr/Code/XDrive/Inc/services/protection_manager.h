@@ -15,11 +15,11 @@ typedef enum
     CAN_COMMUNICATION_FAULT,
     ENCODER_MAG_WEAK,
     ENCODER_COMMUNICATION_FAULT,
-} fault_t;
+} fault_e;
 
 typedef struct
 {
-    fault_t fault;
+    fault_e fault;
     float maxcurrent;
     float maxspeed;
     float minposition;
@@ -36,6 +36,10 @@ typedef struct
 } protection_manager_t;
 extern protection_manager_t g_protection_manager;
 
+void protection_manager_init(float maxcurrent, float max_speed, float min_position, float max_position,
+                             float tolerance_time, float tolerance_voltage, float tolerance_current, float tolerance_speed,
+                             float tolerance_position);
 void protection_manager_run();
+fault_e GET_Protect_fault();
 
 #endif /* __PROTECTION_MANAGER_H */

@@ -57,7 +57,10 @@
         "flashdr.h": "c",
         "stream_transmission.h": "c",
         "stm32f4xx.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "usbdr.h": "c",
+        "usb_interface.h": "c",
+        "usb_protocol.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

@@ -6,7 +6,7 @@
  * @brief  CAN过滤器配置和初始化函数
  * @note   配置CAN2的过滤器，启动CAN2外设，并使能接收中断
  */
-void CAN_Config(void)
+void CANDr_Init(void)
 {
     CAN_FilterTypeDef sFilterConfig;
 
@@ -39,15 +39,6 @@ void CAN_Config(void)
     {
         User_Error_Handler(1); // 激活中断失败，进入错误处理函数
     }
-}
-
-/**
- * @brief  CAN初始化函数
- * @note   调用CAN配置函数，完成CAN的初始化
- */
-void CAN_Init(void)
-{
-    CAN_Config(); // 执行CAN配置
 }
 
 /**

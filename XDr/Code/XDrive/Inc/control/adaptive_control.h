@@ -11,4 +11,7 @@ typedef struct
     float Udc;
 } ADAPTIVE_CON_T;
 extern ADAPTIVE_CON_T g_adaptive_con;
+
+void adaptive_control_init(void);
+void adaptive_control_update(void);
 #endif

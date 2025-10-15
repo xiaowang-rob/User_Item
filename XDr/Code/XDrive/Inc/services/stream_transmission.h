@@ -33,6 +33,7 @@ typedef enum
 // 控制静态参数
 typedef enum
 {
+    CAN_ID,
     THETA_OFFSET,
     MOTOR_POLEPAIRS,
     MOTOR_RS,
@@ -45,7 +46,6 @@ typedef enum
     FOC_RUN_MODE,       // 运行模式
     FOC_LOOP_MODE,      // 环路模式
     FOC_AUTOTUNE_MODE,  // 自动调参模式
-    FOC_STATUS,         // 状态
     f_CURRENT_LOOP,     // 电流环频率
     f_SPEED_LOOP,       // 速度环频率
     f_POSITION_LOOP,    // 位置环频率
@@ -78,8 +78,9 @@ typedef enum
 typedef struct
 {
     u32 None_flag;
+    u32 CAN_ID;               // CAN_ID
     float theta_offset;       // THETA_OFFSET
-    float motor_polepairs;    // MOTOR_POLEPAIRS
+    u32 motor_polepairs;      // MOTOR_POLEPAIRS
     float motor_rs;           // MOTOR_RS
     float motor_ls;           // MOTOR_LS
     float motor_psif;         // MOTOR_Psif
@@ -87,13 +88,12 @@ typedef struct
     float motor_b;            // MOTOR_B
     float motor_tc;           // MOTOR_TC
     float reduction_ratio;    // REDUCTION_RATIO
-    float foc_run_mode;       // FOC_RUN_MODE
-    float foc_loop_mode;      // FOC_LOOP_MODE
-    float foc_autotune_mode;  // FOC_AUTOTUNE_MODE
-    float foc_status;         // FOC_STATUS
-    float f_current_loop;     // f_CURRENT_LOOP
-    float f_speed_loop;       // f_SPEED_LOOP
-    float f_position_loop;    // f_POSITION_LOOP
+    u32 foc_run_mode;         // FOC_RUN_MODE
+    u32 foc_loop_mode;        // FOC_LOOP_MODE
+    u32 foc_autotune_mode;    // FOC_AUTOTUNE_MODE
+    u32 f_current_loop;       // f_CURRENT_LOOP
+    u32 f_speed_loop;         // f_SPEED_LOOP
+    u32 f_position_loop;      // f_POSITION_LOOP
     float kp_current;         // Kp_CURRENT
     float ki_current;         // Ki_CURRENT
     float kp_speed;           // Kp_SPEED
@@ -121,13 +121,15 @@ typedef struct
 extern Parameter_t g_foc_parameters;
 
 void stream_data_get(Data_stream_e stream, float *data);
-void parameter_set(Parameter_e parameter, float data);
-void all_parameters_set(float *data);
-void parameter_ask(Parameter_e parameter, float *data);
-void all_parameters_ask(float *data);
+void parameter_set(Parameter_e parameter, u32 *data);
+void all_parameters_set(u32 *data);
+void parameter_ask(Parameter_e parameter, u32 *data);
+void all_parameters_ask(u32 *data, u8 *len);
 void parameter_apply();
 bool parameter_save();
 void parameter_erase();
 bool parameter_init();
-
+void CONTROL_value_update(float *data);
+void CONTROL_mode_updata(u8 mode);
+void STATUS_get(u8 *foc_status, u8 *fault);
 #endif

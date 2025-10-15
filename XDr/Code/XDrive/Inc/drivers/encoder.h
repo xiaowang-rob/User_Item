@@ -30,7 +30,7 @@ typedef struct
 #endif
 
 // 函数声明
-void ENCODER_Init(void);
+bool ENCODER_Init(void);
 float GET_ENCODER_ANGLE_RAD(void);
 float GET_ENCODER_ANGLE_INC(void);
 void SET_ENCODER_ANGLE_OFFSET(float offset);

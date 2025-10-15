@@ -29,5 +29,5 @@ typedef struct
 void log_init(void);
 void log_write(void);
 void log_read(u16 num);
-
+void log_erase();
 #endif /* __LOG_H */

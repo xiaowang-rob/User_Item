@@ -1,6 +1,19 @@
 #ifndef __SYSTEM_PARAMETERS_H
 #define __SYSTEM_PARAMETERS_H
 
+/*
+人为输入 转速用rpm   角度用°
+时间用ms
+*/
+#define Description "XDr-standard"
+#define VERSION "1.0.0"
+#define AUTHOR "xiaowang"
+#define Frequency_string "20kHz"
+#define MAX_CURRENT_string "50A"
+#define MAX_Voltage_string "34V"
+#define MIN_Voltage_string "20V"
+#define MAX_Temperature_string "80"
+
 #define fpwm 20000
 #define Tpwm 1.0f / fpwm // 50us
 #define ticpwm 4200 / 2 - 1

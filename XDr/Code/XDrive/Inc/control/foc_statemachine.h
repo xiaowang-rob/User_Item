@@ -13,4 +13,6 @@ typedef enum
 
 void FOC_StateMachine_updata(FOC_STATE_e state);
 void FOC_CHANGE_STATE(FOC_STATE_e state);
+void FOC_Start_run();
+void FOC_Stop_run();
 #endif

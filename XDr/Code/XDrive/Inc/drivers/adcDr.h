@@ -10,6 +10,6 @@ void ADC_DR_Init(void);
 void ADC_GET_Current(float *ui, float *vi, float *wi);
 void ADC_sample_change(u16 compare);
 void ADC_GET_Voltage(float *voltage);
-void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, u8 *Temperature);
+void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, float *Temperature);
 
 #endif // ADC_DR_Hs
