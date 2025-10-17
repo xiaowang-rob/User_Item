@@ -72,6 +72,10 @@ void FOC_CHANGE_STATE(FOC_STATE_e state)
 {
     g_foccore.state = state;
 }
+FOC_STATE_e FOC_Get_state()
+{
+    return g_foccore.state;
+}
 void FOC_Start_run()
 {
     FOC_start = true;

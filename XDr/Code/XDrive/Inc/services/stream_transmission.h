@@ -34,6 +34,8 @@ typedef enum
 typedef enum
 {
     CAN_ID,
+    CAN_QUEUE, // 开关
+    WEAK_MAG,  // 开关
     THETA_OFFSET,
     MOTOR_POLEPAIRS,
     MOTOR_RS,
@@ -51,6 +53,8 @@ typedef enum
     f_POSITION_LOOP,    // 位置环频率
     Kp_CURRENT,         // 电流环比例
     Ki_CURRENT,         // 电流环积分
+    Kp_WEAKMAG,         // 弱磁环比例
+    Ki_WEAKMAG,         // 弱磁环积分
     Kp_SPEED,           // 速度环比例
     Ki_SPEED,           // 速度环积分
     Kp_POSITION,        // 位置环比例
@@ -78,7 +82,9 @@ typedef enum
 typedef struct
 {
     u32 None_flag;
-    u32 CAN_ID;               // CAN_ID
+    u32 can_id;               // CAN_ID
+    u32 can_queue;            // CAN_QUEUE
+    u32 weak_mag;             // WEAK_MAG
     float theta_offset;       // THETA_OFFSET
     u32 motor_polepairs;      // MOTOR_POLEPAIRS
     float motor_rs;           // MOTOR_RS
@@ -96,6 +102,8 @@ typedef struct
     u32 f_position_loop;      // f_POSITION_LOOP
     float kp_current;         // Kp_CURRENT
     float ki_current;         // Ki_CURRENT
+    float kp_weakmag;         // Kp_WEAKMAG
+    float ki_weakmag;         // Ki_WEAKMAG
     float kp_speed;           // Kp_SPEED
     float ki_speed;           // Ki_SPEED
     float kp_position;        // Kp_POSITION

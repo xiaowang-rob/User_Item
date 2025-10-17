@@ -25,7 +25,7 @@ void usartSendByte(u8 *data);
 void usartSendData(u8 *data, u8 len);
 void usartRecvByte(u8 *data);
 void usart_frame_send(USART_MSG_ID_e id, u8 *data, u8 len);
-void usart_farmedata_deal(u8 *id, u8 *data, u8 *len);
+void usart_farmedata_deal(u8 id, u8 *data, u8 len);
 // 发送单个浮点数（VOFA+ Float 格式）
 void vofa_send_float(float value);
 

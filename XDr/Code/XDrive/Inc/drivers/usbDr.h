@@ -15,4 +15,6 @@ typedef struct
 void usb_cdc_init();
 bool usb_Frame_send(u8 id, u8 *data, u8 len);
 void usb_FrameData_deal(u8 id, u8 *data, u8 len);
+void USB_Connect_Status_set(u8 status);
+u8 USB_Connect_Status_get(void);
 #endif /* __USB_CDC_H */

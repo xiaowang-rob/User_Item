@@ -38,4 +38,5 @@ xdrive/system_statemachine.o: ..\Src\services\system_statemachine.c \
   ..\Inc\drivers\canDr.h ..\Inc\control\adaptive_control.h \
   ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
   ..\Inc\services\status_feedback.h ..\Inc\services\log.h \
-  ..\Inc\control\loop_control.h ..\Inc\services\protection_manager.h
+  ..\Inc\control\loop_control.h ..\Inc\services\protection_manager.h \
+  ..\Inc\app\usb_interface.h ..\Inc\app\wireless_interface.h

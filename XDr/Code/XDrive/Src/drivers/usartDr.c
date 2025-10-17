@@ -1,7 +1,7 @@
 #include "usartDr.h"
 #include "usart.h"
 #include "string.h"
-
+#include "stdbool.h"
 Usart_Farme_t UsartRxFrame_g = {0};
 Usart_Farme_t UsartTxFrame_g = {0};
 u8 _rx;
@@ -22,7 +22,7 @@ void usartDrInit()
 
     UsartRxFrame_g.head = PACKET_HEAD;
     UsartRxFrame_g.tail = PACKET_TAIL;
-    HAL_UART_Receive_DMA(&huart1,&_rx, 1);
+    HAL_UART_Receive_DMA(&huart1, &_rx, 1);
 }
 void usartSendByte(u8 *data)
 {
@@ -34,6 +34,8 @@ void usartSendData(u8 *data, u8 len)
 }
 void usart_frame_send(USART_MSG_ID_e id, u8 *data, u8 len)
 {
+    if (len == 0)
+        return;
     UsartTxFrame_g.msgID = id;
     UsartTxFrame_g.len = len;
     u16 temp;
@@ -49,38 +51,51 @@ void usart_frame_send(USART_MSG_ID_e id, u8 *data, u8 len)
     usartSendByte(&UsartTxFrame_g.tail);
 }
 // 接收到数据帧的处理函数
-__weak void usart_farmedata_deal(u8 *id, u8 *data, u8 *len)
+__weak void usart_farmedata_deal(u8 id, u8 *data, u8 len)
 {
     return;
 }
-
-bool first_flag = true;
+static bool get_head = false;
 static u16 check = 0;
 static u8 DataIndex = 0;
 void usartRecvByte(u8 *data)
 {
-    if (*data == UsartTxFrame_g.head)
-    { // 得到包头
+    if (get_head)
+    {
         if (*data == UsartRxFrame_g.tail)
-        { // 接收到尾部
-            UsartRxFrame_g.len = DataIndex - 1;
-            UsartRxFrame_g.check = UsartRxFrame_g.data[UsartRxFrame_g.len];
-            UsartRxFrame_g.data[UsartRxFrame_g.len] = 0;
-            if (UsartRxFrame_g.check == ((u8)(check - UsartRxFrame_g.check) & 0x01))
-                usart_farmedata_deal(&UsartRxFrame_g.msgID, UsartRxFrame_g.data, &UsartRxFrame_g.len);
-            DataIndex = 0;
-            first_flag = true;
-            HAL_UART_Receive_DMA(&huart1, data, 1);
-        }
-        else if (first_flag)
         {
-            UsartRxFrame_g.msgID = *data;
-            first_flag = false;
+            if (check == UsartRxFrame_g.check)
+                usart_farmedata_deal(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
+            get_head = false;
         }
         else
         {
-            UsartRxFrame_g.data[DataIndex++] = *data;
-            check += *data;
+            if (DataIndex == 0)
+                UsartRxFrame_g.msgID = *data;
+            if (DataIndex == 1)
+                UsartRxFrame_g.len = *data;
+            if (DataIndex >= 2 && DataIndex < 2 + UsartRxFrame_g.len)
+            {
+                UsartRxFrame_g.data[DataIndex - 2] = *data;
+                check += *data;
+            }
+            if (DataIndex == 2 + UsartRxFrame_g.len)
+            {
+                UsartRxFrame_g.check = *data;
+                check = check && 0x01;
+            }
+            if (DataIndex > 3 + UsartRxFrame_g.len)
+                get_head = false;
+            DataIndex++;
+        }
+    }
+    else
+    {
+        if (*data == UsartTxFrame_g.head)
+        {
+            get_head = true;
+            DataIndex = 0;
+            check = 0;
         }
     }
     HAL_UART_Receive_DMA(&huart1, data, 1);
@@ -96,10 +111,10 @@ void vofa_send_float(float value)
 }
 void vofa_send_multi_float(const float *data, u8 count)
 {
-    if (count == 0 || count > 10)
+    if (count == 0 || count > 8)
         return; // 限制最大数量
 
-    u8 buffer[40]; // 最多 10 个 float * 4 字节
+    u8 buffer[32]; // 最多 8 个 float * 4 字节
     u8 total_bytes = count * 4;
 
     // 将多个 float 复制到缓冲区

@@ -9,6 +9,8 @@
 #include "status_feedback.h"
 #include "log.h"
 #include "protection_manager.h"
+#include "usb_interface.h"
+#include "wireless_interface.h"
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
 
 bool system_init_event(void)
@@ -16,7 +18,7 @@ bool system_init_event(void)
     // 驱动层初始化
     ADC_DR_Init(); // 启动ADC数据刷新和foc定时器
 
-    CANDr_Init();
+    CANDr_Init(0); 
     usartDrInit();
     usb_cdc_init();
 
@@ -32,9 +34,13 @@ bool system_init_event(void)
 }
 void System_Run_event(void)
 {
-    // usb解析
-    // can解析
-    // uart解析
+    // todo:加队列处理功能
+    //  usb处理
+    usb_stream_data_trans();
+    // can处理
+
+    // uart处理
+    usart_stream_data_trans();
     protection_manager_run();
     status_feedback();
 }

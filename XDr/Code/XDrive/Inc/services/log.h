@@ -28,6 +28,6 @@ typedef struct
 
 void log_init(void);
 void log_write(void);
-void log_read(u16 num);
+void log_read(u16 num, u8 *data, u8 *len);
 void log_erase();
 #endif /* __LOG_H */

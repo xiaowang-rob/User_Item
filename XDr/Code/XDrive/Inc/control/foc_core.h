@@ -66,6 +66,7 @@ typedef struct
 } startup_mechine_t;
 
 bool foc_core_init();
+void svpwm_udc_update();
 void foc_core_run();
 void foc_disable();
 void foc_enable();

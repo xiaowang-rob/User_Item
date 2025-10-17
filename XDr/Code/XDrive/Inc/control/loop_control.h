@@ -47,6 +47,7 @@ typedef struct
     f_Division_t fd;
     PI_t PI_iq;
     PI_t PI_id;
+    PI_t PI_weakmag;
     PI_t PI_speed;
     PID_t PID_pos;
     float position_min;
@@ -56,10 +57,9 @@ extern LOOP_CON_t g_loop_con;
 void Frequency_division_updatta();
 void Frequency_division_reset();
 void loop_reset(void);
-void LOOP_Parameter_writing(float fspeed, float fpos, float Udc, float max_current, float max_speed, float position_min, float position_max, float kp_id, float ki_id,
-                            float kp_iq, float ki_iq, float kp_speed, float ki_speed, float kp_pos, float ki_pos, float kd_pos);
 float Current_loop(float current_ref, float current_fb);
 float Magnetic_loop(float id_ref, float id_fb);
+float WeakMag_loop(float ud, float uq, float max_Vs);
 float Speed_loop(float omega_ref, float omega_fb);
 float Position_abs_loop(float position_ref, float position_fb);
 float Position_rel_loop(float position_ref, float position_fb);

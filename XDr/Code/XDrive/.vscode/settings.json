@@ -60,7 +60,9 @@
         "stddef.h": "c",
         "usbdr.h": "c",
         "usb_interface.h": "c",
-        "usb_protocol.h": "c"
+        "usb_protocol.h": "c",
+        "wireless_interface.h": "c",
+        "can_interface.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

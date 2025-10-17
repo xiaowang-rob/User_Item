@@ -3,6 +3,7 @@
 #include "usbd_cdc_if.h"
 USB_frame_t UsbTxFrame = {0};
 USB_frame_t UsbRxFrame = {0};
+static u8 USB_connect_status = 0;
 
 void usb_cdc_init(void)
 {
@@ -25,6 +26,8 @@ bool usbSendData(u8 *data, u8 len)
 }
 bool usb_Frame_send(u8 id, u8 *data, u8 len)
 {
+    if (len == 0)
+        return false;
     u16 check = 0;
     for (int i = 0; i < len; i++)
         check += data[i];
@@ -43,7 +46,7 @@ __weak void usb_FrameData_deal(u8 id, u8 *data, u8 len)
     return;
 }
 
- bool usbRecvByte(u8 *data, u8 *len)
+bool usbRecvByte(u8 *data, u8 *len)
 {
     if (data == NULL || len == NULL)
         return false;
@@ -64,4 +67,12 @@ __weak void usb_FrameData_deal(u8 id, u8 *data, u8 len)
         }
     }
     return true;
+}
+void USB_Connect_Status_set(u8 status)
+{
+    USB_connect_status = status;
+}
+u8 USB_Connect_Status_get(void)
+{
+    return USB_connect_status;
 }

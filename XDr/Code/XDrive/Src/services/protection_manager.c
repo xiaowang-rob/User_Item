@@ -7,6 +7,8 @@
 #include "log.h"
 #include "adcDr.h"
 #include "auto_calibration.h"
+#include "canDr.h"
+#include "usbDr.h"
 protection_manager_t g_protection_manager = {0};
 u32 _time = 0;
 u32 _time_last = 0;
@@ -42,18 +44,18 @@ void protection_manager_init(float maxcurrent, float max_speed, float min_positi
     g_protection_manager.tolerance_position = tolerance_position;
     g_protection_manager.serious_fault = false;
     g_protection_manager.warning_fault = false;
-    g_protection_manager.clear_fault = false;
     g_protection_manager.log_done = false;
+}
+void protection_manager_clear_fault()
+{
+    g_protection_manager.serious_fault = false;
+    g_protection_manager.warning_fault = false;
 }
 void protection_manager_run()
 {
-    if (g_protection_manager.clear_fault)
-    {
-        g_protection_manager.clear_fault = false;
-        g_protection_manager.serious_fault = false;
-    }
     if (g_protection_manager.serious_fault)
         return;
+    // 严重错误
     if (get_motor_fault_flag())
     {
         g_protection_manager.fault = MOTOR_ERROR;
@@ -73,6 +75,23 @@ void protection_manager_run()
         g_protection_manager.serious_fault = true;
         FOC_CHANGE_STATE(FOC_FAULT);
     }
+    CAN_STATE_E CAN_state = CAN_STATE_get;
+    if (CAN_state != CAN_OK)
+    {
+        if (CAN_state == CAN_INIT_fault)
+        {
+            g_protection_manager.fault = CAN_INIT_FAULT;
+            g_protection_manager.serious_fault = true;
+            FOC_CHANGE_STATE(FOC_FAULT);
+        }
+        if (CAN_state == CAN_COMMUNICATION_FAULT)
+        {
+            g_protection_manager.fault = CAN_COMMUNICATION_FAULT;
+            g_protection_manager.serious_fault = true;
+            FOC_CHANGE_STATE(FOC_FAULT);
+        }
+    }
+    // 警告错误
     if (Tolerance_check(&g_adaptive_con.Udc, MAX_Voltage, MIN_Voltage, g_protection_manager.tolerance_voltage) && g_adaptive_con.Udc > MAX_Voltage)
     {
         g_protection_manager.fault = OVER_VOLTAGE;
@@ -97,7 +116,7 @@ void protection_manager_run()
         g_protection_manager.fault = NO_FAULT;
         g_protection_manager.log_done = false;
     }
-    // todo:获取can状态
+
     if (g_foccore.run_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
         if (GET_ENCODER_NO_MAG_FLAG())
@@ -127,7 +146,8 @@ void protection_manager_run()
     }
     if ((g_protection_manager.warning_fault || g_protection_manager.serious_fault) && !g_protection_manager.log_done)
     {
-        // todo:如果非上位机状态 再写日志 上位机状态直接实时显示
+        if (USB_Connect_Status_get() == 1)
+            return;
         log_write();
         g_protection_manager.log_done = true;
     }

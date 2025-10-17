@@ -10,4 +10,5 @@ typedef enum
     SYSTEM_ERROR,
 } SYSTEM_STATE_e;
 
+void SystemState_change(SYSTEM_STATE_e new_state);
 #endif

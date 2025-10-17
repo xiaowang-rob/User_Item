@@ -4,11 +4,13 @@
 
 typedef struct
 {
+    bool weakmag_enable;
     u8 temp_u;
     u8 temp_v;
     u8 temp_w;
     float tempareture;
     float Udc;
+    float max_Vs; // 最大相电压
 } ADAPTIVE_CON_T;
 extern ADAPTIVE_CON_T g_adaptive_con;
 

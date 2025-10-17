@@ -8,6 +8,7 @@
 #include "system_parameters.h"
 #include "protection_manager.h"
 #include "flashDr.h"
+#include "canDr.h"
 /*
 在数据写入读出的时候进行单位转换，以便于在PC端进行数据可视化
 */
@@ -86,7 +87,13 @@ void parameter_set(Parameter_e parameter, u32 *data)
     switch (parameter)
     {
     case CAN_ID:
-        g_foc_parameters.CAN_ID = *data;
+        g_foc_parameters.can_id = *data;
+        break;
+    case CAN_QUEUE:
+        g_foc_parameters.can_queue = *data;
+        break;
+    case WEAK_MAG:
+        g_foc_parameters.weak_mag = *data;
         break;
     case THETA_OFFSET:
         g_foc_parameters.theta_offset = *data;
@@ -138,6 +145,12 @@ void parameter_set(Parameter_e parameter, u32 *data)
         break;
     case Ki_CURRENT:
         g_foc_parameters.ki_current = *data;
+        break;
+    case Kp_WEAKMAG:
+        g_foc_parameters.kp_weakmag = *data;
+        break;
+    case Ki_WEAKMAG:
+        g_foc_parameters.ki_weakmag = *data;
         break;
     case Kp_SPEED:
         g_foc_parameters.kp_speed = *data;
@@ -211,7 +224,7 @@ void all_parameters_set(u32 *data)
 {
     for (int i = 0; i < CHANGE_LOOP_SPEED + 1; i++)
     {
-        parameter_set(i, data+i);
+        parameter_set(i, data + i);
     }
 }
 void parameter_ask(Parameter_e parameter, u32 *data)
@@ -225,7 +238,7 @@ void parameter_ask(Parameter_e parameter, u32 *data)
     switch (parameter)
     {
     case CAN_ID:
-        *data = g_foc_parameters.CAN_ID;
+        *data = g_foc_parameters.can_id;
         break;
     case THETA_OFFSET:
         *data = g_foc_parameters.theta_offset;
@@ -354,6 +367,9 @@ void all_parameters_ask(u32 *data, u8 *len)
 }
 void parameter_apply()
 {
+    // todo:can队列
+    // todo：弱磁控制
+    CANDr_Init(g_foc_parameters.can_id);
     protection_manager_init(g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
                             g_foc_parameters.tolerance_time, g_foc_parameters.tolerance_voltage, g_foc_parameters.tolerance_current, g_foc_parameters.tolerance_speed,
                             g_foc_parameters.tolerance_position);
@@ -362,11 +378,11 @@ void parameter_apply()
 bool parameter_save()
 {
     FLASH_erase_sector(PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
-    return FLASH_Write_Word((u8*)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
+    return FLASH_Write_Word((u8 *)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
 }
 bool parameter_load()
 {
-    return FLASH_Read_data((u8*)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
+    return FLASH_Read_data((u8 *)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
 }
 void parameter_erase()
 {

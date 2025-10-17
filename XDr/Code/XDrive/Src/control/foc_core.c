@@ -30,9 +30,15 @@ void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_g
 
 bool foc_core_init()
 {
+    Frequency_division_init(g_foc_parameters.f_speed_loop, g_foc_parameters.f_position_loop);
+    PI_init(&g_loop_con.PI_id, g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_adaptive_con.Udc);
+    PI_init(&g_loop_con.PI_iq, g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_adaptive_con.Udc);
+    PI_init(&g_loop_con.PI_weakmag, g_foc_parameters.kp_weakmag, g_foc_parameters.ki_weakmag, g_foc_parameters.limit_current);
+    PI_init(&g_loop_con.PI_speed, g_foc_parameters.kp_speed, g_foc_parameters.ki_speed, g_foc_parameters.limit_current);
+    PID_init(&g_loop_con.PID_pos, g_foc_parameters.kp_position, g_foc_parameters.ki_position, g_foc_parameters.kd_position, g_foc_parameters.limit_speed);
+    g_loop_con.position_min = g_foc_parameters.limit_position_min;
+    g_loop_con.position_max = g_foc_parameters.limit_position_max;
     smo_sensorless_init(&smo, g_foc_parameters.motor_rs, g_foc_parameters.motor_ls, Tcon);
-    LOOP_Parameter_writing(g_foc_parameters.f_speed_loop, g_foc_parameters.f_position_loop, g_adaptive_con.Udc, g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
-                           g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_foc_parameters.kp_current, g_foc_parameters.ki_current, g_foc_parameters.kp_speed, g_foc_parameters.ki_speed, g_foc_parameters.kp_position, g_foc_parameters.ki_position, g_foc_parameters.kd_position);
     auto_calibration_init(g_foc_parameters.motor_rs, g_foc_parameters.motor_ls, g_foc_parameters.motor_psif, g_foc_parameters.motor_polepairs, (TUNE_MODE_E)g_foc_parameters.foc_autotune_mode);
     startup_machine_init(&g_loop_con, g_foc_parameters.startup_spe_grad, g_foc_parameters.startup_pos_grad, g_foc_parameters.align_current, g_foc_parameters.align_time, g_foc_parameters.open_loop_current, g_foc_parameters.open_loop_speed, g_foc_parameters.change_loop_speed);
     svpwm_Init(svpwm, g_adaptive_con.Udc);
@@ -40,7 +46,10 @@ bool foc_core_init()
         ENCODER_Init();
     return true;
 }
-
+void svpwm_udc_update()
+{
+    svpwm_SetVbus(svpwm, g_adaptive_con.Udc);
+}
 void Current_reconstruction()
 {
     float ui, vi, wi;
@@ -292,6 +301,9 @@ void foc_core_run()
                 if (g_foccore.omega_ref - g_foccore.omega_con < -startup_machine.omega_gradient)
                     g_foccore.omega_con -= startup_machine.omega_gradient;
                 g_foccore.iq_ref = Speed_loop(g_foccore.omega_con, g_monitor.omega_fb);
+                if (g_adaptive_con.weakmag_enable) // 弱磁模式
+                    if (g_monitor.omega_fb > 30)
+                        g_foccore.id_ref = WeakMag_loop(g_monitor.ud, g_monitor.uq, g_adaptive_con.max_Vs);
             }
             break;
         default:
@@ -333,9 +345,11 @@ void foc_core_run()
 
     if (g_foccore.run_mode != AUTO_TUNE_CONTROL)
     {
-        g_monitor.ud = Magnetic_loop(g_foccore.id_ref, g_monitor.id_fb);
         g_monitor.uq = Current_loop(g_foccore.iq_ref, g_monitor.iq_fb);
-        inv_park_transform(g_monitor.ud, g_monitor.uq, g_monitor.theta_elec, &g_monitor.Ualpha, &g_monitor.Ubeta);
+        g_monitor.ud = Magnetic_loop(g_foccore.id_ref, g_monitor.id_fb);
+        if (g_monitor.uq == g_loop_con.PI_iq.output_limit)
+
+            inv_park_transform(g_monitor.ud, g_monitor.uq, g_monitor.theta_elec, &g_monitor.Ualpha, &g_monitor.Ubeta);
     }
     svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, svpwm);
     smaple_point_change();
