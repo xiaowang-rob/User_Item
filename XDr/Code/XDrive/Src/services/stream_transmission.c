@@ -9,6 +9,8 @@
 #include "protection_manager.h"
 #include "flashDr.h"
 #include "canDr.h"
+#include "svpwm.h"
+#include "system_statemachine.h"
 /*
 在数据写入读出的时候进行单位转换，以便于在PC端进行数据可视化
 */
@@ -21,17 +23,39 @@ void stream_data_get(Data_stream_e stream, float *data)
 {
     switch (stream)
     {
+    case STATUS:
+        u8 _sta[4] = {SystemState_get(), g_foccore.state, g_protection_manager.fault, g_protection_manager.warning};
+        *data = (u32 *)&_sta;
+        break;
+    case TEMPERATURE:
+        *data = g_adaptive_con.tempareture;
+        break;
     case VBUS:
         *data = g_adaptive_con.Udc;
         break;
-    case TEMP:
-        *data = g_adaptive_con.tempareture;
+    case VOLTAGE_U:
+        *data = g_svpwm.ticu * g_adaptive_con.Udc / ticpwm;
         break;
-    case THETA_elec:
-        *data = rad_to_deg(g_monitor.theta_elec);
+    case VOLTAGE_V:
+        *data = g_monitor.Ibeta * g_adaptive_con.Udc / ticpwm;
         break;
-    case THETA_mech:
-        *data = rad_to_deg(g_monitor.theta_mech);
+    case VOLTAGE_W:
+        *data = g_monitor.Ualpha * g_adaptive_con.Udc / ticpwm;
+        break;
+    case VOLTAGE_q:
+        *data = g_monitor.uq;
+        break;
+    case VOLTAGE_d:
+        *data = g_monitor.ud;
+        break;
+    case CURRENT_U:
+        *data = g_monitor.Iu;
+        break;
+    case CURRENT_V:
+        *data = g_monitor.Iv;
+        break;
+    case CURRENT_W:
+        *data = g_monitor.Iw;
         break;
     case CURRENT_q:
         *data = g_monitor.iq_fb;
@@ -39,61 +63,140 @@ void stream_data_get(Data_stream_e stream, float *data)
     case CURRENT_d:
         *data = g_monitor.id_fb;
         break;
-    case CURRENT_alpha:
-        *data = g_monitor.Ialpha;
-        break;
-    case CURRENT_beta:
-        *data = g_monitor.Ibeta;
-        break;
-    case VOLTAGE_alpha:
-        *data = g_monitor.Ualpha;
-        break;
-    case VOLTAGE_beta:
-        *data = g_monitor.Ibeta;
-        break;
-    case SPEED_rpm:
-        *data = rad_to_rpm(g_monitor.omega_fb);
-        break;
-    case POSITION_motor:
-        *data = rad_to_deg(g_monitor.pos_fb);
-        break;
-    case POSITION_target:
-        *data = rad_to_deg(g_monitor.pos_fb / g_foccore.Reduction_ratio);
-        break;
-    case REF_iq:
+    case CURRENT_q_ref:
         *data = g_foccore.iq_ref;
         break;
-    case REF_id:
+    case CURRENT_d_ref:
         *data = g_foccore.id_ref;
         break;
-    case REF_speed:
+    case SPEED:
+        *data = rad_to_rpm(g_monitor.omega_fb);
+        break;
+    case SPEED_con:
+        *data = rad_to_rpm(g_foccore.omega_con);
+        break;
+    case SPEED_ref:
         *data = rad_to_rpm(g_foccore.omega_ref);
         break;
-    case REF_position_motor:
-        *data = rad_to_deg(g_foccore.pos_ref * g_foccore.Reduction_ratio);
+    case THETA_elec:
+        *data = rad_to_deg(g_monitor.theta_elec);
         break;
-    case REF_position_target:
+    case THETA_mech:
+        *data = rad_to_deg(g_monitor.theta_mech);
+        break;
+    case THETA_mech_con:
+        *data = rad_to_deg(g_foccore.pos_con);
+        break;
+    case THETA_mech_ref:
         *data = rad_to_deg(g_foccore.pos_ref);
         break;
     default:
         break;
     }
 }
+Mode_t g_mode;
 
+void mode_set(Mode_e mode, u8 *data)
+{
+    switch (mode)
+    {
+    case SW_CANQUEUE:
+        g_mode.canqueue = *data;
+        break;
+    case SW_WEAKMAG:
+        g_mode.weakmag = *data;
+        break;
+    case SW_FAN:
+        g_mode.fan = *data;
+        break;
+    case SW_TLC:
+        g_mode.tls = *data;
+        break;
+    case SW_CLS:
+        g_mode.cls = *data;
+        break;
+    case SW_VAGUE_PID:
+        g_mode.vague_pid = *data;
+        break;
+    case SW_PVT:
+        g_mode.pvt = *data;
+        break;
+    case FOC_RUN_MODE:
+        g_mode.foc_run_mode = *data;
+        break;
+    case FOC_LOOP_MODE:
+        g_mode.foc_loop_mode = *data;
+        break;
+    case FOC_AUTOTUNE_MODE:
+        g_mode.foc_autotune_mode = *data;
+        break;
+    default:
+        break;
+    }
+}
+void mode_ask(Mode_e mode, u8 *data)
+{
+    if (data == NULL)
+    {
+        // 空指针检查，防止程序崩溃
+        return;
+    }
+    switch (mode)
+    {
+    case SW_CANQUEUE:
+        *data = g_mode.canqueue;
+        break;
+    case SW_WEAKMAG:
+        *data = g_mode.weakmag;
+        break;
+    case SW_FAN:
+        *data = g_mode.fan;
+        break;
+    case SW_TLC:
+        *data = g_mode.tls;
+        break;
+    case SW_CLS:
+        *data = g_mode.cls;
+        break;
+    case SW_VAGUE_PID:
+        *data = g_mode.vague_pid;
+        break;
+    case SW_PVT:
+        *data = g_mode.pvt;
+        break;
+    case FOC_RUN_MODE:
+        *data = g_mode.foc_run_mode;
+        break;
+    case FOC_LOOP_MODE:
+        *data = g_mode.foc_loop_mode;
+        break;
+    case FOC_AUTOTUNE_MODE:
+        *data = g_mode.foc_autotune_mode;
+        break;
+    default:
+        break;
+    }
+}
+void All_mode_set(u8 *data)
+{
+    for (int i = SW_CANQUEUE; i < FOC_AUTOTUNE_MODE + 1; i++)
+    {
+        mode_set(i, data + i);
+    }
+}
+void All_mode_ask(u8 *data, u8 *len)
+{
+    *len = FOC_AUTOTUNE_MODE + 1;
+    data = &g_mode.canqueue;
+}
 Parameter_t g_foc_parameters;
-
+// 写入个别参数
 void parameter_set(Parameter_e parameter, u32 *data)
 {
     switch (parameter)
     {
     case CAN_ID:
         g_foc_parameters.can_id = *data;
-        break;
-    case CAN_QUEUE:
-        g_foc_parameters.can_queue = *data;
-        break;
-    case WEAK_MAG:
-        g_foc_parameters.weak_mag = *data;
         break;
     case THETA_OFFSET:
         g_foc_parameters.theta_offset = *data;
@@ -118,18 +221,6 @@ void parameter_set(Parameter_e parameter, u32 *data)
         break;
     case MOTOR_TC:
         g_foc_parameters.motor_tc = *data;
-        break;
-    case REDUCTION_RATIO:
-        g_foc_parameters.reduction_ratio = *data;
-        break;
-    case FOC_RUN_MODE:
-        g_foc_parameters.foc_run_mode = *data;
-        break;
-    case FOC_LOOP_MODE:
-        g_foc_parameters.foc_loop_mode = *data;
-        break;
-    case FOC_AUTOTUNE_MODE:
-        g_foc_parameters.foc_autotune_mode = *data;
         break;
     case f_CURRENT_LOOP:
         g_foc_parameters.f_current_loop = *data;
@@ -216,17 +307,20 @@ void parameter_set(Parameter_e parameter, u32 *data)
         g_foc_parameters.change_loop_speed = rpm_to_rad(*data);
         break;
     default:
-        // 可以添加错误处理，如打印错误信息或断言
         break;
     }
+    parameter_apply();
 }
+// 一键写入所有参数
 void all_parameters_set(u32 *data)
 {
-    for (int i = 0; i < CHANGE_LOOP_SPEED + 1; i++)
+    for (int i = CAN_ID; i < CHANGE_LOOP_SPEED + 1; i++)
     {
         parameter_set(i, data + i);
     }
+    parameter_apply();
 }
+
 void parameter_ask(Parameter_e parameter, u32 *data)
 {
     if (data == NULL)
@@ -264,15 +358,6 @@ void parameter_ask(Parameter_e parameter, u32 *data)
     case MOTOR_TC:
         *data = g_foc_parameters.motor_tc;
         break;
-    case REDUCTION_RATIO:
-        *data = g_foc_parameters.reduction_ratio;
-        break;
-    case FOC_RUN_MODE:
-        *data = g_foc_parameters.foc_run_mode;
-        break;
-    case FOC_LOOP_MODE:
-        *data = g_foc_parameters.foc_loop_mode;
-        break;
     case f_CURRENT_LOOP:
         *data = g_foc_parameters.f_current_loop;
         break;
@@ -287,6 +372,12 @@ void parameter_ask(Parameter_e parameter, u32 *data)
         break;
     case Ki_CURRENT:
         *data = g_foc_parameters.ki_current;
+        break;
+    case Kp_WEAKMAG:
+        *data = g_foc_parameters.kp_weakmag;
+        break;
+    case Ki_WEAKMAG:
+        *data = g_foc_parameters.ki_weakmag;
         break;
     case Kp_SPEED:
         *data = g_foc_parameters.kp_speed;
@@ -352,47 +443,83 @@ void parameter_ask(Parameter_e parameter, u32 *data)
         *data = rad_to_rpm(g_foc_parameters.change_loop_speed);
         break;
     default:
-        // 可以设置默认值或记录错误
-        *data = 0.0f; // 默认返回0
         break;
     }
 }
+// 读取参数
 void all_parameters_ask(u32 *data, u8 *len)
 {
-    for (int i = 0; i < CHANGE_LOOP_SPEED + 1; i++)
-    {
-        parameter_ask(i, data + i);
-    }
+    data = &g_foc_parameters.motor_polepairs;
     *len = CHANGE_LOOP_SPEED + 1;
 }
+
 void parameter_apply()
 {
-    // todo:can队列
     // todo：弱磁控制
-    CANDr_Init(g_foc_parameters.can_id);
+    CANDr_Init(g_foc_parameters.can_id, g_mode.canqueue);
     protection_manager_init(g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
                             g_foc_parameters.tolerance_time, g_foc_parameters.tolerance_voltage, g_foc_parameters.tolerance_current, g_foc_parameters.tolerance_speed,
                             g_foc_parameters.tolerance_position);
     FOC_CHANGE_STATE(FOC_INIT);
 }
+
+void mode_apply()
+{
+    FOC_CHANGE_STATE(FOC_INIT);
+}
+// 保存参数
 bool parameter_save()
 {
     FLASH_erase_sector(PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
     return FLASH_Write_Word((u8 *)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
 }
+// 保存模式
+bool mode_save()
+{
+    FLASH_erase_sector(MODE_LOAD_ADDr, sizeof(Mode_t));
+    return FLASH_Write_Word((u8 *)&g_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
+}
 bool parameter_load()
 {
     return FLASH_Read_data((u8 *)&g_foc_parameters, PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
 }
+bool mode_load()
+{
+    return FLASH_Read_data((u8 *)&g_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
+}
+// 擦除参数
 void parameter_erase()
 {
     FLASH_erase_sector(PARAMETER_LOAD_ADDr, sizeof(Parameter_t));
 }
-
-bool parameter_init()
+// 擦除模式
+void mode_erase()
+{
+    FLASH_erase_sector(MODE_LOAD_ADDr, sizeof(Mode_t));
+}
+bool parameter_mode_init()
 {
     if (!parameter_load())
         return false;
+    if (!mode_load())
+        return false;
+    if (g_foc_parameters.None_flag == 0)
+        return true;
+    else
+    {
+        g_foc_mode.None_flag = 0; // 模式存储是否为空
+        g_foc_mode.canqueue = 0;
+        g_foc_mode.weakmag = 0;
+        g_foc_mode.fan = 0;
+        g_foc_mode.tls = 0;
+        g_foc_mode.cls = 0;
+        g_foc_mode.vague_pid = 0;
+        g_foc_mode.pvt = 0;
+        g_foc_mode.foc_run_mode = 2;
+        g_foc_mode.foc_loop_mode = 1;
+        g_foc_mode.foc_autotune_mode = 1;
+    }
+
     if (g_foc_parameters.None_flag == 0)
         return true;
     else
@@ -406,15 +533,13 @@ bool parameter_init()
         g_foc_parameters.motor_j = 0.0001f;                          // 转动惯量 0.0001 kg·m²
         g_foc_parameters.motor_b = 0.0005f;                          // 阻尼系数 0.0005 N·m·s/rad
         g_foc_parameters.motor_tc = 0.1f;                            // 转矩常数 0.1 N·m/A
-        g_foc_parameters.reduction_ratio = 1.0f;                     // 减速比 1:1（直驱）
-        g_foc_parameters.foc_run_mode = 2;                           // 运行模式：0-整定 1-有感 2-无感
-        g_foc_parameters.foc_loop_mode = 1;                          // 环路模式：0-电流环 1-速度环 2-绝对位置环 3-相对位置环
-        g_foc_parameters.foc_autotune_mode = 1;                      // 自整定模式：0-有感整定 1-无感整定 2-手动整定
         g_foc_parameters.f_current_loop = fpwm;                      // 电流环频率 20kHz
         g_foc_parameters.f_speed_loop = 2000;                        // 速度环频率 2kHz
         g_foc_parameters.f_position_loop = 1000;                     // 位置环频率 500Hz
         g_foc_parameters.kp_current = 0.5f;                          // 电流环比例系数
         g_foc_parameters.ki_current = 100.0f;                        // 电流环积分系数
+        g_foc_parameters.kp_weakmag = 0.5f;                          // 弱磁环比例系数
+        g_foc_parameters.ki_weakmag = 10.0f;                         // 弱磁环积分系数
         g_foc_parameters.kp_speed = 0.1f;                            // 速度环比例系数
         g_foc_parameters.ki_speed = 5.0f;                            // 速度环积分系数
         g_foc_parameters.kp_position = 50.0f;                        // 位置环比例系数
@@ -437,6 +562,7 @@ bool parameter_init()
         g_foc_parameters.open_loop_speed = rpm_to_rad(150.0f);       // 开环速度 100 RPM
         g_foc_parameters.change_loop_speed = rpm_to_rad(100.0f);     // 切环速度 50 RPM}
     }
+    mode_apply();
     parameter_apply();
     return true;
 }
@@ -452,7 +578,13 @@ void CONTROL_value_update(float *data)
         break;
     case POSITION_ABS_CONTROL:
     case POSITION_REL_CONTROL:
-        g_foccore.pos_ref = deg_to_rad(data[0]);
+        if (g_foccore.pvt_mode)
+        {
+            g_foccore.pos_ref = deg_to_rad(data[0]);
+            g_loop_con.PID_pos.output_limit = deg_to_rad(data[1]);
+        }
+        else
+            g_foccore.pos_ref = deg_to_rad(data[0]);
         break;
     default:
         break;

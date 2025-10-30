@@ -11,9 +11,15 @@ typedef struct
     float tempareture;
     float Udc;
     float max_Vs; // 最大相电压
+    bool fan;
+    bool tlc;
+    bool cls;
+    bool vague_pid;
+
 } ADAPTIVE_CON_T;
 extern ADAPTIVE_CON_T g_adaptive_con;
 
 void adaptive_control_init(void);
 void adaptive_control_update(void);
+
 #endif

@@ -1040,7 +1040,7 @@ HAL_StatusTypeDef HAL_CAN_Start(CAN_HandleTypeDef *hcan)
   if (hcan->State == HAL_CAN_STATE_READY)
   {
     /* Change CAN peripheral state */
-    hcan->State = HAL_CAN_STATE_LISTENING;
+    hcan->State = HAL_CAN_STATE_LISTENING; 
 
     /* Request leave initialisation */
     CLEAR_BIT(hcan->Instance->MCR, CAN_MCR_INRQ);

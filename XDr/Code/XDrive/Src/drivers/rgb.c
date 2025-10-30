@@ -2,7 +2,7 @@
 #include "tim.h"
 #include "stdlib.h"
 #include "base_parameters.h"
-
+#include "math_fast.h"
 /*Some Static Colors------------------------------*/
 const RGB_Color_TypeDef RED = {255, 0, 0};       // 红色
 const RGB_Color_TypeDef GREEN = {0, 255, 0};     // 绿色
@@ -95,11 +95,11 @@ void RGB_SetOne_Color(u8 LedId, RGB_Color_TypeDef Color)
         return; // avoid overflow 防止写入ID大于LED总数
     // 这里是对 Pixel_Buf[LedId][i]写入一个周期内高电平的持续时间（或者说时PWM的占空比寄存器CCR1），
     for (i = 0; i < 8; i++)
-        Pixel_Buf[LedId][i] = (((Color.G / 5) & (1 << (7 - i))) ? (CODE_1) : CODE_0); // 数组某一行0~7转化存放G
+        Pixel_Buf[LedId][i] = ((Color.G & (1 << (7 - i))) ? (CODE_1) : CODE_0); // 数组某一行0~7转化存放G
     for (i = 8; i < 16; i++)
-        Pixel_Buf[LedId][i] = (((Color.R / 5) & (1 << (15 - i))) ? (CODE_1) : CODE_0); // 数组某一行8~15转化存放R
+        Pixel_Buf[LedId][i] = ((Color.R & (1 << (15 - i))) ? (CODE_1) : CODE_0); // 数组某一行8~15转化存放R
     for (i = 16; i < 24; i++)
-        Pixel_Buf[LedId][i] = (((Color.B / 5) & (1 << (23 - i))) ? (CODE_1) : CODE_0); // 数组某一行16~23转化存放B
+        Pixel_Buf[LedId][i] = ((Color.B & (1 << (23 - i))) ? (CODE_1) : CODE_0); // 数组某一行16~23转化存放B
 }
 
 // 调用RGB_SetOne_Color函数，完成对多个LED的颜色设置。
@@ -111,39 +111,55 @@ void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color)
         RGB_SetOne_Color(i, color);
     }
 }
+// 以查表法正弦波显示
+static const u8 sine_table[256] = {
+    128, 131, 134, 137, 140, 143, 146, 149, 152, 155, 158, 162, 165, 167, 170, 173,
+    176, 179, 182, 185, 188, 190, 193, 196, 198, 201, 203, 206, 208, 211, 213, 215,
+    218, 220, 222, 224, 226, 228, 230, 232, 234, 235, 237, 238, 240, 241, 243, 244,
+    245, 246, 247, 248, 249, 250, 250, 251, 252, 252, 253, 253, 253, 254, 254, 254,
+    254, 254, 254, 254, 253, 253, 253, 252, 252, 251, 250, 250, 249, 248, 247, 246,
+    245, 244, 243, 241, 240, 238, 237, 235, 234, 232, 230, 228, 226, 224, 222, 220,
+    218, 215, 213, 211, 208, 206, 203, 201, 198, 196, 193, 190, 188, 185, 182, 179,
+    176, 173, 170, 167, 165, 162, 158, 155, 152, 149, 146, 143, 140, 137, 134, 131,
+    128, 124, 121, 118, 115, 112, 109, 106, 103, 100, 97, 93, 90, 88, 85, 82,
+    79, 76, 73, 70, 67, 65, 62, 59, 57, 54, 52, 49, 47, 44, 42, 40,
+    37, 35, 33, 31, 29, 27, 25, 23, 21, 20, 18, 17, 15, 14, 12, 11,
+    10, 9, 8, 7, 6, 5, 5, 4, 3, 3, 2, 2, 2, 1, 1, 1,
+    1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 7, 8, 9,
+    10, 11, 12, 14, 15, 17, 18, 20, 21, 23, 25, 27, 29, 31, 33, 35,
+    37, 40, 42, 44, 47, 49, 52, 54, 57, 59, 62, 65, 67, 70, 73, 76,
+    79, 82, 85, 88, 90, 93, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124};
 
-#define RGB_BREATHE_rate 0.01f
-RGB_Color_TypeDef color_temp;
-u8 up_flag = 1;
-float color_index = 0;
+#define BREATHE_T_steps 512000 // 呼吸周期步数
+#define INDEX_T_steps BREATHE_T_steps / 256
+
+static u16 _tic = 0;
+static u8 index = 0;
+static RGB_Color_TypeDef color_temp;
+static RGB_Color_TypeDef color_temp_last;
 void rgb_breathe(RGB_Color_TypeDef Color)
 {
-    color_temp.R = Color.R * color_index;
-    color_temp.G = Color.G * color_index;
-    color_temp.B = Color.B * color_index;
-    if (up_flag == 1)
+    // 使用整数计算，避免浮点数精度问题
+    color_temp.R = Color.R == 0 ? 0 : Color.R * sine_table[index] / 255;
+    color_temp.G = Color.G == 0 ? 0 : Color.G * sine_table[index] / 255;
+    color_temp.B = Color.B == 0 ? 0 : Color.B * sine_table[index] / 255;
+
+    if (_tic++ >= INDEX_T_steps)
     {
-        if (color_index <= 1.0f)
-            color_index += RGB_BREATHE_rate;
-        else
-        {
-            up_flag = 0;
-        }
+        _tic = 0;
+        index++;
+        if (index >= 255)
+            index = 0;
     }
-    else
-    {
-        if (color_index >= 0.0f)
-            color_index -= RGB_BREATHE_rate;
-        else
-        {
-            up_flag = 1;
-        }
+    if (color_temp.R != color_temp_last.R || color_temp.G != color_temp_last.G || color_temp.B != color_temp_last.B)
+    { // 设置颜色并刷新
+        color_temp_last = color_temp;
+        RGB_SetMore_Color(0, Pixel_NUM, color_temp);
+        RGB_Flush();
     }
-    RGB_SetMore_Color(0, Pixel_NUM, color_temp);
-    RGB_Flush(); // 刷新WS2812B的显示
 }
-#define RGB_ALTERNATE_steps 100
-static u16 _tic_steps = 0;
+#define RGB_ALTERNATE_steps 300000
+static u32 _tic_steps = 0;
 void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2)
 {
     if (_tic_steps == RGB_ALTERNATE_steps)

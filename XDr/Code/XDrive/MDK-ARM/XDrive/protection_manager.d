@@ -37,4 +37,5 @@ xdrive/protection_manager.o: ..\Src\services\protection_manager.c \
   ..\Inc\drivers\encoder.h ..\Config\base_parameters.h ..\Core\Inc\spi.h \
   ..\Inc\services\log.h ..\Inc\control\loop_control.h \
   ..\Inc\drivers\adcDr.h ..\Inc\control\auto_calibration.h \
-  ..\Inc\control\smo.h
+  ..\Inc\control\smo.h ..\Inc\drivers\canDr.h ..\Inc\drivers\usbDr.h \
+  ..\protocol\usb_protocol.h

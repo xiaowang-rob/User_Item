@@ -11,4 +11,6 @@ typedef enum
 } SYSTEM_STATE_e;
 
 void SystemState_change(SYSTEM_STATE_e new_state);
+SYSTEM_STATE_e SystemState_get(void);
+void SystemStateMachine_run(void);
 #endif

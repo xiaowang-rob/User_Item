@@ -2,15 +2,14 @@
 #define ENCODER_H
 
 #include "base_parameters.h"
+#include "main.h"
 #define ENCODER_SPI_CS_H() HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, 1)
 #define ENCODER_SPI_CS_L() HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, 0)
 
 typedef struct
 {
-    bool online_flag;
-    bool no_mag_flag;         // 磁场无效标志位
-    bool communication_error; // 通信错误标志位
-    float angle_rad;          // 弧度值
+    uint8_t state;   // 0 OK 1 OFFLINE 2 COMMUNICATION_FALUT 3 MAG_WEAK
+    float angle_abs; // 弧度值
     float angle_last;
     float angle_inc;    // 角度增量值rad
     float angle_deg;    // 转换为角度值（0~360°）
@@ -31,12 +30,10 @@ typedef struct
 
 // 函数声明
 bool ENCODER_Init(void);
-float GET_ENCODER_ANGLE_RAD(void);
+float GET_ENCODER_ANGLE_ABS(void);
 float GET_ENCODER_ANGLE_INC(void);
 void SET_ENCODER_ANGLE_OFFSET(float offset);
 float GET_ENCODER_ANGLE_OFFSET(void);
-bool GET_ENCODER_STATUS();
-bool GET_ENCODER_COMMUNICATION_ERROR(void);
-bool GET_ENCODER_NO_MAG_FLAG(void);
+uint8_t GET_ENCODER_STATUS();
 
 #endif // ENCODER_H

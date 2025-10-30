@@ -14,7 +14,7 @@ typedef enum
 {
     CURRENT_LOOP_CONTROL,
     SPEED_LOOP_CONTROL,
-    POSITION_ABS_CONTROL, // 绝对位置控制 会以最优方式转到位置
+    POSITION_ABS_CONTROL, // 绝对位置控制(0-360°)
     POSITION_REL_CONTROL, // 相对/增量位置控制 会以给定角度（+-float的范围）转到位置
 } LOOP_MODE_e;
 
@@ -38,7 +38,8 @@ typedef struct
     FOC_STATE_e state;
     RUN_MODE_e run_mode;
     LOOP_MODE_e loop_mode;
-    float Reduction_ratio; // 减速比
+    bool pvt_mode;
+    bool weak_mag;
     float iq_ref;
     float id_ref;
     float omega_ref;

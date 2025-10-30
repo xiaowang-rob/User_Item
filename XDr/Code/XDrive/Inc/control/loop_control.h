@@ -54,9 +54,13 @@ typedef struct
     float position_max;
 } LOOP_CON_t;
 extern LOOP_CON_t g_loop_con;
+
+void Frequency_division_init(float fspeed, float fpos);
 void Frequency_division_updatta();
 void Frequency_division_reset();
 void loop_reset(void);
+void PI_init(PI_t *pi, float kp, float ki, float output_limit);
+void PID_init(PID_t *pid, float kp, float ki, float kd, float output_limit);
 float Current_loop(float current_ref, float current_fb);
 float Magnetic_loop(float id_ref, float id_fb);
 float WeakMag_loop(float ud, float uq, float max_Vs);

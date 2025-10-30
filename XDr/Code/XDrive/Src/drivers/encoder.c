@@ -22,11 +22,12 @@ static bool MT6816_SPI_ReadWrite(u8 cmd, u8 *rx_data)
     if (_status != HAL_OK)
     {
         if (_status == HAL_ERROR)
-            encoder.online_flag = false;
+            encoder.state = 1;
         ENCODER_SPI_CS_H();
         return false;
     }
-    encoder.online_flag = true;
+    else if (encoder.state == 1)
+        encoder.state = 0;
     ENCODER_SPI_CS_H();
     return true;
 }
@@ -77,11 +78,18 @@ void ENCODER_DEALDATA()
 
     // 转换为角度值（0~360°）
     encoder.angle_deg = (float)angle_raw * 0.02197265625f;                        // *360/16384  16384 = 2^14
-    encoder.angle_rad = encoder.angle_deg * 0.0174532922f + encoder.angle_offset; // 角度值转弧度值
-    encoder.angle_inc += encoder.angle_rad - encoder.angle_last;
-    encoder.angle_last = encoder.angle_rad;
+    encoder.angle_abs = encoder.angle_deg * 0.0174532922f + encoder.angle_offset; // 角度值转弧度值
+    encoder.angle_inc += encoder.angle_abs - encoder.angle_last;
+    encoder.angle_last = encoder.angle_abs;
     // 提取状态位（从reg04_data和reg05_data中）
-    encoder.no_mag_flag = (reg04_data & MT6816_NO_MAG_WARNING) ? true : false;
+    if (reg04_data & MT6816_NO_MAG_WARNING)
+    {
+        encoder.state = 3;
+    }
+    else if (encoder.state == 3)
+    {
+        encoder.state = 0;
+    }
     bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
 
     // 奇偶校验验证
@@ -102,9 +110,9 @@ void ENCODER_DEALDATA()
     else
         valid = valid > 0 ? valid - 1 : 0;
     if (valid > 100)
-        encoder.communication_error = true;
-    else
-        encoder.communication_error = false;
+        encoder.state = 2;
+    else if (encoder.state == 2)
+        encoder.state = 0;
     DealDone_flag = true;
     ENCODER_ReadData();
 }
@@ -121,11 +129,13 @@ bool ENCODER_Init()
 {
     memset(&encoder, 0, sizeof(ENCODER_t));
     ENCODER_ReadData();
-    return encoder.online_flag;
+    if (encoder.state == 0)
+        return true;
+    return false;
 }
-float GET_ENCODER_ANGLE_RAD(void)
+float GET_ENCODER_ANGLE_ABS(void)
 {
-    return encoder.angle_rad;
+    return encoder.angle_abs;
 }
 float GET_ENCODER_ANGLE_INC(void)
 {
@@ -139,15 +149,7 @@ float GET_ENCODER_ANGLE_OFFSET(void)
 {
     return encoder.angle_offset;
 }
-bool GET_ENCODER_STATUS()
+uint8_t GET_ENCODER_STATUS()
 {
-    return encoder.online_flag;
-}
-bool GET_ENCODER_COMMUNICATION_ERROR()
-{
-    return encoder.communication_error;
-}
-bool GET_ENCODER_NO_MAG_FLAG()
-{
-    return encoder.no_mag_flag;
+    return encoder.state;
 }

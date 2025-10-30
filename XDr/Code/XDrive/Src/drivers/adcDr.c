@@ -38,10 +38,11 @@ const u8 adc_to_temp[121] = {
 
 // void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 // {
-
+//	
 // }
 void ADC_DR_Init()
 {
+	HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);

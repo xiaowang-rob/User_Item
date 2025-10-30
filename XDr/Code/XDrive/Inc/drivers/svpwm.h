@@ -11,6 +11,7 @@ typedef struct
     u16 ticv;
     u16 ticw;
 } SVPWM_t;
+extern SVPWM_t g_svpwm;
 
 void ENABLE_PWM();
 void DISABLE_PWM();

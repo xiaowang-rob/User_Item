@@ -62,7 +62,10 @@
         "usb_interface.h": "c",
         "usb_protocol.h": "c",
         "wireless_interface.h": "c",
-        "can_interface.h": "c"
+        "can_interface.h": "c",
+        "filter.h": "c",
+        "queue.h": "c",
+        "can_protocol.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

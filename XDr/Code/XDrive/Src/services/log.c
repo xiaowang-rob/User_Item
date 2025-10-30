@@ -1,7 +1,7 @@
 #include "log.h"
 #include "flashDr.h"
 #include "protection_manager.h"
-
+#include "string.h"
 Index_t Index;
 LOG_t Log;
 void log_init(void)

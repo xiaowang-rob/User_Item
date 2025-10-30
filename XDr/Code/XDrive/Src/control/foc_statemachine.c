@@ -3,7 +3,7 @@
 #include "auto_calibration.h"
 #include "tim.h"
 #include "foc_core.h"
-bool FOC_start = false;
+static bool FOC_start = false;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM8 && FOC_start)
@@ -15,7 +15,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 bool FOC_INIT_event()
 {
-    return foc_core_init();
+    return foc_core_init(); 
 }
 bool FOC_AUTO_TUNE_event()
 {

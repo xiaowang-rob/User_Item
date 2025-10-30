@@ -1,21 +1,20 @@
 #include "can.h"
 #include "canDr.h"
 
-CAN_STATE_E can_state = CAN_OK; // CAN状态
-u32 can_id = 0x00;              // CAN ID
+u8 can_Status = 0;
 u8 can_fault_tic = 0;
-void CAN_STATE_change(CAN_STATE_E state)
+
+#define CAN_FARME_LEN 5 // Id + 4bitData
+u32 can_id = 0x00;      // CAN ID
+bool CAN_queue = false;
+static u8 CanRxData[64];
+StaticQueue CAN_rx_queue;
+
+u8 CAN_STATE_get()
 {
-    can_state = state;
+    return can_Status;
 }
-CAN_STATE_E CAN_STATE_get()
-{
-    return can_state;
-}
-void CAN_ID_change(u32 id)
-{
-    can_id = id;
-}
+
 __weak void CAN_RxData_Deal(u8 *RxData, u8 len)
 {
     return;
@@ -25,9 +24,10 @@ __weak void CAN_RxData_Deal(u8 *RxData, u8 len)
  * @note   配置CAN2的过滤器，启动CAN2外设，并使能接收中断
  */
 
-void CANDr_Init(u32 CAN_ID)
+void CANDr_Init(u32 CAN_ID, bool canQUEUE)
 {
-    CAN_ID_change(CAN_ID);
+    can_id = CAN_ID;
+    CAN_queue = canQUEUE;
     CAN_FilterTypeDef sFilterConfig;
 
     /* Configure the CAN Filter - 配置CAN过滤器 */
@@ -42,24 +42,26 @@ void CANDr_Init(u32 CAN_ID)
     sFilterConfig.FilterActivation = ENABLE;                     // 使能过滤器
     sFilterConfig.SlaveStartFilterBank = 14;                     // 从过滤器编号，0-27，对于单CAN实例该参数没有意义
 
-    CAN_STATE_change(CAN_OK);
+    can_Status = 0;
     // 配置CAN2的过滤器参数
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        CAN_STATE_change(CAN_INIT_fault);
+        can_Status = 1;
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        CAN_STATE_change(CAN_INIT_fault);
+        can_Status = 1;
     }
 
     /* Activate CAN RX notification - 激活CAN接收中断通知 */
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        CAN_STATE_change(CAN_INIT_fault);
+        can_Status = 1;
     }
+    if (CAN_queue)
+        static_queue_init(&CAN_rx_queue, CanRxData, 64);
 }
 
 /**
@@ -94,7 +96,7 @@ bool CAN_Send_Msg(u8 *msg, u8 len)
     // 发送CAN消息 - 将消息添加到发送邮箱
     if (HAL_CAN_AddTxMessage(&hcan2, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
     {
-        CAN_STATE_change(CAN_COMUNICATION_FAULT);
+        can_Status = 2;
     }
 
     // 等待发送完成 - 等待所有发送邮箱都空闲（表示消息已发送）
@@ -129,7 +131,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         // 示例：可以根据ID判断消息类型，然后处理相应的数据
         if (CAN_RxHeader.StdId == can_id)
         {
-            CAN_RxData_Deal(RxData, CAN_RxHeader.DLC);
+            if (CAN_queue)
+            {
+                static_queue_enqueue(&CAN_rx_queue, 0xE5);
+                for (int i = 0; i < CAN_RxHeader.DLC; i++)
+                    static_queue_enqueue(&CAN_rx_queue, RxData);
+                static_queue_enqueue(&CAN_rx_queue, 0x5E);
+            }
+            else
+                CAN_RxData_Deal(RxData, CAN_RxHeader.DLC);
         }
         if (can_fault_tic >= 1)
             can_fault_tic--;
@@ -137,7 +147,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     else
         can_fault_tic += 5;
     if (can_fault_tic >= 50)
-        CAN_STATE_change(CAN_COMUNICATION_FAULT);
-    else if (can_state == CAN_COMUNICATION_FAULT)
-        CAN_STATE_change(CAN_OK);
+        can_Status = 2;
+    else if (can_Status == 2)
+        can_Status = 0;
 }

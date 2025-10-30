@@ -6,20 +6,30 @@
 typedef enum
 {
     NO_FAULT,
-    MOTOR_ERROR,
+    MOTOR_FAULT,
     OVER_CURRENT,
     OVER_VOLTAGE,
     UNDER_VOLTAGE,
-    OVER_TEMPERATURE,
+    OVER_SPEED,
+    OVER_POSITION,
     CAN_INIT_FAULT,
     CAN_COMMUNICATION_FAULT,
-    ENCODER_MAG_WEAK,
-    ENCODER_COMMUNICATION_FAULT,
 } fault_e;
-
+typedef enum
+{
+    NO_WARNING,
+    OVER_TEMPERATURE,
+    ENCODER_OFFLINE,
+    ENCODER_COMMUNICATION_ERROR,
+    ENCODER_WEAK_MAG,
+} Warning_e;
 typedef struct
 {
     fault_e fault;
+    Warning_e warning;
+    bool fault_flag;
+    bool warning_flag;
+    bool log_done;
     float maxcurrent;
     float maxspeed;
     float minposition;
@@ -29,9 +39,6 @@ typedef struct
     float tolerance_current;
     float tolerance_speed;
     float tolerance_position;
-    bool serious_fault;
-    bool warning_fault;
-    bool log_done;
 } protection_manager_t;
 extern protection_manager_t g_protection_manager;
 

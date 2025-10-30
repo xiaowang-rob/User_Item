@@ -32,4 +32,7 @@ xdrive/adaptive_control.o: ..\Src\control\adaptive_control.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\drivers\adcDr.h
+  ..\Inc\drivers\adcDr.h ..\Inc\utils\math_fast.h \
+  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\control\foc_core.h \
+  ..\Inc\control\foc_statemachine.h
