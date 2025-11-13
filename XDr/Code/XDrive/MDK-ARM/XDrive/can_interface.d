@@ -32,4 +32,6 @@ xdrive/can_interface.o: ..\Src\app\can_interface.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\services\stream_transmission.h ..\protocol\can_protocol.h
+  ..\Inc\utils\queue.h ..\Inc\services\stream_transmission.h \
+  ..\Config\protocol.h ..\Inc\control\foc_core.h \
+  ..\Inc\control\foc_statemachine.h

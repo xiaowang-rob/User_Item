@@ -1,6 +1,5 @@
 xdrive/usb_interface.o: ..\Src\app\usb_interface.c \
-  ..\Inc\app\usb_interface.h ..\protocol\usb_protocol.h \
-  ..\Inc\drivers\usbDr.h ..\Core\Inc\main.h \
+  ..\Inc\app\usb_interface.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -33,7 +32,7 @@ xdrive/usb_interface.o: ..\Src\app\usb_interface.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Config\system_parameters.h ..\Inc\services\stream_transmission.h \
-  ..\Inc\control\foc_statemachine.h ..\Inc\control\foc_core.h \
-  ..\Inc\services\protection_manager.h ..\Inc\services\log.h \
-  ..\Inc\control\loop_control.h
+  ..\Inc\services\stream_transmission.h ..\Inc\drivers\usbDr.h \
+  ..\Config\protocol.h ..\Config\system_parameters.h \
+  ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
+  ..\Inc\services\protection_manager.h ..\Inc\services\log.h

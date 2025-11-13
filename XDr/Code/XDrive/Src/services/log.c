@@ -2,43 +2,67 @@
 #include "flashDr.h"
 #include "protection_manager.h"
 #include "string.h"
+#include "adaptive_control.h"
+#include "foc_core.h"
+#include "math_fast.h"
 Index_t Index;
 LOG_t Log;
 void log_init(void)
 {
     FLASH_Read_data((u8 *)&Index, Index_start_addr, sizeof(Index));
-    if (Index.num == 0xffff)
+    if (Index.num == 0xff)
     { // 被擦除过
         Index.num = 0;
         Index.block_erase_num = 0;
         Index.write_addr = Log_start_addr;
     }
-    if (Index.num == 256)
+    if (Index.num == 9)
         log_erase();
 }
-void log_write(void)
+void log_data_save(void)
 {
-    Log.foc_core_data = g_foccore;
-    Log.fault = GET_Protect_fault();
-    Log.monitor_data = g_monitor;
-    Log.num = Index.num++;
+    Log.Vbus = g_adaptive_con.Udc;
+    Log.TEMP = g_adaptive_con.tempareture;
+    Log.Iu = g_monitor.Iu;
+    Log.Iv = g_monitor.Iv;
+    Log.Iw = g_monitor.Iw;
+    Log.Iq = g_monitor.iq_fb;
+    Log.Id = g_monitor.id_fb;
+    Log.Id_ref = g_foccore.id_ref;
+    Log.Iq_ref = g_foccore.iq_ref;
+    Log.speed = rad_to_rpm(g_monitor.omega_fb);
+    Log.speed_ref = rad_to_rpm(g_foccore.omega_ref);
+    Log.position = rad_to_deg(g_monitor.pos_fb);
+    Log.position_ref = rad_to_deg(g_foccore.pos_ref);
+    Log.loop_mode = g_foccore.loop_mode;
+    Log.FOC_status = g_foccore.state;
+    Log.fault = g_protection_manager.fault;
+    Log.warning = g_protection_manager.warning;
+    Log.num = Index.num + 1;
     u32 time = HAL_GetTick();
     Log.minute = time / 1000 / 60;
     Log.seconds = time / 1000 % 60;
+}
+void log_data_write(void)
+{
     FLASH_Write_Word((u8 *)&Log, Index.write_addr, sizeof(LOG_t));
+    Index.num++;
     Index.write_addr += sizeof(LOG_t);
     Index.block_erase_num++;
-
     FLASH_erase_sector(0, sizeof(Index));
     FLASH_Write_Word((u8 *)&Index, 0, sizeof(Index));
 }
-void log_read(u16 num, u8 *data, u8 *len)
+// 全部读取
+void log_read(u8 *num, u32 *block_erase_num, u8 *len, u8 *data)
 {
-    if (num == 0) // 读取最新数据
-        num = Index.num;
-    FLASH_Read_data((u8 *)&Log, Log_start_addr + num * sizeof(LOG_t), sizeof(LOG_t));
-    *len = sizeof(LOG_t);
-    memcpy(data, &Log, *len);
+    if (Index.num == 0)
+        *num = 0;
+    else
+    {
+        *num = Index.num;
+        *len = sizeof(LOG_t) * Index.num;
+        FLASH_Read_data(data, Log_start_addr, *len);
+    }
 }
 
 void log_erase()

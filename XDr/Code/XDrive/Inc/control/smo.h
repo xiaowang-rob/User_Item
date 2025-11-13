@@ -27,7 +27,7 @@ typedef struct
 } smo_sensorless_t;
 // 初始化
 void smo_sensorless_init(smo_sensorless_t *smo, float Rs, float Ls, float dt);
-
+void smo_sensorless_reset(smo_sensorless_t *smo);
 // 更新（输入：电压、电流）
 void smo_sensorless_update(smo_sensorless_t *smo,
                            float v_alpha, float v_beta,

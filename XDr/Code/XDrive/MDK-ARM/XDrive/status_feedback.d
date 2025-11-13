@@ -33,5 +33,5 @@ xdrive/status_feedback.o: ..\Src\services\status_feedback.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\Inc\control\foc_statemachine.h ..\Inc\drivers\rgb.h \
-  ..\Inc\drivers\encoder.h ..\Config\base_parameters.h ..\Core\Inc\spi.h \
-  ..\Inc\drivers\canDr.h
+  ..\Inc\drivers\encoder.h ..\Config\device.h ..\Core\Inc\spi.h \
+  ..\Inc\drivers\canDr.h ..\Inc\utils\queue.h

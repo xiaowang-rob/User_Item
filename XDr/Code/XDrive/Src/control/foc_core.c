@@ -27,7 +27,12 @@ void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_g
     startup_machine.openloop_omega = openloop_speed;
     startup_machine.changeloop_speed = changeloop_speed;
 }
-
+void startup_machine_reset()
+{
+    startup_machine.current_steps = 0;
+    startup_machine.align_flag = false;
+    startup_machine.change_flag = false;
+}
 bool foc_core_init()
 {
     Frequency_division_init(g_foc_parameters.f_speed_loop, g_foc_parameters.f_position_loop);
@@ -48,8 +53,12 @@ bool foc_core_init()
         ENCODER_Init();
     return true;
 }
-void svpwm_udc_update()
+void foc_core_reset()
 {
+    Frequency_division_reset();
+    loop_reset();
+    smo_sensorless_reset(&smo);
+    startup_machine_reset();
     svpwm_SetVbus(g_svpwm, g_adaptive_con.Udc);
 }
 void Current_reconstruction()
@@ -118,6 +127,8 @@ void oloop_to_cloop()            // 无感模式 开环切闭环
     else
         openloop_omega_con = startup_machine.openloop_omega;
     g_monitor.theta_elec += openloop_omega_con * Tcon;
+		if(g_monitor.theta_elec>M2_PI)
+			g_monitor.theta_elec-=M2_PI;
     g_foccore.iq_ref = startup_machine.openloop_cur;
     g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
     if (g_monitor.omega_fb > startup_machine.changeloop_speed && openloop_omega_con > startup_machine.changeloop_speed * 0.7f)
@@ -220,10 +231,10 @@ void smaple_point_change()
         break;
     }
 }
-bool foc_enable_flag = false;
+
 void foc_core_run()
 {
-    if (foc_enable_flag == false)
+    if (!g_foccore.enable)
         return;
     Frequency_division_updatta();
     Current_reconstruction();
@@ -233,9 +244,9 @@ void foc_core_run()
         // todo:暂时还想不到干啥
         break;
     case ENCODER_CONTROL:
-        g_monitor.theta_elec = GET_ENCODER_ANGLE_RAD() * g_Motor.pole_pairs;
+        g_monitor.theta_elec = GET_ENCODER_ANGLE_ABS() * g_Motor.pole_pairs;
         park_transform(g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_elec, &g_monitor.id_fb, &g_monitor.iq_fb);
-        g_monitor.theta_mech = GET_ENCODER_ANGLE_RAD();
+        g_monitor.theta_mech = GET_ENCODER_ANGLE_ABS();
         g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / Tcon;
         g_monitor.theta_mech_last = g_monitor.theta_mech;
         switch (g_foccore.loop_mode)
@@ -351,11 +362,12 @@ void foc_core_run()
     svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, g_svpwm);
     smaple_point_change();
 }
+
 void foc_disable()
 {
-    if (foc_enable_flag)
+    if (g_foccore.enable)
     {
-        foc_enable_flag = false;
+        g_foccore.enable = false;
         DISABLE_PWM();
         Frequency_division_reset();
         loop_reset();
@@ -365,10 +377,10 @@ void foc_disable()
 
 void foc_enable()
 {
-    if (!foc_enable_flag)
+    if (!g_foccore.enable)
     {
         ENABLE_PWM();
-        foc_enable_flag = true;
+        g_foccore.enable = true;
     }
 }
 bool foc_shutdown()
@@ -381,7 +393,31 @@ bool foc_shutdown()
     }
     return true;
 }
-void foc_loop_mode_change(LOOP_MODE_e mode)
+void CONTROL_value_update(float *data)
+{
+    switch (g_foccore.loop_mode)
+    {
+    case CURRENT_LOOP_CONTROL:
+        g_foccore.iq_ref = data[0];
+        break;
+    case SPEED_LOOP_CONTROL:
+        g_foccore.omega_ref = rpm_to_rad(data[0]);
+        break;
+    case POSITION_ABS_CONTROL:
+    case POSITION_REL_CONTROL:
+        if (g_foccore.pvt_mode)
+        {
+            g_foccore.pos_ref = deg_to_rad(data[0]);
+            g_loop_con.PID_pos.output_limit = deg_to_rad(data[1]);
+        }
+        else
+            g_foccore.pos_ref = deg_to_rad(data[0]);
+        break;
+    default:
+        break;
+    }
+}
+void CONTROL_mode_updata(u8 mode)
 {
     g_foccore.loop_mode = mode;
 }

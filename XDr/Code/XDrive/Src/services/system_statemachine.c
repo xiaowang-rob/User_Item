@@ -18,29 +18,23 @@ bool system_init_event(void)
 {
     // 驱动层初始化
     ADC_DR_Init(); // 启动ADC数据刷新和foc定时器
-
     usartDrInit();
     usb_cdc_init();
 
     //  控制层初始化
     adaptive_control_init();
     // 服务层初始化
-    if (!parameter_init())
+    if (!parameter_mode_init())
         return false;
     log_init();
-    FOC_Start_run(); // 启动FOC数据刷新
 
     return true;
 }
 void System_Run_event(void)
 {
 
-    CAN_QUEUE_Deal(); // can队列处理
-    //  usb处理
-    usb_stream_data_trans();
-    // can处理
-
-    // uart处理
+    CAN_QUEUE_Deal();
+    usb_cdc_run();
     usart_stream_data_trans();
     adaptive_control_update();
     protection_manager_run();
@@ -48,7 +42,7 @@ void System_Run_event(void)
 }
 void System_Error_event(void)
 {
-    FOC_Stop_run(); // 停止FOC数据刷新
+		FOC_CHANGE_STATE(FOC_FAULT);
     System_Fault_feedback();
 }
 void SystemState_change(SYSTEM_STATE_e new_state)

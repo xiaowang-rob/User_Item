@@ -31,7 +31,8 @@ xdrive/log.o: ..\Src\services\log.c ..\Inc\services\log.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
+  ..\Inc\drivers\flashDr.h ..\Config\device.h ..\Core\Inc\spi.h \
+  ..\Inc\services\protection_manager.h ..\Inc\control\adaptive_control.h \
   ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
-  ..\Inc\control\loop_control.h ..\Inc\drivers\flashDr.h \
-  ..\Config\base_parameters.h ..\Core\Inc\spi.h \
-  ..\Inc\services\protection_manager.h
+  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h

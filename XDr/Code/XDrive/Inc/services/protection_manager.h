@@ -46,7 +46,7 @@ void protection_manager_init(float maxcurrent, float max_speed, float min_positi
                              float tolerance_time, float tolerance_voltage, float tolerance_current, float tolerance_speed,
                              float tolerance_position);
 
-void protection_manager_clear_fault();
+void protection_manager_reset();
 void protection_manager_run();
 fault_e GET_Protect_fault();
 

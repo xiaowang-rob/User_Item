@@ -1,77 +1,90 @@
 #include "can_interface.h"
 #include "canDr.h"
 #include "stream_transmission.h"
-#include "can_protocol.h"
+#include "protocol.h"
+#include "foc_core.h"
 
-static u8 _cmd = 0;
-static u8 _index = 0;
-static u8 _txdata[5];
-static u8 _tx_state[2];
-
+static u8 idindex;
+static u8 txbuffer[8];
+static u8 rxtemp;
+static u8 rxbuffer[8];
+static u8 rxindex;
 /*
-控制 4bit和pvt 8bit
-模式设置 1bit
-参数查询 id 1bit
-数据流查询 id 1bit
-状态查询 1bit
-
+控制 4byte和pvt 8byte
+模式设置 2byte
+模式/参数查询 3byte
+数据流查询 2byte
+使能 1byte
+失能 1byte
 */
 void CAN_RxData_Deal(u8 *RxData, u8 len)
 {
-    if (len == 4 || len == 8)
+    if (len == 4 || len == 8) // 参考值设置
     {
-        CONTROL_value_update((float *)&RxData[0]);
+        CONTROL_value_update((float *)RxData);
     }
-    else
+    else if (len == 1) // 使能失能
     {
-        _cmd = RxData[0];
-        switch (_cmd)
+        if (*RxData == FOC_ENABLE)
+            foc_enable();
+        else if (*RxData == FOC_DISABLE)
+            foc_disable();
+    }
+    else if (len == 2 || len == 3)
+    {
+        idindex = RxData[1];
+        switch (RxData[0])
         {
-        case CAN_CONTROL_mode_set:
+        case CMD_MODE_SET:
             CONTROL_mode_updata(RxData[1]);
             break;
-        case CAN_CONTROL_value_set:
-
+        case PARAM_READ:
+            if (RxData[2] == 0)
+            {
+                parameter_ask((Parameter_e)idindex, (u32 *)&txbuffer);
+                CAN_Send_Msg(txbuffer, 4);
+            }
+            else
+            {
+                mode_ask((Mode_e)idindex, (u8 *)&txbuffer);
+                CAN_Send_Msg(txbuffer, 1);
+            }
             break;
-        case CAN_prometer_ask:
-            _index = RxData[1];
-            _txdata[0] = CAN_prometer_ask;
-            parameter_ask((Parameter_e)_index, (u32 *)&_txdata[1]);
-            CAN_Send_Msg(_txdata, 5);
-            break;
-        case CAN_streamdata_ask:
-            _index = RxData[1];
-            _txdata[0] = CAN_streamdata_ask;
-            stream_data_get((Data_stream_e)_index, (float *)&_txdata[1]);
-            CAN_Send_Msg(_txdata, 5);
-            break;
-        case CAN_status_ask:
-            STATUS_get(&_tx_state[0], &_tx_state[1]);
-            CAN_Send_Msg(_tx_state, 2);
+        case CMD_STREAM_GET:
+            stream_data_get((Data_stream_e)idindex, (float *)&txbuffer);
+            CAN_Send_Msg(txbuffer, 4);
             break;
         default:
             break;
         }
     }
 }
-u8 _temp_data[8];
+static bool _get_head = false;
+void CAN_data_byte_deal(u8 data)
+{
+    if (_get_head)
+    {
+        if (rxindex < 8)
+        {
+            if (data == 0x5E)
+            {
+                CAN_RxData_Deal(rxbuffer, rxindex + 1);
+                rxindex = 0;
+                _get_head = false;
+            }
+            else
+                rxbuffer[rxindex++] = data;
+        }
+        else
+            _get_head = false;
+    }
+    else if (data == 0xE5)
+        _get_head = true;
+}
 void CAN_QUEUE_Deal()
 {
-    u8 _data;
-    if (static_queue_dequeue(&CAN_rx_queue, &_data) == QUEUE_OK)
+    while (CAN_deQUEUE_data(&rxtemp) == QUEUE_OK)
     {
-        if (_data == 0xE5)
-        {
-            u8 _len = 0;
-            while (_len < 8)
-            {
-                static_queue_dequeue(&CAN_rx_queue, &_data);
-                if (_data == 0x5E)
-                    break;
-                else
-                    _temp_data[_len++] = _data;
-            }
-            CAN_RxData_Deal(_temp_data, _len);
-        }
+        CAN_data_byte_deal(rxtemp);
     }
 }

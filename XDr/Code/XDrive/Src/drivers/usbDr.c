@@ -3,7 +3,7 @@
 #include "usbd_cdc_if.h"
 USB_frame_t UsbTxFrame = {0};
 USB_frame_t UsbRxFrame = {0};
-static u8 USB_connect_status = 0;
+u8 USB_connect_status = 0;
 
 void usb_cdc_init(void)
 {

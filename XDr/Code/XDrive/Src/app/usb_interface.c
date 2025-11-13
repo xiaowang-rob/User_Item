@@ -1,120 +1,145 @@
 #include "usb_interface.h"
-#include "usb_protocol.h"
 #include "usbDr.h"
 #include "system_parameters.h"
 #include "string.h"
-#include "stream_transmission.h"
-#include "foc_statemachine.h"
 #include "foc_core.h"
 #include "protection_manager.h"
 #include "log.h"
-void Send_System_Desc()
-{
-    char _str[60] = {0};
-    strcat(_str, Description);
-    strcat(_str, VERSION);
-    strcat(_str, AUTHOR);
-    strcat(_str, Frequency_string);
-    strcat(_str, MAX_CURRENT_string);
-    strcat(_str, MAX_Voltage_string);
-    strcat(_str, MIN_Voltage_string);
-    strcat(_str, MAX_Temperature_string);
-    u8 len_str = strlen(_str);
-    usb_Frame_send(GET_SYSTEM_DESC, (u8 *)_str, len_str);
-}
-static u8 _tx_log[256] = {0};
-static u8 _log_len = 0;
-static u8 _Index;
-static u8 _save_state = 0;
-static u8 _tx_state[2];
-static u8 _float_num = 0;
-static u8 _id[3] = {0};
-static float _float_data[3] = {0};
 
+static USB_t usb = {.stream_index = {STATUS, TEMPERATURE, VBUS}, .stream_num = 3};
+static u8 execute = 0xfe;
+static u8 failure = 0xf0;
 void usb_FrameData_deal(u8 id, u8 *data, u8 len)
 {
-
-    switch (id)
+    if (len == 0)
     {
-    case USB_connect:
-        USB_Connect_Status_set(data[0]);
-        break;
-    case GET_SYSTEM_DESC:
-        Send_System_Desc();
-        break;
-    case PARAMETER_erase:
-        parameter_erase();
-        break;
-    case PARAMETER_read:
-        if (data[0] == 0xff)
+        if (id == LOG_GET)
         {
-            u32 _tx_data[64];
-            u8 len;
-            all_parameters_ask(_tx_data, &len);
-            usb_Frame_send(PARAMETER_read, (u8 *)_tx_data, len * sizeof(u32));
+            u8 _txbuf[512] = {0};
+            u8 _len = 0;
+            log_read(&_txbuf[0], (u32 *)&_txbuf[1], &_len, &_txbuf[5]);
+            usb_Frame_send(LOG_GET, _txbuf, _len + 5);
         }
-        else
+        switch (id)
         {
-            u32 _tx_data;
-            parameter_ask(data[0], &_tx_data);
-            usb_Frame_send(PARAMETER_read, (u8 *)_tx_data, sizeof(u32));
-        }
-        break;
-    case PARAMETER_write:
-        _Index = data[0];
-        if (_Index == 0xff)
-            all_parameters_set((u32 *)&data[0]);
-        else
-            parameter_set(_Index, (u32 *)(data + 1));
-        parameter_apply();
-        break;
-    case PARAMETER_save:
-        _save_state = 0;
-        if (parameter_save())
-            _save_state = 1;
-        usb_Frame_send(PARAMETER_save, (u8 *)&_save_state, 1);
-        break;
-    case CONTROL_VALUE_write:
-        CONTROL_value_update((float *)data);
-        break;
-    case CONTROL_MODE_write:
-        CONTROL_mode_updata(data[0]);
-        break;
-    case STREAM_read:
-        _float_num = data[0] > 3 ? 3 : data[0];
-        for (u8 i = 0; i < _float_num; i++)
-        {
-            _id[i] = data[1 + i];
-        }
-        break;
-    case STATUS_read:
-        STATUS_get(&_tx_state[0], &_tx_state[1]);
-        usb_Frame_send(STATUS_read, _tx_state, 2);
-        break;
-    case START_TUNNING:
-        if (FOC_Get_state() != FOC_AUTO_TUNE)
+        case START_TUNNING:
             FOC_CHANGE_STATE(FOC_AUTO_TUNE);
-        break;
-    case BREAK_STOP:
-        if (FOC_Get_state() != FOC_SHUTDOWN)
+            break;
+        case BRAKE:
             FOC_CHANGE_STATE(FOC_SHUTDOWN);
-        break;
-    case CLEAR_ERROR:
-        protection_manager_clear_fault();
-        break;
-    case READ_LOG: // 0为读取最新数据
-        log_read(data[0], _tx_log, &_log_len);
-        usb_Frame_send(READ_LOG, _tx_log, _log_len);
-        break;
-    default:
-        break;
+            break;
+        case FOC_NRST:
+            FOC_CHANGE_STATE(FOC_RESET);
+            break;
+        case FOC_ENABLE:
+            foc_enable();
+            break;
+        case FOC_DISABLE:
+            foc_disable();
+            break;
+        case PROTECT_RESET:
+            protection_manager_reset();
+            break;
+        case LOG_ERASE:
+            log_erase();
+            usb_Frame_send(LOG_ERASE, &execute, 1);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (len <= 5 || len == 8)
+    {
+        switch (id)
+        {
+        case PARAM_ERASE: // 一键擦除 1byte
+            if (data[0] == 0x00)
+                parameter_erase();
+            if (data[0] == 0x01)
+                mode_erase();
+            usb_Frame_send(PARAM_ERASE, &execute, 1);
+            break;
+        case PARAM_SAVE: // 一键保存 1byte
+            if (data[0] == 0x00)
+                if (parameter_save())
+                {
+                    usb_Frame_send(PARAM_SAVE, &execute, 1);
+                    return;
+                }
+            if (data[0] == 0x01)
+                if (mode_save())
+                {
+                    usb_Frame_send(PARAM_SAVE, &execute, 1);
+                    return;
+                }
+            usb_Frame_send(PARAM_SAVE, &failure, 1);
+            break;
+        case PARAM_WRITE: // 指定写入 5byte
+            if (len == 5)
+                parameter_set(data[0], (u32 *)&data[1]);
+            else if (len == 2)
+                mode_set(data[0], &data[1]);
+            break;
+        case PARAM_READ: // 指定读取 2byte
+            if (data[0] == 0x00)
+            {
+                parameter_ask(data[1], (u32 *)&usb.parameter_tx);
+                usb_Frame_send(PARAM_READ, (u8 *)&usb.parameter_tx, 4);
+            }
+            else if (data[0] == 0x01)
+            {
+                mode_ask(data[1], &usb.mode_tx);
+                usb_Frame_send(PARAM_READ, &usb.mode_tx, 1);
+            }
+            break;
+        case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
+            CONTROL_value_update((float *)data);
+            break;
+        case CMD_MODE_SET: // 模式设置 1byte
+            CONTROL_mode_updata(data[0]);
+            break;
+        case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
+            stream_data_get(data[0], &usb.stream_data[7]);
+            usb_Frame_send(CMD_STREAM_GET, (u8 *)&usb.stream_data[7], 4);
+            break;
+        case CMD_STREAM_SET: // 监测值设置 5byte
+            usb.stream_num = len + 3;
+            for (u8 i = 3; i < usb.stream_num; i++)
+                usb.stream_index[i] = data[i - 3];
+            break;
+        default:
+            break;
+        }
     }
 }
 void usb_stream_data_trans()
 {
-    for (u8 i = 0; i < _float_num; i++)
+    if (usb.stream_num == 0)
+        return;
+    for (u8 i = 0; i < usb.stream_num; i++)
     {
-        stream_data_get(_id[i], &_float_data[i]);
+        stream_data_get(usb.stream_index[i], &usb.stream_data[i]);
     }
-    usb_Frame_send(STREAM_read, (u8 *)&_float_data, sizeof(float) * _float_num);
+    usb_Frame_send(CMD_STREAM_SET, (u8 *)&usb.stream_data, sizeof(float) * usb.stream_num);
+}
+
+void usb_cdc_run()
+{
+    if (USB_Connect_Status_get() == 0)
+    {
+        if (usb.connnect_state)
+            usb.connnect_state = false;
+        return;
+    }
+    if (!usb.connnect_state)
+    {
+        usb.connnect_state = true;
+        char _str[64] = SYSTEM_DESC_str;
+        u8 len_str = strlen(_str);
+        usb_Frame_send(SYSTEM_DESC, (u8 *)_str, len_str);
+    }
+    else
+    {
+        usb_stream_data_trans();
+    }
 }

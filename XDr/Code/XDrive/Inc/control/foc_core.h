@@ -35,6 +35,7 @@ extern Monitor_t g_monitor;
 
 typedef struct
 {
+    bool enable;
     FOC_STATE_e state;
     RUN_MODE_e run_mode;
     LOOP_MODE_e loop_mode;
@@ -67,10 +68,11 @@ typedef struct
 } startup_mechine_t;
 
 bool foc_core_init();
-void svpwm_udc_update();
+void foc_core_reset();
 void foc_core_run();
 void foc_disable();
 void foc_enable();
 bool foc_shutdown();
-void foc_loop_mode_change(LOOP_MODE_e mode);
+void CONTROL_value_update(float *data);
+void CONTROL_mode_updata(u8 mode);
 #endif // __FOC_CORE_H

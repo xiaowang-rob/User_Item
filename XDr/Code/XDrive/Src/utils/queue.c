@@ -1,4 +1,5 @@
 #include "queue.h"
+#include "string.h"
 
 QueueStatus static_queue_init(StaticQueue *queue, u8 *buffer,
                               u16 capacity)

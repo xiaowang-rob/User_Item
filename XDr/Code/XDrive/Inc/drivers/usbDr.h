@@ -1,7 +1,8 @@
 #ifndef __USBDR_H
 #define __USBDR_H
-#include "usb_protocol.h"
+
 #include "main.h"
+#include "protocol.h"
 
 typedef struct
 {

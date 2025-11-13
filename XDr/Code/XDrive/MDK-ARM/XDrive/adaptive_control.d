@@ -35,4 +35,4 @@ xdrive/adaptive_control.o: ..\Src\control\adaptive_control.c \
   ..\Inc\drivers\adcDr.h ..\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\control\foc_core.h \
-  ..\Inc\control\foc_statemachine.h
+  ..\Inc\control\foc_statemachine.h ..\Inc\drivers\svpwm.h

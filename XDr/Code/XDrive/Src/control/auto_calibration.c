@@ -26,7 +26,7 @@ bool auto_calibration_update()
 {
     if (g_param_tuning.tune_mode == ENCODER_TUNE)
     { // 有感整定
-        g_monitor.theta_mech = GET_ENCODER_ANGLE_RAD();
+        g_monitor.theta_mech = GET_ENCODER_ANGLE_ABS();
         g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / g_param_tuning.dt;
         g_monitor.theta_mech_last = g_monitor.theta_mech;
         encoder_param_tuning_update(&g_param_tuning, g_monitor.Ualpha, g_monitor.Ubeta, g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_mech, g_monitor.omega_fb * g_param_tuning.pole_pairs);

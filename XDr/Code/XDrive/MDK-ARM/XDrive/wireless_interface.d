@@ -1,6 +1,6 @@
 xdrive/wireless_interface.o: ..\Src\app\wireless_interface.c \
-  ..\Inc\app\wireless_interface.h ..\Inc\drivers\usartDr.h \
-  ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+  ..\Inc\app\wireless_interface.h ..\Core\Inc\main.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
@@ -32,4 +32,7 @@ xdrive/wireless_interface.o: ..\Src\app\wireless_interface.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\protocol\usart_protocol.h ..\Inc\services\stream_transmission.h
+  ..\Inc\services\stream_transmission.h ..\Inc\drivers\usartDr.h \
+  ..\Config\protocol.h ..\Inc\control\foc_core.h \
+  ..\Inc\control\foc_statemachine.h ..\Inc\services\protection_manager.h \
+  ..\Inc\services\log.h ..\Config\system_parameters.h

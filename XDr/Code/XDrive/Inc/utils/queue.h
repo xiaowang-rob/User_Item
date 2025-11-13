@@ -75,7 +75,7 @@ u16 static_queue_remaining(const StaticQueue *queue);
  * @param data 要入队的数据指针
  * @return 操作状态
  */
-QueueStatus static_queue_enqueue(StaticQueue *queue, u8 *data);
+QueueStatus static_queue_enqueue(StaticQueue *queue, const u8 *data);
 
 /**
  * @brief 出队操作
@@ -100,6 +100,6 @@ QueueStatus static_queue_peek(const StaticQueue *queue, u8 *data);
  * @param data 数据存储位置
  * @return 操作状态
  */
-QueueStatus static_queue_peek_at(const StaticQueue *queue, u16 index, u8 *data);
+QueueStatus static_queue_peek_at(const StaticQueue *queue, u16 index, void *data);
 
 #endif /* __QUEUE_H */

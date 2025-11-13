@@ -61,6 +61,7 @@ void Frequency_division_reset();
 void loop_reset(void);
 void PI_init(PI_t *pi, float kp, float ki, float output_limit);
 void PID_init(PID_t *pid, float kp, float ki, float kd, float output_limit);
+void loop_reset(void);
 float Current_loop(float current_ref, float current_fb);
 float Magnetic_loop(float id_ref, float id_fb);
 float WeakMag_loop(float ud, float uq, float max_Vs);

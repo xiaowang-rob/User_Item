@@ -36,4 +36,4 @@ xdrive/auto_calibration.o: ..\Src\control\auto_calibration.c \
   ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
   ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\drivers\encoder.h \
-  ..\Config\base_parameters.h ..\Core\Inc\spi.h
+  ..\Config\device.h ..\Core\Inc\spi.h

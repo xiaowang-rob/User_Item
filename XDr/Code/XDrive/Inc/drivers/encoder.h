@@ -1,7 +1,7 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
-#include "base_parameters.h"
+#include "device.h"
 #include "main.h"
 #define ENCODER_SPI_CS_H() HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, 1)
 #define ENCODER_SPI_CS_L() HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, 0)

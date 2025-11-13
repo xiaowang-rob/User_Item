@@ -5,6 +5,7 @@ typedef enum
 {
     FOC_INIT,
     FOC_AUTO_TUNE,
+    FOC_RESET,
     FOC_IDLE,
     FOC_RUNNING,
     FOC_SHUTDOWN,

@@ -11,21 +11,18 @@
 #include "canDr.h"
 #include "svpwm.h"
 #include "system_statemachine.h"
-/*
-在数据写入读出的时候进行单位转换，以便于在PC端进行数据可视化
-*/
-#define rad_to_rpm(rad) rad * 9.549296748f;
-#define rpm_to_rad(rpm) rpm / 9.549296748f;
-#define deg_to_rad(deg) deg * 0.017453293f;
-#define rad_to_deg(rad) rad * 57.29577951f;
-
+#include "string.h"
+u8 _sta[4];
 void stream_data_get(Data_stream_e stream, float *data)
 {
     switch (stream)
     {
     case STATUS:
-        u8 _sta[4] = {SystemState_get(), g_foccore.state, g_protection_manager.fault, g_protection_manager.warning};
-        *data = (u32 *)&_sta;
+        _sta[0] = SystemState_get();
+        _sta[1] = g_foccore.state;
+        _sta[2] = g_protection_manager.fault;
+        _sta[3] = g_protection_manager.warning;
+        memcpy(data, _sta, 4);
         break;
     case TEMPERATURE:
         *data = g_adaptive_con.tempareture;
@@ -94,41 +91,57 @@ void stream_data_get(Data_stream_e stream, float *data)
         break;
     }
 }
-Mode_t g_mode;
+Mode_t g_foc_mode;
+Parameter_t g_foc_parameters;
+
+void parameter_apply()
+{
+    // todo：弱磁控制
+    CANDr_Init(g_foc_parameters.can_id, g_foc_mode.canqueue);
+    protection_manager_init(g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
+                            g_foc_parameters.tolerance_time, g_foc_parameters.tolerance_voltage, g_foc_parameters.tolerance_current, g_foc_parameters.tolerance_speed,
+                            g_foc_parameters.tolerance_position);
+    FOC_CHANGE_STATE(FOC_INIT);
+}
+
+void mode_apply()
+{
+    FOC_CHANGE_STATE(FOC_INIT);
+}
 
 void mode_set(Mode_e mode, u8 *data)
 {
     switch (mode)
     {
     case SW_CANQUEUE:
-        g_mode.canqueue = *data;
+        g_foc_mode.canqueue = *data;
         break;
     case SW_WEAKMAG:
-        g_mode.weakmag = *data;
+        g_foc_mode.weakmag = *data;
         break;
     case SW_FAN:
-        g_mode.fan = *data;
+        g_foc_mode.fan = *data;
         break;
     case SW_TLC:
-        g_mode.tls = *data;
+        g_foc_mode.tls = *data;
         break;
     case SW_CLS:
-        g_mode.cls = *data;
+        g_foc_mode.cls = *data;
         break;
     case SW_VAGUE_PID:
-        g_mode.vague_pid = *data;
+        g_foc_mode.vague_pid = *data;
         break;
     case SW_PVT:
-        g_mode.pvt = *data;
+        g_foc_mode.pvt = *data;
         break;
     case FOC_RUN_MODE:
-        g_mode.foc_run_mode = *data;
+        g_foc_mode.foc_run_mode = *data;
         break;
     case FOC_LOOP_MODE:
-        g_mode.foc_loop_mode = *data;
+        g_foc_mode.foc_loop_mode = *data;
         break;
     case FOC_AUTOTUNE_MODE:
-        g_mode.foc_autotune_mode = *data;
+        g_foc_mode.foc_autotune_mode = *data;
         break;
     default:
         break;
@@ -144,52 +157,40 @@ void mode_ask(Mode_e mode, u8 *data)
     switch (mode)
     {
     case SW_CANQUEUE:
-        *data = g_mode.canqueue;
+        *data = g_foc_mode.canqueue;
         break;
     case SW_WEAKMAG:
-        *data = g_mode.weakmag;
+        *data = g_foc_mode.weakmag;
         break;
     case SW_FAN:
-        *data = g_mode.fan;
+        *data = g_foc_mode.fan;
         break;
     case SW_TLC:
-        *data = g_mode.tls;
+        *data = g_foc_mode.tls;
         break;
     case SW_CLS:
-        *data = g_mode.cls;
+        *data = g_foc_mode.cls;
         break;
     case SW_VAGUE_PID:
-        *data = g_mode.vague_pid;
+        *data = g_foc_mode.vague_pid;
         break;
     case SW_PVT:
-        *data = g_mode.pvt;
+        *data = g_foc_mode.pvt;
         break;
     case FOC_RUN_MODE:
-        *data = g_mode.foc_run_mode;
+        *data = g_foc_mode.foc_run_mode;
         break;
     case FOC_LOOP_MODE:
-        *data = g_mode.foc_loop_mode;
+        *data = g_foc_mode.foc_loop_mode;
         break;
     case FOC_AUTOTUNE_MODE:
-        *data = g_mode.foc_autotune_mode;
+        *data = g_foc_mode.foc_autotune_mode;
         break;
     default:
         break;
     }
 }
-void All_mode_set(u8 *data)
-{
-    for (int i = SW_CANQUEUE; i < FOC_AUTOTUNE_MODE + 1; i++)
-    {
-        mode_set(i, data + i);
-    }
-}
-void All_mode_ask(u8 *data, u8 *len)
-{
-    *len = FOC_AUTOTUNE_MODE + 1;
-    data = &g_mode.canqueue;
-}
-Parameter_t g_foc_parameters;
+
 // 写入个别参数
 void parameter_set(Parameter_e parameter, u32 *data)
 {
@@ -312,14 +313,6 @@ void parameter_set(Parameter_e parameter, u32 *data)
     parameter_apply();
 }
 // 一键写入所有参数
-void all_parameters_set(u32 *data)
-{
-    for (int i = CAN_ID; i < CHANGE_LOOP_SPEED + 1; i++)
-    {
-        parameter_set(i, data + i);
-    }
-    parameter_apply();
-}
 
 void parameter_ask(Parameter_e parameter, u32 *data)
 {
@@ -446,27 +439,7 @@ void parameter_ask(Parameter_e parameter, u32 *data)
         break;
     }
 }
-// 读取参数
-void all_parameters_ask(u32 *data, u8 *len)
-{
-    data = &g_foc_parameters.motor_polepairs;
-    *len = CHANGE_LOOP_SPEED + 1;
-}
 
-void parameter_apply()
-{
-    // todo：弱磁控制
-    CANDr_Init(g_foc_parameters.can_id, g_mode.canqueue);
-    protection_manager_init(g_foc_parameters.limit_current, g_foc_parameters.limit_speed, g_foc_parameters.limit_position_min, g_foc_parameters.limit_position_max,
-                            g_foc_parameters.tolerance_time, g_foc_parameters.tolerance_voltage, g_foc_parameters.tolerance_current, g_foc_parameters.tolerance_speed,
-                            g_foc_parameters.tolerance_position);
-    FOC_CHANGE_STATE(FOC_INIT);
-}
-
-void mode_apply()
-{
-    FOC_CHANGE_STATE(FOC_INIT);
-}
 // 保存参数
 bool parameter_save()
 {
@@ -477,7 +450,7 @@ bool parameter_save()
 bool mode_save()
 {
     FLASH_erase_sector(MODE_LOAD_ADDr, sizeof(Mode_t));
-    return FLASH_Write_Word((u8 *)&g_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
+    return FLASH_Write_Word((u8 *)&g_foc_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
 }
 bool parameter_load()
 {
@@ -485,7 +458,7 @@ bool parameter_load()
 }
 bool mode_load()
 {
-    return FLASH_Read_data((u8 *)&g_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
+    return FLASH_Read_data((u8 *)&g_foc_mode, MODE_LOAD_ADDr, sizeof(Mode_t));
 }
 // 擦除参数
 void parameter_erase()
@@ -503,11 +476,11 @@ bool parameter_mode_init()
         return false;
     if (!mode_load())
         return false;
-    if (g_foc_parameters.None_flag == 0)
+    if (g_foc_parameters.None_flag == 0) // 模式存储是否为空
         return true;
     else
     {
-        g_foc_mode.None_flag = 0; // 模式存储是否为空
+        g_foc_mode.None_flag = 0;
         g_foc_mode.canqueue = 0;
         g_foc_mode.weakmag = 0;
         g_foc_mode.fan = 0;
@@ -520,11 +493,11 @@ bool parameter_mode_init()
         g_foc_mode.foc_autotune_mode = 1;
     }
 
-    if (g_foc_parameters.None_flag == 0)
+    if (g_foc_parameters.None_flag == 0) // 模式存储是否为空
         return true;
     else
     {
-        g_foc_parameters.None_flag = 0; // 参数存储是否为空
+        g_foc_parameters.None_flag = 0;
         g_foc_parameters.theta_offset = 0.0f;
         g_foc_parameters.motor_polepairs = 7;
         g_foc_parameters.motor_rs = 0.05f;                           // 相电阻 50mΩ
@@ -566,34 +539,7 @@ bool parameter_mode_init()
     parameter_apply();
     return true;
 }
-void CONTROL_value_update(float *data)
-{
-    switch (g_foccore.loop_mode)
-    {
-    case CURRENT_LOOP_CONTROL:
-        g_foccore.iq_ref = data[0];
-        break;
-    case SPEED_LOOP_CONTROL:
-        g_foccore.omega_ref = rpm_to_rad(data[0]);
-        break;
-    case POSITION_ABS_CONTROL:
-    case POSITION_REL_CONTROL:
-        if (g_foccore.pvt_mode)
-        {
-            g_foccore.pos_ref = deg_to_rad(data[0]);
-            g_loop_con.PID_pos.output_limit = deg_to_rad(data[1]);
-        }
-        else
-            g_foccore.pos_ref = deg_to_rad(data[0]);
-        break;
-    default:
-        break;
-    }
-}
-void CONTROL_mode_updata(u8 mode)
-{
-    g_foccore.loop_mode = mode;
-}
+
 void STATUS_get(u8 *foc_status, u8 *fault)
 {
     *foc_status = g_foccore.state;

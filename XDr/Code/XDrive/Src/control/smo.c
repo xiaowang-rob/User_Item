@@ -21,7 +21,18 @@ void smo_sensorless_init(smo_sensorless_t *smo, float Rs, float Ls, float dt)
     smo->omega = 0.0f;
     smo->theta_prev = 0.0f;
 }
-
+void smo_sensorless_reset(smo_sensorless_t *smo)
+{
+    smo->i_alpha_hat = 0.0f;
+    smo->i_beta_hat = 0.0f;
+    smo->e_alpha = 0.0f;
+    smo->e_beta = 0.0f;
+    smo->e_alpha_filtered = 0.0f;
+    smo->e_beta_filtered = 0.0f;
+    smo->theta = 0.0f;
+    smo->omega = 0.0f;
+    smo->theta_prev = 0.0f;
+}
 void smo_sensorless_update(smo_sensorless_t *smo,
                            float v_alpha, float v_beta,
                            float i_alpha, float i_beta)

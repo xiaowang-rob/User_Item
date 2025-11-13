@@ -65,7 +65,9 @@
         "can_interface.h": "c",
         "filter.h": "c",
         "queue.h": "c",
-        "can_protocol.h": "c"
+        "can_protocol.h": "c",
+        "device.h": "c",
+        "protocol.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

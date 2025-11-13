@@ -1,7 +1,7 @@
 #include "rgb.h"
 #include "tim.h"
 #include "stdlib.h"
-#include "base_parameters.h"
+#include "device.h"
 #include "math_fast.h"
 /*Some Static Colors------------------------------*/
 const RGB_Color_TypeDef RED = {255, 0, 0};       // 红色

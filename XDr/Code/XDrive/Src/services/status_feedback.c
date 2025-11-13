@@ -35,7 +35,7 @@ void status_feedback()
 
     switch (GET_ENCODER_STATUS())
     {
-    case ENCODER_OK:
+    case 0:
         _encoder_tic++;
         if (_encoder_tic == 1000)
         {
@@ -47,22 +47,21 @@ void status_feedback()
             LED_ENCODER_EN();
         }
         break;
-    case OFFLINE: // 无编码器
+    case 1: // 无编码器
         LED_ENCODER_DIS();
         break;
-    case COMMUNICATION_FALUT: // 通讯异常
+    case 2: // 通讯异常
         LED_ENCODER_EN();
         break;
-    case MAG_WEAK:
+    case 3:
         LED_ENCODER_DIS();
         break;
     default:
         break;
     }
-    // todo: 增加CAN通信状态显示
     switch (CAN_STATE_get())
     {
-    case CAN_OK:
+    case 0:
         _canrx_tic++;
         if (_canrx_tic == 1000)
         {
@@ -74,10 +73,10 @@ void status_feedback()
             LED_ENCODER_EN();
         }
         break;
-    case CAN_INIT_fault:
+    case 1:
         LED_CANrx_DIS();
         break;
-    case CAN_COMUNICATION_FAULT:
+    case 2:
         break;
         LED_CANrx_EN();
     default:

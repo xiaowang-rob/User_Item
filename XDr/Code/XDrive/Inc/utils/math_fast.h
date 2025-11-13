@@ -11,6 +11,11 @@
 #define sqrt3_2 sqrt3 / 2
 #define insqrt3 1 / sqrt3
 
+#define rad_to_rpm(rad) rad * 9.549296748f;
+#define rpm_to_rad(rpm) rpm / 9.549296748f;
+#define deg_to_rad(deg) deg * 0.017453293f;
+#define rad_to_deg(rad) rad * 57.29577951f;
+
 void clark_transform(float ia, float ib, float ic, float *alpha, float *beta);
 void inv_clark_transform(float alpha, float beta, float *ia, float *ib, float *ic);
 void park_transform(float alpha, float beta, float angle, float *d, float *q);

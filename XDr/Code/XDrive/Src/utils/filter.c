@@ -1,5 +1,40 @@
 #include "filter.h"
-
+#include "stddef.h"
+#include "string.h"
+/**
+ * 冒泡排序函数
+ * @param arr 待排序的数组
+ * @param n 数组大小
+ */
+void bubble_sort(int arr[], int n) {
+    if (arr == NULL || n <= 1) {
+        return; // 如果数组为空或只有一个元素，直接返回
+    }
+    
+    int i, j;
+    int temp;
+    int swapped; // 优化标志，如果某一轮没有交换，说明已经有序
+    
+    for (i = 0; i < n - 1; i++) {
+        swapped = 0; // 每轮开始前重置交换标志
+        
+        // 每轮将最大的元素"冒泡"到末尾
+        for (j = 0; j < n - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // 交换相邻元素
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+                swapped = 1; // 标记发生了交换
+            }
+        }
+        
+        // 如果这一轮没有发生交换，说明数组已经有序，可以提前结束
+        if (!swapped) {
+            break;
+        }
+    }
+}
 /* 限幅滤波法 */
 void amplitude_limiting_init(AmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
 {

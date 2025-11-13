@@ -169,6 +169,7 @@ void loop_reset(void)
     PI_reset(&g_loop_con.PI_id);
     PI_reset(&g_loop_con.PI_iq);
     PI_reset(&g_loop_con.PI_speed);
+    PI_reset(&g_loop_con.PI_weakmag);
     PID_reset(&g_loop_con.PID_pos);
 }
 

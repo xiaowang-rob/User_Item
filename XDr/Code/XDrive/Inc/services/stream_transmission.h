@@ -112,7 +112,7 @@ typedef struct
     u8 foc_loop_mode;     // FOC_LOOP_MODE
     u8 foc_autotune_mode; // FOC_AUTOTUNE_MODE
 } Mode_t;
-Mode_t g_foc_mode;
+extern Mode_t g_foc_mode;
 typedef struct
 {
     bool None_flag;
@@ -162,21 +162,13 @@ extern Parameter_t g_foc_parameters;
 // 读取数据流
 void stream_data_get(Data_stream_e stream, float *data);
 // 设置模式
-void mode_ask(Mode_e mode, u8 *data);
+void mode_set(Mode_e mode, u8 *data);
 // 读取模式
 void mode_ask(Mode_e mode, u8 *data);
-// 一键设置模式
-void All_mode_set(u8 *data);
-// 一键读取模式
-void All_mode_ask(u8 *data, u8 *len);
 // 设置单个参数
 void parameter_set(Parameter_e parameter, u32 *data);
-// 一键设置参数
-void all_parameters_set(u32 *data);
 // 读取单个参数
 void parameter_ask(Parameter_e parameter, u32 *data);
-// 一键读取参数
-void all_parameters_ask(u32 *data, u8 *len);
 
 // 保存参数
 bool parameter_save();
@@ -189,7 +181,5 @@ void mode_erase();
 
 // 初始化
 bool parameter_mode_init();
-void CONTROL_value_update(float *data);
-void CONTROL_mode_updata(u8 mode);
 void STATUS_get(u8 *foc_status, u8 *fault);
 #endif

@@ -36,7 +36,6 @@ xdrive/foc_core.o: ..\Src\control\foc_core.c ..\Inc\control\foc_core.h \
   ..\Inc\control\smo.h ..\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\drivers\encoder.h \
-  ..\Config\base_parameters.h ..\Core\Inc\spi.h \
-  ..\Inc\control\loop_control.h ..\Config\system_parameters.h \
-  ..\Inc\services\stream_transmission.h \
+  ..\Config\device.h ..\Core\Inc\spi.h ..\Inc\control\loop_control.h \
+  ..\Config\system_parameters.h ..\Inc\services\stream_transmission.h \
   ..\Inc\control\adaptive_control.h

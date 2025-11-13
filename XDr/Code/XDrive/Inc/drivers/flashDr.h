@@ -1,7 +1,7 @@
 #ifndef __FLASH_DR_H
 #define __FLASH_DR_H
 
-#include "base_parameters.h"
+#include "device.h"
 #include "stdbool.h"
 #define FLASH_SPI_CS_H() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 1)
 #define FLASH_SPI_CS_L() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 0)

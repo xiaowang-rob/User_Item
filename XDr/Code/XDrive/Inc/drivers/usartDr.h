@@ -2,7 +2,7 @@
 #define __USART_DR_H
 
 #include "main.h"
-#include "usart_protocol.h"
+#include "protocol.h"
 
 typedef enum
 {

@@ -36,8 +36,8 @@ xdrive/stream_transmission.o: ..\Src\services\stream_transmission.c \
   ..\Inc\control\foc_statemachine.h ..\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Inc\drivers\encoder.h \
-  ..\Config\base_parameters.h ..\Core\Inc\spi.h \
-  ..\Inc\control\auto_calibration.h ..\Inc\control\smo.h \
-  ..\Inc\control\loop_control.h ..\Config\system_parameters.h \
-  ..\Inc\services\protection_manager.h ..\Inc\drivers\flashDr.h \
-  ..\Inc\drivers\canDr.h
+  ..\Config\device.h ..\Core\Inc\spi.h ..\Inc\control\auto_calibration.h \
+  ..\Inc\control\smo.h ..\Inc\control\loop_control.h \
+  ..\Config\system_parameters.h ..\Inc\services\protection_manager.h \
+  ..\Inc\drivers\flashDr.h ..\Inc\drivers\canDr.h ..\Inc\utils\queue.h \
+  ..\Inc\drivers\svpwm.h ..\Inc\services\system_statemachine.h

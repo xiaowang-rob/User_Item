@@ -1,20 +1,18 @@
 #include "can.h"
 #include "canDr.h"
 
-u8 can_Status = 0;
-u8 can_fault_tic = 0;
-
-#define CAN_FARME_LEN 5 // Id + 4bitData
-u32 can_id = 0x00;      // CAN ID
-bool CAN_queue = false;
 static u8 CanRxData[64];
-StaticQueue CAN_rx_queue;
+
+CAN_Handle_t can={.queue_head=0xE5,.queue_tail=0x5E};
 
 u8 CAN_STATE_get()
 {
-    return can_Status;
+    return can.state;
 }
-
+QueueStatus CAN_deQUEUE_data(u8 *data)
+{
+    return static_queue_dequeue(&can.rx_queue, data);
+}
 __weak void CAN_RxData_Deal(u8 *RxData, u8 len)
 {
     return;
@@ -26,42 +24,42 @@ __weak void CAN_RxData_Deal(u8 *RxData, u8 len)
 
 void CANDr_Init(u32 CAN_ID, bool canQUEUE)
 {
-    can_id = CAN_ID;
-    CAN_queue = canQUEUE;
+    can.id = CAN_ID;
+    can.queue_flag = canQUEUE;
     CAN_FilterTypeDef sFilterConfig;
 
     /* Configure the CAN Filter - 配置CAN过滤器 */
     sFilterConfig.FilterBank = 0;                                // 过滤器编号，使用一个CAN，则可选0-13；使用两个CAN可选0-27
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;            // 过滤器模式，掩码模式或列表模式
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;           // 过滤器位宽，32位模式（支持标准帧和扩展帧）
-    sFilterConfig.FilterIdHigh = ((can_id << 5) >> 16) & 0xFFFF; // 过滤器验证码ID高16位，0-0xFFFF
-    sFilterConfig.FilterIdLow = (can_id << 5) & 0xFFFF;          // 过滤器验证码ID低16位，0-0xFFFF
+    sFilterConfig.FilterIdHigh = ((can.id << 5) >> 16) & 0xFFFF; // 过滤器验证码ID高16位，0-0xFFFF
+    sFilterConfig.FilterIdLow = (can.id << 5) & 0xFFFF;          // 过滤器验证码ID低16位，0-0xFFFF
     sFilterConfig.FilterMaskIdHigh = 0x0000;                     // 过滤器掩码ID高16位，0-0xFFFF
     sFilterConfig.FilterMaskIdLow = 0x0000;                      // 过滤器掩码ID低16位，0-0xFFFF
     sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;           // FIFOx，0或1，指定接收消息存入FIFO0
     sFilterConfig.FilterActivation = ENABLE;                     // 使能过滤器
     sFilterConfig.SlaveStartFilterBank = 14;                     // 从过滤器编号，0-27，对于单CAN实例该参数没有意义
 
-    can_Status = 0;
+    can.state = 0;
     // 配置CAN2的过滤器参数
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        can_Status = 1;
+        can.state = 1;
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        can_Status = 1;
+        can.state = 1;
     }
 
     /* Activate CAN RX notification - 激活CAN接收中断通知 */
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        can_Status = 1;
+        can.state = 1;
     }
-    if (CAN_queue)
-        static_queue_init(&CAN_rx_queue, CanRxData, 64);
+    if (can.queue_flag)
+        static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData));
 }
 
 /**
@@ -80,8 +78,8 @@ bool CAN_Send_Msg(u8 *msg, u8 len)
     CAN_TxHeaderTypeDef CAN_TxHeader; // CAN发送头结构体
 
     // 设置发送参数
-    CAN_TxHeader.StdId = can_id;               // 标准标识符(11位)
-    CAN_TxHeader.ExtId = can_id;               // 扩展标识符(29位)
+    CAN_TxHeader.StdId = can.id;               // 标准标识符(11位)
+    CAN_TxHeader.ExtId = can.id;               // 扩展标识符(29位)
     CAN_TxHeader.IDE = CAN_ID_STD;             // 使用标准帧（11位ID），如果改为CAN_ID_EXT则使用扩展帧
     CAN_TxHeader.RTR = CAN_RTR_DATA;           // 发送数据帧（不是远程帧）
     CAN_TxHeader.DLC = len;                    // 数据长度，0-8字节
@@ -96,7 +94,7 @@ bool CAN_Send_Msg(u8 *msg, u8 len)
     // 发送CAN消息 - 将消息添加到发送邮箱
     if (HAL_CAN_AddTxMessage(&hcan2, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
     {
-        can_Status = 2;
+        can.state = 2;
     }
 
     // 等待发送完成 - 等待所有发送邮箱都空闲（表示消息已发送）
@@ -129,25 +127,25 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
         // RxData 数组包含接收到的8字节数据
         // 示例：可以根据ID判断消息类型，然后处理相应的数据
-        if (CAN_RxHeader.StdId == can_id)
+        if (CAN_RxHeader.StdId == can.id)
         {
-            if (CAN_queue)
+            if (can.queue_flag)
             {
-                static_queue_enqueue(&CAN_rx_queue, 0xE5);
+                static_queue_enqueue(&can.rx_queue, &can.queue_head);
                 for (int i = 0; i < CAN_RxHeader.DLC; i++)
-                    static_queue_enqueue(&CAN_rx_queue, RxData);
-                static_queue_enqueue(&CAN_rx_queue, 0x5E);
+                    static_queue_enqueue(&can.rx_queue, RxData);
+                static_queue_enqueue(&can.rx_queue, &can.queue_tail);
             }
             else
                 CAN_RxData_Deal(RxData, CAN_RxHeader.DLC);
         }
-        if (can_fault_tic >= 1)
-            can_fault_tic--;
+        if (can.err_count >= 1)
+            can.err_count--;
     }
     else
-        can_fault_tic += 5;
-    if (can_fault_tic >= 50)
-        can_Status = 2;
-    else if (can_Status == 2)
-        can_Status = 0;
+        can.err_count += 5;
+    if (can.err_count >= 50)
+        can.state = 2;
+    else if (can.state == 2)
+        can.state = 0;
 }
