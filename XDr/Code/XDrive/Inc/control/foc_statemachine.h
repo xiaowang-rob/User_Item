@@ -7,6 +7,8 @@ typedef enum
     FOC_AUTO_TUNE,
     FOC_RESET,
     FOC_IDLE,
+    FOC_ENABLE,
+    FOC_DISABLE,
     FOC_RUNNING,
     FOC_SHUTDOWN,
     FOC_FAULT

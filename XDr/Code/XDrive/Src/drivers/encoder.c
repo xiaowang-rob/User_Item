@@ -65,9 +65,10 @@ void ENCODER_ReadData()
         return;
     }
 }
+static u16 time_last = 0;
+
 void ENCODER_DEALDATA()
 {
-
     // 解析14位角度值
     // reg03_data: Angle<13:6> (高8位)
     // reg04_data: Angle<5:0> (低6位) + 状态位
@@ -77,9 +78,11 @@ void ENCODER_DEALDATA()
     float angle_raw = ((angle_high & 0x3F) << 6) | ((angle_low >> 2) & 0x3F);
 
     // 转换为角度值（0~360°）
-    encoder.angle_deg = (float)angle_raw * 0.02197265625f;                        // *360/16384  16384 = 2^14
-    encoder.angle_abs = encoder.angle_deg * 0.0174532922f + encoder.angle_offset; // 角度值转弧度值
+    encoder.angle_deg = (float)angle_raw * 0.021972656f;                         // *360/16384  16384 = 2^14
+    encoder.angle_abs = encoder.angle_deg * 0.017453292f + encoder.angle_offset; // 角度值转弧度值
     encoder.angle_inc += encoder.angle_abs - encoder.angle_last;
+    encoder.omega = (encoder.angle_abs - encoder.angle_last) / (HAL_GetTick() - time_last);
+    time_last = HAL_GetTick();
     encoder.angle_last = encoder.angle_abs;
     // 提取状态位（从reg04_data和reg05_data中）
     if (reg04_data & MT6816_NO_MAG_WARNING)
@@ -140,6 +143,10 @@ float GET_ENCODER_ANGLE_ABS(void)
 float GET_ENCODER_ANGLE_INC(void)
 {
     return encoder.angle_inc;
+}
+float GET_ENCODER_OMEGA(void)
+{
+    return encoder.omega;
 }
 void SET_ENCODER_ANGLE_OFFSET(float offset)
 {

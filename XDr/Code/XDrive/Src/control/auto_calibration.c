@@ -27,9 +27,10 @@ bool auto_calibration_update()
     if (g_param_tuning.tune_mode == ENCODER_TUNE)
     { // 有感整定
         g_monitor.theta_mech = GET_ENCODER_ANGLE_ABS();
-        g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / g_param_tuning.dt;
-        g_monitor.theta_mech_last = g_monitor.theta_mech;
-        encoder_param_tuning_update(&g_param_tuning, g_monitor.Ualpha, g_monitor.Ubeta, g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_mech, g_monitor.omega_fb * g_param_tuning.pole_pairs);
+        g_monitor.omega_fb = GET_ENCODER_OMEGA();
+        encoder_param_tuning_update(&g_param_tuning, g_monitor.Ualpha, g_monitor.Ubeta,
+                                    g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_mech,
+                                    g_monitor.omega_fb * g_param_tuning.pole_pairs);
 
         switch (g_param_tuning.tune_state)
         {
@@ -39,7 +40,7 @@ bool auto_calibration_update()
             g_foccore.id_ref = 0.1;
             break;
         case PARAM_TUNE_POLE_PAIRS:
-            g_foccore.run_mode = AUTO_TUNE_CONTROL;
+            g_foccore.run_mode = DIRECT_CONTROL;
             g_monitor.theta_elec += OMEGA_TUNE_POLE_PAIRS * g_param_tuning.dt;
             if (g_monitor.theta_elec >= M2_PI)
                 g_monitor.theta_elec -= M2_PI;
@@ -65,7 +66,6 @@ bool auto_calibration_update()
         case PARAM_TUNE_INERTIA:
             g_foccore.run_mode = ENCODER_CONTROL;
             g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
-
             time++;
             if (time > 1000)
                 g_foccore.iq_ref = 3.0f;
@@ -79,7 +79,7 @@ bool auto_calibration_update()
             g_foccore.omega_con = 0.2;
             break;
         case PARAM_TUNE_COMPLETE:
-            g_foccore.run_mode = AUTO_TUNE_CONTROL;
+            g_foccore.run_mode = DIRECT_CONTROL;
             g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
             g_monitor.Ualpha = 0;
             g_monitor.Ubeta = 0;
@@ -90,12 +90,11 @@ bool auto_calibration_update()
     }
     else
     { // 无感整定
-
         sensorless_param_tuning_update(&g_param_tuning, g_monitor.Ualpha, g_monitor.Ubeta, g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.omega_fb);
         switch (g_param_tuning.tune_state)
         {
         case PARAM_TUNE_RS:
-            g_foccore.run_mode = AUTO_TUNE_CONTROL;
+            g_foccore.run_mode = DIRECT_CONTROL;
             g_monitor.Ualpha = 0.5f;
             g_monitor.Ubeta = 0.5f;
             break;
@@ -111,7 +110,7 @@ bool auto_calibration_update()
             g_foccore.omega_con = 52 / g_param_tuning.pole_pairs; // 500电角速度
             break;
         case PARAM_TUNE_COMPLETE:
-            g_foccore.run_mode = AUTO_TUNE_CONTROL;
+            g_foccore.run_mode = DIRECT_CONTROL;
             g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
             g_monitor.Ualpha = 0;
             g_monitor.Ubeta = 0;

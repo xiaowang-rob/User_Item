@@ -6,7 +6,7 @@
 #include "foc_statemachine.h"
 typedef enum
 {
-    AUTO_TUNE_CONTROL,
+    DIRECT_CONTROL,
     ENCODER_CONTROL,
     SENSORLESS_CONTROL,
 } RUN_MODE_e;
@@ -24,7 +24,6 @@ typedef struct
     float Ialpha, Ibeta;
     float theta_elec;
     float theta_mech;
-    float theta_mech_last;
     float iq_fb, id_fb;
     float ud, uq;
     float Ualpha, Ubeta;
@@ -70,9 +69,6 @@ typedef struct
 bool foc_core_init();
 void foc_core_reset();
 void foc_core_run();
-void foc_disable();
-void foc_enable();
-bool foc_shutdown();
 void CONTROL_value_update(float *data);
 void CONTROL_mode_updata(u8 mode);
 #endif // __FOC_CORE_H

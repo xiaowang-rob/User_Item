@@ -31,11 +31,11 @@ void usb_FrameData_deal(u8 id, u8 *data, u8 len)
         case FOC_NRST:
             FOC_CHANGE_STATE(FOC_RESET);
             break;
-        case FOC_ENABLE:
-            foc_enable();
+        case ENABLE:
+            FOC_CHANGE_STATE(FOC_ENABLE);
             break;
-        case FOC_DISABLE:
-            foc_disable();
+        case DISABLE:
+            FOC_CHANGE_STATE(FOC_DISABLE);
             break;
         case PROTECT_RESET:
             protection_manager_reset();

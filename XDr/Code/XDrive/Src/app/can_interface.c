@@ -25,10 +25,10 @@ void CAN_RxData_Deal(u8 *RxData, u8 len)
     }
     else if (len == 1) // 使能失能
     {
-        if (*RxData == FOC_ENABLE)
-            foc_enable();
-        else if (*RxData == FOC_DISABLE)
-            foc_disable();
+        if (*RxData == ENABLE)
+            FOC_CHANGE_STATE(FOC_ENABLE);
+        else if (*RxData == DISABLE)
+            FOC_CHANGE_STATE(FOC_DISABLE);
     }
     else if (len == 2 || len == 3)
     {

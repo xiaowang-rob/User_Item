@@ -11,8 +11,9 @@ typedef struct
     uint8_t state;   // 0 OK 1 OFFLINE 2 COMMUNICATION_FALUT 3 MAG_WEAK
     float angle_abs; // 弧度值
     float angle_last;
-    float angle_inc;    // 角度增量值rad
-    float angle_deg;    // 转换为角度值（0~360°）
+    float angle_inc; // 角度增量值rad
+    float angle_deg; // 转换为角度值（0~360°）
+    float omega;
     float angle_offset; // 角度偏移值
 } ENCODER_t;
 
@@ -32,6 +33,7 @@ typedef struct
 bool ENCODER_Init(void);
 float GET_ENCODER_ANGLE_ABS(void);
 float GET_ENCODER_ANGLE_INC(void);
+float GET_ENCODER_OMEGA(void);
 void SET_ENCODER_ANGLE_OFFSET(float offset);
 float GET_ENCODER_ANGLE_OFFSET(void);
 uint8_t GET_ENCODER_STATUS();

@@ -127,8 +127,8 @@ void oloop_to_cloop()            // 无感模式 开环切闭环
     else
         openloop_omega_con = startup_machine.openloop_omega;
     g_monitor.theta_elec += openloop_omega_con * Tcon;
-		if(g_monitor.theta_elec>M2_PI)
-			g_monitor.theta_elec-=M2_PI;
+    if (g_monitor.theta_elec > M2_PI)
+        g_monitor.theta_elec -= M2_PI;
     g_foccore.iq_ref = startup_machine.openloop_cur;
     g_monitor.omega_fb = smo_sensorless_get_omega(&smo);
     if (g_monitor.omega_fb > startup_machine.changeloop_speed && openloop_omega_con > startup_machine.changeloop_speed * 0.7f)
@@ -234,21 +234,15 @@ void smaple_point_change()
 
 void foc_core_run()
 {
-    if (!g_foccore.enable)
-        return;
     Frequency_division_updatta();
     Current_reconstruction();
     switch (g_foccore.run_mode)
     {
-    case AUTO_TUNE_CONTROL:
-        // todo:暂时还想不到干啥
-        break;
     case ENCODER_CONTROL:
         g_monitor.theta_elec = GET_ENCODER_ANGLE_ABS() * g_Motor.pole_pairs;
         park_transform(g_monitor.Ialpha, g_monitor.Ibeta, g_monitor.theta_elec, &g_monitor.id_fb, &g_monitor.iq_fb);
         g_monitor.theta_mech = GET_ENCODER_ANGLE_ABS();
-        g_monitor.omega_fb = (g_monitor.theta_mech - g_monitor.theta_mech_last) / Tcon;
-        g_monitor.theta_mech_last = g_monitor.theta_mech;
+        g_monitor.omega_fb = GET_ENCODER_OMEGA();
         switch (g_foccore.loop_mode)
         {
         case POSITION_ABS_CONTROL:
@@ -317,6 +311,10 @@ void foc_core_run()
         default:
             break;
         }
+        g_monitor.uq = Current_loop(g_foccore.iq_ref, g_monitor.iq_fb);
+        g_monitor.ud = Magnetic_loop(g_foccore.id_ref, g_monitor.id_fb);
+        if (g_monitor.uq == g_loop_con.PI_iq.output_limit)
+            inv_park_transform(g_monitor.ud, g_monitor.uq, g_monitor.theta_elec, &g_monitor.Ualpha, &g_monitor.Ubeta);
         break;
     case SENSORLESS_CONTROL:
         if (!startup_machine.align_flag)
@@ -346,53 +344,18 @@ void foc_core_run()
                 }
             }
         }
-        break;
-    default:
-        break;
-    }
-
-    if (g_foccore.run_mode != AUTO_TUNE_CONTROL)
-    {
         g_monitor.uq = Current_loop(g_foccore.iq_ref, g_monitor.iq_fb);
         g_monitor.ud = Magnetic_loop(g_foccore.id_ref, g_monitor.id_fb);
         if (g_monitor.uq == g_loop_con.PI_iq.output_limit)
-
             inv_park_transform(g_monitor.ud, g_monitor.uq, g_monitor.theta_elec, &g_monitor.Ualpha, &g_monitor.Ubeta);
+        break;
+    default:
+        break;
     }
     svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, g_svpwm);
     smaple_point_change();
 }
 
-void foc_disable()
-{
-    if (g_foccore.enable)
-    {
-        g_foccore.enable = false;
-        DISABLE_PWM();
-        Frequency_division_reset();
-        loop_reset();
-        memset(&g_monitor, 0, sizeof(Monitor_t));
-    }
-}
-
-void foc_enable()
-{
-    if (!g_foccore.enable)
-    {
-        ENABLE_PWM();
-        g_foccore.enable = true;
-    }
-}
-bool foc_shutdown()
-{
-    if (fast_absf(g_monitor.omega_fb) > 0.1)
-    {
-        g_foccore.loop_mode = SPEED_LOOP_CONTROL;
-        g_foccore.omega_con = -g_monitor.omega_fb;
-        return false;
-    }
-    return true;
-}
 void CONTROL_value_update(float *data)
 {
     switch (g_foccore.loop_mode)

@@ -9,8 +9,8 @@
 #define START_TUNNING 0xf1 // 开始调参
 #define BRAKE 0xf2         // 刹车
 #define FOC_NRST 0xf3      // FOC复位
-#define FOC_ENABLE 0xf4    // 使能FOC
-#define FOC_DISABLE 0xf5   // 失能FOC
+#define ENABLE 0xf4    		// 使能FOC
+#define DISABLE 0xf5  		 // 失能FOC
 #define PROTECT_RESET 0xf6 // 保护机制复位
 
 #define LOG_GET 0xf7   // 获取日志

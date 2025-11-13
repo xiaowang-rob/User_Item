@@ -3,45 +3,66 @@
 #include "auto_calibration.h"
 #include "tim.h"
 #include "foc_core.h"
+#include "svpwm.h"
+#include "math_fast.h"
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM8)
     {
         FOC_StateMachine_updata(g_foccore.state);
-        foc_core_run();
     }
 }
 
-bool FOC_INIT_event()
+void FOC_INIT_event()
 {
-    return foc_core_init();
+    if (foc_core_init())
+        FOC_CHANGE_STATE(FOC_IDLE);
 }
-bool FOC_AUTO_TUNE_event()
+void FOC_AUTO_TUNE_event()
 {
-    foc_enable();
-    return auto_calibration_update();
+    foc_core_run();
+    if (auto_calibration_update())
+        FOC_CHANGE_STATE(FOC_IDLE);
 }
-bool FOC_RESET_event()
+void FOC_RESET_event()
 {
     foc_core_reset();
-    return true;
+    FOC_CHANGE_STATE(FOC_IDLE);
 }
-void FOC_IDLE_event()
+void FOC_enable_event()
 {
-    foc_disable();
+    g_foccore.enable = true;
+    ENABLE_PWM();
+    FOC_CHANGE_STATE(FOC_RUNNING);
+}
+void FOC_disable_event()
+{
+    g_foccore.enable = false;
+    DISABLE_PWM();
+    FOC_CHANGE_STATE(FOC_RESET);
 }
 void FOC_RUNNING_event()
 {
-    foc_enable();
+    foc_core_run();
 }
-bool FOC_SHUTDOWN_event()
+void FOC_SHUTDOWN_event()
 {
-    return foc_shutdown();
+    if (fast_absf(g_monitor.omega_fb) > 0.1)
+    {
+        g_foccore.loop_mode = SPEED_LOOP_CONTROL;
+        g_foccore.omega_con = -g_monitor.omega_fb;
+        return;
+    }
+    FOC_CHANGE_STATE(FOC_FAULT);
 }
 void FOC_FAULT_event()
 {
-    foc_disable();
+    if (g_foccore.enable)
+    {
+        g_foccore.enable = false;
+        DISABLE_PWM();
+    }
 }
 
 void FOC_StateMachine_updata(FOC_STATE_e state)
@@ -49,26 +70,27 @@ void FOC_StateMachine_updata(FOC_STATE_e state)
     switch (state)
     {
     case FOC_INIT:
-        if (FOC_INIT_event())
-            FOC_CHANGE_STATE(FOC_IDLE);
+        FOC_INIT_event();
         break;
     case FOC_AUTO_TUNE:
-        if (FOC_AUTO_TUNE_event())
-            FOC_CHANGE_STATE(FOC_IDLE);
+        FOC_AUTO_TUNE_event();
         break;
     case FOC_RESET:
-        if (FOC_RESET_event())
-            FOC_CHANGE_STATE(FOC_IDLE);
+        FOC_RESET_event();
         break;
     case FOC_IDLE:
-        FOC_IDLE_event();
+        break;
+    case FOC_ENABLE:
+        FOC_enable_event();
+        break;
+    case FOC_DISABLE:
+        FOC_disable_event();
         break;
     case FOC_RUNNING:
         FOC_RUNNING_event();
         break;
     case FOC_SHUTDOWN:
-        if (FOC_SHUTDOWN_event())
-            FOC_CHANGE_STATE(FOC_FAULT);
+        FOC_SHUTDOWN_event();
         break;
     case FOC_FAULT:
         FOC_FAULT_event();
