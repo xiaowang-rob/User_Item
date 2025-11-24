@@ -30,6 +30,13 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "system_statemachine.h"
+
+#ifdef __DEBUG__
+#include "math_fast.h"
+
+u32 time_while_zero = 0;
+u32 time_while_T = 0;
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,7 +121,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		SystemStateMachine_run();
+    SystemStateMachine_run();
+
+#ifdef __DEBUG__ //***********调试************
+
+    time_while_T = HAL_GetTick_us() - time_while_zero;
+    time_while_zero = HAL_GetTick_us();
+#endif
   }
   /* USER CODE END 3 */
 }

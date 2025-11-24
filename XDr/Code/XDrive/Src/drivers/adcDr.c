@@ -3,6 +3,30 @@
 #include "tim.h"
 #include "system_parameters.h"
 
+
+#ifdef __DEBUG__
+#include "math_fast.h"
+
+u32 time_adc_zero = 0;
+u32 time_adc_last = 0;
+u32 time_adc_T = 0;
+u32 time_adc_run = 0;
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        time_adc_run = (HAL_GetTick_us() - time_adc_last) * 2;
+        //    time_adc_T = HAL_GetTick_us()-time_adc_zero;
+        //    time_adc_zero = HAL_GetTick_us();
+    }
+}
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+        time_adc_last = HAL_GetTick_us();
+}
+#endif
 u16 ADC1_buffer[3];
 u8 ADC2_buffer[4];
 
@@ -36,17 +60,22 @@ const u8 adc_to_temp[121] = {
     // ADC 189 -> 温度值
     0};
 
-// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-// {
-//	
-// }
 void ADC_DR_Init()
 {
-	HAL_TIM_Base_Start_IT(&htim8);
+    HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_4, 1);
+}
+void ADC1_sample()
+{
+
+    HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
+}
+void ADC2_sample()
+{
+    HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)
 {

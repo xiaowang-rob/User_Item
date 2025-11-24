@@ -354,6 +354,7 @@ void foc_core_run()
     }
     svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, g_svpwm);
     smaple_point_change();
+//		ADC1_sample();
 }
 
 void CONTROL_value_update(float *data)

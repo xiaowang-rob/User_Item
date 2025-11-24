@@ -744,7 +744,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_Level
   * @retval None
   */
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
-{
+ {
   uint32_t tmpisr;
   __IO uint32_t count = 0U;
   uint32_t timeout = SystemCoreClock / 9600U;

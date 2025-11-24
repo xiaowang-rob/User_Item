@@ -7,6 +7,8 @@
 #define temp0_adc_val 69 // 0°对应ADC值
 
 void ADC_DR_Init(void);
+void ADC1_sample();
+void ADC2_sample();
 void ADC_GET_Current(float *ui, float *vi, float *wi);
 void ADC_sample_change(u16 compare);
 void ADC_GET_Voltage(float *voltage);

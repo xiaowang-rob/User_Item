@@ -12,6 +12,7 @@
 #include "usb_interface.h"
 #include "wireless_interface.h"
 #include "can_interface.h"
+#include "adcDr.h"
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
 
 bool system_init_event(void)
@@ -32,7 +33,7 @@ bool system_init_event(void)
 }
 void System_Run_event(void)
 {
-
+		ADC2_sample();
     CAN_QUEUE_Deal();
     usb_cdc_run();
     usart_stream_data_trans();

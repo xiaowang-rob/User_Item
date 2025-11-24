@@ -4,6 +4,8 @@
 #include "string.h"
 #include "system_parameters.h"
 
+__IO u16 tim8_ch_compare[3] = {0};
+
 void svpwm_Init(SVPWM_t svpwm, float Vbus)
 {
     memset(&svpwm, 0, sizeof(SVPWM_t));
@@ -11,35 +13,23 @@ void svpwm_Init(SVPWM_t svpwm, float Vbus)
 }
 void pwm_out(u8 channel, u16 compare)
 {
-    switch (channel)
-    {
-    case 1:
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, compare);
-        break;
-    case 2:
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, compare);
-        break;
-    case 3:
-        __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, compare);
-        break;
-    default:
-        break;
-    }
+    tim8_ch_compare[channel - 1] = compare;
 }
+
 void ENABLE_PWM()
 {
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (u32 *)&tim8_ch_compare[0], 1);
+    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_2, (u32 *)&tim8_ch_compare[1], 1);
+    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_3, (u32 *)&tim8_ch_compare[2], 1);
     pwm_out(1, 0);
     pwm_out(2, 0);
     pwm_out(3, 0);
 }
 void DISABLE_PWM()
 {
-    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_3);
 }
 void svpwm_run(float ualpha, float ubeta, SVPWM_t svpwm)
 {

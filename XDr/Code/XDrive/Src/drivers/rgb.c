@@ -158,42 +158,59 @@ void rgb_breathe(RGB_Color_TypeDef Color)
         RGB_Flush();
     }
 }
-#define RGB_ALTERNATE_steps 300000
-static u32 _tic_steps = 0;
+#define RGB_ALTERNATE_T_ms 500
+static u32 _time_zero = 0;
+static u8 _color_index = 0;
+static bool _lock = false;
 void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2)
 {
-    if (_tic_steps == RGB_ALTERNATE_steps)
+    if (HAL_GetTick() - _time_zero >= RGB_ALTERNATE_T_ms)
     {
+        _lock = false;
+        _color_index++;
+        _time_zero = HAL_GetTick();
+    }
+    if (_color_index == 1 && !_lock)
+    {
+        _lock = true;
         RGB_SetMore_Color(0, Pixel_NUM, Color1);
         RGB_Flush(); // 刷新WS2812B的显示
     }
-    if (_tic_steps == (RGB_ALTERNATE_steps * 2))
+    else if (_color_index == 2 && !_lock)
     {
-        _tic_steps = 0;
+        _color_index = 0;
+        _lock = true;
         RGB_SetMore_Color(0, Pixel_NUM, Color2);
         RGB_Flush(); // 刷新WS2812B的显示
     }
-    _tic_steps++;
 }
 void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3)
 {
-    if (_tic_steps == RGB_ALTERNATE_steps)
+    if (HAL_GetTick() - _time_zero >= RGB_ALTERNATE_T_ms)
     {
+        _lock = false;
+        _color_index++;
+        _time_zero = HAL_GetTick();
+    }
+    if (_color_index == 1 && !_lock)
+    {
+        _lock = true;
         RGB_SetMore_Color(0, Pixel_NUM, Color1);
         RGB_Flush(); // 刷新WS2812B的显示
     }
-    if (_tic_steps == (RGB_ALTERNATE_steps * 2))
+    else if (_color_index == 2 && !_lock)
     {
+        _lock = true;
         RGB_SetMore_Color(0, Pixel_NUM, Color2);
         RGB_Flush(); // 刷新WS2812B的显示
     }
-    if (_tic_steps == (RGB_ALTERNATE_steps * 3))
+    else if (_color_index == 3 && !_lock)
     {
-        _tic_steps = 0;
+        _color_index = 0;
+        _lock = true;
         RGB_SetMore_Color(0, Pixel_NUM, Color3);
         RGB_Flush(); // 刷新WS2812B的显示
     }
-    _tic_steps++;
 }
 void LED_ENCODER_EN(void)
 {
@@ -203,11 +220,68 @@ void LED_ENCODER_DIS(void)
 {
     HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_RESET);
 }
-void LED_CANrx_EN(void)
+void LED_CAN_EN(void)
 {
     HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
 }
-void LED_CANrx_DIS(void)
+void LED_CAN_DIS(void)
 {
     HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
+}
+
+#define LED_T_ms 1000
+static u32 _led_time_zero = 0;
+static bool _led_switch = false;
+void led_on(LED_FUN_e fun)
+{
+    switch (fun)
+    {
+    case ENCODER:
+        LED_ENCODER_EN();
+        break;
+    case CAN:
+        LED_CAN_EN();
+        break;
+    default:
+        break;
+    }
+}
+void led_off(LED_FUN_e fun)
+{
+    switch (fun)
+    {
+    case ENCODER:
+        LED_ENCODER_DIS();
+        break;
+    case CAN:
+        LED_CAN_DIS();
+        break;
+    default:
+        break;
+    }
+}
+void led_flash(LED_FUN_e fun)
+{
+    if (HAL_GetTick() - _led_time_zero >= LED_T_ms)
+    {
+        _led_switch = !_led_switch;
+        _led_time_zero = HAL_GetTick();
+    }
+    switch (fun)
+    {
+    case ENCODER:
+        if (_led_switch)
+            LED_ENCODER_EN();
+        else
+            LED_ENCODER_DIS();
+        break;
+    case CAN:
+        if (_led_switch)
+            LED_CAN_EN();
+        else
+            LED_CAN_DIS();
+        break;
+    default:
+        break;
+    }
 }

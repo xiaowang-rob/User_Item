@@ -33,7 +33,8 @@ bool spi_Transmit_one_byte(u8 _dataTx)
 u8 spi_Receive_one_byte()
 {
     u16 _dataRx;
-    HAL_SPI_Receive(&FLASH_SPI_Get_HSPI, (u8 *)&_dataRx, 1, 1000);
+		HAL_StatusTypeDef state;
+    state=HAL_SPI_Receive(&FLASH_SPI_Get_HSPI, (u8 *)&_dataRx, 1, 1000);
     return _dataRx;
 }
 

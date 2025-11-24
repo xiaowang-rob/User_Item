@@ -3,6 +3,11 @@
 
 #include "main.h"
 
+typedef enum
+{
+    ENCODER,
+    CAN,
+} LED_FUN_e;
 // 0码和1码的定义，设置的时CCR寄存器的值
 // 由于使用的思PWM输出模式1，计数值<CCR时，输出有效电平-高电平（CubeMX配置默认有效电平为高电平）
 #define CODE_1 (68) // 1码定时器计数次数，控制占空比为84/125 = 66%
@@ -43,9 +48,8 @@ void RGB_Show_64(void); // RGB写入函数
 void rgb_breathe(RGB_Color_TypeDef Color);                              // 呼吸灯效果
 void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2); // 交替显示两个颜色
 void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3);
-void LED_ENCODER_EN(void);
-void LED_ENCODER_DIS(void);
-void LED_CANrx_EN(void);
-void LED_CANrx_DIS(void);
+void led_on(LED_FUN_e fun);    // 打开LED
+void led_off(LED_FUN_e fun);   // 关闭LED
+void led_flash(LED_FUN_e fun); // 闪烁LED
 
 #endif

@@ -27,6 +27,7 @@
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim4_ch2;
+DMA_HandleTypeDef hdma_tim8_ch1_ch2_ch3;
 
 /* TIM4 init function */
 void MX_TIM4_Init(void)
@@ -99,9 +100,9 @@ void MX_TIM8_Init(void)
 
   /* USER CODE END TIM8_Init 1 */
   htim8.Instance = TIM8;
-  htim8.Init.Prescaler = 0;
+  htim8.Init.Prescaler = 1;
   htim8.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
-  htim8.Init.Period = 4200/2-1;
+  htim8.Init.Period = 4200-1;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim8.Init.RepetitionCounter = 0;
   htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -118,7 +119,7 @@ void MX_TIM8_Init(void)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC4REF;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
   {
@@ -207,8 +208,31 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     /* TIM8 clock enable */
     __HAL_RCC_TIM8_CLK_ENABLE();
 
+    /* TIM8 DMA Init */
+    /* TIM8_CH1_CH2_CH3 Init */
+    hdma_tim8_ch1_ch2_ch3.Instance = DMA2_Stream2;
+    hdma_tim8_ch1_ch2_ch3.Init.Channel = DMA_CHANNEL_0;
+    hdma_tim8_ch1_ch2_ch3.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_tim8_ch1_ch2_ch3.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_tim8_ch1_ch2_ch3.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_tim8_ch1_ch2_ch3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_tim8_ch1_ch2_ch3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_tim8_ch1_ch2_ch3.Init.Mode = DMA_CIRCULAR;
+    hdma_tim8_ch1_ch2_ch3.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_tim8_ch1_ch2_ch3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_tim8_ch1_ch2_ch3) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    /* Several peripheral DMA handle pointers point to the same DMA handle.
+     Be aware that there is only one stream to perform all the requested DMAs. */
+    __HAL_LINKDMA(tim_baseHandle,hdma[TIM_DMA_ID_CC1],hdma_tim8_ch1_ch2_ch3);
+    __HAL_LINKDMA(tim_baseHandle,hdma[TIM_DMA_ID_CC2],hdma_tim8_ch1_ch2_ch3);
+    __HAL_LINKDMA(tim_baseHandle,hdma[TIM_DMA_ID_CC3],hdma_tim8_ch1_ch2_ch3);
+
     /* TIM8 interrupt Init */
-    HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
   /* USER CODE BEGIN TIM8_MspInit 1 */
 
@@ -308,6 +332,11 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE END TIM8_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM8_CLK_DISABLE();
+
+    /* TIM8 DMA DeInit */
+    HAL_DMA_DeInit(tim_baseHandle->hdma[TIM_DMA_ID_CC1]);
+    HAL_DMA_DeInit(tim_baseHandle->hdma[TIM_DMA_ID_CC2]);
+    HAL_DMA_DeInit(tim_baseHandle->hdma[TIM_DMA_ID_CC3]);
 
     /* TIM8 interrupt Deinit */
     HAL_NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);

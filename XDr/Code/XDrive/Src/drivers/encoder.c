@@ -3,7 +3,7 @@
 #include "stdbool.h"
 #include "spi.h"
 #include "math_fast.h"
-ENCODER_t encoder = {0};
+ENCODER_t encoder = {.state=1};
 static bool DealDone_flag = false;
 
 /**
@@ -156,7 +156,8 @@ float GET_ENCODER_ANGLE_OFFSET(void)
 {
     return encoder.angle_offset;
 }
-uint8_t GET_ENCODER_STATUS()
+// 0 OK 1 OFFLINE 2 COMMUNICATION_FALUT 3 MAG_WEAK
+u8 GET_ENCODER_STATUS()
 {
     return encoder.state;
 }

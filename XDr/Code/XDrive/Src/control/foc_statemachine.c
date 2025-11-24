@@ -6,11 +6,27 @@
 #include "svpwm.h"
 #include "math_fast.h"
 
+
+#ifdef __DEBUG__
+u32 _time_focit_start = 0;
+u32 _time_focit_end = 0;
+u32 _time_focit_run = 0;
+u32 _time_foc_T=0;
+#endif
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM8)
     {
+#ifdef __DEBUG__
+        _time_focit_start = HAL_GetTick_us();
+			
+#endif
         FOC_StateMachine_updata(g_foccore.state);
+#ifdef __DEBUG__
+			_time_foc_T=HAL_GetTick_us()-_time_focit_end;
+        _time_focit_end = HAL_GetTick_us();
+       _time_focit_run = _time_focit_end - _time_focit_start;
+#endif
     }
 }
 

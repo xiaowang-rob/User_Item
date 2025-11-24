@@ -1,5 +1,4 @@
 #include "math_fast.h"
-
 /**
  * @brief Clark 变换 (abc → αβ)
  * @param ia, ib, ic: 三相电流或电压
@@ -64,4 +63,15 @@ float fast_absf(float x)
 {
     u32 temp = *(u32 *)&x & 0x7FFFFFFF;
     return *(float *)&temp;
+}
+u32 HAL_GetTick_us()
+{
+    // 获取当前ms
+    u32 m = HAL_GetTick();
+    // 获取嘀嗒定时器重装载值
+    const u32 tms = SysTick->LOAD + 1;
+    // 获取当前滴答定时器计数值
+    __IO u32 u = tms - SysTick->VAL;
+    // 返还对应的值
+    return (m * 1000 + (u * 1000) / tms);
 }

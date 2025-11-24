@@ -18,7 +18,7 @@
 
 #define fpwm 20000
 #define Tpwm 1.0f / fpwm // 50us
-#define ticpwm 4200 / 2 - 1
+#define ticpwm 4200 - 1
 #define Tcon Tpwm
 #define Tadc 8.f / 84000000.f
 #define Ts 14 * Tadc                       // 14个ADC周期 1.3us

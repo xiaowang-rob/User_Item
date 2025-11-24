@@ -339,7 +339,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F405xx,ARM_MATH_CM4,__FPU_PRESENT</Define>
+              <Define>USE_HAL_DRIVER,STM32F405xx,ARM_MATH_CM4</Define>
               <Undefine></Undefine>
               <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Config;../Inc/app;../Inc/control;../Inc/drivers;../Inc/services;../Inc/utils;../Middlewares/ST/ARM/DSP/Inc</IncludePath>
             </VariousControls>

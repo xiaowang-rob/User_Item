@@ -63,11 +63,11 @@ void protection_manager_run()
         g_protection_manager.fault = MOTOR_FAULT;
         g_protection_manager.fault_flag = true;
     }
-    if (g_monitor.Iu > MAX_Current || g_monitor.Iv > MAX_Current || g_monitor.Iw > MAX_Current || Tolerance_check(&g_monitor.iq_fb, g_protection_manager.maxcurrent, 0, g_protection_manager.tolerance_current))
-    {
-        g_protection_manager.fault = OVER_CURRENT;
-        g_protection_manager.fault_flag = true;
-    }
+//    if (g_monitor.Iu > MAX_Current || g_monitor.Iv > MAX_Current || g_monitor.Iw > MAX_Current || Tolerance_check(&g_monitor.iq_fb, g_protection_manager.maxcurrent, 0, g_protection_manager.tolerance_current))
+//    {
+//        g_protection_manager.fault = OVER_CURRENT;
+//        g_protection_manager.fault_flag = true;
+//    }
     if (CAN_STATE_get() != 0)
     {
         g_protection_manager.fault = CAN_STATE_get() - 1 + CAN_INIT_FAULT;
@@ -105,7 +105,7 @@ void protection_manager_run()
             g_protection_manager.warning = ENCODER_OFFLINE - 1 + encoder_state;
             g_protection_manager.warning_flag = true;
         }
-        else if (g_protection_manager.warning >= ENCODER_OFFLINE || g_protection_manager.warning <= ENCODER_WEAK_MAG)
+        else if (g_protection_manager.warning >= ENCODER_OFFLINE && g_protection_manager.warning <= ENCODER_WEAK_MAG)
         {
             g_protection_manager.warning_flag = false;
             g_protection_manager.warning = NO_WARNING;

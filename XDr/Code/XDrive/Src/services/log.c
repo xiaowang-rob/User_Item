@@ -49,8 +49,8 @@ void log_data_write(void)
     Index.num++;
     Index.write_addr += sizeof(LOG_t);
     Index.block_erase_num++;
-    FLASH_erase_sector(0, sizeof(Index));
-    FLASH_Write_Word((u8 *)&Index, 0, sizeof(Index));
+    FLASH_erase_sector(Index_start_addr, sizeof(Index));
+    FLASH_Write_Word((u8 *)&Index, Index_start_addr, sizeof(Index));
 }
 // 全部读取
 void log_read(u8 *num, u32 *block_erase_num, u8 *len, u8 *data)

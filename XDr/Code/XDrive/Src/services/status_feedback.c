@@ -35,50 +35,30 @@ void status_feedback()
 
     switch (GET_ENCODER_STATUS())
     {
-    case 0:
-        _encoder_tic++;
-        if (_encoder_tic == 1000)
-        {
-            LED_ENCODER_DIS();
-        }
-        if (_encoder_tic == 2000)
-        {
-            _encoder_tic = 0;
-            LED_ENCODER_EN();
-        }
+    case 0: // OK
+        led_flash(ENCODER);
         break;
     case 1: // 无编码器
-        LED_ENCODER_DIS();
+    case 3: // 弱磁
+        led_off(ENCODER);
         break;
     case 2: // 通讯异常
-        LED_ENCODER_EN();
-        break;
-    case 3:
-        LED_ENCODER_DIS();
+        led_on(ENCODER);
         break;
     default:
         break;
     }
     switch (CAN_STATE_get())
     {
-    case 0:
-        _canrx_tic++;
-        if (_canrx_tic == 1000)
-        {
-            LED_ENCODER_DIS();
-        }
-        if (_canrx_tic == 2000)
-        {
-            _canrx_tic = 0;
-            LED_ENCODER_EN();
-        }
+    case 0: // OK
+        led_flash(CAN);
         break;
-    case 1:
-        LED_CANrx_DIS();
+    case 1: // 初始化失败
+        led_off(CAN);
         break;
-    case 2:
+    case 2: // 通讯异常
         break;
-        LED_CANrx_EN();
+        led_on(CAN);
     default:
         break;
     }

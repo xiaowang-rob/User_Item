@@ -3,8 +3,8 @@
 
 static u8 CanRxData[64];
 
-CAN_Handle_t can={.queue_head=0xE5,.queue_tail=0x5E};
-
+CAN_Handle_t can = {.queue_head = 0xE5, .queue_tail = 0x5E};
+// 0: ok, 1: init error, 2: communication error
 u8 CAN_STATE_get()
 {
     return can.state;

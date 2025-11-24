@@ -22,4 +22,5 @@ void park_transform(float alpha, float beta, float angle, float *d, float *q);
 void inv_park_transform(float d, float q, float angle, float *alpha, float *beta);
 u32 fast_roundf(float x);
 float fast_absf(float x);
+u32 HAL_GetTick_us();
 #endif
