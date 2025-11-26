@@ -6,27 +6,42 @@
 #include "svpwm.h"
 #include "math_fast.h"
 
-
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
 u32 _time_focit_end = 0;
 u32 _time_focit_run = 0;
-u32 _time_foc_T=0;
+u32 _time_foc_T = 0;
+
+u32 _time_curadc_zero = 0;
+u32 _time_curadc_T = 0;
+
 #endif
+
+// 由于tim8互补波输出的原因 计时器模式被强制改为中心对齐3 导致update回调被重复调用
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM8)
     {
-#ifdef __DEBUG__
-        _time_focit_start = HAL_GetTick_us();
-			
+        if (TIM8->CR1 & TIM_CR1_DIR)
+        {
+            // ========== 上溢中断 ==========
+return;
+        }
+        else
+        {
+            // ========== 下溢中断 ==========
+					#ifdef __DEBUG__
+            _time_focit_start = HAL_GetTick_us();
+
 #endif
-        FOC_StateMachine_updata(g_foccore.state);
+            FOC_StateMachine_updata(g_foccore.state);
 #ifdef __DEBUG__
-			_time_foc_T=HAL_GetTick_us()-_time_focit_end;
-        _time_focit_end = HAL_GetTick_us();
-       _time_focit_run = _time_focit_end - _time_focit_start;
+            _time_foc_T = HAL_GetTick_us() - _time_focit_end;
+            _time_focit_end = HAL_GetTick_us();
+            _time_focit_run = _time_focit_end - _time_focit_start;
 #endif
+            return;
+        }
     }
 }
 
