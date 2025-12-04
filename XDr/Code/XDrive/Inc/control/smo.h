@@ -51,8 +51,7 @@ typedef enum
     PARAM_TUNE_RS,           // 电阻
     PARAM_TUNE_LS,           // 电感
     PARAM_TUNE_FLUX,         // 磁链
-    PARAM_TUNE_INERTIA,      // 惯量
-    PARAM_TUNE_FRICTION,     // 摩擦
+    PARAM_TUNE_JB,           // 转动惯量，摩擦系数
     PARAM_TUNE_COMPLETE      // 完成
 } param_tune_state_t;
 
@@ -62,14 +61,14 @@ typedef enum
 typedef struct
 {
     // 电机参数（可更新）
-    float theta_offset;    // 角度偏移
-    float Rs;              // 定子电阻
-    float Ls;              // 定子电感
-    float Psi_f;           // 永磁体磁链
-    float pole_pairs;      // 极对数
-    float J;               // 转动惯量
-    float B;               // 摩擦系数
-    float torque_constant; // 转矩常数
+    float theta_offset; // 角度偏移
+    float pole_pairs;   // 极对数
+    float Rs;           // 定子电阻
+    float Ls;           // 定子电感
+    float Psi_f;        // 永磁体磁链
+    float Ke;           // 反电动势常数
+    float J;            // 转动惯量
+    float B;            // 摩擦系数
     // 控制参数
     float dt;   // 控制周期
     float k_sl; // SMO 滑模增益
@@ -103,20 +102,19 @@ typedef struct
 
     // 更新标志
     bool theta_offset_updated;
+    bool pole_pairs_updated;
     bool Rs_updated;
     bool Ls_updated;
     bool Psi_f_updated;
-    bool pole_pairs_updated;
-    bool J_updated;
-    bool B_updated;
-    bool fault_flag; // 故障标志
+    bool JB_updated;
+    // 故障标志
+    bool fault_flag;
 
 } param_tuning_t;
 // 初始化--无感需要准确的极对数
 void param_tuning_init(param_tuning_t *smo,
                        float initial_Rs, float initial_Ls,
-                       float initial_Psi_f, float initial_pole_pairs,
-                       float dt);
+                       float initial_Psi_f, float initial_pole_pairs);
 // 开始整定
 void sensorless_param_tuning_update(param_tuning_t *smo,
                                     float v_alpha, float v_beta,

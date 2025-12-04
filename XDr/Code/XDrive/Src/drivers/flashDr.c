@@ -33,8 +33,8 @@ bool spi_Transmit_one_byte(u8 _dataTx)
 u8 spi_Receive_one_byte()
 {
     u16 _dataRx;
-		HAL_StatusTypeDef state;
-    state=HAL_SPI_Receive(&FLASH_SPI_Get_HSPI, (u8 *)&_dataRx, 1, 1000);
+    HAL_StatusTypeDef state;
+    state = HAL_SPI_Receive(&FLASH_SPI_Get_HSPI, (u8 *)&_dataRx, 1, 1000);
     return _dataRx;
 }
 
@@ -138,7 +138,7 @@ bool FLASH_Read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
         pBuffer[i] = spi_Receive_one_byte(); // 循环读数
     }
     FLASH_Disable();
-		return true;
+    return true;
 }
 
 /* Nicky ******************************************************************* */
@@ -157,7 +157,7 @@ bool FLASH_Write_Word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
         spi_Transmit_one_byte(pBuffer[i]); // 循环写入字节数据
     FLASH_Disable();
     FLASH_Wait_Busy(); // 写完之后需要等待芯片操作完。
-		return true;
+    return true;
 }
 
 /* Nicky ******************************************************************* */
