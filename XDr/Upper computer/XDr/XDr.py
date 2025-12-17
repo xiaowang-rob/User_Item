@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 # 导入由 Qt Designer 的 .ui 文件通过 pyuic5 工具生成的 UI 类
 # 假设你的 .ui 文件名为 XDrmain.ui，生成的 Python 文件为 XDrmain_ui.py
 # 其中定义了一个名为 Ui_XDr 的类，负责构建界面控件
-# from XDrmain_ui import Ui_XDr
-from user_XDr_ui import Ui_XDr
+from XDrmain_ui import Ui_XDr
+#from user_XDr_ui import Ui_XDr
 
 # 定义一个自定义的主窗口类，继承自 QMainWindow
 class MainWindow(QMainWindow):

@@ -14,7 +14,7 @@
 Monitor_t g_monitor = {0};
 foc_core_t g_foccore = {0};
 smo_sensorless_t smo = {0};
-SVPWM_t g_svpwm = {0};
+SVPWM_t g_svpwm = {.sector=1};
 startup_mechine_t startup_machine;
 void startup_machine_init(LOOP_CON_t *loopcon, float omega_gradient, float pos_gradient, float align_current, float align_time, float openloop_cur, float openloop_speed, float changeloop_speed)
 {
@@ -354,7 +354,6 @@ void foc_core_run()
     }
     svpwm_run(g_monitor.Ualpha, g_monitor.Ubeta, g_svpwm);
     smaple_point_change();
-//		ADC1_sample();
 }
 
 void CONTROL_value_update(float *data)

@@ -6,6 +6,8 @@ Usart_Farme_t UsartRxFrame_g = {0};
 Usart_Farme_t UsartTxFrame_g = {0};
 u8 _rx;
 u8 _tx;
+u8 _tx_data[Max_Data_Length + 5];
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART1)
@@ -43,12 +45,13 @@ void usart_frame_send(USART_MSG_ID_e id, u8 *data, u8 len)
         temp += data[i];
     UsartTxFrame_g.check = (u8)temp & 0x01;
     memcpy(UsartTxFrame_g.data, data, len);
-    usartSendByte(&UsartTxFrame_g.head);
-    usartSendByte(&UsartTxFrame_g.msgID);
-    usartSendByte(&UsartTxFrame_g.len);
-    usartSendData(UsartTxFrame_g.data, len);
-    usartSendByte(&UsartTxFrame_g.check);
-    usartSendByte(&UsartTxFrame_g.tail);
+    _tx_data[0] = UsartTxFrame_g.head;
+    _tx_data[1] = UsartTxFrame_g.msgID;
+    _tx_data[2] = UsartTxFrame_g.len;
+    memcpy(_tx_data + 3, UsartTxFrame_g.data, len);
+    _tx_data[3 + len] = UsartTxFrame_g.check;
+    _tx_data[4 + len] = UsartTxFrame_g.tail;
+    usartSendData(_tx_data, 5 + len);
 }
 // 接收到数据帧的处理函数
 __weak void usart_farmedata_deal(u8 id, u8 *data, u8 len)
@@ -64,8 +67,8 @@ void usartRecvByte(u8 *data)
     {
         if (*data == UsartRxFrame_g.tail)
         {
-            if (check == UsartRxFrame_g.check)
-                usart_farmedata_deal(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
+            //            if (check == UsartRxFrame_g.check)
+            usart_farmedata_deal(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
             get_head = false;
         }
         else
@@ -101,6 +104,7 @@ void usartRecvByte(u8 *data)
     HAL_UART_Receive_DMA(&huart1, data, 1);
 }
 
+static u8 tail_bytes[4] = {0x00, 0x00, 0x80, 0x7F}; // 发送结尾
 void vofa_send_float(float value)
 {
     u8 buffer[4];
@@ -114,14 +118,12 @@ void vofa_send_multi_float(const float *data, u8 count)
     if (count == 0 || count > 8)
         return; // 限制最大数量
 
-    u8 buffer[32]; // 最多 8 个 float * 4 字节
-    u8 total_bytes = count * 4;
-
     // 将多个 float 复制到缓冲区
     for (u8 i = 0; i < count; i++)
     {
-        memcpy(&buffer[i * 4], &data[i], 4);
+        memcpy(&_tx_data[i * 4], &data[i], 4);
         // 发送所有数据
-        usartSendData(buffer, total_bytes);
     }
+    memcpy(&_tx_data[count * 4], tail_bytes, 4); // 发送结尾
+    usartSendData(_tx_data, count * 4+4);
 }

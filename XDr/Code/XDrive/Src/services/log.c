@@ -35,7 +35,7 @@ void log_data_save(void)
     Log.position = rad_to_deg(g_monitor.pos_fb);
     Log.position_ref = rad_to_deg(g_foccore.pos_ref);
     Log.loop_mode = g_foccore.loop_mode;
-    Log.FOC_status = g_foccore.state;
+    Log.run_mode = g_foccore.run_mode;
     Log.fault = g_protection_manager.fault;
     Log.warning = g_protection_manager.warning;
     Log.num = Index.num + 1;

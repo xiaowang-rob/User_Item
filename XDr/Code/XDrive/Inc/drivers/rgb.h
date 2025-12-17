@@ -16,9 +16,9 @@ typedef enum
 // 单个LED的颜色控制结构体
 typedef struct
 {
-    u8 R;
-    u8 G;
-    u8 B;
+    u16 R;
+    u16 G;
+    u16 B;
 } RGB_Color_TypeDef;
 
 extern const RGB_Color_TypeDef RED;     // 红色

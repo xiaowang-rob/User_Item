@@ -22,7 +22,7 @@ typedef struct
     u8 seconds;
     u8 fault;
     u8 warning;
-    u8 FOC_status;
+    u8 run_mode;
     u8 loop_mode;
     float Vbus;
     float TEMP;

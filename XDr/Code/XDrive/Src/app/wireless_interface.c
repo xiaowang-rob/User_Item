@@ -116,22 +116,41 @@ void usart_farmedata_deal(u8 id, u8 *data, u8 len)
             usart_frame_send(CMD_STREAM_GET, (u8 *)&usart.stream_data[7], 4);
             break;
         case CMD_STREAM_SET: // 监测值设置 5byte
-            usart.stream_num = len + 3;
-            for (u8 i = 3; i < usart.stream_num; i++)
-                usart.stream_index[i] = data[i - 3];
+            if (usart.connnect_state == true)
+            {
+                usart.stream_num = len + 3;
+                for (u8 i = 3; i < usart.stream_num; i++)
+                    usart.stream_index[i] = data[i - 3];
+            }
+            else
+            {
+                usart.stream_num = len;
+                for (u8 i = 0; i < usart.stream_num; i++)
+                    usart.stream_index[i] = data[i];
+            }
             break;
         default:
             break;
         }
     }
 }
+static u32 _time_ms=0;
+static u32 _time_prev_ms=0;
 void usart_stream_data_trans()
 {
     if (usart.stream_num == 0)
         return;
+		_time_ms=HAL_GetTick();
+		if(_time_ms-_time_prev_ms<DATA_stream_T)
+			return;
+		_time_prev_ms=HAL_GetTick();
+			
     for (u8 i = 0; i < usart.stream_num; i++)
     {
         stream_data_get(usart.stream_index[i], &usart.stream_data[i]);
     }
-    usart_frame_send(CMD_STREAM_SET, (u8 *)&usart.stream_data, sizeof(float) * usart.stream_num);
+    if (usart.connnect_state == true)
+        usart_frame_send(CMD_STREAM_SET, (u8 *)&usart.stream_data, sizeof(float) * usart.stream_num);
+    else
+        vofa_send_multi_float(usart.stream_data, usart.stream_num);
 }

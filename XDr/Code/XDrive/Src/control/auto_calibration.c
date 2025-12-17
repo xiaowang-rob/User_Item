@@ -12,8 +12,7 @@ void auto_calibration_init(float initial_Rs, float initial_Ls,
 {
     param_tuning_init(&g_param_tuning,
                       initial_Rs, initial_Ls,
-                      initial_Psi_f, initial_pole_pairs,
-                      Tcon);
+                      initial_Psi_f, initial_pole_pairs);
     g_param_tuning.tune_mode = tune_mode;
     if (tune_mode == ENCODER_TUNE)
         g_param_tuning.tune_state = PARAM_TUNE_THETA_OFFSET;
@@ -63,7 +62,7 @@ bool auto_calibration_update()
             g_foccore.loop_mode = SPEED_LOOP_CONTROL;
             g_foccore.omega_con = 52 / g_param_tuning.pole_pairs; // 500电角速度
             break;
-        case PARAM_TUNE_INERTIA:
+        case PARAM_TUNE_JB:
             g_foccore.run_mode = ENCODER_CONTROL;
             g_foccore.loop_mode = CURRENT_LOOP_CONTROL;
             time++;
@@ -71,12 +70,6 @@ bool auto_calibration_update()
                 g_foccore.iq_ref = 3.0f;
             else
                 g_foccore.iq_ref = 1.0f;
-            break;
-        case PARAM_TUNE_FRICTION:
-            time = 0;
-            g_foccore.run_mode = ENCODER_CONTROL;
-            g_foccore.loop_mode = SPEED_LOOP_CONTROL;
-            g_foccore.omega_con = 0.2;
             break;
         case PARAM_TUNE_COMPLETE:
             g_foccore.run_mode = DIRECT_CONTROL;
@@ -132,7 +125,6 @@ bool auto_calibration_update()
         g_Motor.pole_pairs = g_param_tuning.pole_pairs;
         g_Motor.J = g_param_tuning.J;
         g_Motor.B = g_param_tuning.B;
-        g_Motor.torque_constant = g_param_tuning.torque_constant;
         return true;
     }
     return false;

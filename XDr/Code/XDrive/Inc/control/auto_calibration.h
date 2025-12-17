@@ -15,7 +15,6 @@ typedef struct
     float pole_pairs;      // 极对数
     float J;               // 转动惯量
     float B;               // 摩擦系数
-    float torque_constant; // 转矩常数
 } Motor_t;
 extern Motor_t g_Motor;
 

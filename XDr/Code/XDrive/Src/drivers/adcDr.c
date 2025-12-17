@@ -72,8 +72,14 @@ void ADC1_sample()
 {
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
 }
+static u32 _time_ms=0;
+static u32 _time_prev_ms=0;
 void ADC2_sample()
 {
+	_time_ms=HAL_GetTick();
+	if(_time_ms-_time_prev_ms<TEMP_sample_T)
+		return;
+	_time_prev_ms=_time_ms;
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)

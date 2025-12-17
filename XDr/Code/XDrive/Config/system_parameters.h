@@ -35,4 +35,6 @@
 #define MIN_Voltage 20
 #define MAX_Temperature 80
 
+#define DATA_stream_T 2 //监测数据发送周期 ms
+#define TEMP_sample_T 50 //温度、电压采样周期 ms
 #endif

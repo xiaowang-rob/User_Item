@@ -239,17 +239,12 @@ void encoder_param_tuning_update(param_tuning_t *tun,
             break;
         omega_electrical = omega_mechanical * tun->pole_pairs;
         if (tune_flux_correct(tun, omega_electrical))
-            tun->tune_state = PARAM_TUNE_INERTIA;
+            tun->tune_state = PARAM_TUNE_JB;
         break;
 
-    case PARAM_TUNE_INERTIA:
+    case PARAM_TUNE_JB:
         theta_electrical = theta_mechanical * tun->pole_pairs;
         if (tune_inertia_correct(tun, (omega_mechanical - omega_last) / tun->dt, i_alpha, i_beta, theta_electrical))
-            tun->tune_state = PARAM_TUNE_FRICTION;
-        break;
-
-    case PARAM_TUNE_FRICTION:
-        if (tune_friction_correct(tun, omega_mechanical, i_alpha, i_beta))
             tun->tune_state = PARAM_TUNE_COMPLETE;
         break;
 
@@ -425,45 +420,7 @@ bool tune_inertia_correct(param_tuning_t *tun, float acceleration,
 
     if (tun->tune_samples >= 100)
     {
-        tun->J_updated = true;
-        tun->tune_samples = 0;
-        return true;
-    }
-    return false;
-}
-
-// 6. 摩擦系数整定（物理正确版）
-bool tune_friction_correct(param_tuning_t *tun, float omega_mechanical,
-                           float i_alpha, float i_beta)
-{
-    static float time_prev = 0.0f;
-
-    if (tun->tune_samples < 200)
-    {
-        if (fast_absf(omega_mechanical) < 0.5f && fast_absf(omega_mechanical) > 0.01f)
-        {
-            // 低速稳态，电流主要用于克服摩擦
-            float id = i_alpha * arm_cos_f32(0) + i_beta * arm_sin_f32(0); // 简化：假设角度为0
-            float iq = -i_alpha * arm_sin_f32(0) + i_beta * arm_cos_f32(0);
-
-            // 转矩 = Kt * iq
-            float torque_total = 1.5f * tun->pole_pairs * tun->Psi_f * iq;
-
-            // 假设总转矩用于克服摩擦（忽略负载）
-            float torque_friction = torque_total;
-            float new_B = torque_friction / fast_absf(omega_mechanical);
-
-            if (new_B > 0.0001f && new_B < 0.1f)
-            {
-                tun->B = 0.9f * tun->B + 0.1f * new_B;
-                tun->tune_samples++;
-            }
-        }
-    }
-
-    if (tun->tune_samples >= 200)
-    {
-        tun->B_updated = true;
+        tun->JB_updated = true;
         tun->tune_samples = 0;
         return true;
     }

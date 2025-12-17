@@ -74,7 +74,8 @@ static void Reset_Load(void)
 */
 static void RGB_SendArray(void)
 {
-    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL2, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
 }
 
 /*
