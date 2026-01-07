@@ -3,8 +3,6 @@
 #include "foc_core.h"
 #include "math_fast.h"
 #include "encoder.h"
-Motor_t g_Motor;
-param_tuning_t g_param_tuning;
 
 void auto_calibration_init(float initial_Rs, float initial_Ls,
                            float initial_Psi_f, float initial_pole_pairs, TUNE_MODE_E tune_mode)
@@ -114,17 +112,17 @@ bool auto_calibration_update()
     }
     if (g_param_tuning.theta_offset_updated)
     {
-        g_Motor.offset_angle = g_param_tuning.theta_offset;
+        Motor.offset_angle = g_param_tuning.theta_offset;
         SET_ENCODER_ANGLE_OFFSET(g_param_tuning.theta_offset);
     }
     if (g_param_tuning.tune_state == PARAM_TUNE_COMPLETE)
     {
-        g_Motor.Rs = g_param_tuning.Rs;
-        g_Motor.Ls = g_param_tuning.Ls;
-        g_Motor.Psi_f = g_param_tuning.Psi_f;
-        g_Motor.pole_pairs = g_param_tuning.pole_pairs;
-        g_Motor.J = g_param_tuning.J;
-        g_Motor.B = g_param_tuning.B;
+        Motor.Rs = g_param_tuning.Rs;
+        Motor.Ls = g_param_tuning.Ls;
+        Motor.Psi_f = g_param_tuning.Psi_f;
+        Motor.pole_pairs = g_param_tuning.pole_pairs;
+        Motor.J = g_param_tuning.J;
+        Motor.B = g_param_tuning.B;
         return true;
     }
     return false;

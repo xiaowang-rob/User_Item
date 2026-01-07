@@ -2,7 +2,7 @@
 #define __LOOP_CONTROL_H
 #include "main.h"
 #include "stdbool.h"
-
+#include "parameter_manager.h"
 typedef struct
 {
     float fspeed_loop;
@@ -50,25 +50,24 @@ typedef struct
     PI_t PI_weakmag;
     PI_t PI_speed;
     PID_t PID_pos;
+    float max_Vs;
     float position_min;
     float position_max;
 } LOOP_CON_t;
 extern LOOP_CON_t g_loop_con;
 
-void Frequency_division_init(float fspeed, float fpos);
 void Frequency_division_update();
 void Frequency_division_reset();
-void loop_reset(void);
-void PI_init(PI_t *pi, float kp, float ki, float output_limit);
-void PID_init(PID_t *pid, float kp, float ki, float kd, float output_limit);
-void loop_reset(void);
+void loop_parameter_init(Parameter_t param, float Vmax);
+void loop_reset();
 float Current_loop(float current_ref, float current_fb);
 float Magnetic_loop(float id_ref, float id_fb);
-float WeakMag_loop(float ud, float uq, float max_Vs);
+float WeakMag_loop(float ud, float uq);
 float Speed_loop(float omega_ref, float omega_fb);
 float Position_abs_loop(float position_ref, float position_fb);
 float Position_rel_loop(float position_ref, float position_fb);
-bool speed_loop_updata();
-bool position_loop_updata();
+void POS_LOOP_set_omega(float omega);
+
+LOOP_CON_t *get_loop_con_adr();
 
 #endif

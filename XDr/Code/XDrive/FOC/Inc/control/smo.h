@@ -7,7 +7,7 @@
 typedef struct
 {
     float theta_offset; // 角度偏移
-    float pole_pairs;   // 极对数
+    u8 pole_pairs;      // 极对数
     float Rs;           // 定子电阻
     float Ls;           // 定子电感
     float Psi_f;        // 永磁体磁链
@@ -35,8 +35,10 @@ typedef struct
     float omega; // 电角速度
     float theta_prev;
 } smo_t;
+smo_t *get_smo_adr();
 // 初始化
-void smo_init(float Rs, float Ls, float Psi_f, float pole_pairs);
+void smo_init(float Rs, float Ls, float Psi_f, float max_speed, float pole_pairs,
+              float Ke, float J, float B);
 void smo_reset();
 // 更新（输入：电压、电流）
 void smo_update(float v_alpha, float v_beta,
@@ -46,42 +48,67 @@ void smo_update(float v_alpha, float v_beta,
 float smo_get_theta();
 float smo_get_omega();
 
-typedef enum
-{
-    ENCODER_TUNE,
-    SENSORLESS_TUNE,
-} TUNE_MODE_E;
 // 参数整定状态
 typedef enum
 {
     PARAM_TUNE_IDLE = 0,
     PARAM_TUNE_THETA_OFFSET, // 角度偏移
-    PARAM_TUNE_POLE_PAIRS,   // 极对数（首先）
-    PARAM_TUNE_RL,           // 电阻\电感
+    PARAM_TUNE_RS,           // 电阻
+    PARAM_TUNE_LS,           // 电感
+    PARAM_TUNE_POLE_PAIRS,   // 极对数
     PARAM_TUNE_PK,           // 磁链\反电动势常数
     PARAM_TUNE_JB,           // 转动惯量，摩擦系数
     PARAM_TUNE_COMPLETE      // 完成
 } param_tune_state_t;
+typedef enum
+{
+    PARAM_FAULT_NONE = 0, // 无故障
+
+    // 通用故障
+    PARAM_FAULT_TIMEOUT,   // 超时
+    PARAM_FAULT_LOW,       // 过低
+    PARAM_FAULT_HIGH,      // 过高
+    PARAM_FAULT_UNBALANCE, // 不平衡
+
+    PARAM_FAULT_POLE_PAIRS_INVALID,  // 极对数无效
+    PARAM_FAULT_POLE_PAIRS_MISMATCH, // 极对数不匹配
+} param_fault_t;
 
 /*****************************************参数整定*********************************** */
 
 // 参数整定结构体
 typedef struct
 {
+    float dt;
     // 参数整定状态
-    TUNE_MODE_E tune_mode;
     param_tune_state_t tune_state;
+
+    u32 time_tic;
     u32 tune_samples;
 
-    // 更新标志
-    bool theta_offset_updated;
-    bool pole_pairs_updated;
-    bool RL_updated;
-    bool PK_updated;
-    bool JB_updated;
+    float Udc; // 电压
+    float theta_mech_prev;
+
+    float steady_i;
+    float steady_v;
+
+    bool inject_flag;
+    float sum_di_dt_alpha_pos;
+    u32 alpha_pos_count;
+    float sum_di_dt_alpha_neg;
+    u32 alpha_neg_count;
+    float sum_di_dt_beta_pos;
+    u32 beta_pos_count;
+    float sum_di_dt_beta_neg;
+    u32 beta_neg_count;
+
+    float theta_elec_con;
     // 故障标志
     bool fault_flag;
+    param_fault_t fault_type;
+    param_tune_state_t fault_state;
 } param_tuning_t;
+param_tuning_t *get_tuning_adr();
 // 初始化--无感需要准确的极对数
 void param_tuning_init(float initial_Rs, float initial_Ls,
                        float initial_Psi_f, float initial_pole_pairs);
@@ -105,10 +132,5 @@ bool tune_friction_correct(float omega_mechanical,
                            float i_alpha, float i_beta);
 
 param_tune_state_t param_tuning_get_state(param_tuning_t *smo);
-float param_tuning_get_pole_pairs(param_tuning_t *smo);
-float param_tuning_get_Rs(param_tuning_t *smo);
-float param_tuning_get_Ls(param_tuning_t *smo);
-float param_tuning_get_Psi_f(param_tuning_t *smo);
-float param_tuning_get_J(param_tuning_t *smo);
-float param_tuning_get_B(param_tuning_t *smo);
+
 #endif

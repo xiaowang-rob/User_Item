@@ -39,6 +39,10 @@ typedef struct
     float tolerance_current;
     float tolerance_speed;
     float tolerance_position;
+    float temp_u;
+    float temp_v;
+    float temp_w;
+    float temperature;
 } protection_manager_t;
 extern protection_manager_t g_protection_manager;
 

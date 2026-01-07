@@ -2,6 +2,7 @@
 #include "string.h"
 #include "system_parameters.h"
 #include "math_fast.h"
+
 LOOP_CON_t g_loop_con = {0};
 
 void Frequency_division_init(float fspeed, float fpos)
@@ -14,6 +15,7 @@ void Frequency_division_init(float fspeed, float fpos)
     g_loop_con.fd.Tspd = Tpwm * g_loop_con.fd.speed_updata_steps;
     g_loop_con.fd.Tpos = g_loop_con.fd.Tspd * g_loop_con.fd.position_updata_steps;
 }
+
 void PI_init(PI_t *pi, float kp, float ki, float output_limit)
 {
     memset(pi, 0, sizeof(PI_t));
@@ -164,7 +166,19 @@ void PID_reset(PID_t *pid)
     pid->output = 0.0f;
     pid->enable_integral = false;
 }
-void loop_reset(void)
+void loop_parameter_init(Parameter_t param, float Vmax)
+{
+    Frequency_division_init(param.f_speed_loop, param.f_position_loop);
+    g_loop_con.max_Vs = Vmax;
+    PI_init(&g_loop_con.PI_iq, param.kp_current, param.ki_current, Vmax);
+    PI_init(&g_loop_con.PI_id, param.kp_weakmag, param.ki_weakmag, Vmax);
+    PI_init(&g_loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current);
+    PI_init(&g_loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current);
+    PID_init(&g_loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_speed);
+    g_loop_con.position_min = param.limit_position_min;
+    g_loop_con.position_max = param.limit_position_max;
+}
+void loop_reset()
 {
     PI_reset(&g_loop_con.PI_id);
     PI_reset(&g_loop_con.PI_iq);
@@ -172,7 +186,10 @@ void loop_reset(void)
     PI_reset(&g_loop_con.PI_weakmag);
     PID_reset(&g_loop_con.PID_pos);
 }
-
+void loop_set_vmax(float Vmax)
+{
+    g_loop_con.max_Vs = Vmax;
+}
 float Current_loop(float current_ref, float current_fb)
 {
     return PI_updata(&g_loop_con.PI_iq, current_ref, current_fb, Tpwm);
@@ -181,14 +198,14 @@ float Magnetic_loop(float id_ref, float id_fb)
 {
     return PI_updata(&g_loop_con.PI_id, id_ref, id_fb, Tpwm);
 }
-float WeakMag_loop(float ud, float uq, float max_Vs)
+float WeakMag_loop(float ud, float uq)
 {
     float vout;
     arm_sqrt_f32((ud * ud + uq * uq), &vout);
-    float error = max_Vs - vout;
+    float error = g_loop_con.max_Vs - vout;
     if (error > 0)
         return 0;
-    return PI_updata(&g_loop_con.PI_weakmag, max_Vs, vout, g_loop_con.fd.Tspd);
+    return PI_updata(&g_loop_con.PI_weakmag, g_loop_con.max_Vs, vout, g_loop_con.fd.Tspd);
 }
 float Speed_loop(float omega_ref, float omega_fb)
 {
@@ -205,4 +222,12 @@ float Position_rel_loop(float position_ref, float position_fb)
     if (position_ref < g_loop_con.position_min)
         position_ref = g_loop_con.position_min;
     return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
+}
+void POS_LOOP_set_omega(float omega)
+{
+    g_loop_con.PID_pos.output_limit = omega;
+}
+LOOP_CON_t *get_loop_con_adr()
+{
+    return &g_loop_con;
 }

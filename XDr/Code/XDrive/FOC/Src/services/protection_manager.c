@@ -2,7 +2,6 @@
 #include "foc_core.h"
 #include "system_parameters.h"
 #include "foc_statemachine.h"
-#include "adaptive_control.h"
 #include "encoder.h"
 #include "log.h"
 #include "adcDr.h"
@@ -63,11 +62,11 @@ void protection_manager_run()
         g_protection_manager.fault = MOTOR_FAULT;
         g_protection_manager.fault_flag = true;
     }
-//    if (g_monitor.Iu > MAX_Current || g_monitor.Iv > MAX_Current || g_monitor.Iw > MAX_Current || Tolerance_check(&g_monitor.iq_fb, g_protection_manager.maxcurrent, 0, g_protection_manager.tolerance_current))
-//    {
-//        g_protection_manager.fault = OVER_CURRENT;
-//        g_protection_manager.fault_flag = true;
-//    }
+    //    if (g_monitor.Iu > MAX_Current || g_monitor.Iv > MAX_Current || g_monitor.Iw > MAX_Current || Tolerance_check(&g_monitor.iq_fb, g_protection_manager.maxcurrent, 0, g_protection_manager.tolerance_current))
+    //    {
+    //        g_protection_manager.fault = OVER_CURRENT;
+    //        g_protection_manager.fault_flag = true;
+    //    }
     if (CAN_STATE_get() != 0)
     {
         g_protection_manager.fault = CAN_STATE_get() - 1 + CAN_INIT_FAULT;
@@ -85,18 +84,19 @@ void protection_manager_run()
     //    }
 
     // 警告
-//    if (g_adaptive_con.tempareture > MAX_Temperature)
-//    {
-//        g_protection_manager.warning = OVER_TEMPERATURE;
-//        g_protection_manager.warning_flag = true;
-//    }
-//    else if (g_protection_manager.warning == OVER_TEMPERATURE)
-//    {
-//        g_protection_manager.warning_flag = false;
-//        g_protection_manager.warning = NO_WARNING;
-//        g_protection_manager.log_done = false;
-//        protection_manager_reset();
-//    }
+    ADC_GET_Temp(g_protection_manager.temp_u, g_protection_manager.temp_v, g_protection_manager.temp_w, &g_protection_manager.temperature);
+    //    if (g_adaptive_con.tempareture > MAX_Temperature)
+    //    {
+    //        g_protection_manager.warning = OVER_TEMPERATURE;
+    //        g_protection_manager.warning_flag = true;
+    //    }
+    //    else if (g_protection_manager.warning == OVER_TEMPERATURE)
+    //    {
+    //        g_protection_manager.warning_flag = false;
+    //        g_protection_manager.warning = NO_WARNING;
+    //        g_protection_manager.log_done = false;
+    //        protection_manager_reset();
+    //    }
     if (g_foccore.run_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
         u8 encoder_state = GET_ENCODER_STATUS();

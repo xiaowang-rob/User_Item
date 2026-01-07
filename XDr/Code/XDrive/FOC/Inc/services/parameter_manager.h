@@ -20,22 +20,20 @@ typedef enum
 
     MOTOR_POLEPAIRS, // 电机转子对数
 
-    U8_COUNT,
     // u32
     CAN_ID,
-
     f_CURRENT_LOOP,  // 电流环频率
     f_SPEED_LOOP,    // 速度环频率
     f_POSITION_LOOP, // 位置环频率
 
-    U32_COUNT,
     // float
     THETA_OFFSET, // 角度补偿
     MOTOR_RS,
     MOTOR_LS,
     MOTOR_Psif,
-    MOTOR_J, // 转动惯量
-    MOTOR_B, // 摩擦系数
+    MOTOR_Ke, // 反电动势常数
+    MOTOR_J,  // 转动惯量
+    MOTOR_B,  // 摩擦系数
 
     Kp_CURRENT,  // 电流环比例
     Ki_CURRENT,  // 电流环积分
@@ -64,17 +62,64 @@ typedef enum
     OPEN_LOOP_CURRENT, // 开环电流
     OPEN_LOOP_SPEED,   // 开环速度
     CHANGE_LOOP_SPEED, // 切环速度
-
-    FLOAT_COUNT,
 } Parameter_e;
 
 typedef struct
 {
-    u8 u8_data[U8_COUNT];
-    u32 u32_data[U32_COUNT - U8_COUNT - 1];
-    float float_data[FLOAT_COUNT - U32_COUNT - 1];
-    u32 none_flag;
+    // u8类型参数
+    u8 none_flag;
+    u8 sw_canqueue;
+    u8 sw_weakmag;
+    u8 sw_fan;
+    u8 sw_vague_pid;
+    u8 sw_pvt;
+    u8 foc_mode;
+    u8 loop_mode;
+    u8 autotune_mode;
+    u8 motor_polepairs;
+
+    // u32类型参数
+    u32 can_id;
+    u32 f_current_loop;
+    u32 f_speed_loop;
+    u32 f_position_loop;
+
+    // float类型参数
+    float theta_offset;
+    float motor_rs;
+    float motor_ls;
+    float motor_psif;
+    float motor_ke;
+    float motor_j;
+    float motor_b;
+    float kp_current;
+    float ki_current;
+    float kp_weakmag;
+    float ki_weakmag;
+    float kp_speed;
+    float ki_speed;
+    float kp_position;
+    float ki_position;
+    float kd_position;
+    float limit_current;
+    float limit_speed;
+    float limit_position_min;
+    float limit_position_max;
+    float tolerance_time;
+    float tolerance_voltage;
+    float tolerance_current;
+    float tolerance_speed;
+    float tolerance_position;
+    float startup_pos_grad;
+    float startup_spe_grad;
+    float align_current;
+    float align_time;
+    float open_loop_current;
+    float open_loop_speed;
+    float change_loop_speed;
 } Parameter_t;
+
+extern Parameter_t g_Param;
 
 void Param_set(Parameter_e para, u8 *value);
 void Param_get(Parameter_e para, u8 *value, u8 *len);

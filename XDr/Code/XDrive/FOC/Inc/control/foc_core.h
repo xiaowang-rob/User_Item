@@ -3,12 +3,14 @@
 
 #include "main.h"
 #include "stdbool.h"
-#include "foc_statemachine.h"
+#include "parameter_manager.h"
 typedef enum
 {
     ENCODER_CONTROL,
     SENSORLESS_CONTROL,
-} RUN_MODE_e;
+    SVPWM_CONTROL,
+} RUN_mode_e;
+
 typedef enum
 {
     VOLTAGE_LOOP,
@@ -16,7 +18,16 @@ typedef enum
     SPEED_LOOP,
     POSITION_ABS_LOOP, // 绝对位置控制(0-360°)
     POSITION_REL_LOOP, // 相对/增量位置控制 会以给定角度（+-float的范围）转到位置
-} LOOP_MODE_e;
+} LOOP_mode_e;
+
+typedef struct
+{
+    RUN_mode_e run_mode;
+    LOOP_mode_e loop_mode;
+    bool pvt_mode;
+    bool weak_mag;
+} FOC_mode_t;
+P_MODE_e;
 
 typedef struct
 {
@@ -27,6 +38,7 @@ typedef struct
     float iq_ref;
     float id_ref;
     float iq_fb, id_fb;
+    float omega_openloop;
     float ud, uq;
     float Ualpha, Ubeta;
     float omega_ref;
@@ -53,9 +65,33 @@ typedef struct
 
 } startup_mechine_t;
 
-bool foc_core_init();
+typedef struct
+{
+    float Udc;          // 直流母线电压
+    float pole_pairs;   // 极对数
+    float offset_angle; // 偏移角度
+    float Rs;           // 定子电阻
+    float Ls;           // 定子电感
+    float Psi_f;        // 永磁体磁链
+    float Ke;           // 反电动势常数
+    float J;            // 转动惯量
+    float B;            // 摩擦系数
+} Motor_t;
+
+void foc_core_init(Parameter_t param);
 void foc_core_reset();
-void foc_core_run();
-void CONTROL_value_update(float *data);
-void CONTROL_mode_updata(u8 mode);
+
+void FOC_PREPARE();
+void FOC_RUN();
+bool SHUTDOWM();
+
+void FOC_SET_VER_VALUE(float *value);
+void FOC_SET_LOOPMODE(LOOP_mode_e mode);
+void FOC_SET_RUNMODE(RUN_mode_e mode);
+
+FOC_mode_t *FOC_GET_MODE_adr();
+FOC_val_t *FOC_GET_VAL_adr();
+startup_mechine_t *FOC_GET_STARTUP_adr();
+Motor_t *get_motor_adr();
+
 #endif // __FOC_CORE_H

@@ -4,9 +4,17 @@
 #include "string.h"
 #include "system_parameters.h"
 #include "device.h"
+#include "adcDr.h"
+
+SVPWM_t svpwm = {0};
+
+SVPWM_t *get_svpwm_adr()
+{
+    return &svpwm;
+}
 __IO u16 tim8_ch_compare[3] = {0};
 
-void svpwm_Init(SVPWM_t svpwm, float Vbus)
+void svpwm_Init(float Vbus)
 {
     memset(&svpwm, 0, sizeof(SVPWM_t));
     svpwm.k = sqrt3 * ticpwm / Vbus;
@@ -39,7 +47,7 @@ void PWM_POWER_OFF()
 {
     HAL_GPIO_WritePin(POWER12V_GPIOx, POWER12V_GPIOx_PIN, GPIO_PIN_RESET);
 }
-void svpwm_run(float ualpha, float ubeta, SVPWM_t svpwm)
+void svpwm_run(float ualpha, float ubeta)
 {
     float U1 = ubeta;
     float U2 = sqrt3 * ualpha - ubeta;
@@ -167,7 +175,105 @@ void svpwm_run(float ualpha, float ubeta, SVPWM_t svpwm)
     pwm_out(2, svpwm.ticv);
     pwm_out(3, svpwm.ticw);
 }
-void svpwm_SetVbus(SVPWM_t svpwm, float Vbus)
+// 电流采样点改变
+u8 change_Index = 0;
+void smaple_point_change()
+{
+    switch (svpwm.sector)
+    {
+    case 1:
+    case 4:
+        if (svpwm.ticu > ticDT + ticTN)
+        {
+            if (change_Index != 1)
+                change_Index = 1;
+            else
+                return;
+        }
+        else if (alltic_tsdttn > 2 * svpwm.ticu)
+        {
+            if (change_Index != 3)
+                change_Index = 3;
+            else
+                return;
+        }
+        else
+        {
+            if (change_Index != 2)
+                change_Index = 2;
+            else
+                return;
+        }
+        break;
+    case 2:
+    case 5:
+        if (svpwm.ticv > ticDT + ticTN)
+        {
+            if (change_Index != 1)
+                change_Index = 1;
+            else
+                return;
+        }
+        else if (alltic_tsdttn > 2 * svpwm.ticv)
+        {
+            if (change_Index != 3)
+                change_Index = 3;
+            else
+                return;
+        }
+        else
+        {
+            if (change_Index != 2)
+                change_Index = 2;
+            else
+                return;
+        }
+        break;
+    default:
+        if (svpwm.ticw > ticDT + ticTN)
+        {
+            if (change_Index != 1)
+                change_Index = 1;
+            else
+                return;
+        }
+        else if (alltic_tsdttn > 2 * svpwm.ticw)
+        {
+            if (change_Index != 3)
+                change_Index = 3;
+            else
+                return;
+        }
+        else
+        {
+            if (change_Index != 2)
+                change_Index = 2;
+            else
+                return;
+        }
+        break;
+    }
+
+    switch (change_Index)
+    {
+    case 1:
+        ADC_sample_change(1);
+        break;
+    case 2:
+        ADC_sample_change(svpwm.ticu - tics);
+        break;
+    case 3:
+        ADC_sample_change(svpwm.ticu + ticDT + ticTN);
+        break;
+    default:
+        break;
+    }
+}
+void svpwm_SetVbus(float Vbus)
 {
     svpwm.k = sqrt3 * ticpwm / Vbus;
+}
+u8 svpwm_GetSector()
+{
+    return svpwm.sector;
 }

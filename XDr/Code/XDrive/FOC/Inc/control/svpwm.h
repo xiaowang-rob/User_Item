@@ -11,14 +11,15 @@ typedef struct
     u16 ticv;
     u16 ticw;
 } SVPWM_t;
-extern SVPWM_t g_svpwm;
-
+SVPWM_t *get_svpwm_adr();
 void ENABLE_PWM();
 void DISABLE_PWM();
 void PWM_POWER_ON();
 void PWM_POWER_OFF();
-void svpwm_Init(SVPWM_t svpwm, float Vbus);
-void svpwm_run(float ualpha, float ubeta, SVPWM_t svpwm);
-void svpwm_SetVbus(SVPWM_t svpwm, float Vbus);
+void svpwm_Init(float Vbus);
+void svpwm_run(float ualpha, float ubeta);
+void smaple_point_change();
+void svpwm_SetVbus(float Vbus);
+u8 svpwm_GetSector();
 
 #endif
