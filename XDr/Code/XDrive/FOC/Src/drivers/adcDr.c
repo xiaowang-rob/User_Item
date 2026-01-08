@@ -16,7 +16,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC1)
     {
         time_adc_run = (HAL_GetTick_us() - time_adc_last) * 2;
-        time_adc_T = HAL_GetTick_us()-time_adc_zero;
+        time_adc_T = HAL_GetTick_us() - time_adc_zero;
         time_adc_zero = HAL_GetTick_us();
     }
 }
@@ -62,8 +62,7 @@ const u8 adc_to_temp[121] = {
 void ADC_DR_Init()
 {
     HAL_TIM_Base_Start_IT(&htim8);
-//    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-		HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
     ADC_sample_change(1);
@@ -72,14 +71,14 @@ void ADC1_sample()
 {
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
 }
-static u32 _time_ms=0;
-static u32 _time_prev_ms=0;
+static u32 _time_ms = 0;
+static u32 _time_prev_ms = 0;
 void ADC2_sample()
 {
-	_time_ms=HAL_GetTick();
-	if(_time_ms-_time_prev_ms<TEMP_sample_T)
-		return;
-	_time_prev_ms=_time_ms;
+    _time_ms = HAL_GetTick();
+    if (_time_ms - _time_prev_ms < TEMP_sample_T)
+        return;
+    _time_prev_ms = _time_ms;
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)

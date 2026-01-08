@@ -1,21 +1,18 @@
 #include "status_feedback.h"
-#include "foc_core.h"
+#include "foc_statemachine.h"
 #include "rgb.h"
-#include "encoder.h"
-#include "canDr.h"
+#include "can_port.h"
+#include "drive_state.h"
 
 static u16 _encoder_tic = 0;
 static u16 _canrx_tic = 0;
 
 void status_feedback()
 {
-    switch (g_foccore.state)
+    switch (FOC_Get_state())
     {
-    case FOC_INIT:
-        rgb_breathe(MAGENTA); // 粉色
-        break;
     case FOC_AUTO_TUNE:
-        rgb_breathe(OEANGE); // 橘色
+        rgb_breathe(YELLOW); // 黄色
         break;
     case FOC_IDLE:
         rgb_breathe(BLUE); // 蓝色
@@ -33,22 +30,22 @@ void status_feedback()
         break;
     }
 
-    switch (GET_ENCODER_STATUS())
+    switch (ENCODER_state_get())
     {
-    case 0: // OK
+    case ONLINE: // OK
         led_flash(ENCODER);
         break;
-    case 1: // 无编码器
-    case 3: // 弱磁
+    case OFFLINE:       // 无编码器
+    case SINGNAL_ERROR: // 弱磁
         led_off(ENCODER);
         break;
-    case 2: // 通讯异常
+    case RUN_ERROR: // 通讯异常
         led_on(ENCODER);
         break;
     default:
         break;
     }
-    switch (CAN_STATE_get())
+    switch (can_state_get())
     {
     case 0: // OK
         led_flash(CAN);

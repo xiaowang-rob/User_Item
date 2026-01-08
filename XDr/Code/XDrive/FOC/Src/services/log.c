@@ -2,7 +2,6 @@
 #include "flashDr.h"
 #include "protection_manager.h"
 #include "string.h"
-#include "adaptive_control.h"
 #include "foc_core.h"
 #include "math_fast.h"
 Index_t Index;

@@ -1,51 +1,31 @@
 #include "system_statemachine.h"
-#include "stream_transmission.h"
-#include "adcDr.h"
-#include "usartDr.h"
-#include "usbDr.h"
-#include "canDr.h"
-#include "adaptive_control.h"
-#include "foc_core.h"
+#include "foc_statemachine.h"
 #include "status_feedback.h"
 #include "log.h"
 #include "protection_manager.h"
-#include "usb_interface.h"
-#include "wireless_interface.h"
-#include "can_interface.h"
-#include "adcDr.h"
+#include "drive_state.h"
+#include "port_mapping.h"
+
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
 
 bool system_init_event(void)
 {
     // 驱动层初始化
-    ADC_DR_Init(); // 启动ADC数据刷新和foc定时器
-    usartDrInit();
-    usb_cdc_init();
+    drive_init(); // 顺便启动ADC数据刷新和foc定时器
 
-    //  控制层初始化
-    adaptive_control_init();
-    // 服务层初始化
-    if (!parameter_mode_init())
+    // 服务层初始化 首先参数 然后保护 最后日志
+    if (!Param_init())
         return false;
+    protection_manager_init();
     log_init();
 
+    // 通讯层初始化
+    communication_init();
+    //  控制层初始化
+    FOC_INIT();
     return true;
 }
-void System_Run_event(void)
-{
-		ADC2_sample();
-    CAN_QUEUE_Deal();
-    usb_cdc_run();
-    usart_stream_data_trans();
-    adaptive_control_update();
-    protection_manager_run();
-    status_feedback();
-}
-void System_Error_event(void)
-{
-		FOC_CHANGE_STATE(FOC_FAULT);
-    System_Fault_feedback();
-}
+
 void SystemState_change(SYSTEM_STATE_e new_state)
 {
     system_status = new_state;
@@ -65,10 +45,16 @@ void SystemStateMachine_run(void)
             SystemState_change(SYSTEM_ERROR);
         break;
     case SYSTEM_RUNNING:
-        System_Run_event();
+        // 通讯层运行
+        communication_run();
+        // 控制层由定时器驱动
+        // 服务层运行
+        protection_manager_run();
+        status_feedback();
         break;
     case SYSTEM_ERROR:
-        System_Error_event();
+        FOC_CHANGE_STATE(FOC_FAULT);
+        System_Fault_feedback();
         break;
     }
 }

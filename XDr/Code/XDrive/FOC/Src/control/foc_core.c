@@ -7,7 +7,6 @@
 #include "smo.h"
 #include "loop_control.h"
 #include "system_parameters.h"
-#include "stream_transmission.h"
 
 FOC_mode_t foc_mode = {0};
 FOC_val_t foc_val = {0};
@@ -17,12 +16,12 @@ Motor_t Motor = {0};
 void startup_machine_init(Parameter_t param)
 {
     memset(&startup_machine, 0, sizeof(startup_mechine_t));
-    startup_machine.omega_gradient = param.startup_spe_grad * g_loop_con.fd.Tspd;
+    startup_machine.omega_gradient = param.startup_ome_grad * g_loop_con.fd.Tspd;
     startup_machine.pos_gradient = param.startup_pos_grad * g_loop_con.fd.Tpos;
     startup_machine.align_ud = param.align_current * param.motor_rs;
     startup_machine.align_steps = (u32)(param.align_time / Tcon);
     startup_machine.openloop_uq = param.open_loop_current * param.motor_rs;
-    startup_machine.openloop_omega = rpm_to_rad(param.open_loop_speed);
+    startup_machine.openloop_omega = param.open_loop_omega;
 }
 void mode_init(Parameter_t param)
 {
@@ -44,7 +43,7 @@ void motor_init(Parameter_t param)
 }
 void auto_calibration_init(Parameter_t param)
 {
-    float max_omega = rpm_to_rad(param.limit_speed);
+    float max_omega = param.limit_omega;
     smo_init(param.motor_rs, param.motor_ls, param.motor_psif, max_omega,
              param.motor_polepairs, param.motor_ke, param.motor_j, param.motor_b);
     param_tuning_init(Motor.Udc);

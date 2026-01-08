@@ -55,9 +55,9 @@ void svpwm_run(float ualpha, float ubeta)
     u8 A = U1 > 0;
     u8 B = U2 > 0;
     u8 C = U3 > 0;
-    u8 N = 4 * C + 2 * B + A;
+    u8 vN = 4 * C + 2 * B + A;
     float Tx, Ty, Tzero;
-    switch (N)
+    switch (vN)
     {
     case 1:
         svpwm.sector = 2;
@@ -269,6 +269,18 @@ void smaple_point_change()
         break;
     }
 }
+void fGetPhaseVoltage(float *U, float *V, float *W)
+{
+    float a = svpwm.ticu * sqrt3 / svpwm.k;
+    float b = svpwm.ticv * sqrt3 / svpwm.k;
+    float c = svpwm.ticw * sqrt3 / svpwm.k;
+    float vN = (a + b + c) / 3.0f;
+
+    *U = a - vN;
+    *V = b - vN;
+    *W = c - vN;
+}
+
 void svpwm_SetVbus(float Vbus)
 {
     svpwm.k = sqrt3 * ticpwm / Vbus;

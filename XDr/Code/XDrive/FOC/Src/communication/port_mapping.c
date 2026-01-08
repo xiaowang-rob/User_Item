@@ -2,24 +2,48 @@
 USB、串口、CAN 端口映射
 */
 #include "port_mapping.h"
-#include "canDr.h"
-#include "usbDr.h"
-#include "usartDr.h"
 #include "foc_statemachine.h"
 #include "parameter_manager.h"
-RAW_FRAME_t raw_frame;
-SEND_FRAME_t send_frame;
+#include "system_parameters.h"
+#include "log.h"
+#include "protection_manager.h"
+#include "can_port.h"
+#include "usb_port.h"
+#include "uart_port.h"
+
+COM_FRAME_t com_frame;
+PORT_t port;
+communication_state_t com_state;
+communication_state_t *com_state_get_adr()
+{
+    return &com_state;
+}
+static u8 execute = 0xfe;
+static u8 failure = 0xf0;
+
+void communication_init()
+{
+    CAN_PORT_Init(g_Param.can_id, g_Param.sw_canqueue);
+    usart_port_Init();
+}
+void fHostComputer_send()
+{
+    if (com_frame.com_port == UART_port)
+        usart_frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
+    else
+        usb_Frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
+}
 
 static u8 data_id = 0;
 // 命令解析
 void frame_data_deal()
 {
-    if (raw_frame.com_port == CAN_port)
+    if (com_frame.com_port == CAN_port)
     {
-        switch (raw_frame.cmd_id)
+        switch (com_frame.cmd_id)
         {
         case CMD_REFVALUE_SET:
-            CONTROL_value_update((float *)raw_frame.data);
+            CONTROL_value_update((float *)com_frame.rxdata);
             break;
         case ENABLE:
             FOC_CHANGE_STATE(FOC_ENABLE);
@@ -28,19 +52,17 @@ void frame_data_deal()
             FOC_CHANGE_STATE(FOC_DISABLE);
             break;
         case CMD_MODE_SET:
-            CONTROL_mode_updata(raw_frame.data[1]);
+            FOC_SET_LOOPMODE(com_frame.rxdata[0]);
             break;
         case PARAM_READ:
-            send_frame.com_port = CAN_port;
-            data_id = raw_frame.data[0];
-            Param_get((Parameter_e)data_id, &send_frame.data, &send_frame.datalen);
-            CAN_Send_Msg(send_frame.data, send_frame.datalen);
+            data_id = com_frame.rxdata[0];
+            Param_get((Parameter_e)data_id, &com_frame.txdata, &com_frame.txdatalen);
+            CAN_Send_Msg(com_frame.txdata, com_frame.txdatalen);
             break;
         case CMD_STREAM_GET:
-            send_frame.com_port = CAN_port;
-            data_id = raw_frame.data[0];
-            stream_data_get((Data_stream_e)idindex, (float *)&txbuffer);
-            CAN_Send_Msg(txbuffer, 4);
+            data_id = com_frame.rxdata[0];
+            stream_data_get((Data_stream_e)data_id, (float *)com_frame.txdata);
+            CAN_Send_Msg(com_frame.txdata, 4);
             break;
         default:
             break;
@@ -48,22 +70,24 @@ void frame_data_deal()
     }
     else // usb or usart
     {
-        if (raw_frame.datalen == 0)
+        if (com_frame.rxdatalen == 0)
         {
-            switch (raw_frame.id)
+            switch (com_frame.cmd_id)
             {
             case USART_connect:
-                usart.connnect_state = true;
-                strcat((char *)usart.Txbuffer, SYSTEM_DESC_str);
-                usart_frame_send(SYSTEM_DESC, (u8 *)&usart.Txbuffer, strlen((char *)usart.Txbuffer));
-                usart.stream_index[0] = STATUS;
-                usart.stream_index[1] = TEMPERATURE;
-                usart.stream_index[2] = VBUS;
-                usart.stream_num = 3;
+                port.connect_com = com_frame.com_port;
+                com_state.usb_state = OFFLINE;
+                com_state.uart_state = ONLINE;
+                strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
+                usart_frame_send(SYSTEM_DESC, (u8 *)&com_frame.txdata, strlen((char *)com_frame.txdata));
+                port.data_id_index[0] = STATUS;
+                port.data_id_index[1] = TEMPERATURE;
+                port.data_id_index[2] = VBUS;
+                port.stream_num = 3;
                 break;
             case USART_disconnect:
-                usart.connnect_state = false;
-                usart.stream_num = 0;
+                port.connect_com = NONE_port;
+                port.stream_num = 0;
                 break;
             case START_TUNNING:
                 FOC_CHANGE_STATE(FOC_AUTO_TUNE);
@@ -85,85 +109,76 @@ void frame_data_deal()
                 break;
             case LOG_ERASE:
                 log_erase();
-                usart_frame_send(LOG_ERASE, &execute, 1);
+                com_frame.txdata[0] = execute;
+                com_frame.txdatalen = 1;
+                fHostComputer_send();
+                break;
+            case PARAM_ERASE:
+                Param_erase();
+                com_frame.txdata[0] = execute;
+                com_frame.txdatalen = 1;
+                fHostComputer_send();
+                break;
+            case PARAM_SAVE: // 一键保存
+                if (Param_save())
+                    com_frame.txdata[0] = execute;
+                else
+                    com_frame.txdata[0] = failure;
+                com_frame.txdatalen = 1;
+                fHostComputer_send();
                 break;
             default:
                 break;
             }
-            if (id == LOG_GET)
+            if (com_frame.cmd_id == LOG_GET)
             {
-                u8 _txbuf[512] = {0};
-                u8 _len = 0;
-                log_read(&_txbuf[0], (u32 *)&_txbuf[1], &_len, &_txbuf[5]);
-                usart_frame_send(LOG_GET, _txbuf, _len + 5);
+                // todo:改进
             }
         }
-        else if (len <= 5 || len == 8)
+        else if (com_frame.rxdatalen <= 5 || com_frame.rxdatalen == 8)
         {
-            switch (id)
+            switch (com_frame.cmd_id)
             {
-            case PARAM_ERASE: // 一键擦除 1byte
-                if (data[0] == 0x00)
-                    parameter_erase();
-                if (data[0] == 0x01)
-                    mode_erase();
-                usart_frame_send(PARAM_ERASE, &execute, 1);
+            case PARAM_WRITE: // 指定写入
+                Param_set(com_frame.rxdata[0], &com_frame.rxdata[1]);
                 break;
-            case PARAM_SAVE: // 一键保存 1byte
-                if (data[0] == 0x00)
-                    if (parameter_save())
-                    {
-                        usart_frame_send(PARAM_SAVE, &execute, 1);
-                        return;
-                    }
-                if (data[0] == 0x01)
-                    if (mode_save())
-                    {
-                        usart_frame_send(PARAM_SAVE, &execute, 1);
-                        return;
-                    }
-                usart_frame_send(PARAM_SAVE, &failure, 1);
-                break;
-            case PARAM_WRITE: // 指定写入 5byte
-                if (len == 5)
-                    parameter_set(data[0], (u32 *)&data[1]);
-                else if (len == 2)
-                    mode_set(data[0], &data[1]);
-                break;
-            case PARAM_READ: // 指定读取 2byte
-                if (data[0] == 0x00)
-                {
-                    parameter_ask(data[1], (u32 *)&usart.parameter_tx);
-                    usart_frame_send(PARAM_READ, (u8 *)&usart.parameter_tx, 4);
-                }
-                else if (data[0] == 0x01)
-                {
-                    mode_ask(data[1], &usart.mode_tx);
-                    usart_frame_send(PARAM_READ, &usart.mode_tx, 1);
-                }
+            case PARAM_READ: // 指定读取
+                Param_get(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
+                fHostComputer_send();
                 break;
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
-                CONTROL_value_update((float *)data);
+                FOC_SET_VER_VALUE((float *)com_frame.rxdata);
                 break;
             case CMD_MODE_SET: // 模式设置 1byte
-                CONTROL_mode_updata(data[0]);
+                FOC_SET_LOOPMODE(com_frame.rxdata[0]);
                 break;
             case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
-                stream_data_get(data[0], &usart.stream_data[7]);
-                usart_frame_send(CMD_STREAM_GET, (u8 *)&usart.stream_data[7], 4);
+                stream_data_get(com_frame.rxdata[1], (float *)com_frame.txdata);
+                com_frame.txdatalen = 4;
+                fHostComputer_send();
                 break;
             case CMD_STREAM_SET: // 监测值设置 5byte
-                if (usart.connnect_state == true)
-                {
-                    usart.stream_num = len + 3;
-                    for (u8 i = 3; i < usart.stream_num; i++)
-                        usart.stream_index[i] = data[i - 3];
+                if (port.connect_com == NONE_port)
+                { // 直接 vofa float格式发送
+                    port.stream_num = com_frame.txdatalen;
+                    for (u8 i = 0; i < port.stream_num; i++)
+                        port.data_id_index[i] = com_frame.rxdata[i];
                 }
-                else
+                else // usb、串口上位机
                 {
-                    usart.stream_num = len;
-                    for (u8 i = 0; i < usart.stream_num; i++)
-                        usart.stream_index[i] = data[i];
+                    if (port.stream_num == 0)
+                    {
+                        port.stream_num = 3;
+                        port.data_id_index[0] = STATUS;
+                        port.data_id_index[1] = TEMPERATURE;
+                        port.data_id_index[2] = VBUS;
+                    }
+                    else
+                    {
+                        port.stream_num = com_frame.txdatalen + 3;
+                        for (u8 i = 3; i < port.stream_num; i++)
+                            port.data_id_index[i] = com_frame.rxdata[i - 3];
+                    }
                 }
                 break;
             default:
@@ -171,76 +186,95 @@ void frame_data_deal()
             }
         }
     }
-    raw_frame.is_busy = false;
+    com_frame.is_busy = false;
 }
 // 端口映射
 void CAN_RxData_Deal(u8 *RxData, u8 len)
 {
-    if (raw_frame.is_busy)
+    if (com_frame.is_busy)
         return;
     if (len == 4 || len == 8)
     {
-        raw_frame.cmd_id = CMD_REFVALUE_SET;
-        raw_frame.datalen = len;
-        raw_frame.data = RxData;
+        com_frame.cmd_id = CMD_REFVALUE_SET;
+        com_frame.rxdatalen = len;
+        com_frame.rxdata = RxData;
     }
     else if (len == 1)
     {
-        raw_frame.cmd_id = *RxData;
-        raw_frame.datalen = 0;
+        com_frame.cmd_id = *RxData;
+        com_frame.rxdatalen = 0;
     }
     else if (len == 2)
     {
-        raw_frame.cmd_id = *RxData;
-        raw_frame.datalen = 1;
-        raw_frame.data = &RxData[1];
+        com_frame.cmd_id = *RxData;
+        com_frame.rxdatalen = 1;
+        com_frame.rxdata = &RxData[1];
     }
-    raw_frame.is_busy = true;
-    raw_frame.com_port = CAN_port;
+    com_frame.is_busy = true;
+    com_frame.com_port = CAN_port;
     frame_data_deal();
 }
 
 void usb_FrameData_deal(u8 id, u8 *data, u8 len)
 {
-    if (raw_frame.is_busy)
+    if (com_frame.is_busy)
         return;
-    raw_frame.is_busy = true;
-    raw_frame.com_port = USB_port;
-    raw_frame.cmd_id = id;
-    raw_frame.datalen = len;
-    raw_frame.data = data;
+    com_frame.is_busy = true;
+    com_frame.com_port = USB_port;
+    com_frame.cmd_id = id;
+    com_frame.rxdatalen = len;
+    com_frame.rxdata = data;
     frame_data_deal();
 }
 
 void usart_farmedata_deal(u8 id, u8 *data, u8 len)
 {
-    if (raw_frame.is_busy)
+    if (com_frame.is_busy)
         return;
-    raw_frame.is_busy = true;
-    raw_frame.com_port = UART_port;
-    raw_frame.cmd_id = id;
-    raw_frame.datalen = len;
-    raw_frame.data = data;
+    com_frame.is_busy = true;
+    com_frame.com_port = UART_port;
+    com_frame.cmd_id = id;
+    com_frame.rxdatalen = len;
+    com_frame.rxdata = data;
     frame_data_deal();
 }
 
 static u32 _time_ms = 0;
 static u32 _time_prev_ms = 0;
-void usart_stream_data_trans()
+void stream_data_trans()
 {
-    if (usart.stream_num == 0)
+    if (port.stream_num == 0)
         return;
     _time_ms = HAL_GetTick();
     if (_time_ms - _time_prev_ms < DATA_stream_T)
         return;
     _time_prev_ms = HAL_GetTick();
 
-    for (u8 i = 0; i < usart.stream_num; i++)
+    for (u8 i = 0; i < port.stream_num; i++)
     {
-        stream_data_get(usart.stream_index[i], &usart.stream_data[i]);
+        stream_data_get(port.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
     }
-    if (usart.connnect_state == true)
-        usart_frame_send(CMD_STREAM_SET, (u8 *)&usart.stream_data, sizeof(float) * usart.stream_num);
-    else
-        vofa_send_multi_float(usart.stream_data, usart.stream_num);
+    com_frame.txdatalen = port.stream_num * 4;
+    if (port.connect_com == NONE_port)
+    { // 直接 vofa float格式发送
+        vofa_send_multi_float((float *)com_frame.txdata, port.stream_num);
+    }
+    else // usb、串口上位机
+    {
+        fHostComputer_send();
+    }
+}
+
+void communication_run()
+{
+    stream_data_trans();
+    CAN_QUEUE_Deal();
+    com_state.com_port = port.connect_com;
+    com_state.can_state = CAN_state_get();
+    if (USB_Connect_Status_get())
+    {
+        com_state.usb_state = ONLINE;
+        com_state.uart_state = OFFLINE;
+    }
+    // todo:串口和usb状态获取 暂时没必要
 }

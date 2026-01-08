@@ -1,10 +1,6 @@
-#include "wireless_interface.h"
-#include "usartDr.h"
-#include "foc_core.h"
-#include "protection_manager.h"
-#include "log.h"
+#include "uart_port.h"
 #include "string.h"
-#include "system_parameters.h"
+#include "usart.h"
 
 Usart_Farme_t UsartRxFrame_g = {0};
 Usart_Farme_t UsartTxFrame_g = {0};
@@ -19,7 +15,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         usartRecvByte(&_rx);
     }
 }
-void usartDrInit()
+void usart_port_Init()
 {
     memset(&UsartRxFrame_g, 0, sizeof(Usart_Farme_t));
     memset(&UsartTxFrame_g, 0, sizeof(Usart_Farme_t));
@@ -111,14 +107,7 @@ void usartRecvByte(u8 *data)
 }
 
 static u8 tail_bytes[4] = {0x00, 0x00, 0x80, 0x7F}; // 发送结尾
-void vofa_send_float(float value)
-{
-    u8 buffer[4];
 
-    // 将 float 转换为字节数组（小端序）
-    memcpy(buffer, &value, 4);
-    usartSendData(buffer, 4);
-}
 void vofa_send_multi_float(const float *data, u8 count)
 {
     if (count == 0 || count > 8)

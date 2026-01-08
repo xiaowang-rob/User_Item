@@ -2,7 +2,7 @@
 #define __PROTECTION_MANAGER_H
 
 #include "main.h"
-
+#include "port_mapping.h"
 typedef enum
 {
     NO_FAULT,
@@ -25,13 +25,17 @@ typedef enum
 } Warning_e;
 typedef struct
 {
+    u8 temp_u;
+    u8 temp_v;
+    u8 temp_w;
+    float temperature;
     fault_e fault;
     Warning_e warning;
     bool fault_flag;
     bool warning_flag;
     bool log_done;
     float maxcurrent;
-    float maxspeed;
+    float maxomega;
     float minposition;
     float maxposition;
     float tolerance_time;
@@ -39,16 +43,13 @@ typedef struct
     float tolerance_current;
     float tolerance_speed;
     float tolerance_position;
-    float temp_u;
-    float temp_v;
-    float temp_w;
-    float temperature;
-} protection_manager_t;
-extern protection_manager_t g_protection_manager;
 
-void protection_manager_init(float maxcurrent, float max_speed, float min_position, float max_position,
-                             float tolerance_time, float tolerance_voltage, float tolerance_current, float tolerance_speed,
-                             float tolerance_position);
+    communication_state_t *com_state;
+    Drive_state_t *drive_state;
+} protection_manager_t;
+extern protection_manager_t g_pro_manager;
+
+void protection_manager_init();
 
 void protection_manager_reset();
 void protection_manager_run();

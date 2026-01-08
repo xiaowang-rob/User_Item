@@ -102,7 +102,7 @@ typedef struct
     float ki_position;
     float kd_position;
     float limit_current;
-    float limit_speed;
+    float limit_omega;
     float limit_position_min;
     float limit_position_max;
     float tolerance_time;
@@ -111,12 +111,12 @@ typedef struct
     float tolerance_speed;
     float tolerance_position;
     float startup_pos_grad;
-    float startup_spe_grad;
+    float startup_ome_grad;
     float align_current;
     float align_time;
     float open_loop_current;
-    float open_loop_speed;
-    float change_loop_speed;
+    float open_loop_omega;
+    float change_loop_omega;
 } Parameter_t;
 
 extern Parameter_t g_Param;

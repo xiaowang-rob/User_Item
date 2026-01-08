@@ -21,5 +21,5 @@ void svpwm_run(float ualpha, float ubeta);
 void smaple_point_change();
 void svpwm_SetVbus(float Vbus);
 u8 svpwm_GetSector();
-
+void fGetPhaseVoltage(float *U, float *V, float *W);
 #endif

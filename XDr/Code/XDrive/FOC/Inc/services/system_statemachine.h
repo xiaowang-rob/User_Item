@@ -10,7 +10,7 @@ typedef enum
     SYSTEM_ERROR,
 } SYSTEM_STATE_e;
 
-SystemState_change(SYSTEM_STATE_e new_state);
+voidSystemState_change(SYSTEM_STATE_e new_state);
 SYSTEM_STATE_e SystemState_get(void);
 void SystemStateMachine_run(void);
 #endif
