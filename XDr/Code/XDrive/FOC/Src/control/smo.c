@@ -3,7 +3,7 @@
 #include "system_parameters.h"
 #include "foc_core.h"
 #include "encoder.h"
-
+#include "parameter_manager.h"
 smo_t smo;
 smo_t *get_smo_adr()
 {
@@ -121,10 +121,17 @@ float smo_get_omega()
 {
     return smo.omega;
 }
-
+void write_motor_param()
+{
+    g_Param.theta_offset = smo.theta_offset;
+    g_Param.motor_rs = smo.Rs;
+    g_Param.motor_ls = smo.Ls;
+    g_Param.motor_psif = smo.Psi_f;
+    g_Param.motor_ke = smo.Ke;
+    g_Param.motor_j = smo.J;
+    g_Param.motor_b = smo.B;
+}
 /*SMO整定器*/
-// pwm的1/4频率跑
-#define TUN_f fpwm / 4
 
 #define THETA_OFFSET_samples 2000                      // 0.4s
 #define THETA_OFFSET_timeout THETA_OFFSET_samples * 10 // 4s
@@ -138,10 +145,11 @@ float smo_get_omega()
 #define Ls_samples 1000            // 0.2s
 #define Ls_timeout Ls_samples * 10 // 2s
 
-#define POLE_PAIRS_omega 10                        // 500rpm
+#define POLE_PAIRS_omega_elec 30                   // 1700rpm 电角速度
 #define POLE_PAIRS_samples 10000                   // 2s
 #define POLE_PAIRS_timeout POLE_PAIRS_samples * 10 // 20s
 
+#define PK_omega_mech 10
 #define PK_samples 10000           // 2s
 #define PK_timeout PK_samples * 10 // 20s
 
@@ -151,12 +159,11 @@ param_tuning_t *get_tuning_adr()
     return &tun;
 }
 
-void param_tuning_init()
+void param_tuning_init(float udc)
 {
-    tun.tune_state = PARAM_TUNE_IDLE;
-    tun.tune_samples = 0;
-
-    tun.fault_flag = false;
+    memset(&tun, 0, sizeof(tun));
+    tun.dt = Tcon / tun_divider;
+    tun.Udc = udc;
 }
 // 1.角度偏移整定
 static bool param_tune_theta_offset(float theta_mech)
@@ -351,10 +358,9 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
 // 4. 极对数整定
 static bool param_tune_pole_pairs(float omega_mech, u8 pole_pairs_input)
 {
-    static float omega_encoder_last = 0;
     static float omega_smo_last = 0;
     static float pole_pairs = 0;
-    if (omega_mech - omega_encoder_last < 0.1f && smo.omega - omega_smo_last < 1.f)
+    if (omega_mech - tun.omega_mech_prev < 0.1f && smo.omega - omega_smo_last < 1.f)
     {
         tun.tune_samples++;
     }
@@ -386,160 +392,104 @@ static bool param_tune_pole_pairs(float omega_mech, u8 pole_pairs_input)
 }
 
 // 5. 磁链整定
-static void param_tune_Psi_f(float encoder_speed, float v_alpha, float v_beta,
-                             float i_alpha, float i_beta)
+static bool param_tune_Psi_f(float omega_mech)
 {
-    if (tun.tune_samples == 1)
+    float speed_electrical = omega_mech * smo.pole_pairs;
+
+    float e_mag = sqrtf(smo.e_alpha_filtered * smo.e_alpha_filtered + smo.e_beta_filtered * smo.e_beta_filtered);
+
+    if (fabsf(e_mag) > 0.5f && fabsf(speed_electrical) > 100.0f)
+        tun.tune_samples++;
+    else
+        tun.tune_samples = 0;
+
+    if (tun.tune_samples >= PK_samples - 100)
     {
-        tun.max_samples = 800;
+        tun.sum_e_mag += e_mag;
+        tun.sum_speed += fabsf(speed_electrical);
+    }
+    else
+    {
         tun.sum_e_mag = 0.0f;
         tun.sum_speed = 0.0f;
-
-        smo_ptr->e_alpha_filtered = 0.0f;
-        smo_ptr->e_beta_filtered = 0.0f;
     }
-
-    float speed_rpm = encoder_speed * 60.0f / (2.0f * M_PI);
-    float speed_electrical = encoder_speed * smo_ptr->pole_pairs;
-
-    if (fabsf(speed_rpm) < 200.0f)
+    if (tun.tune_samples >= PK_samples)
     {
-        tun.fault_flag = true;
-        tun.fault_type = PARAM_FAULT_PSI_F_SPEED_LOW;
-        return;
-    }
+        float avg_e_mag = tun.sum_e_mag / 100.0f;
+        float avg_speed = tun.sum_speed / 100.0f;
 
-    smo_update(v_alpha, v_beta, i_alpha, i_beta);
-
-    float e_alpha = smo_ptr->e_alpha_filtered;
-    float e_beta = smo_ptr->e_beta_filtered;
-    float e_mag = sqrtf(e_alpha * e_alpha + e_beta * e_beta);
-
-    if (tun.tune_samples > 200)
-    {
-        if (fabsf(e_mag) > 0.5f && fabsf(speed_electrical) > 100.0f)
-        {
-            tun.sum_e_mag += e_mag;
-            tun.sum_speed += fabsf(speed_electrical);
-        }
-    }
-
-    if (tun.tune_samples >= tun.max_samples)
-    {
-        int valid_samples = tun.tune_samples - 200;
-        if (valid_samples < 100)
+        smo.Psi_f = avg_e_mag / avg_speed;
+        smo.Ke = smo.Psi_f * smo.pole_pairs;
+        if (smo.Psi_f > 10.0f)
         {
             tun.fault_flag = true;
-            tun.fault_type = PARAM_FAULT_PSI_F_NO_VALID_DATA;
-            return;
+            tun.fault_type = PARAM_FAULT_HIGH;
+            tun.fault_state = PARAM_TUNE_PK;
         }
-
-        float avg_e_mag = tun.sum_e_mag / valid_samples;
-        float avg_speed = tun.sum_speed / valid_samples;
-
-        tun.tuned_Psi_f = avg_e_mag / avg_speed;
-        tun.tuned_Psi_f = safe_limit_fault(tun.tuned_Psi_f, 0.01f, 1.0f,
-                                           PARAM_FAULT_PSI_F_LOW, PARAM_FAULT_PSI_F_HIGH);
-
-        if (tun.fault_flag)
-            return;
-
-        float Ke = tun.tuned_Psi_f * smo_ptr->pole_pairs;
-        smo_ptr->Psi_f = tun.tuned_Psi_f;
-        smo_ptr->Ke = Ke;
-
-        tun.tune_state = PARAM_TUNE_JB;
-        tun.tune_samples = 0;
+        if (smo.Psi_f < 0.01f)
+        {
+            tun.fault_flag = true;
+            tun.fault_type = PARAM_FAULT_LOW;
+            tun.fault_state = PARAM_TUNE_PK;
+        }
+        return true;
     }
+    return false;
 }
 
-// 6. J/B整定 - 只需要encoder_speed和torque_fb！
-static void param_tune_JB(float encoder_speed, float torque_fb)
+// 6. J/B整定
+static bool param_tune_JB(float omega_mech, float iq)
 {
-    if (tun.tune_samples == 1)
+    float accel = (omega_mech - tun.omega_mech_prev) / tun.dt;
+    // 从2rad/s开始采样
+    if (fabsf(omega_mech) < 2.0f)
+        return false;
+    tun.tune_samples++;
+    tun.sum_accel += accel;
+    tun.sum_iq += iq;
+    if (tun.tune_samples > 100 || fabsf(omega_mech - PK_omega_mech) < 1.f)
     {
-        tun.max_samples = 1000;
-        tun.step_triggered = false;
-        tun.sum_accel = 0.0f;
-        tun.sum_torque = 0.0f;
-    }
-
-    static float prev_speed = 0.0f;
-    float accel = (encoder_speed - prev_speed) / tun.dt;
-    prev_speed = encoder_speed;
-
-    if (!tun.step_triggered && fabsf(encoder_speed) > 2.0f)
-    {
-        tun.step_triggered = true;
-    }
-
-    if (!tun.step_triggered)
-    {
-        if (tun.tune_samples >= tun.max_samples)
-        {
-            tun.fault_flag = true;
-            tun.fault_type = PARAM_FAULT_J_NO_STEP;
-            return;
-        }
-        return;
-    }
-
-    float elapsed_time = tun.tune_samples * tun.dt;
-
-    if (elapsed_time > 0.2f && elapsed_time < 1.0f && fabsf(accel) > 1.0f)
-    {
-        tun.sum_accel += accel;
-        tun.sum_torque += torque_fb;
-    }
-
-    if (tun.tune_samples >= tun.max_samples)
-    {
-        float accel_samples = 160.0f;
-        if (accel_samples < 50.0f)
-        {
-            tun.fault_flag = true;
-            tun.fault_type = PARAM_FAULT_INSUFFICIENT_DATA;
-            return;
-        }
-
-        float avg_accel = tun.sum_accel / accel_samples;
-        float avg_torque = tun.sum_torque / accel_samples;
-
+        float avg_accel = tun.sum_accel / tun.tune_samples;
+        float avg_torque = tun.sum_iq * smo.Ke / tun.tune_samples;
         if (fabsf(avg_accel) < 5.0f)
         {
-            tun.tuned_J = 0.001f;
+            smo.J = 0.001f;
         }
         else
         {
-            tun.tuned_J = avg_torque / avg_accel;
-            tun.tuned_J = safe_limit_fault(tun.tuned_J, 0.0001f, 0.1f,
-                                           PARAM_FAULT_J_LOW, PARAM_FAULT_J_HIGH);
-            if (tun.fault_flag)
-                return;
+            smo.J = avg_torque / avg_accel;
+            if (smo.J < 0.0001f)
+            {
+                tun.fault_flag = true;
+                tun.fault_type = PARAM_FAULT_LOW;
+                tun.fault_state = PARAM_TUNE_JB;
+            }
+            if (smo.J > 0.01f)
+            {
+                tun.fault_flag = true;
+                tun.fault_type = PARAM_FAULT_HIGH;
+                tun.fault_state = PARAM_TUNE_JB;
+            }
         }
-
-        if (elapsed_time > 4.5f && fabsf(accel) < 1.0f && fabsf(encoder_speed) > 5.0f)
+        if (fabsf(accel) < 1.0f && fabsf(omega_mech) > 5.0f)
         {
-            tun.tuned_B = (torque_fb - tun.tuned_J * 0.1f) / encoder_speed;
-            if (tun.tuned_B < 0.0001f)
-                tun.tuned_B = 0.001f;
+            smo.B = (avg_torque - smo.J * 0.1f) / omega_mech;
+            if (smo.B < 0.0001f)
+                smo.B = 0.001f;
         }
         else
         {
-            tun.tuned_B = 0.001f;
+            smo.B = 0.001f;
         }
-
-        smo_ptr->J = tun.tuned_J;
-        smo_ptr->B = tun.tuned_B;
-
-        tun.tune_state = PARAM_TUNE_COMPLETE;
+        return true;
     }
+    return false;
 }
 
 // 有感整定更新
 static float omega_last = 0;
 void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, float *u_beta,
-                         float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input)
+                         float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q)
 {
 
     // 参数整定状态机
@@ -549,8 +499,9 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         // 前置条件
         FOC_SET_RUNMODE(ENCODER_CONTROL);
         FOC_SET_LOOPMODE(CURRENT_LOOP);
-        float cur_iq_id[2] = {0.0f, 1.0f};
-        FOC_SET_VER_VALUE(cur_iq_id);
+        tun.cur_iq_id[0] = 0;
+        tun.cur_iq_id[1] = 1.0f;
+        FOC_SET_VER_VALUE(tun.cur_iq_id);
         tun.tune_samples = 0;
         tun.time_tic = 0;
         tun.tune_state = PARAM_TUNE_THETA_OFFSET;
@@ -611,9 +562,9 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         //  稳态点采样
         if (param_tune_Ls(*u_alpha, *u_beta, i_alpha, i_beta))
         { // 完成跳转
-            FOC_SET_LOOPMODE(SPEED_LOOP);
-            float omega_ref = 10;
-            FOC_SET_VER_VALUE(&omega_ref);
+            FOC_SET_LOOPMODE(VOLTAGE_LOOP);
+            float cur_uq_ud[2] = {tun.Udc / 24.0f, 0};
+            FOC_SET_VER_VALUE(&cur_uq_ud);
             smo.pole_pairs = 1;
             tun.tune_samples = 0;
             tun.time_tic = 0;
@@ -623,9 +574,14 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
     case PARAM_TUNE_POLE_PAIRS:
         // 控制
         smo_update(*u_alpha, *u_beta, i_alpha, i_beta);
+        tun.theta_elec_con += tun.dt * POLE_PAIRS_omega_elec;
+        tun.theta_elec_con = normalize_angle_0_2pi(tun.theta_elec_con);
+        *theta_elec = tun.theta_elec_con;
+        if (fabsf(theta_mech - tun.omega_mech_prev) > 1.f)
+            return;
         // 超时监测
         tun.time_tic++;
-        if (tun.time_tic > RS_timeout)
+        if (tun.time_tic > POLE_PAIRS_timeout)
         {
             tun.fault_flag = true;
             tun.fault_type = PARAM_FAULT_TIMEOUT;
@@ -633,30 +589,81 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         }
         // 稳态点采样
         if (param_tune_pole_pairs(omega_mech, pole_pairs_input))
-        { // 完成跳转
+        { // 完成跳转 磁链整定 前置条件
             FOC_SET_LOOPMODE(SPEED_LOOP);
-            float omega_ref = 10;
-            FOC_SET_VER_VALUE(&omega_ref);
-            smo.pole_pairs = 1;
+            tun.omega_ref = 10;
+            FOC_SET_VER_VALUE(&tun.omega_ref);
             tun.tune_samples = 0;
             tun.time_tic = 0;
             tun.tune_state = PARAM_TUNE_POLE_PAIRS; // 进入下一步
         }
         break;
     case PARAM_TUNE_PK:
+        // 控制
+        tun.theta_elec_con = theta_mech * smo.pole_pairs;
+        tun.theta_elec_con = normalize_angle_0_2pi(tun.theta_elec_con);
+        *theta_elec = tun.theta_elec_con;
+        smo_update(*u_alpha, *u_beta, i_alpha, i_beta);
+        if (fabsf(theta_mech - tun.omega_mech_prev) > 1.f)
+            return;
+        // 超时监测
+        tun.time_tic++;
+        if (tun.time_tic > PK_timeout)
+        {
+            tun.fault_flag = true;
+            tun.fault_type = PARAM_FAULT_TIMEOUT;
+            tun.fault_state = PARAM_TUNE_RS;
+        }
 
+        // 稳态点采样
+        if (param_tune_Psi_f(omega_mech))
+        {
+            // 完成跳转
+            FOC_SET_LOOPMODE(SPEED_LOOP);
+            tun.omega_ref = 0;
+            FOC_SET_VER_VALUE(&tun.omega_ref);
+            tun.tune_samples = 0;
+            tun.time_tic = 0;
+            tun.tune_state = PARAM_TUNE_POLE_PAIRS; // 进入下一步
+        }
         break;
-
     case PARAM_TUNE_JB:
+        // 等待速度降0
+        if (!tun.start_smp_flag)
+        {
+            if (fabsf(omega_mech) < 0.1f)
+                tun.start_smp_flag = true;
+            return;
+        }
+        // 施加阶跃速度
+        tun.omega_ref = 10;
+        FOC_SET_VER_VALUE(&tun.omega_ref);
+        FOC_SET_OMEGA_con(tun.omega_ref);
 
+        // 直接开始采样
+        if (param_tune_JB(omega_mech, i_q))
+        {
+            // 完成跳转
+            tun.omega_ref = 0;
+            FOC_SET_VER_VALUE(&tun.omega_ref);
+            tun.tune_samples = 0;
+            tun.time_tic = 0;
+            tun.tune_state = PARAM_TUNE_COMPLETE; // 进入下一步
+        }
         break;
     case PARAM_TUNE_COMPLETE:
-
+        if (tun.fault_flag)
+            return;
+        write_motor_param();
         break;
     default:
         break;
     }
-
+    tun.omega_mech_prev = omega_mech;
     if (tun.fault_flag)
         tun.tune_state = PARAM_TUNE_COMPLETE;
+}
+param_tune_state_t param_tuning_get_state()
+{
+    return tun.tune_state;
 }

@@ -1,7 +1,6 @@
 #include "foc_core.h"
 #include "adcDr.h"
 #include "svpwm.h"
-#include "auto_calibration.h"
 #include "math_fast.h"
 #include "encoder.h"
 #include "string.h"
@@ -32,22 +31,38 @@ void mode_init(Parameter_t param)
     foc_mode.pvt_mode = param.sw_pvt;
     foc_mode.weak_mag = param.sw_weakmag;
 }
-void startup_machine_reset()
+void motor_init(Parameter_t param)
 {
-    startup_machine.current_steps = 0;
+    Motor.offset_angle = param.theta_offset;
+    Motor.pole_pairs = param.motor_polepairs;
+    Motor.Rs = param.motor_rs;
+    Motor.Ls = param.motor_ls;
+    Motor.Psi_f = param.motor_psif;
+    Motor.Ke = param.motor_ke;
+    Motor.J = param.motor_j;
+    Motor.B = param.motor_b;
 }
-void foc_core_init(Parameter_t param)
+void auto_calibration_init(Parameter_t param)
 {
-    ADC_GET_Voltage(&Motor.Udc);
-    foc_core_reset();
     float max_omega = rpm_to_rad(param.limit_speed);
     smo_init(param.motor_rs, param.motor_ls, param.motor_psif, max_omega,
              param.motor_polepairs, param.motor_ke, param.motor_j, param.motor_b);
-    // todo:自动整定初始化
-    startup_machine_init(param);
+    param_tuning_init(Motor.Udc);
+}
+void foc_core_init()
+{
+    ADC_GET_Voltage(&Motor.Udc);
+    motor_init(g_Param);
+    foc_core_reset();
+    auto_calibration_init(g_Param);
+    startup_machine_init(g_Param);
     svpwm_Init(Motor.Udc);
-    mode_init(param);
-    loop_parameter_init(param, Motor.Udc / sqrt3);
+    mode_init(g_Param);
+    loop_parameter_init(g_Param, Motor.Udc / sqrt3);
+}
+void startup_machine_reset()
+{
+    startup_machine.current_steps = 0;
 }
 void foc_val_reset()
 {
@@ -324,6 +339,10 @@ void FOC_RUN()
     Svpwm_output();
     smaple_point_change();
 }
+void FOC_SET_OMEGA_con(float value)
+{
+    foc_val.omega_con = value;
+}
 
 void FOC_SET_VER_VALUE(float *value)
 {
@@ -359,7 +378,22 @@ void FOC_SET_RUNMODE(RUN_mode_e mode)
     foc_core_reset();
     foc_mode.run_mode = mode;
 }
-
+static u8 _tic = 0;
+bool auto_calibration_update()
+{
+    if (_tic++ < tun_divider - 1)
+        return false;
+    _tic = 0;
+    param_tuning_update(&foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
+                        &foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, foc_val.omega_fb,
+                        Motor.pole_pairs, foc_val.iq_fb);
+    if (param_tuning_get_state() == PARAM_TUNE_COMPLETE)
+    {
+        foc_core_init();
+        return true;
+    }
+    return false;
+}
 bool SHUTDOWM()
 {
     if (fabs(foc_val.omega_fb) < 0.1f)

@@ -75,6 +75,9 @@ typedef enum
 } param_fault_t;
 
 /*****************************************参数整定*********************************** */
+// pwm的1/4频率跑
+#define tun_divider 4 // 分频系数
+#define TUN_f fpwm / tun_divider
 
 // 参数整定结构体
 typedef struct
@@ -88,7 +91,9 @@ typedef struct
 
     float Udc; // 电压
     float theta_mech_prev;
-
+    float cur_iq_id[2];
+    float cur_uq_uq[2];
+    float omega_ref;
     float steady_i;
     float steady_v;
 
@@ -102,35 +107,29 @@ typedef struct
     float sum_di_dt_beta_neg;
     u32 beta_neg_count;
 
+    float omega_mech_prev;
     float theta_elec_con;
+
+    float sum_e_mag;
+    float sum_speed;
+
+    bool start_smp_flag;
+    float sum_accel;
+    float sum_iq;
+
     // 故障标志
     bool fault_flag;
     param_fault_t fault_type;
     param_tune_state_t fault_state;
 } param_tuning_t;
 param_tuning_t *get_tuning_adr();
-// 初始化--无感需要准确的极对数
-void param_tuning_init(float initial_Rs, float initial_Ls,
-                       float initial_Psi_f, float initial_pole_pairs);
-// 开始整定
-void sensorless_param_tuning_update(float v_alpha, float v_beta,
-                                    float i_alpha, float i_beta, float omega_electrical);
-void encoder_param_tuning_update(
-    float v_alpha_applied, float v_beta_applied,
-    float i_alpha, float i_beta,
-    float theta_mechanical,
-    float omega_mechanical);
-bool tune_pole_pairs_correct(float theta_mechanical);
-bool tune_resistance_correct(float v_alpha, float v_beta,
-                             float i_alpha, float i_beta);
-bool tune_inductance_correct(float v_alpha, float v_beta,
-                             float i_alpha, float i_beta);
-bool tune_flux_correct(float omega_electrical);
-bool tune_inertia_correct(float omega_mechanical,
-                          float i_alpha, float i_beta, float theta_electrical);
-bool tune_friction_correct(float omega_mechanical,
-                           float i_alpha, float i_beta);
 
-param_tune_state_t param_tuning_get_state(param_tuning_t *smo);
+void param_tuning_init(float udc);
+// 开始整定
+
+void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, float *u_beta,
+                         float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q);
+
+param_tune_state_t param_tuning_get_state();
 
 #endif

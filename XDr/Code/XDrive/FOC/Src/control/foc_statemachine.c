@@ -1,5 +1,4 @@
 #include "foc_statemachine.h"
-#include "auto_calibration.h"
 #include "tim.h"
 #include "math_fast.h"
 #include "parameter_manager.h"
@@ -56,7 +55,7 @@ void FOC_INIT()
     foc.tun = get_tuning_adr();
     foc.svpwm = get_svpwm_adr();
     foc.motor = get_motor_adr();
-    foc_core_init(g_Param);
+    foc_core_init();
     PWM_POWER_ON();
 }
 

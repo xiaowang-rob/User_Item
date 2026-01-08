@@ -78,13 +78,14 @@ typedef struct
     float B;            // 摩擦系数
 } Motor_t;
 
-void foc_core_init(Parameter_t param);
+void foc_core_init();
 void foc_core_reset();
 
 void FOC_PREPARE();
 void FOC_RUN();
 bool SHUTDOWM();
 
+void FOC_SET_OMEGA_con(float value);
 void FOC_SET_VER_VALUE(float *value);
 void FOC_SET_LOOPMODE(LOOP_mode_e mode);
 void FOC_SET_RUNMODE(RUN_mode_e mode);
