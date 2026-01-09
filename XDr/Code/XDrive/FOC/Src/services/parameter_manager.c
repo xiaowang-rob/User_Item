@@ -33,9 +33,6 @@ void Param_set(Parameter_e para, u8 *value)
     case LOOP_MODE:
         g_Param.loop_mode = *(u8 *)value;
         break;
-    case AUTOTUNE_MODE:
-        g_Param.autotune_mode = *(u8 *)value;
-        break;
     case MOTOR_POLEPAIRS:
         g_Param.motor_polepairs = *(u8 *)value;
         break;
@@ -189,10 +186,6 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     case LOOP_MODE:
         *(u8 *)value = g_Param.loop_mode;
-        *len = sizeof(u8);
-        break;
-    case AUTOTUNE_MODE:
-        *(u8 *)value = g_Param.autotune_mode;
         *len = sizeof(u8);
         break;
     case MOTOR_POLEPAIRS:
@@ -376,9 +369,8 @@ bool Param_init()
         g_Param.sw_fan = 0;          // 风扇
         g_Param.sw_vague_pid = 0;    // 模糊PID
         g_Param.sw_pvt = 0;          // PVT模式
-        g_Param.foc_mode = 0;        // 运行模式
-        g_Param.loop_mode = 0;       // 环模式
-        g_Param.autotune_mode = 0;   // 自动调参模式
+        g_Param.foc_mode = 1;        // 运行模式
+        g_Param.loop_mode = 2;       // 环模式
         g_Param.motor_polepairs = 7; // 电机转子对数
 
         // 初始化u32类型参数

@@ -50,14 +50,16 @@ void auto_calibration_init(Parameter_t param)
 }
 void foc_core_init()
 {
-    ADC_GET_Voltage(&Motor.Udc);
+//ADC_GET_Voltage(&Motor.Udc);
+	Motor.Udc=25.2f;
+	loop_parameter_init(g_Param, Motor.Udc / sqrt3);
     motor_init(g_Param);
     foc_core_reset();
     auto_calibration_init(g_Param);
     startup_machine_init(g_Param);
     svpwm_Init(Motor.Udc);
     mode_init(g_Param);
-    loop_parameter_init(g_Param, Motor.Udc / sqrt3);
+    
 }
 void startup_machine_reset()
 {
@@ -161,7 +163,8 @@ void oloop_to_cloop()
 // 有感foc 获取电压电流角度速度位置
 void foc_encoder_get_vitop()
 {
-    ADC_GET_Voltage(&Motor.Udc);
+//    ADC_GET_Voltage(&Motor.Udc);
+		Motor.Udc=25.2f;
     Current_reconstruction();
     foc_val.theta_mech = GET_ENCODER_ANGLE_ABS();
     foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs;
@@ -174,7 +177,8 @@ void foc_encoder_get_vitop()
 // 无感模式 获取电压电流角度速度位置
 void foc_senless_get_vito()
 {
-    ADC_GET_Voltage(&Motor.Udc);
+//    ADC_GET_Voltage(&Motor.Udc);
+		Motor.Udc=25.2f;
     Current_reconstruction();
     smo_update(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
     foc_val.omega_fb = smo_get_omega();

@@ -20,16 +20,11 @@ static bool MT6816_SPI_ReadWrite(u8 cmd, u8 *rx_data)
 
     // 发送命令并接收数据（8位模式）
     u8 _status = HAL_SPI_TransmitReceive_DMA(&ENcoder_SPI_Get_HSPI, &cmd, rx_data, 1);
-
     if (_status != HAL_OK)
     {
-        if (_status == HAL_ERROR)
-            ENCODER_state_set(OFFLINE);
         ENCODER_SPI_CS_H();
         return false;
     }
-    else if (ENCODER_state_get() == OFFLINE)
-        ENCODER_state_set(ONLINE);
     ENCODER_SPI_CS_H();
     return true;
 }
@@ -58,6 +53,10 @@ void ENCODER_ReadData()
     // 读取寄存器0x03（角度高位：Angle<13:6>）
     if (!MT6816_ReadRegister(MT6816_REG_ANGLE_HIGH, &reg03_data))
     {
+        if (reg03_data == 0xFF)
+            ENCODER_state_set(OFFLINE);
+        else if (ENCODER_state_get() == OFFLINE)
+            ENCODER_state_set(ONLINE);
         return;
     }
     // 读取寄存器0x04（角度低位 + 状态位：Angle<5:0> + No_Mag_Warning + PC）

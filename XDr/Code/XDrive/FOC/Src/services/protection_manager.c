@@ -20,7 +20,7 @@ bool Tolerance_check(float value, float max_value, float min_value, float tolera
         else
             _time = 0;
     }
-    if (_time > g_pro_manager.tolerance_time)
+    if (_time > g_pro_manager.tolerance_time_ms)
         return true;
     _time_last = HAL_GetTick();
     return false;
@@ -37,7 +37,7 @@ void protection_manager_init()
     g_pro_manager.maxomega = g_Param.limit_omega;
     g_pro_manager.minposition = g_Param.limit_position_min;
     g_pro_manager.maxposition = g_Param.limit_position_max;
-    g_pro_manager.tolerance_time = g_Param.tolerance_time;
+    g_pro_manager.tolerance_time_ms = g_Param.tolerance_time * 1000;
     g_pro_manager.tolerance_voltage = g_Param.tolerance_voltage;
     g_pro_manager.tolerance_current = g_Param.tolerance_current;
     g_pro_manager.tolerance_speed = g_Param.tolerance_speed;
@@ -72,6 +72,12 @@ void protection_manager_run()
         return;
     // A监管保护
     // 错误：
+    // 驱动状态--flash一定得是ONLINE
+    if (g_pro_manager.drive_state->FLASH_state != ONLINE)
+    {
+        g_pro_manager.fault = FLASH_OFFLINE;
+        g_pro_manager.fault_flag = true;
+    }
     // 1.整定
     if (g_foc.tun->fault_flag)
     {

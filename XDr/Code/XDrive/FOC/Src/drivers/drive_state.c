@@ -31,6 +31,5 @@ void drive_init()
 {
     FLASH_Init();
     ENCODER_Init();
-    ENCODER_Init();
     ADC_DR_Init(); // 开启FOC循环
 }

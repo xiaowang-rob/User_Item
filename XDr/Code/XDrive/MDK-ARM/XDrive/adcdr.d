@@ -31,6 +31,4 @@ xdrive/adcdr.o: ..\FOC\Src\drivers\adcDr.c ..\FOC\Inc\drivers\adcDr.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\tim.h ..\FOC\Config\system_parameters.h \
-  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h
+  ..\Core\Inc\adc.h ..\Core\Inc\tim.h ..\FOC\Config\system_parameters.h

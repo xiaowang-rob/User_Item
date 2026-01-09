@@ -9,14 +9,13 @@
 
 typedef enum
 {
-    SW_CANQUEUE,   // CAN队列开关
-    SW_WEAKMAG,    // 弱磁开关
-    SW_FAN,        // 风扇
-    SW_VAGUE_PID,  // 模糊PID
-    SW_PVT,        // PVT 模式
-    FOC_MODE,      // 运行模式
-    LOOP_MODE,     // 环路模式
-    AUTOTUNE_MODE, // 自动调参模式
+    SW_CANQUEUE,  // CAN队列开关
+    SW_WEAKMAG,   // 弱磁开关
+    SW_FAN,       // 风扇
+    SW_VAGUE_PID, // 模糊PID
+    SW_PVT,       // PVT 模式
+    FOC_MODE,     // 运行模式
+    LOOP_MODE,    // 环路模式
 
     MOTOR_POLEPAIRS, // 电机转子对数
 
@@ -75,7 +74,6 @@ typedef struct
     u8 sw_pvt;
     u8 foc_mode;
     u8 loop_mode;
-    u8 autotune_mode;
     u8 motor_polepairs;
 
     // u32类型参数

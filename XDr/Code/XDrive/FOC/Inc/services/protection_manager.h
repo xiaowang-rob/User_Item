@@ -6,6 +6,7 @@
 typedef enum
 {
     NO_FAULT,
+    FLASH_OFFLINE,           // 闪存离线
     TUNING_TIMEOUT,          // 整定超时
     POLE_PAIRS_MISMATCH,     // 极对数不匹配
     MOTOR_PARAM_FAULT,       // 电机参数异常
@@ -41,7 +42,7 @@ typedef struct
     float maxomega;
     float minposition;
     float maxposition;
-    float tolerance_time;
+    float tolerance_time_ms;
     float tolerance_voltage;
     float tolerance_current;
     float tolerance_speed;

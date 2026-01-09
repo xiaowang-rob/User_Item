@@ -3,34 +3,56 @@
 #include "tim.h"
 #include "system_parameters.h"
 
-#ifdef __DEBUG__
-#include "math_fast.h"
+static bool _calibration = false;
 
-u32 time_adc_zero = 0;
-u32 time_adc_last = 0;
-u32 time_adc_T = 0;
-u32 time_adc_run = 0;
+static u16 Cur_zero_u = 0;
+static u16 Cur_zero_v = 0;
+static u16 Cur_zero_w = 0;
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-    {
-        time_adc_run = (HAL_GetTick_us() - time_adc_last) * 2;
-        time_adc_T = HAL_GetTick_us() - time_adc_zero;
-        time_adc_zero = HAL_GetTick_us();
-    }
-}
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-        time_adc_last = HAL_GetTick_us();
-}
-#endif
+static u8 _tic;
+static float _u_sum = 0;
+static float _v_sum = 0;
+static float _w_sum = 0;
+
+static float Cur_u;
+static float Cur_v;
+static float Cur_w;
+
 u16 ADC1_buffer[3];
 u8 ADC2_buffer[4];
 
 #define ADCval_to_Cur rate_CurrentSample * 3.3f / 4095.0f
 #define ADCval_to_Vol 3.3f * 16.0f / 255.0f
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+
+    if (hadc->Instance == ADC1)
+    {
+
+        if (!_calibration)
+        {
+            _u_sum += ADC1_buffer[0];
+            _v_sum += ADC1_buffer[1];
+            _w_sum += ADC1_buffer[2];
+            _tic++;
+            if (_tic == 99)
+            {
+                Cur_zero_u = _u_sum / 100 + 0.5f;
+                Cur_zero_v = _v_sum / 100 + 0.5f;
+                Cur_zero_w = _w_sum / 100 + 0.5f;
+                _calibration = true;
+            }
+        }
+        else
+        {
+            Cur_u = (float)(ADC1_buffer[0] - Cur_zero_u) > 0 ? (float)(ADC1_buffer[0] - Cur_zero_u) * ADCval_to_Cur : 0;
+            Cur_v = (float)(ADC1_buffer[1] - Cur_zero_v) > 0 ? (float)(ADC1_buffer[1] - Cur_zero_v) * ADCval_to_Cur : 0;
+            Cur_w = (float)(ADC1_buffer[2] - Cur_zero_w) > 0 ? (float)(ADC1_buffer[2] - Cur_zero_w) * ADCval_to_Cur : 0;
+        }
+    }
+}
+
 const u8 adc_to_temp[121] = {
     // ADC 69-78 -> 温度值
     120, 119, 118, 117, 116, 115, 114, 113, 112, 111,
@@ -71,21 +93,20 @@ void ADC1_sample()
 {
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
 }
-static u32 _time_ms = 0;
-static u32 _time_prev_ms = 0;
+static u16 _tic_smp = 0;
 void ADC2_sample()
 {
-    _time_ms = HAL_GetTick();
-    if (_time_ms - _time_prev_ms < TEMP_sample_T)
+    _tic_smp++;
+    if (_tic_smp < TEMP_sample_T)
         return;
-    _time_prev_ms = _time_ms;
+    _tic_smp = 0;
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)
 {
-    *ui = (float)ADC1_buffer[0] * ADCval_to_Cur;
-    *vi = (float)ADC1_buffer[1] * ADCval_to_Cur;
-    *wi = (float)ADC1_buffer[2] * ADCval_to_Cur;
+    *ui = Cur_u;
+    *vi = Cur_v;
+    *wi = Cur_w;
 }
 void ADC_sample_change(u16 compare)
 {
