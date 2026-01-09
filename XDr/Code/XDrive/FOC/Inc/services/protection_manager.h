@@ -6,22 +6,25 @@
 typedef enum
 {
     NO_FAULT,
-    MOTOR_FAULT,
-    OVER_CURRENT,
-    OVER_VOLTAGE,
-    UNDER_VOLTAGE,
-    OVER_SPEED,
-    OVER_POSITION,
-    CAN_INIT_FAULT,
-    CAN_COMMUNICATION_FAULT,
+    TUNING_TIMEOUT,          // 整定超时
+    POLE_PAIRS_MISMATCH,     // 极对数不匹配
+    MOTOR_PARAM_FAULT,       // 电机参数异常
+    OVER_VOLTAGE,            // 过压
+    LOW_VOLTAGE,             // 低电压
+    OVER_CURRENT,            // 过流
+    CAN_INIT_FAULT,          // CAN初始化失败
+    CAN_COMMUNICATION_FAULT, // CAN通信失败
+
 } fault_e;
 typedef enum
 {
     NO_WARNING,
     OVER_TEMPERATURE,
-    ENCODER_OFFLINE,
-    ENCODER_COMMUNICATION_ERROR,
-    ENCODER_WEAK_MAG,
+    OVER_SPEED,
+    OVER_POSITION,
+    ENCODER_OFFLINE,   // 无编码器
+    ENCODER_COM_ERROR, // 编码器通信错误
+    ENCODER_WEAK_MAG,  // 编码器磁场弱
 } Warning_e;
 typedef struct
 {
@@ -53,6 +56,5 @@ void protection_manager_init();
 
 void protection_manager_reset();
 void protection_manager_run();
-fault_e GET_Protect_fault();
 
 #endif /* __PROTECTION_MANAGER_H */

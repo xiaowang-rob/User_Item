@@ -125,7 +125,7 @@ void Param_set(Parameter_e para, u8 *value);
 void Param_get(Parameter_e para, u8 *value, u8 *len);
 bool Param_save();      // 一键保存
 void Param_erase();     // 一键擦除
-bool Param_write_foc(); // 一键写入
+void Param_write_foc(); // 一键写入
 bool Param_init();
 
 #endif // __PARAMETER_MANAGER_H__

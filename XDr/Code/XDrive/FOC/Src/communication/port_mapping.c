@@ -10,9 +10,9 @@ USB、串口、CAN 端口映射
 #include "can_port.h"
 #include "usb_port.h"
 #include "uart_port.h"
+#include "string.h"
 
 COM_FRAME_t com_frame;
-PORT_t port;
 communication_state_t com_state;
 communication_state_t *com_state_get_adr()
 {
@@ -25,6 +25,8 @@ void communication_init()
 {
     CAN_PORT_Init(g_Param.can_id, g_Param.sw_canqueue);
     usart_port_Init();
+    com_state.Host_port = NONE_port;
+    com_state.com_port = NONE_port;
 }
 void fHostComputer_send()
 {
@@ -43,7 +45,7 @@ void frame_data_deal()
         switch (com_frame.cmd_id)
         {
         case CMD_REFVALUE_SET:
-            CONTROL_value_update((float *)com_frame.rxdata);
+            FOC_SET_VER_VALUE((float *)com_frame.rxdata);
             break;
         case ENABLE:
             FOC_CHANGE_STATE(FOC_ENABLE);
@@ -56,7 +58,7 @@ void frame_data_deal()
             break;
         case PARAM_READ:
             data_id = com_frame.rxdata[0];
-            Param_get((Parameter_e)data_id, &com_frame.txdata, &com_frame.txdatalen);
+            Param_get((Parameter_e)data_id, com_frame.txdata, &com_frame.txdatalen);
             CAN_Send_Msg(com_frame.txdata, com_frame.txdatalen);
             break;
         case CMD_STREAM_GET:
@@ -75,19 +77,17 @@ void frame_data_deal()
             switch (com_frame.cmd_id)
             {
             case USART_connect:
-                port.connect_com = com_frame.com_port;
-                com_state.usb_state = OFFLINE;
-                com_state.uart_state = ONLINE;
+                com_state.Host_port = UART_port;
                 strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
                 usart_frame_send(SYSTEM_DESC, (u8 *)&com_frame.txdata, strlen((char *)com_frame.txdata));
-                port.data_id_index[0] = STATUS;
-                port.data_id_index[1] = TEMPERATURE;
-                port.data_id_index[2] = VBUS;
-                port.stream_num = 3;
+                com_frame.data_id_index[0] = STATUS;
+                com_frame.data_id_index[1] = TEMPERATURE;
+                com_frame.data_id_index[2] = VBUS;
+                com_frame.stream_num = 3;
                 break;
             case USART_disconnect:
-                port.connect_com = NONE_port;
-                port.stream_num = 0;
+                com_state.Host_port = NONE_port;
+                com_frame.stream_num = 0;
                 break;
             case START_TUNNING:
                 FOC_CHANGE_STATE(FOC_AUTO_TUNE);
@@ -158,26 +158,26 @@ void frame_data_deal()
                 fHostComputer_send();
                 break;
             case CMD_STREAM_SET: // 监测值设置 5byte
-                if (port.connect_com == NONE_port)
+                if (com_state.Host_port == NONE_port)
                 { // 直接 vofa float格式发送
-                    port.stream_num = com_frame.txdatalen;
-                    for (u8 i = 0; i < port.stream_num; i++)
-                        port.data_id_index[i] = com_frame.rxdata[i];
+                    com_frame.stream_num = com_frame.txdatalen;
+                    for (u8 i = 0; i < com_frame.stream_num; i++)
+                        com_frame.data_id_index[i] = com_frame.rxdata[i];
                 }
                 else // usb、串口上位机
                 {
-                    if (port.stream_num == 0)
+                    if (com_frame.stream_num == 0)
                     {
-                        port.stream_num = 3;
-                        port.data_id_index[0] = STATUS;
-                        port.data_id_index[1] = TEMPERATURE;
-                        port.data_id_index[2] = VBUS;
+                        com_frame.stream_num = 3;
+                        com_frame.data_id_index[0] = STATUS;
+                        com_frame.data_id_index[1] = TEMPERATURE;
+                        com_frame.data_id_index[2] = VBUS;
                     }
                     else
                     {
-                        port.stream_num = com_frame.txdatalen + 3;
-                        for (u8 i = 3; i < port.stream_num; i++)
-                            port.data_id_index[i] = com_frame.rxdata[i - 3];
+                        com_frame.stream_num = com_frame.txdatalen + 3;
+                        for (u8 i = 3; i < com_frame.stream_num; i++)
+                            com_frame.data_id_index[i] = com_frame.rxdata[i - 3];
                     }
                 }
                 break;
@@ -243,38 +243,37 @@ static u32 _time_ms = 0;
 static u32 _time_prev_ms = 0;
 void stream_data_trans()
 {
-    if (port.stream_num == 0)
+    if (com_frame.stream_num == 0)
         return;
     _time_ms = HAL_GetTick();
     if (_time_ms - _time_prev_ms < DATA_stream_T)
         return;
     _time_prev_ms = HAL_GetTick();
 
-    for (u8 i = 0; i < port.stream_num; i++)
+    for (u8 i = 0; i < com_frame.stream_num; i++)
     {
-        stream_data_get(port.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
+        stream_data_get(com_frame.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
     }
-    com_frame.txdatalen = port.stream_num * 4;
-    if (port.connect_com == NONE_port)
+    com_frame.txdatalen = com_frame.stream_num * 4;
+    if (com_state.Host_port == NONE_port)
     { // 直接 vofa float格式发送
-        vofa_send_multi_float((float *)com_frame.txdata, port.stream_num);
+        vofa_send_multi_float((float *)com_frame.txdata, com_frame.stream_num);
     }
     else // usb、串口上位机
     {
         fHostComputer_send();
     }
 }
-
+void usb_state_change(Drive_state_e state)
+{
+    com_state.usb_state = state;
+}
+void can_state_change(Drive_state_e state)
+{
+    com_state.can_state = state;
+}
 void communication_run()
 {
     stream_data_trans();
     CAN_QUEUE_Deal();
-    com_state.com_port = port.connect_com;
-    com_state.can_state = CAN_state_get();
-    if (USB_Connect_Status_get())
-    {
-        com_state.usb_state = ONLINE;
-        com_state.uart_state = OFFLINE;
-    }
-    // todo:串口和usb状态获取 暂时没必要
 }

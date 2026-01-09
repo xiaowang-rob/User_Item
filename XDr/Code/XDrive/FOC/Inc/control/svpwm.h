@@ -6,6 +6,7 @@
 typedef struct
 {
     float k;
+    bool power_flag;
     u8 sector;
     u16 ticu;
     u16 ticv;

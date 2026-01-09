@@ -12,7 +12,7 @@ typedef struct
     u8 queue_tail;
     StaticQueue rx_queue;
 } CAN_Handle_t;
-u8 can_state_get();
+
 
 void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE);
 bool CAN_Send_Msg(u8 *msg, u8 len);

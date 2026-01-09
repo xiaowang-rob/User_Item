@@ -181,7 +181,7 @@ void foc_senless_get_vito()
     if (foc_val.omega_fb > startup_machine.openloop_omega * 0.7f && (foc_val.omega_fb - omega_pre) < 1)
     {
         startup_machine.change_flag = true;
-        foc_val.theta_elec = smo_get_angle();
+        foc_val.theta_elec = smo_get_theta();
     }
     else
     {

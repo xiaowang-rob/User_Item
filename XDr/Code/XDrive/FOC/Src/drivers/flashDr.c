@@ -4,20 +4,7 @@
 u8 Read_data[100] = {0};
 #define Read_data_SIZE sizeof(Read_data)
 
-void FLASH_Init(void)
-{
-    u8 id[3] = {0};
-    FLASH_Enable();                                            // 使能器件
-    spi_Transmit_one_byte(0x9F);                               // 读取ID
-    id[0] = spi_Receive_one_byte();                            // 读取一个字节
-    id[1] = spi_Receive_one_byte();                            // 读取另一个字节
-    id[2] = spi_Receive_one_byte();                            // 读取第三个字节
-    if ((id[0] == 0xEF) && (id[1] == 0x40) && (id[2] == 0x18)) // 校验ID
-    {
-        FLASH_state_set(ONLINE);
-    }
-    FLASH_Disable(); // 取消片选
-}
+
 /* Nicky ******************************************************************* */
 // 器件使能
 void FLASH_Enable()
@@ -207,4 +194,19 @@ void FLASH_Write_Page(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
                 Word_remain = NumByteToWrite; // 不够256个字了
         }
     }
+}
+
+void FLASH_Init(void)
+{
+    u8 id[3] = {0};
+    FLASH_Enable();                                            // 使能器件
+    spi_Transmit_one_byte(0x9F);                               // 读取ID
+    id[0] = spi_Receive_one_byte();                            // 读取一个字节
+    id[1] = spi_Receive_one_byte();                            // 读取另一个字节
+    id[2] = spi_Receive_one_byte();                            // 读取第三个字节
+    if ((id[0] == 0xEF) && (id[1] == 0x40) && (id[2] == 0x18)) // 校验ID
+    {
+        FLASH_state_set(ONLINE);
+    }
+    FLASH_Disable(); // 取消片选
 }

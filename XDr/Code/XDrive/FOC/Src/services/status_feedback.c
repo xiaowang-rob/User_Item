@@ -1,15 +1,15 @@
 #include "status_feedback.h"
 #include "foc_statemachine.h"
 #include "rgb.h"
-#include "can_port.h"
 #include "drive_state.h"
+#include "protection_manager.h"
 
 static u16 _encoder_tic = 0;
 static u16 _canrx_tic = 0;
 
 void status_feedback()
 {
-    switch (FOC_Get_state())
+    switch (g_foc.state)
     {
     case FOC_AUTO_TUNE:
         rgb_breathe(YELLOW); // 黄色
@@ -45,15 +45,15 @@ void status_feedback()
     default:
         break;
     }
-    switch (can_state_get())
+    switch (g_pro_manager.com_state->can_state)
     {
-    case 0: // OK
+    case ONLINE: // OK
         led_flash(CAN);
         break;
-    case 1: // 初始化失败
+    case INIT_ERROR: // 初始化失败
         led_off(CAN);
         break;
-    case 2: // 通讯异常
+    case RUN_ERROR: // 通讯异常
         break;
         led_on(CAN);
     default:

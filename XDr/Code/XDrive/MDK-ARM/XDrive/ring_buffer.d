@@ -1,1 +1,1 @@
-xdrive/ring_buffer.o: ..\Src\utils\ring_buffer.c
+xdrive/ring_buffer.o: ..\FOC\Src\utils\ring_buffer.c

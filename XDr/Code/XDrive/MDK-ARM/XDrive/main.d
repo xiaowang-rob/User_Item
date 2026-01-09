@@ -36,6 +36,6 @@ xdrive/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\USB_DEVICE\App\usb_device.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_DEVICE\Target\usbd_conf.h ..\Core\Inc\gpio.h \
-  ..\Inc\services\system_statemachine.h ..\Inc\utils\math_fast.h \
+  ..\FOC\Inc\services\system_statemachine.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

@@ -1,4 +1,4 @@
-xdrive/rgb.o: ..\Src\drivers\rgb.c ..\Inc\drivers\rgb.h \
+xdrive/rgb.o: ..\FOC\Src\drivers\rgb.c ..\FOC\Inc\drivers\rgb.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -31,6 +31,6 @@ xdrive/rgb.o: ..\Src\drivers\rgb.c ..\Inc\drivers\rgb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\tim.h ..\Config\device.h ..\Core\Inc\spi.h \
-  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Core\Inc\tim.h ..\FOC\Config\device.h ..\Core\Inc\spi.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

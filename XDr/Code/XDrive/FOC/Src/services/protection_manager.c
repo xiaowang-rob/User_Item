@@ -9,9 +9,9 @@
 protection_manager_t g_pro_manager = {0};
 u32 _time = 0;
 u32 _time_last = 0;
-bool Tolerance_check(float *value, float max_value, float min_value, float tolerance)
+bool Tolerance_check(float value, float max_value, float min_value, float tolerance)
 {
-    if (*value > max_value * tolerance || *value < min_value * tolerance)
+    if (value > max_value * tolerance || value < min_value * tolerance)
         _time += (HAL_GetTick() - _time_last);
     else if (_time != 0)
     {
@@ -42,14 +42,25 @@ void protection_manager_init()
     g_pro_manager.tolerance_current = g_Param.tolerance_current;
     g_pro_manager.tolerance_speed = g_Param.tolerance_speed;
     g_pro_manager.tolerance_position = g_Param.tolerance_position;
-    g_pro_manager.com_state = communication_state_get_adr();
+    g_pro_manager.com_state = com_state_get_adr();
     g_pro_manager.drive_state = drive_state_get_adr();
 }
+// 保护程序复位
 void protection_manager_reset()
 {
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;
-    FOC_CHANGE_STATE(FOC_RESET);
+    g_pro_manager.fault = NO_FAULT;
+    g_pro_manager.warning = NO_WARNING;
+    fFOC_Init();
+}
+void clear_warning_flag(Warning_e warning)
+{
+    if (g_pro_manager.warning == warning)
+    {
+        g_pro_manager.warning_flag = false;
+        g_pro_manager.warning = NO_WARNING;
+    }
 }
 void protection_manager_run()
 {
@@ -57,82 +68,114 @@ void protection_manager_run()
     ADC2_sample(); // 采集电压和温度
     ADC_GET_Temp(&g_pro_manager.temp_u, &g_pro_manager.temp_v, &g_pro_manager.temp_w, &g_pro_manager.temperature);
 
-    // 监管保护
-
-    // 错误处理
-
     if (g_pro_manager.fault_flag)
         return;
-    // 错误
-    if (get_motor_fault_flag())
+    // A监管保护
+    // 错误：
+    // 1.整定
+    if (g_foc.tun->fault_flag)
     {
-        g_pro_manager.fault = MOTOR_FAULT;
+        switch (g_foc.tun->fault_type)
+        {
+        case PARAM_FAULT_TIMEOUT:
+            g_pro_manager.fault = TUNING_TIMEOUT;
+            break;
+        case PARAM_FAULT_POLE_PAIRS_MISMATCH:
+            g_pro_manager.fault = POLE_PAIRS_MISMATCH;
+            break;
+        default:
+            g_pro_manager.fault = MOTOR_PARAM_FAULT;
+            break;
+        }
         g_pro_manager.fault_flag = true;
     }
-    //    if (g_monitor.Iu > MAX_Current || g_monitor.Iv > MAX_Current || g_monitor.Iw > MAX_Current || Tolerance_check(&g_monitor.iq_fb, g_pro_manager.maxcurrent, 0, g_pro_manager.tolerance_current))
-    //    {
-    //        g_pro_manager.fault = OVER_CURRENT;
-    //        g_pro_manager.fault_flag = true;
-    //    }
-    if (CAN_STATE_get() != 0)
+    // 2.电压异常
+    if (Tolerance_check(g_foc.motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
     {
-        g_pro_manager.fault = CAN_STATE_get() - 1 + CAN_INIT_FAULT;
+        if (g_foc.motor->Udc > MAX_Voltage)
+            g_pro_manager.fault = OVER_VOLTAGE;
+        else
+            g_pro_manager.fault = LOW_VOLTAGE;
         g_pro_manager.fault_flag = true;
     }
-    if (Tolerance_check(&g_adaptive_con.Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage) && g_adaptive_con.Udc > MAX_Voltage)
+    // 3.电流过大
+    if (g_foc.val->Iu > MAX_Current || g_foc.val->Iv > MAX_Current || g_foc.val->Iw > MAX_Current ||
+        Tolerance_check(g_foc.val->iq_fb, g_pro_manager.maxcurrent, 0, g_pro_manager.tolerance_current))
     {
-        g_pro_manager.fault = OVER_VOLTAGE;
+        g_pro_manager.fault = OVER_CURRENT;
         g_pro_manager.fault_flag = true;
     }
-    //    if (g_adaptive_con.Udc < MIN_Voltage && Tolerance_check(&g_adaptive_con.Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
-    //    {
-    //        g_pro_manager.fault = UNDER_VOLTAGE;
-    //        g_pro_manager.fault_flag = true;
-    //    }
 
-    // 警告
-
-    //    if (g_adaptive_con.tempareture > MAX_Temperature)
-    //    {
-    //        g_pro_manager.warning = OVER_TEMPERATURE;
-    //        g_pro_manager.warning_flag = true;
-    //    }
-    //    else if (g_pro_manager.warning == OVER_TEMPERATURE)
-    //    {
-    //        g_pro_manager.warning_flag = false;
-    //        g_pro_manager.warning = NO_WARNING;
-    //        g_pro_manager.log_done = false;
-    //        protection_manager_reset();
-    //    }
-    if (g_foccore.run_mode == ENCODER_CONTROL)
+    // 4.CAN通讯异常
+    if (g_pro_manager.com_state->can_state != ONLINE)
+    {
+        if (g_pro_manager.com_state->can_state == RUN_ERROR)
+        {
+            g_pro_manager.fault = CAN_COMMUNICATION_FAULT;
+        }
+        else
+        {
+            g_pro_manager.fault = CAN_INIT_FAULT;
+        }
+        g_pro_manager.fault_flag = true;
+    }
+    // 警告：
+    // 1温度过高
+    if (g_pro_manager.temperature > MAX_Temperature)
+    {
+        g_pro_manager.warning = OVER_TEMPERATURE;
+        g_pro_manager.warning_flag = true;
+    }
+    else
+        clear_warning_flag(OVER_TEMPERATURE);
+    // 2 速度检测
+    if (Tolerance_check(g_foc.val->omega_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
+    {
+        g_pro_manager.warning = OVER_SPEED;
+        g_pro_manager.warning_flag = true;
+    }
+    else
+        clear_warning_flag(OVER_SPEED);
+    // 3位置检测
+    if (Tolerance_check(g_foc.val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+    {
+        g_pro_manager.warning = OVER_POSITION;
+        g_pro_manager.warning_flag = true;
+    }
+    else
+        clear_warning_flag(OVER_POSITION);
+    //  4编码器状态检测
+    if (g_foc.mode->run_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
-        u8 encoder_state = GET_ENCODER_STATUS();
-        if (encoder_state != 0)
+        if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
+            switch (g_pro_manager.drive_state->ENCODER_state)
+            {
+                g_pro_manager.warning_flag = true;
+            case RUN_ERROR:
+                g_pro_manager.warning = ENCODER_COM_ERROR;
+                break;
+            case SINGNAL_ERROR:
+                g_pro_manager.warning = ENCODER_WEAK_MAG;
+                break;
+            default: // 初始化失败
+                g_pro_manager.warning = ENCODER_OFFLINE;
+                break;
+            }
+        else
         {
-            g_pro_manager.warning = ENCODER_OFFLINE - 1 + encoder_state;
-            g_pro_manager.warning_flag = true;
-        }
-        else if (g_pro_manager.warning >= ENCODER_OFFLINE && g_pro_manager.warning <= ENCODER_WEAK_MAG)
-        {
-            g_pro_manager.warning_flag = false;
-            g_pro_manager.warning = NO_WARNING;
-            g_pro_manager.log_done = false;
-            protection_manager_reset();
+            clear_warning_flag(ENCODER_OFFLINE);
+            clear_warning_flag(ENCODER_COM_ERROR);
+            clear_warning_flag(ENCODER_WEAK_MAG);
         }
     }
-
+    //   B错误处理
     if ((g_pro_manager.warning_flag || g_pro_manager.fault_flag) && !g_pro_manager.log_done)
     {
         log_data_save();
         FOC_CHANGE_STATE(FOC_FAULT);
-        if (USB_Connect_Status_get() == 1)
-            return;
+        if (g_pro_manager.com_state->Host_port != NONE_port)
+            return; // 上位机模式下不进行日志写入
         log_data_write();
         g_pro_manager.log_done = true;
     }
-}
-
-fault_e GET_Protect_fault()
-{
-    return g_pro_manager.fault;
 }

@@ -1,5 +1,5 @@
-xdrive/encoder.o: ..\Src\drivers\encoder.c ..\Inc\drivers\encoder.h \
-  ..\Config\device.h ..\Core\Inc\main.h \
+xdrive/encoder.o: ..\FOC\Src\drivers\encoder.c \
+  ..\FOC\Inc\drivers\encoder.h ..\FOC\Config\device.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,6 +32,7 @@ xdrive/encoder.o: ..\Src\drivers\encoder.c ..\Inc\drivers\encoder.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\spi.h ..\Inc\utils\math_fast.h \
+  ..\Core\Inc\spi.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  ..\FOC\Inc\drivers\drive_state.h

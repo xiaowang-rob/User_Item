@@ -1,5 +1,5 @@
-xdrive/loop_control.o: ..\Src\control\loop_control.c \
-  ..\Inc\control\loop_control.h ..\Core\Inc\main.h \
+xdrive/loop_control.o: ..\FOC\Src\control\loop_control.c \
+  ..\FOC\Inc\control\loop_control.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,6 +32,7 @@ xdrive/loop_control.o: ..\Src\control\loop_control.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Config\system_parameters.h ..\Inc\utils\math_fast.h \
+  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Config\system_parameters.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

@@ -33,7 +33,7 @@ void PID_init(PID_t *pid, float kp, float ki, float kd, float output_limit)
     pid->integral_limit = output_limit;
     pid->output_limit = output_limit;
 }
-void Frequency_division_updatta()
+void Frequency_division_update()
 {
     g_loop_con.fd.speed_updata = false;
     g_loop_con.fd.position_updata = false;
@@ -174,7 +174,7 @@ void loop_parameter_init(Parameter_t param, float Vmax)
     PI_init(&g_loop_con.PI_id, param.kp_weakmag, param.ki_weakmag, Vmax);
     PI_init(&g_loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current);
     PI_init(&g_loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current);
-    PID_init(&g_loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_speed);
+    PID_init(&g_loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega);
     g_loop_con.position_min = param.limit_position_min;
     g_loop_con.position_max = param.limit_position_max;
 }

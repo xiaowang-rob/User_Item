@@ -1,4 +1,4 @@
-xdrive/smo.o: ..\Src\control\smo.c ..\Inc\control\smo.h \
+xdrive/smo.o: ..\FOC\Src\control\smo.c ..\FOC\Inc\control\smo.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -31,6 +31,8 @@ xdrive/smo.o: ..\Src\control\smo.c ..\Inc\control\smo.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\Config\system_parameters.h
+  ..\FOC\Config\system_parameters.h ..\FOC\Inc\control\foc_core.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\drivers\encoder.h \
+  ..\FOC\Config\device.h ..\Core\Inc\spi.h

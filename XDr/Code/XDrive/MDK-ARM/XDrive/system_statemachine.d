@@ -1,5 +1,5 @@
-xdrive/system_statemachine.o: ..\Src\services\system_statemachine.c \
-  ..\Inc\services\system_statemachine.h ..\Core\Inc\main.h \
+xdrive/system_statemachine.o: ..\FOC\Src\services\system_statemachine.c \
+  ..\FOC\Inc\services\system_statemachine.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,11 +32,11 @@ xdrive/system_statemachine.o: ..\Src\services\system_statemachine.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\services\stream_transmission.h ..\Inc\drivers\adcDr.h \
-  ..\Inc\drivers\usartDr.h ..\Config\protocol.h ..\Inc\drivers\usbDr.h \
-  ..\Inc\drivers\canDr.h ..\Inc\utils\queue.h \
-  ..\Inc\control\adaptive_control.h ..\Inc\control\foc_core.h \
-  ..\Inc\control\foc_statemachine.h ..\Inc\services\status_feedback.h \
-  ..\Inc\services\log.h ..\Inc\services\protection_manager.h \
-  ..\Inc\app\usb_interface.h ..\Inc\app\wireless_interface.h \
-  ..\Inc\app\can_interface.h
+  ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
+  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
+  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\services\status_feedback.h \
+  ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h \
+  ..\FOC\Inc\drivers\drive_state.h

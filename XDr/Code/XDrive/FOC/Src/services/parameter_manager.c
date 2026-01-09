@@ -1,7 +1,7 @@
 #include "parameter_manager.h"
 #include "string.h"
 #include "flashDr.h"
-#include "foc_core.h"
+#include "foc_statemachine.h"
 #include "math_fast.h"
 #include "protection_manager.h"
 #include "can_port.h"
@@ -437,10 +437,10 @@ void Param_erase()
     Erase_one_Sector(PARAMETER_LOAD_ADDr);
 }
 // 写入FOC
-bool Param_write_foc()
+void Param_write_foc()
 {
     // 带参数写入的全部初始化
     protection_manager_init();
     CAN_PORT_Init(g_Param.can_id, g_Param.sw_canqueue);
-    FOC_INIT();
+    fFOC_Init();
 }

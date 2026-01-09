@@ -1,10 +1,10 @@
 #include "usb_port.h"
 #include "string.h"
 #include "usbd_cdc_if.h"
+#include "port_mapping.h"
 
 USB_frame_t UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
 USB_frame_t UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
-bool USB_connect_status = 0;
 
 bool usbSendData(u8 *data, u8 len)
 {
@@ -61,11 +61,7 @@ bool usbRecvByte(u8 *data, u8 *len)
 void USB_Connect_Status_set(u8 status)
 {
     if (status == 1)
-        USB_connect_status = true;
+        usb_state_change(ONLINE);
     else
-        USB_connect_status = false;
-}
-bool USB_Connect_Status_get()
-{
-    return USB_connect_status;
+        usb_state_change(OFFLINE);
 }

@@ -3,7 +3,7 @@
 #include "math_fast.h"
 #include "parameter_manager.h"
 
-FOC_t foc = {0};
+FOC_t g_foc = {0};
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
@@ -44,17 +44,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-void FOC_INIT()
+void fFOC_Init()
 {
-    foc.state = FOC_IDLE;
-    foc.mode = FOC_GET_MODE_adr();
-    foc.val = FOC_GET_VAL_adr();
-    foc.startup_mechine = FOC_GET_STARTUP_adr();
-    foc.g_loop_con = get_loop_con_adr();
-    foc.smo = get_smo_adr();
-    foc.tun = get_tuning_adr();
-    foc.svpwm = get_svpwm_adr();
-    foc.motor = get_motor_adr();
+    g_foc.state = FOC_IDLE;
+    g_foc.mode = FOC_GET_MODE_adr();
+    g_foc.val = FOC_GET_VAL_adr();
+    g_foc.startup_mechine = FOC_GET_STARTUP_adr();
+    g_foc.g_loop_con = get_loop_con_adr();
+    g_foc.smo = get_smo_adr();
+    g_foc.tun = get_tuning_adr();
+    g_foc.svpwm = get_svpwm_adr();
+    g_foc.motor = get_motor_adr();
     foc_core_init();
     PWM_POWER_ON();
 }
@@ -62,26 +62,26 @@ void FOC_INIT()
 void FOC_StateMachine_updata()
 {
     FOC_PREPARE();
-    switch (foc.state)
+    switch (g_foc.state)
     {
     case FOC_IDLE:
         break;
     case FOC_AUTO_TUNE:
-        foc_core_run();
         if (auto_calibration_update())
             FOC_CHANGE_STATE(FOC_IDLE);
         break;
+				FOC_RUN();
     case FOC_RESET:
         foc_core_reset();
         FOC_CHANGE_STATE(FOC_IDLE);
         break;
     case FOC_ENABLE:
-        foc.ENABLE = true;
+        g_foc.foc_enable = true;
         ENABLE_PWM();
         FOC_CHANGE_STATE(FOC_RUNNING);
         break;
     case FOC_DISABLE:
-        foc.ENABLE = false;
+        g_foc.foc_enable = false;
         DISABLE_PWM();
         FOC_CHANGE_STATE(FOC_RESET);
         break;
@@ -93,9 +93,9 @@ void FOC_StateMachine_updata()
             FOC_CHANGE_STATE(FOC_FAULT);
         break;
     case FOC_FAULT:
-        if (foc.ENABLE)
+        if (g_foc.foc_enable)
         {
-            foc.ENABLE = false;
+            g_foc.foc_enable = false;
             DISABLE_PWM();
             PWM_POWER_OFF();
         }
@@ -106,9 +106,5 @@ void FOC_StateMachine_updata()
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {
-    foc.state = state;
-}
-FOC_STATE_e FOC_Get_state()
-{
-    return foc.state;
+    g_foc.state = state;
 }

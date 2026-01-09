@@ -1,7 +1,7 @@
 #include "can_port.h"
 #include "protocol.h"
 #include "can.h"
-#include "drive_state.h"
+#include "port_mapping.h"
 
 static u8 idindex;
 static u8 txbuffer[8];
@@ -11,20 +11,12 @@ static u8 rxindex;
 static u8 CanRxData[64];
 
 CAN_Handle_t can = {.queue_head = 0xE5, .queue_tail = 0x5E};
-u8 CAN_state = 0;
-// 0: ok, 1: init error, 2: communication error
-u8 can_state_get()
-{
-    return CAN_state;
-}
+
 QueueStatus CAN_deQUEUE_data(u8 *data)
 {
     return static_queue_dequeue(&can.rx_queue, data);
 }
-__weak void CAN_RxData_Deal(u8 *RxData, u8 len)
-{
-    return;
-}
+
 /**
  * @brief  CAN过滤器配置和初始化函数
  * @note   配置CAN2的过滤器，启动CAN2外设，并使能接收中断
@@ -51,22 +43,23 @@ void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE)
     // 配置CAN2的过滤器参数
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        CAN_state = 1;
+        can_state_change(INIT_ERROR);
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        CAN_state = 1;
+        can_state_change(INIT_ERROR);
     }
 
     /* Activate CAN RX notification - 激活CAN接收中断通知 */
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        CAN_state = 1;
+        can_state_change(INIT_ERROR);
     }
     if (can.queue_flag)
         static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData));
+		can_state_change(ONLINE);
 }
 
 /**
@@ -101,7 +94,7 @@ bool CAN_Send_Msg(u8 *msg, u8 len)
     // 发送CAN消息 - 将消息添加到发送邮箱
     if (HAL_CAN_AddTxMessage(&hcan2, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
     {
-        CAN_state = 2;
+        can_state_change(RUN_ERROR);
     }
 
     // 等待发送完成 - 等待所有发送邮箱都空闲（表示消息已发送）
@@ -152,9 +145,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     else
         can.err_count += 5;
     if (can.err_count >= 50)
-        CAN_state = 2;
-    else if (CAN_state == 2)
-        CAN_state = 0;
+        can_state_change(RUN_ERROR);
+    else
+        can_state_change(ONLINE);
 }
 /*
 控制 4byte和pvt 8byte

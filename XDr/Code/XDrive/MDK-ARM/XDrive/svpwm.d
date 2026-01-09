@@ -1,4 +1,4 @@
-xdrive/svpwm.o: ..\Src\drivers\svpwm.c ..\Inc\drivers\svpwm.h \
+xdrive/svpwm.o: ..\FOC\Src\control\svpwm.c ..\FOC\Inc\control\svpwm.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -31,7 +31,8 @@ xdrive/svpwm.o: ..\Src\drivers\svpwm.c ..\Inc\drivers\svpwm.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\tim.h ..\Inc\utils\math_fast.h \
+  ..\Core\Inc\tim.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\Config\system_parameters.h
+  ..\FOC\Config\system_parameters.h ..\FOC\Config\device.h \
+  ..\Core\Inc\spi.h ..\FOC\Inc\drivers\adcDr.h

@@ -1,6 +1,7 @@
 #include "drive_state.h"
 #include "flashDr.h"
 #include "encoder.h"
+#include "adcDr.h"
 
 Drive_state_t drive_state;
 

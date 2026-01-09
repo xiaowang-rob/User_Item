@@ -1,4 +1,4 @@
-xdrive/log.o: ..\Src\services\log.c ..\Inc\services\log.h \
+xdrive/log.o: ..\FOC\Src\services\log.c ..\FOC\Inc\services\log.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -31,8 +31,14 @@ xdrive/log.o: ..\Src\services\log.c ..\Inc\services\log.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\drivers\flashDr.h ..\Config\device.h ..\Core\Inc\spi.h \
-  ..\Inc\services\protection_manager.h ..\Inc\control\adaptive_control.h \
-  ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
-  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h
+  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Config\device.h ..\Core\Inc\spi.h \
+  ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h \
+  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\utils\math_fast.h \
+  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
+  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
+  ..\FOC\Inc\control\svpwm.h

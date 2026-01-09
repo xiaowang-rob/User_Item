@@ -17,7 +17,7 @@
         <TargetCommonOption>
           <Device>STM32F405RGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.3.0.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.3.1.1</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x2001BFFF) IRAM2(0x2001C000-0x2001FFFF) IROM(0x8000000-0x80FFFFF) CLOCK(25000000) FPU2 CPUTYPE("Cortex-M4") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx,ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Config;../Inc/app;../Inc/control;../Inc/drivers;../Inc/services;../Inc/utils;../Middlewares/ST/ARM/DSP/Inc</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;..\FOC\Config;..\FOC\Inc\communication;..\FOC\Inc\control;..\FOC\Inc\drivers;..\FOC\Inc\services;..\FOC\Inc\utils;../Middlewares/ST/ARM/DSP/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1406,167 +1406,147 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Src/app</GroupName>
+          <GroupName>Foc/communication</GroupName>
           <Files>
             <File>
-              <FileName>app_main.c</FileName>
+              <FileName>can_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\app\app_main.c</FilePath>
+              <FilePath>..\FOC\Src\communication\can_port.c</FilePath>
             </File>
             <File>
-              <FileName>can_interface.c</FileName>
+              <FileName>DataMonitoring.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\app\can_interface.c</FilePath>
+              <FilePath>..\FOC\Src\communication\DataMonitoring.c</FilePath>
             </File>
             <File>
-              <FileName>command_parser.c</FileName>
+              <FileName>port_mapping.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\app\command_parser.c</FilePath>
+              <FilePath>..\FOC\Src\communication\port_mapping.c</FilePath>
             </File>
             <File>
-              <FileName>usb_interface.c</FileName>
+              <FileName>uart_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\app\usb_interface.c</FilePath>
+              <FilePath>..\FOC\Src\communication\uart_port.c</FilePath>
             </File>
             <File>
-              <FileName>wireless_interface.c</FileName>
+              <FileName>usb_port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\app\wireless_interface.c</FilePath>
+              <FilePath>..\FOC\Src\communication\usb_port.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Src/control</GroupName>
+          <GroupName>Foc/control</GroupName>
           <Files>
-            <File>
-              <FileName>adaptive_control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\control\adaptive_control.c</FilePath>
-            </File>
-            <File>
-              <FileName>auto_calibration.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\control\auto_calibration.c</FilePath>
-            </File>
             <File>
               <FileName>foc_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\control\foc_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>loop_control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\control\loop_control.c</FilePath>
+              <FilePath>..\FOC\Src\control\foc_core.c</FilePath>
             </File>
             <File>
               <FileName>foc_statemachine.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\control\foc_statemachine.c</FilePath>
+              <FilePath>..\FOC\Src\control\foc_statemachine.c</FilePath>
+            </File>
+            <File>
+              <FileName>loop_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\control\loop_control.c</FilePath>
             </File>
             <File>
               <FileName>smo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\control\smo.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Src/drives</GroupName>
-          <Files>
-            <File>
-              <FileName>adcDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\adcDr.c</FilePath>
-            </File>
-            <File>
-              <FileName>canDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\canDr.c</FilePath>
-            </File>
-            <File>
-              <FileName>encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\encoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>flashDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\flashDr.c</FilePath>
-            </File>
-            <File>
-              <FileName>rgb.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\rgb.c</FilePath>
+              <FilePath>..\FOC\Src\control\smo.c</FilePath>
             </File>
             <File>
               <FileName>svpwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\drivers\svpwm.c</FilePath>
-            </File>
-            <File>
-              <FileName>usartDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\usartDr.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\drivers\usbDr.c</FilePath>
+              <FilePath>..\FOC\Src\control\svpwm.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Src/services</GroupName>
+          <GroupName>Foc/drives</GroupName>
+          <Files>
+            <File>
+              <FileName>adcDr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\adcDr.c</FilePath>
+            </File>
+            <File>
+              <FileName>drive_state.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\drive_state.c</FilePath>
+            </File>
+            <File>
+              <FileName>encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>flashDr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\flashDr.c</FilePath>
+            </File>
+            <File>
+              <FileName>rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\rgb.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Foc/services</GroupName>
           <Files>
             <File>
               <FileName>log.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\services\log.c</FilePath>
+              <FilePath>..\FOC\Src\services\log.c</FilePath>
+            </File>
+            <File>
+              <FileName>parameter_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\services\parameter_manager.c</FilePath>
             </File>
             <File>
               <FileName>protection_manager.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\services\protection_manager.c</FilePath>
+              <FilePath>..\FOC\Src\services\protection_manager.c</FilePath>
             </File>
             <File>
               <FileName>status_feedback.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\services\status_feedback.c</FilePath>
-            </File>
-            <File>
-              <FileName>stream_transmission.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\services\stream_transmission.c</FilePath>
+              <FilePath>..\FOC\Src\services\status_feedback.c</FilePath>
             </File>
             <File>
               <FileName>system_statemachine.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\services\system_statemachine.c</FilePath>
+              <FilePath>..\FOC\Src\services\system_statemachine.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Src/utils</GroupName>
+          <GroupName>Foc/utils</GroupName>
           <Files>
             <File>
               <FileName>filter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\utils\filter.c</FilePath>
+              <FilePath>..\FOC\Src\utils\filter.c</FilePath>
             </File>
             <File>
               <FileName>math_fast.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\utils\math_fast.c</FilePath>
-            </File>
-            <File>
-              <FileName>ring_buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\utils\ring_buffer.c</FilePath>
+              <FilePath>..\FOC\Src\utils\math_fast.c</FilePath>
             </File>
             <File>
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\utils\queue.c</FilePath>
+              <FilePath>..\FOC\Src\utils\queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>ring_buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\utils\ring_buffer.c</FilePath>
             </File>
           </Files>
         </Group>

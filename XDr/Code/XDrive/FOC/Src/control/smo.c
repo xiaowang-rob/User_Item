@@ -119,7 +119,7 @@ float smo_get_theta()
 
 float smo_get_omega()
 {
-    return smo.omega;
+    return smo.omega/smo.pole_pairs;
 }
 void write_motor_param()
 {
@@ -289,7 +289,6 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
             tun.fault_flag = true;
             tun.fault_type = PARAM_FAULT_TIMEOUT;
             tun.fault_state = PARAM_TUNE_LS;
-            return;
         }
         // === 计算alpha轴电感 ===
         float Ls_alpha = 0.0f;
@@ -564,7 +563,7 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         { // 完成跳转
             FOC_SET_LOOPMODE(VOLTAGE_LOOP);
             float cur_uq_ud[2] = {tun.Udc / 24.0f, 0};
-            FOC_SET_VER_VALUE(&cur_uq_ud);
+            FOC_SET_VER_VALUE(cur_uq_ud);
             smo.pole_pairs = 1;
             tun.tune_samples = 0;
             tun.time_tic = 0;

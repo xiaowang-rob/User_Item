@@ -2,8 +2,9 @@
 #include "flashDr.h"
 #include "protection_manager.h"
 #include "string.h"
-#include "foc_core.h"
 #include "math_fast.h"
+#include "foc_statemachine.h"
+
 Index_t Index;
 LOG_t Log;
 void log_init(void)
@@ -20,23 +21,23 @@ void log_init(void)
 }
 void log_data_save(void)
 {
-    Log.Vbus = g_adaptive_con.Udc;
-    Log.TEMP = g_adaptive_con.tempareture;
-    Log.Iu = g_monitor.Iu;
-    Log.Iv = g_monitor.Iv;
-    Log.Iw = g_monitor.Iw;
-    Log.Iq = g_monitor.iq_fb;
-    Log.Id = g_monitor.id_fb;
-    Log.Id_ref = g_foccore.id_ref;
-    Log.Iq_ref = g_foccore.iq_ref;
-    Log.speed = rad_to_rpm(g_monitor.omega_fb);
-    Log.speed_ref = rad_to_rpm(g_foccore.omega_ref);
-    Log.position = rad_to_deg(g_monitor.pos_fb);
-    Log.position_ref = rad_to_deg(g_foccore.pos_ref);
-    Log.loop_mode = g_foccore.loop_mode;
-    Log.run_mode = g_foccore.run_mode;
-    Log.fault = g_protection_manager.fault;
-    Log.warning = g_protection_manager.warning;
+    Log.Vbus = g_foc.motor->Udc;
+    Log.TEMP = g_pro_manager.temperature;
+    Log.Iu = g_foc.val->Iu;
+    Log.Iv = g_foc.val->Iv;
+    Log.Iw = g_foc.val->Iw;
+    Log.Iq = g_foc.val->iq_fb;
+    Log.Id = g_foc.val->id_fb;
+    Log.Id_ref = g_foc.val->id_ref;
+    Log.Iq_ref = g_foc.val->iq_ref;
+    Log.speed = rad_to_rpm(g_foc.val->omega_fb);
+    Log.speed_ref = rad_to_rpm(g_foc.val->omega_ref);
+    Log.position = rad_to_deg(g_foc.val->pos_fb);
+    Log.position_ref = rad_to_deg(g_foc.val->pos_ref);
+    Log.loop_mode = g_foc.mode->loop_mode;
+    Log.run_mode = g_foc.mode->run_mode;
+    Log.fault = (fault_e)g_pro_manager.fault;
+    Log.warning = (Warning_e)g_pro_manager.warning;
     Log.num = Index.num + 1;
     u32 time = HAL_GetTick();
     Log.minute = time / 1000 / 60;

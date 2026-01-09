@@ -1,4 +1,4 @@
-xdrive/adcdr.o: ..\Src\drivers\adcDr.c ..\Inc\drivers\adcDr.h \
+xdrive/adcdr.o: ..\FOC\Src\drivers\adcDr.c ..\FOC\Inc\drivers\adcDr.h \
   ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -31,6 +31,6 @@ xdrive/adcdr.o: ..\Src\drivers\adcDr.c ..\Inc\drivers\adcDr.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\tim.h ..\Config\system_parameters.h \
-  ..\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Core\Inc\adc.h ..\Core\Inc\tim.h ..\FOC\Config\system_parameters.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

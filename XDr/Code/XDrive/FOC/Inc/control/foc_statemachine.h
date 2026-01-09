@@ -20,7 +20,7 @@ typedef enum
 
 typedef struct
 {
-    bool ENABLE;
+    bool foc_enable;
     FOC_STATE_e state;
     FOC_mode_t *mode;
     FOC_val_t *val;
@@ -31,10 +31,11 @@ typedef struct
     SVPWM_t *svpwm;
     Motor_t *motor;
 } FOC_t;
-void FOC_INIT();
+extern FOC_t g_foc;
+
+void fFOC_Init();
 void FOC_StateMachine_updata();
 void FOC_CHANGE_STATE(FOC_STATE_e state);
-FOC_STATE_e FOC_Get_state();
 void FOC_Start_run();
 void FOC_Stop_run();
 

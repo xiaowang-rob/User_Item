@@ -1,6 +1,6 @@
-xdrive/foc_statemachine.o: ..\Src\control\foc_statemachine.c \
-  ..\Inc\control\foc_statemachine.h ..\Inc\control\auto_calibration.h \
-  ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+xdrive/foc_statemachine.o: ..\FOC\Src\control\foc_statemachine.c \
+  ..\FOC\Inc\control\foc_statemachine.h ..\Core\Inc\main.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
@@ -32,7 +32,8 @@ xdrive/foc_statemachine.o: ..\Src\control\foc_statemachine.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\control\smo.h ..\Core\Inc\tim.h ..\Inc\control\foc_core.h \
-  ..\Inc\drivers\svpwm.h ..\Inc\utils\math_fast.h \
-  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\FOC\Inc\control\foc_core.h ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
+  ..\FOC\Inc\control\svpwm.h ..\Core\Inc\tim.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

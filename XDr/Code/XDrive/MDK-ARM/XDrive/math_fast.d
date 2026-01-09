@@ -1,5 +1,6 @@
-xdrive/math_fast.o: ..\Src\utils\math_fast.c ..\Inc\utils\math_fast.h \
-  ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+xdrive/math_fast.o: ..\FOC\Src\utils\math_fast.c \
+  ..\FOC\Inc\utils\math_fast.h ..\Core\Inc\main.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \

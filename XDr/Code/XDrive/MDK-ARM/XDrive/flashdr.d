@@ -1,5 +1,5 @@
-xdrive/flashdr.o: ..\Src\drivers\flashDr.c ..\Inc\drivers\flashDr.h \
-  ..\Config\device.h ..\Core\Inc\main.h \
+xdrive/flashdr.o: ..\FOC\Src\drivers\flashDr.c \
+  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Config\device.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,4 +32,4 @@ xdrive/flashdr.o: ..\Src\drivers\flashDr.c ..\Inc\drivers\flashDr.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\spi.h
+  ..\Core\Inc\spi.h ..\FOC\Inc\drivers\drive_state.h

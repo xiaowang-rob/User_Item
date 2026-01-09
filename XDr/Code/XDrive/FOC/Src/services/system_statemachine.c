@@ -22,7 +22,7 @@ bool system_init_event(void)
     // 通讯层初始化
     communication_init();
     //  控制层初始化
-    FOC_INIT();
+    fFOC_Init();
     return true;
 }
 

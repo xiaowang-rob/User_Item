@@ -1,5 +1,5 @@
-xdrive/protection_manager.o: ..\Src\services\protection_manager.c \
-  ..\Inc\services\protection_manager.h ..\Core\Inc\main.h \
+xdrive/protection_manager.o: ..\FOC\Src\services\protection_manager.c \
+  ..\FOC\Inc\services\protection_manager.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,10 +32,12 @@ xdrive/protection_manager.o: ..\Src\services\protection_manager.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Inc\control\foc_core.h ..\Inc\control\foc_statemachine.h \
-  ..\Config\system_parameters.h ..\Inc\control\adaptive_control.h \
-  ..\Inc\drivers\encoder.h ..\Config\device.h ..\Core\Inc\spi.h \
-  ..\Inc\services\log.h ..\Inc\drivers\adcDr.h \
-  ..\Inc\control\auto_calibration.h ..\Inc\control\smo.h \
-  ..\Inc\drivers\canDr.h ..\Inc\utils\queue.h ..\Inc\drivers\usbDr.h \
-  ..\Config\protocol.h
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h \
+  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\control\foc_core.h \
+  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Config\system_parameters.h \
+  ..\FOC\Inc\control\foc_statemachine.h \
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
+  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\services\log.h \
+  ..\FOC\Inc\drivers\adcDr.h

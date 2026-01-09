@@ -27,7 +27,7 @@ typedef struct
     bool pvt_mode;
     bool weak_mag;
 } FOC_mode_t;
-P_MODE_e;
+
 
 typedef struct
 {
@@ -84,6 +84,7 @@ void foc_core_reset();
 void FOC_PREPARE();
 void FOC_RUN();
 bool SHUTDOWM();
+bool auto_calibration_update();
 
 void FOC_SET_OMEGA_con(float value);
 void FOC_SET_VER_VALUE(float *value);

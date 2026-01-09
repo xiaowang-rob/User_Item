@@ -42,10 +42,12 @@ void DISABLE_PWM()
 void PWM_POWER_ON()
 {
     HAL_GPIO_WritePin(POWER12V_GPIOx, POWER12V_GPIOx_PIN, GPIO_PIN_SET);
+    svpwm.power_flag = true;
 }
 void PWM_POWER_OFF()
 {
     HAL_GPIO_WritePin(POWER12V_GPIOx, POWER12V_GPIOx_PIN, GPIO_PIN_RESET);
+    svpwm.power_flag = false;
 }
 void svpwm_run(float ualpha, float ubeta)
 {
