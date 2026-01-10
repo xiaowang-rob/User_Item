@@ -110,7 +110,6 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM8_Init();
   MX_USB_DEVICE_Init();
-  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -126,7 +125,7 @@ int main(void)
 
 #ifdef __DEBUG__ //***********调试************
 
-    time_while_T = HAL_GetTick_us() - time_while_zero;
+    time_while_T = HAL_GetTick_us() - time_while_zero; 
     time_while_zero = HAL_GetTick_us();
 #endif
   }

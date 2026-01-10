@@ -89,6 +89,7 @@ void ADC_DR_Init()
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
     ADC_sample_change(1);
 }
+
 void ADC1_sample()
 {
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);

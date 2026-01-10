@@ -8,7 +8,7 @@ void clark_transform(float ia, float ib, float ic, float *alpha, float *beta)
 {
     // 使用功率不变变换（系数 2/3）
     *alpha = ia;
-    *beta = insqrt3 * (ib - ic);
+    *beta = insqrt3 * (2*ib - ic);
 
     // 或者更精确的变换：
     // *alpha = ia;

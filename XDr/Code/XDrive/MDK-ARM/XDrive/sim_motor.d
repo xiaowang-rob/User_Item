@@ -1,5 +1,5 @@
-xdrive/parameter_manager.o: ..\FOC\Src\services\parameter_manager.c \
-  ..\FOC\Inc\services\parameter_manager.h ..\Core\Inc\main.h \
+xdrive/sim_motor.o: ..\FOC\Src\utils\sim_motor.c \
+  ..\FOC\Inc\utils\sim_motor.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -32,14 +32,6 @@ xdrive/parameter_manager.o: ..\FOC\Src\services\parameter_manager.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Config\device.h ..\Core\Inc\spi.h \
-  ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
-  ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\utils\math_fast.h \
-  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Inc\services\protection_manager.h \
-  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\communication\can_port.h \
-  ..\FOC\Inc\utils\queue.h ..\FOC\Config\system_parameters.h
+  ..\FOC\Config\system_parameters.h

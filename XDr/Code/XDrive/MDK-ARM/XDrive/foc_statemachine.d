@@ -36,4 +36,4 @@ xdrive/foc_statemachine.o: ..\FOC\Src\control\foc_statemachine.c \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\Core\Inc\tim.h \
   ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\FOC\Inc\utils\sim_motor.h

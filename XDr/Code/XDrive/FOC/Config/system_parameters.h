@@ -16,9 +16,9 @@
 #define SYSTEM_DESC_str \
     Description "," VERSION "," AUTHOR "," Frequency_string "," MAX_CURRENT_string "," MAX_Voltage_string "," MIN_Voltage_string "," MAX_Temperature_string
 
-#define fpwm 20000
+#define fpwm 20000       // 20kHz
 #define Tpwm 1.0f / fpwm // 50us
-#define ticpwm 4200 / 2 - 1
+#define ticpwm 2099
 #define Tcon Tpwm
 
 #define Ts 7                               // 采样 4-7us
@@ -30,7 +30,7 @@
 #define alltic_tsdttn tics + ticDT + ticTN // 总计数值
 
 #define rate_CurrentSample 42.6749f // 电流采样 电流与电压比值
-#define MAX_Current 50
+#define MAX_Current 100
 #define MAX_Voltage 34
 #define MIN_Voltage 20
 #define MAX_Temperature 80

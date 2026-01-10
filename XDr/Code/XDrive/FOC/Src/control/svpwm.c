@@ -17,7 +17,8 @@ __IO u16 tim8_ch_compare[3] = {0};
 void svpwm_Init(float Vbus)
 {
     memset(&svpwm, 0, sizeof(SVPWM_t));
-    svpwm.k = sqrt3 * ticpwm / Vbus;
+
+    svpwm.k = sqrt3 * (float)ticpwm / Vbus;
 }
 void pwm_out(u8 channel, u16 compare)
 {

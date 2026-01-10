@@ -2,7 +2,7 @@
 #include "tim.h"
 #include "math_fast.h"
 #include "parameter_manager.h"
-
+#include "sim_motor.h"
 FOC_t g_foc = {0};
 
 #ifdef __DEBUG__
@@ -61,6 +61,7 @@ void fFOC_Init()
 
 void FOC_StateMachine_updata()
 {
+		float ua, ub, uc;
     FOC_PREPARE();
     switch (g_foc.state)
     {
@@ -69,8 +70,10 @@ void FOC_StateMachine_updata()
     case FOC_AUTO_TUNE:
         if (auto_calibration_update())
             FOC_CHANGE_STATE(FOC_IDLE);
-        break;
-				FOC_RUN();
+        FOC_RUN();
+				fGetPhaseVoltage(&ua, &ub, &uc);
+				motor_step(ua, ub, uc);
+				break;
     case FOC_RESET:
         foc_core_reset();
         FOC_CHANGE_STATE(FOC_IDLE);
@@ -87,6 +90,8 @@ void FOC_StateMachine_updata()
         break;
     case FOC_RUNNING:
         FOC_RUN();
+				fGetPhaseVoltage(&ua, &ub, &uc);
+				motor_step(ua, ub, uc);
         break;
     case FOC_SHUTDOWN:
         if (SHUTDOWM())
@@ -103,6 +108,7 @@ void FOC_StateMachine_updata()
     default:
         break;
     }
+
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {

@@ -119,7 +119,7 @@ float smo_get_theta()
 
 float smo_get_omega()
 {
-    return smo.omega/smo.pole_pairs;
+    return smo.omega / smo.pole_pairs;
 }
 void write_motor_param()
 {
@@ -133,25 +133,25 @@ void write_motor_param()
 }
 /*SMO整定器*/
 
-#define THETA_OFFSET_samples 2000                      // 0.4s
-#define THETA_OFFSET_timeout THETA_OFFSET_samples * 10 // 4s
+#define THETA_OFFSET_samples 200                        // 0.04s
+#define THETA_OFFSET_timeout THETA_OFFSET_samples * 100 // 4s
 
-#define RS_samples 1000            // 0.2s
-#define RS_timeout RS_samples * 10 // 2s
+#define RS_samples 200              // 0.04s
+#define RS_timeout RS_samples * 100 // 4s
 
 #define Ls_inject_f 10
 #define Ls_inject_u 3
-#define Ls_tic TUN_f / Ls_inject_f
-#define Ls_samples 1000            // 0.2s
-#define Ls_timeout Ls_samples * 10 // 2s
+#define Ls_tic (u32)(TUN_f / Ls_inject_f)
+#define Ls_samples 2000
+#define Ls_timeout Ls_samples * 10
 
 #define POLE_PAIRS_omega_elec 30                   // 1700rpm 电角速度
 #define POLE_PAIRS_samples 10000                   // 2s
 #define POLE_PAIRS_timeout POLE_PAIRS_samples * 10 // 20s
 
 #define PK_omega_mech 10
-#define PK_samples 10000           // 2s
-#define PK_timeout PK_samples * 10 // 20s
+#define PK_samples 5000            // 1s
+#define PK_timeout PK_samples * 10 // 10s
 
 param_tuning_t tun = {0};
 param_tuning_t *get_tuning_adr()
@@ -161,7 +161,7 @@ param_tuning_t *get_tuning_adr()
 
 void param_tuning_init(float udc)
 {
-    memset(&tun, 0, sizeof(tun));
+    memset(&tun, 0, sizeof(tun) - 3);
     tun.dt = Tcon / tun_divider;
     tun.Udc = udc;
 }
@@ -169,7 +169,7 @@ void param_tuning_init(float udc)
 static bool param_tune_theta_offset(float theta_mech)
 {
     // 稳态点采样
-    if (theta_mech - tun.theta_mech_prev < 0.01f)
+    if (theta_mech - tun.theta_mech_prev < 0.017f)
     {
         tun.tune_samples++; // 稳态计数
         if (tun.tune_samples > THETA_OFFSET_samples - 100)
@@ -239,7 +239,7 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
 {
     static float prev_i_alpha = 0.0f;
     static float prev_i_beta = 0.0f;
-
+    tun.tune_samples++;
     // 正向方波阶段（两个轴同时为正）
     if (v_alpha > Ls_inject_u * 0.8f && v_beta > Ls_inject_u * 0.8f)
     {
@@ -485,6 +485,7 @@ static bool param_tune_JB(float omega_mech, float iq)
     return false;
 }
 
+u32 ls_tic;
 // 有感整定更新
 static float omega_last = 0;
 void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, float *u_beta,
@@ -508,6 +509,7 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
     case PARAM_TUNE_THETA_OFFSET:
         // 控制
         *theta_elec = 0;
+
         // 观测
         // 超时监测
         tun.time_tic++;
@@ -551,6 +553,7 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         break;
     case PARAM_TUNE_LS:
         // 控制
+        ls_tic = Ls_tic;
         if (tun.tune_samples % Ls_tic == 0)
         {
             tun.inject_flag = !tun.inject_flag;
