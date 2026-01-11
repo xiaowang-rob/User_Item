@@ -4,10 +4,19 @@
 #include "spi.h"
 #include "math_fast.h"
 #include "drive_state.h"
+#include "device.h"
 
 ENCODER_t encoder = {0};
 static bool DealDone_flag = false;
 
+void ENCODER_SPI_CS_H()
+{
+    HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, GPIO_PIN_SET);
+}
+void ENCODER_SPI_CS_L()
+{
+    HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, GPIO_PIN_RESET);
+}
 /**
  * @brief 8位SPI读写函数
  * @param cmd: 发送的命令字节

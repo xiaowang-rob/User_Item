@@ -12,7 +12,6 @@ SVPWM_t *get_svpwm_adr()
 {
     return &svpwm;
 }
-__IO u16 tim8_ch_compare[3] = {0};
 
 void svpwm_Init(float Vbus)
 {
@@ -20,25 +19,30 @@ void svpwm_Init(float Vbus)
 
     svpwm.k = sqrt3 * (float)ticpwm / Vbus;
 }
-void pwm_out(u8 channel, u16 compare)
+void pwm_out()
 {
-    tim8_ch_compare[channel - 1] = compare;
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticu);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, svpwm.ticv);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticw);
 }
 
 void ENABLE_PWM()
 {
-    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_1, (u32 *)&tim8_ch_compare[0], 1);
-    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_2, (u32 *)&tim8_ch_compare[1], 1);
-    HAL_TIM_PWM_Start_DMA(&htim8, TIM_CHANNEL_3, (u32 *)&tim8_ch_compare[2], 1);
-    pwm_out(1, 0);
-    pwm_out(2, 0);
-    pwm_out(3, 0);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+    HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
 }
 void DISABLE_PWM()
 {
-    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop_DMA(&htim8, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);
+    HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_3);
 }
 void PWM_POWER_ON()
 {
@@ -170,13 +174,12 @@ void svpwm_run(float ualpha, float ubeta)
     }
 
     // 计算中心对齐 PWM 的比较值（CCR = (上升沿 + 下降沿) / 2）
+
     svpwm.ticu = (u16)((tu1 + tu2) / 2.0f);
     svpwm.ticv = (u16)((tv1 + tv2) / 2.0f);
     svpwm.ticw = (u16)((tw1 + tw2) / 2.0f);
     // 更新比较值
-    pwm_out(1, svpwm.ticu);
-    pwm_out(2, svpwm.ticv);
-    pwm_out(3, svpwm.ticw);
+    pwm_out();
 }
 // 电流采样点改变
 u8 change_Index = 0;

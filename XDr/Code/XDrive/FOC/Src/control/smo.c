@@ -133,24 +133,24 @@ void write_motor_param()
 }
 /*SMO整定器*/
 
-#define THETA_OFFSET_samples 200                        // 0.04s
-#define THETA_OFFSET_timeout THETA_OFFSET_samples * 100 // 4s
+#define THETA_OFFSET_samples (u16)5000                  // 0.1s
+#define THETA_OFFSET_timeout THETA_OFFSET_samples * 100 // 10s
 
-#define RS_samples 200              // 0.04s
-#define RS_timeout RS_samples * 100 // 4s
+#define RS_samples 5000
+#define RS_timeout RS_samples * 100
 
-#define Ls_inject_f 10
-#define Ls_inject_u 3
-#define Ls_tic (u32)(TUN_f / Ls_inject_f)
-#define Ls_samples 2000
-#define Ls_timeout Ls_samples * 10
+#define Ls_inject_f (u8)10
+#define Ls_inject_u (u8)1
+#define Ls_tic (u16)(TUN_f / Ls_inject_f)
+#define Ls_samples (u32)2000
+#define Ls_timeout Ls_samples * 100
 
-#define POLE_PAIRS_omega_elec 30                   // 1700rpm 电角速度
+#define POLE_PAIRS_omega_elec 30.f                 // 1700rpm 电角速度
 #define POLE_PAIRS_samples 10000                   // 2s
 #define POLE_PAIRS_timeout POLE_PAIRS_samples * 10 // 20s
 
-#define PK_omega_mech 10
-#define PK_samples 5000            // 1s
+#define PK_omega_mech 10.f
+#define PK_samples (u32)5000       // 1s
 #define PK_timeout PK_samples * 10 // 10s
 
 param_tuning_t tun = {0};
@@ -200,7 +200,7 @@ static bool param_tune_Rs(float v_alpha, float i_alpha)
 
     static float prev_i_alpha = 0.0f;
 
-    if (fabsf(i_alpha - prev_i_alpha) < 0.5f)
+    if (fabsf(i_alpha - prev_i_alpha) < 0.3f)
     {
         tun.tune_samples++;
     }
@@ -485,7 +485,6 @@ static bool param_tune_JB(float omega_mech, float iq)
     return false;
 }
 
-u32 ls_tic;
 // 有感整定更新
 static float omega_last = 0;
 void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, float *u_beta,
@@ -553,7 +552,6 @@ void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, fl
         break;
     case PARAM_TUNE_LS:
         // 控制
-        ls_tic = Ls_tic;
         if (tun.tune_samples % Ls_tic == 0)
         {
             tun.inject_flag = !tun.inject_flag;

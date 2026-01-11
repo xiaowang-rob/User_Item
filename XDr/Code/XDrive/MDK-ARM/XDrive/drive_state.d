@@ -1,7 +1,6 @@
 xdrive/drive_state.o: ..\FOC\Src\drivers\drive_state.c \
   ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\drivers\flashDr.h \
-  ..\FOC\Config\device.h ..\Core\Inc\main.h \
-  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+  ..\Core\Inc\main.h ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
@@ -33,5 +32,5 @@ xdrive/drive_state.o: ..\FOC\Src\drivers\drive_state.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\spi.h ..\FOC\Inc\drivers\encoder.h \
+  ..\FOC\Inc\drivers\encoder.h ..\FOC\Config\device.h ..\Core\Inc\spi.h \
   ..\FOC\Inc\drivers\adcDr.h

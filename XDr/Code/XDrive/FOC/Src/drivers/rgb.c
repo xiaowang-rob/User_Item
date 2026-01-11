@@ -131,7 +131,7 @@ static const u8 sine_table[256] = {
     37, 40, 42, 44, 47, 49, 52, 54, 57, 59, 62, 65, 67, 70, 73, 76,
     79, 82, 85, 88, 90, 93, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124};
 
-#define BREATHE_T_steps 512000 // 呼吸周期步数
+#define BREATHE_T_steps 256000 // 呼吸周期步数
 #define INDEX_T_steps BREATHE_T_steps / 256
 
 static u16 _tic = 0;

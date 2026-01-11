@@ -4,7 +4,8 @@
 #include "main.h"
 
 // ADC值到温度的映射表
-#define temp0_adc_val 69 // 0°对应ADC值
+#define temp120_adc_val (u8)69 // 120摄氏度对应ADC值
+#define temp0_adc_val (u8)189  // 0度对应
 
 void ADC_DR_Init(void);
 void ADC1_sample();

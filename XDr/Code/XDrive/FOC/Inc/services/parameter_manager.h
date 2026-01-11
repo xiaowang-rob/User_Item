@@ -19,13 +19,19 @@ typedef enum
 
     MOTOR_POLEPAIRS, // 电机转子对数
 
+    FREQ_CURRENT_LOOP,  // 电流环分频系数
+    FREQ_SPEED_LOOP,    // 速度环分频系数
+    FREQ_POSITION_LOOP, // 位置环分频系数
+
     // u32
     CAN_ID,
+
+    // float
+    f_PWM,           // 这几个参数只可查
     f_CURRENT_LOOP,  // 电流环频率
     f_SPEED_LOOP,    // 速度环频率
     f_POSITION_LOOP, // 位置环频率
 
-    // float
     THETA_OFFSET, // 角度补偿
     MOTOR_RS,
     MOTOR_LS,
@@ -76,13 +82,18 @@ typedef struct
     u8 loop_mode;
     u8 motor_polepairs;
 
+    u8 freq_current_loop;  // 电流环分频系数
+    u8 freq_speed_loop;    // 速度环分频系数
+    u8 freq_position_loop; // 位置环分频系数
     // u32类型参数
     u32 can_id;
-    u32 f_current_loop;
-    u32 f_speed_loop;
-    u32 f_position_loop;
 
     // float类型参数
+    float f_pwm; // 这几个参数只可查
+    float f_current_loop;
+    float f_speed_loop;
+    float f_position_loop;
+
     float theta_offset;
     float motor_rs;
     float motor_ls;

@@ -13,6 +13,7 @@ u8 _sta[4];
 float U, V, W; // 相电压
 void stream_data_get(Data_stream_e stream, float *data)
 {
+    float temp_val = 0;
     switch (stream)
     {
     case STATUS:
@@ -70,10 +71,10 @@ void stream_data_get(Data_stream_e stream, float *data)
         *data = rad_to_rpm(g_foc.val->omega_fb);
         break;
     case SPEED_con:
-        *data = rad_to_rpm(g_foc.val->omega_con);
+        *data = (float)rad_to_rpm(g_foc.val->omega_con);
         break;
     case SPEED_ref:
-        *data = rad_to_rpm(g_foc.val->omega_ref);
+        *data = (float)rad_to_rpm(g_foc.val->omega_ref);
         break;
     case THETA_elec:
         *data = rad_to_deg(g_foc.val->theta_elec);

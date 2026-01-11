@@ -76,8 +76,8 @@ typedef enum
 
 /*****************************************参数整定*********************************** */
 // pwm的1/4频率跑
-#define tun_divider 4 // 分频系数
-#define TUN_f fpwm / tun_divider
+#define tun_divider (u8)4 // 分频系数
+#define TUN_f (u32)(fpwm / tun_divider)
 
 // 参数整定结构体
 typedef struct

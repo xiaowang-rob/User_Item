@@ -1,4 +1,21 @@
 #include "math_fast.h"
+
+float rad_to_rpm(float rad)
+{
+    return rad * 9.549296748f;
+}
+float rpm_to_rad(float rpm)
+{
+    return rpm / 9.549296748f;
+}
+float deg_to_rad(float deg)
+{
+    return deg * 0.017453293f;
+}
+float rad_to_deg(float rad)
+{
+    return rad * 57.29577951f;
+}
 /**
  * @brief Clark 变换 (abc → αβ)
  * @param ia, ib, ic: 三相电流或电压
@@ -8,7 +25,7 @@ void clark_transform(float ia, float ib, float ic, float *alpha, float *beta)
 {
     // 使用功率不变变换（系数 2/3）
     *alpha = ia;
-    *beta = insqrt3 * (2*ib - ic);
+    *beta = insqrt3 * (2 * ib - ic);
 
     // 或者更精确的变换：
     // *alpha = ia;

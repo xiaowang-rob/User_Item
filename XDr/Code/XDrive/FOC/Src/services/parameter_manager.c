@@ -38,22 +38,24 @@ void Param_set(Parameter_e para, u8 *value)
     case MOTOR_POLEPAIRS:
         g_Param.motor_polepairs = *(u8 *)value;
         break;
-
+    case FREQ_CURRENT_LOOP:
+        g_Param.freq_current_loop = *(u8 *)value;
+        g_Param.f_current_loop = (float)fpwm / g_Param.freq_current_loop;
+        break;
+    case FREQ_SPEED_LOOP:
+        g_Param.freq_speed_loop = *(u8 *)value;
+        g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
+        break;
+    case FREQ_POSITION_LOOP:
+        g_Param.freq_position_loop = *(u8 *)value;
+        g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
+        break;
     // u32类型参数
     case CAN_ID:
-        g_Param.can_id = *(uint32_t *)value;
-        break;
-    case f_CURRENT_LOOP:
-        g_Param.f_current_loop = *(uint32_t *)value;
-        break;
-    case f_SPEED_LOOP:
-        g_Param.f_speed_loop = *(uint32_t *)value;
-        break;
-    case f_POSITION_LOOP:
-        g_Param.f_position_loop = *(uint32_t *)value;
+        g_Param.can_id = *(u32 *)value;
         break;
 
-    // float类型参数
+        // float类型参数
     case THETA_OFFSET:
         g_Param.theta_offset = deg_to_rad(*(float *)value);
         break;
@@ -195,25 +197,41 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(u8);
         break;
 
+    case FREQ_CURRENT_LOOP:
+        *(u8 *)value = g_Param.freq_current_loop;
+        *len = sizeof(u8);
+        break;
+    case FREQ_SPEED_LOOP:
+        *(u8 *)value = g_Param.freq_speed_loop;
+        *len = sizeof(u8);
+        break;
+    case FREQ_POSITION_LOOP:
+        *(u8 *)value = g_Param.freq_position_loop;
+        *len = sizeof(u8);
+        break;
     // u32类型参数
     case CAN_ID:
-        *(uint32_t *)value = g_Param.can_id;
-        *len = sizeof(uint32_t);
-        break;
-    case f_CURRENT_LOOP:
-        *(uint32_t *)value = g_Param.f_current_loop;
-        *len = sizeof(uint32_t);
-        break;
-    case f_SPEED_LOOP:
-        *(uint32_t *)value = g_Param.f_speed_loop;
-        *len = sizeof(uint32_t);
-        break;
-    case f_POSITION_LOOP:
-        *(uint32_t *)value = g_Param.f_position_loop;
-        *len = sizeof(uint32_t);
+        *(u32 *)value = g_Param.can_id;
+        *len = sizeof(u32);
         break;
 
     // float类型参数
+    case f_PWM:
+        *(float *)value = fpwm;
+        *len = sizeof(float);
+        break;
+    case f_CURRENT_LOOP:
+        *(float *)value = g_Param.f_current_loop;
+        *len = sizeof(float);
+        break;
+    case f_SPEED_LOOP:
+        *(float *)value = g_Param.f_speed_loop;
+        *len = sizeof(float);
+        break;
+    case f_POSITION_LOOP:
+        *(float *)value = g_Param.f_position_loop;
+        *len = sizeof(float);
+        break;
     case THETA_OFFSET:
         *(float *)value = rad_to_deg(g_Param.theta_offset);
         *len = sizeof(float);
@@ -372,22 +390,28 @@ bool Param_init()
         g_Param.sw_vague_pid = 0;    // 模糊PID
         g_Param.sw_pvt = 0;          // PVT模式
         g_Param.foc_mode = 0;        // 运行模式
-        g_Param.loop_mode = 2;       // 环模式
+        g_Param.loop_mode = 0;       // 环模式
         g_Param.motor_polepairs = 7; // 电机转子对数
 
+        g_Param.freq_current_loop = 1;
+        g_Param.freq_speed_loop = 4;
+        g_Param.freq_position_loop = 5;
+
         // 初始化u32类型参数
-        g_Param.can_id = 1;             // CAN ID
-        g_Param.f_current_loop = fpwm;  // 电流环频率 20kHz
-        g_Param.f_speed_loop = 2000;    // 速度环频率 2kHz
-        g_Param.f_position_loop = 1000; // 位置环频率 1kHz
+        g_Param.can_id = 1; // CAN ID
 
         // 初始化float类型参数
+        g_Param.f_pwm = fpwm;
+        g_Param.f_current_loop = (float)fpwm / g_Param.freq_current_loop;
+        g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
+        g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
+
         g_Param.theta_offset = 0.0f; // 角度补偿
         g_Param.motor_rs = 0.05f;    // 电阻Rs 50mΩ
         g_Param.motor_ls = 0.0002f;  // 电感Ls 200μH
         g_Param.motor_psif = 0.01f;  // 磁链 0.01Wb
         g_Param.motor_ke = 0.01f;
-        g_Param.motor_j = 0.001f; // 转动惯量 0.001 kg·m²
+        g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
         g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad
 
         g_Param.kp_current = 0.5f;   // 电流环比例系数
@@ -410,7 +434,7 @@ bool Param_init()
         g_Param.tolerance_speed = 1.1f;                   // 速度容忍度 1.1
         g_Param.tolerance_position = 1.1f;                // 位置容忍度 1.1
 
-        g_Param.startup_pos_grad = deg_to_rad(1000.0f);   // 启动位置梯度 10度/秒 (弧度)
+        g_Param.startup_pos_grad = deg_to_rad(1000.0f); // 启动位置梯度 10度/秒 (弧度)
         g_Param.startup_ome_grad = rpm_to_rad(1000.0f); // 启动速度梯度 1000 RPM/秒 (弧度/秒²)
         g_Param.align_current = 5.0f;                   // 对齐电流 5A
         g_Param.align_time = 0.5f;                      // 对齐时间 0.5秒

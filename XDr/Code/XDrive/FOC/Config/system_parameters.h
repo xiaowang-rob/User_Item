@@ -16,8 +16,8 @@
 #define SYSTEM_DESC_str \
     Description "," VERSION "," AUTHOR "," Frequency_string "," MAX_CURRENT_string "," MAX_Voltage_string "," MIN_Voltage_string "," MAX_Temperature_string
 
-#define fpwm 20000       // 20kHz
-#define Tpwm 1.0f / fpwm // 50us
+#define fpwm (unsigned int)20000 // 20kHz
+#define Tpwm 1.0f / fpwm         // 50us
 #define ticpwm 2099
 #define Tcon Tpwm
 

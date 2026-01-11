@@ -151,29 +151,31 @@ void protection_manager_run()
     else
         clear_warning_flag(OVER_POSITION);
     //  4编码器状态检测
-    if (g_foc.mode->run_mode == ENCODER_CONTROL)
-    { // 有感模式启动编码器判断
-        if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
-            switch (g_pro_manager.drive_state->ENCODER_state)
-            {
-                g_pro_manager.warning_flag = true;
-            case RUN_ERROR:
-                g_pro_manager.warning = ENCODER_COM_ERROR;
-                break;
-            case SINGNAL_ERROR:
-                g_pro_manager.warning = ENCODER_WEAK_MAG;
-                break;
-            default: // 初始化失败
-                g_pro_manager.warning = ENCODER_OFFLINE;
-                break;
-            }
-        else
-        {
-            clear_warning_flag(ENCODER_OFFLINE);
-            clear_warning_flag(ENCODER_COM_ERROR);
-            clear_warning_flag(ENCODER_WEAK_MAG);
-        }
-    }
+    // if (g_foc.mode->run_mode == ENCODER_CONTROL)
+    // { // 有感模式启动编码器判断
+    //     if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
+    //     {
+    //         g_pro_manager.warning_flag = true;
+    //         switch (g_pro_manager.drive_state->ENCODER_state)
+    //         {
+    //         case RUN_ERROR:
+    //             g_pro_manager.warning = ENCODER_COM_ERROR;
+    //             break;
+    //         case SINGNAL_ERROR:
+    //             g_pro_manager.warning = ENCODER_WEAK_MAG;
+    //             break;
+    //         default: // 初始化失败
+    //             g_pro_manager.warning = ENCODER_OFFLINE;
+    //             break;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         clear_warning_flag(ENCODER_OFFLINE);
+    //         clear_warning_flag(ENCODER_COM_ERROR);
+    //         clear_warning_flag(ENCODER_WEAK_MAG);
+    //     }
+    // }
     //   B错误处理
     if ((g_pro_manager.warning_flag || g_pro_manager.fault_flag) && !g_pro_manager.log_done)
     {
@@ -181,7 +183,7 @@ void protection_manager_run()
         FOC_CHANGE_STATE(FOC_FAULT);
         if (g_pro_manager.com_state->Host_port != NONE_port)
             return; // 上位机模式下不进行日志写入
-        log_data_write();
-        g_pro_manager.log_done = true;
+        // log_data_write();
+        // g_pro_manager.log_done = true;
     }
 }

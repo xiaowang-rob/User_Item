@@ -160,7 +160,7 @@ void frame_data_deal()
             case CMD_STREAM_SET: // 监测值设置 5byte
                 if (com_state.Host_port == NONE_port)
                 { // 直接 vofa float格式发送
-                    com_frame.stream_num = com_frame.txdatalen;
+                    com_frame.stream_num = com_frame.rxdatalen;
                     for (u8 i = 0; i < com_frame.stream_num; i++)
                         com_frame.data_id_index[i] = com_frame.rxdata[i];
                 }
@@ -175,7 +175,7 @@ void frame_data_deal()
                     }
                     else
                     {
-                        com_frame.stream_num = com_frame.txdatalen + 3;
+                        com_frame.stream_num = com_frame.rxdatalen + 3;
                         for (u8 i = 3; i < com_frame.stream_num; i++)
                             com_frame.data_id_index[i] = com_frame.rxdata[i - 3];
                     }

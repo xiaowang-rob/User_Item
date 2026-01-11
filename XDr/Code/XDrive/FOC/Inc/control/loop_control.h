@@ -1,20 +1,24 @@
 #ifndef __LOOP_CONTROL_H
 #define __LOOP_CONTROL_H
+
 #include "main.h"
 #include "stdbool.h"
 #include "parameter_manager.h"
 typedef struct
 {
-    float fspeed_loop;
-    float fposition_loop;
-    u16 current_steps;
-    u16 speed_steps;
-    u16 speed_updata_steps;
-    u16 position_updata_steps;
+    u8 tic;
+    u8 current_steps;
+    u8 speed_steps;
+    u8 current_updata_steps;
+    u8 speed_updata_steps;
+    u8 position_updata_steps;
+    bool current_updata;
     bool speed_updata;
     bool position_updata;
+    float Tcur;
     float Tspd;
     float Tpos;
+
 } f_Division_t;
 typedef struct
 {
@@ -57,7 +61,6 @@ typedef struct
 extern LOOP_CON_t g_loop_con;
 
 void Frequency_division_update();
-void Frequency_division_reset();
 void loop_parameter_init(Parameter_t param, float Vmax);
 void loop_reset();
 float Current_loop(float current_ref, float current_fb);

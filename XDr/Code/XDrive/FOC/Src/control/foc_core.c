@@ -52,8 +52,7 @@ void auto_calibration_init(Parameter_t param)
 }
 void foc_core_init()
 {
-    // ADC_GET_Voltage(&Motor.Udc);
-    Motor.Udc = 25.2f;
+    ADC_GET_Voltage(&Motor.Udc);
     loop_parameter_init(g_Param, Motor.Udc / sqrt3);
     motor_init(g_Param);
     foc_core_reset();
@@ -154,8 +153,7 @@ void oloop_to_cloop()
 // 有感foc 获取电压电流角度速度位置
 void foc_encoder_get_vitop()
 {
-    //    ADC_GET_Voltage(&Motor.Udc);
-    Motor.Udc = 25.2f;
+    ADC_GET_Voltage(&Motor.Udc);
     Current_reconstruction();
     // foc_val.theta_mech = GET_ENCODER_ANGLE_ABS();
     foc_val.theta_mech = gMotor.state.theta_m;
@@ -171,8 +169,7 @@ void foc_encoder_get_vitop()
 // 无感模式 获取电压电流角度速度位置
 void foc_senless_get_vito()
 {
-    //    ADC_GET_Voltage(&Motor.Udc);
-    Motor.Udc = 25.2f;
+    ADC_GET_Voltage(&Motor.Udc);
     Current_reconstruction();
     smo_update(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
     foc_val.omega_fb = smo_get_omega();
@@ -203,6 +200,8 @@ void voltage_control()
 }
 void current_loop_run()
 {
+    if (!g_loop_con.fd.current_updata)
+        return;
     foc_val.uq = Current_loop(foc_val.iq_ref, foc_val.iq_fb);
     foc_val.ud = Magnetic_loop(foc_val.id_ref, foc_val.id_fb);
 }

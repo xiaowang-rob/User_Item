@@ -1,10 +1,7 @@
 #ifndef __FLASH_DR_H
 #define __FLASH_DR_H
+#include "main.h"
 
-#include "device.h"
-#include "stdbool.h"
-#define FLASH_SPI_CS_H() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 1)
-#define FLASH_SPI_CS_L() HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, 0)
 
 // 0x00 00 00 00
 #define FLASH_SIZE 128 / 8 * 1024 * 1024 // 16MB

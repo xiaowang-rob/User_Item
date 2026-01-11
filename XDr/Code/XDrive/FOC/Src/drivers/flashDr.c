@@ -1,5 +1,6 @@
 #include "flashDr.h"
 #include "drive_state.h"
+#include "device.h"
 // 要读的数据
 u8 Read_data[100] = {0};
 #define Read_data_SIZE sizeof(Read_data)
@@ -8,14 +9,14 @@ u8 Read_data[100] = {0};
 // 器件使能
 void FLASH_Enable()
 {
-    FLASH_SPI_CS_L(); // Chip select
+    HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, GPIO_PIN_RESET);
 }
 
 /* Nicky ******************************************************************* */
 // 器件失能
 void FLASH_Disable()
 {
-    FLASH_SPI_CS_H();
+    HAL_GPIO_WritePin(FLASH_CS_CPIOx, FLASH_CS_CPIOx_PIN, GPIO_PIN_SET);
 }
 
 /* Nicky ******************************************************************* */
@@ -199,8 +200,8 @@ static u8 _init_fault_tic = 0;
 void FLASH_Init(void)
 {
     u8 id[3] = {0};
-    FLASH_Enable();		// 使能器件
-		HAL_Delay(1);
+    FLASH_Enable(); // 使能器件
+    HAL_Delay(1);
     spi_Transmit_one_byte(0x9F);                               // 读取ID
     id[0] = spi_Receive_one_byte();                            // 读取一个字节
     id[1] = spi_Receive_one_byte();                            // 读取另一个字节
@@ -211,7 +212,7 @@ void FLASH_Init(void)
     }
     else if (_init_fault_tic < 5)
     {
-			  _init_fault_tic++;
+        _init_fault_tic++;
         FLASH_Init();
     }
     FLASH_Disable(); // 取消片选

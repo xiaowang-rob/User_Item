@@ -158,7 +158,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_pro_manager</ItemText>
+          <ItemText>g_pro_manager,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -178,12 +178,12 @@
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ADC2_buffer</ItemText>
+          <ItemText>ADC2_buffer,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ADC1_buffer</ItemText>
+          <ItemText>ADC1_buffer,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
@@ -203,7 +203,22 @@
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ls_tic,0x0A</ItemText>
+          <ItemText>Index</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Log</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>com_frame</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>htim8</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -851,7 +866,7 @@
 
   <Group>
     <GroupName>Foc/communication</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
