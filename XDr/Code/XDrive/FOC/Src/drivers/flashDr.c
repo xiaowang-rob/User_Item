@@ -201,7 +201,7 @@ void FLASH_Init(void)
 {
     u8 id[3] = {0};
     FLASH_Enable(); // 使能器件
-    HAL_Delay(1);
+    HAL_Delay(10);
     spi_Transmit_one_byte(0x9F);                               // 读取ID
     id[0] = spi_Receive_one_byte();                            // 读取一个字节
     id[1] = spi_Receive_one_byte();                            // 读取另一个字节

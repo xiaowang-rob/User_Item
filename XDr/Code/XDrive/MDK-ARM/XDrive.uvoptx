@@ -220,6 +220,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>htim8</ItemText>
         </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>encoder</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

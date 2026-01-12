@@ -2,16 +2,40 @@
 #define ENCODER_H
 
 #include "main.h"
+#include "device.h"
 
+typedef enum
+{
+    ENCODER_STATE_START_READ,  // 开始读取高位
+    ENCODER_STATE_WAIT_HIGH,   // 等待高位完成
+    ENCODER_STATE_WAIT_LOW,    // 等待低位完成
+    ENCODER_STATE_PROCESS_DATA // 处理数据
+} ENCODER_STATE_DMA;
 typedef struct
 {
+    ENCODER_STATE_DMA state;
     float angle_abs; // 弧度值
     float angle_last;
     float angle_inc; // 角度增量值rad
     float angle_deg; // 转换为角度值（0~360°）
     float omega;
     float angle_offset; // 角度偏移值
+    u32 last_time;      // 上次读取时间
+    bool data_ready;
 } ENCODER_t;
+
+bool encoder_data_ready = false;
+
+// 全局变量
+static ENCODER_t encoder = {0};
+static uint8_t reg03_data = 0; // 高位寄存器数据
+static uint8_t reg04_data = 0; // 低位寄存器数据
+static uint32_t transfer_start_time = 0;
+static const uint32_t TRANSFER_TIMEOUT_MS = 2; // 2ms超时
+
+// DMA缓冲区
+static uint8_t tx_buffer[1];
+static uint8_t rx_buffer[1];
 
 #if ENcoder == 1 // MT6816
 // MT6816 寄存器地址定义
@@ -27,6 +51,7 @@ typedef struct
 
 // 函数声明
 void ENCODER_Init();
+void ENCODER_MainLoopTask();
 float GET_ENCODER_ANGLE_ABS();
 float GET_ENCODER_ANGLE_INC();
 float GET_ENCODER_OMEGA();

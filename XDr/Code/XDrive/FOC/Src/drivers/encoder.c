@@ -4,10 +4,8 @@
 #include "spi.h"
 #include "math_fast.h"
 #include "drive_state.h"
-#include "device.h"
 
 ENCODER_t encoder = {0};
-static bool DealDone_flag = false;
 
 void ENCODER_SPI_CS_H()
 {
@@ -18,83 +16,61 @@ void ENCODER_SPI_CS_L()
     HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, GPIO_PIN_RESET);
 }
 /**
- * @brief 8位SPI读写函数
- * @param cmd: 发送的命令字节
- * @param rx_data: 接收的数据字节
- * @return true: 成功，false: 失败
+ * @brief 启动单个寄存器读取
+ * @param reg_addr: 寄存器地址 (0x03或0x04)
+ * @return true: 启动成功，false: 失败
  */
-static bool MT6816_SPI_ReadWrite(u8 cmd, u8 *rx_data)
+static bool ENCODER_StartRegisterRead(uint8_t reg_addr)
 {
+    tx_buffer[0] = reg_addr;
     ENCODER_SPI_CS_L();
 
-    // 发送命令并接收数据（8位模式）
-    u8 _status = HAL_SPI_TransmitReceive_DMA(&ENcoder_SPI_Get_HSPI, &cmd, rx_data, 1);
-    if (_status != HAL_OK)
+    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive_DMA(
+        &ENcoder_SPI_Get_HSPI,
+        tx_buffer,
+        rx_buffer,
+        1);
+
+    if (status != HAL_OK)
     {
         ENCODER_SPI_CS_H();
         return false;
     }
-    ENCODER_SPI_CS_H();
+
+    transfer_start_time = HAL_GetTick();
     return true;
 }
 
-/**
- * @brief 读取MT6816寄存器值
- * @param reg_addr: 寄存器地址
- * @param data: 读取到的数据
- * @return true: 读取成功，false: 失败
- */
-static bool MT6816_ReadRegister(u8 reg_addr, u8 *data)
-{
-    return MT6816_SPI_ReadWrite(reg_addr, data);
-}
+static u8 valid = 0;
 
 /**
- * @brief 读取MT6816所有数据（角度 + 状态）
- * @param data: 输出数据结构体
- * @return true: 读取成功，false: 失败
+ * @brief 处理读取到的数据并启动下一次读取
  */
-u8 valid = 0;
-u8 reg03_data = 0;
-u8 reg04_data = 0;
-void ENCODER_ReadData()
+static void ENCODER_ProcessAndNextRead(void)
 {
-    // 读取寄存器0x03（角度高位：Angle<13:6>）
-    if (!MT6816_ReadRegister(MT6816_REG_ANGLE_HIGH, &reg03_data))
-    {
-        if (reg03_data == 0xFF)
-            ENCODER_state_set(OFFLINE);
-        else if (ENCODER_state_get() == OFFLINE)
-            ENCODER_state_set(ONLINE);
-        return;
-    }
-    // 读取寄存器0x04（角度低位 + 状态位：Angle<5:0> + No_Mag_Warning + PC）
-    if (!MT6816_ReadRegister(MT6816_REG_ANGLE_LOW, &reg04_data))
-    {
-        DealDone_flag = false;
-        return;
-    }
-}
-static u16 time_last = 0;
+    u32 current_time = HAL_GetTick();
+    u32 time_diff = current_time - encoder.last_time;
 
-void ENCODER_DEALDATA()
-{
-    // 解析14位角度值
-    // reg03_data: Angle<13:6> (高8位)
-    // reg04_data: Angle<5:0> (低6位) + 状态位
-    u16 angle_high = (reg03_data & 0xFF); // 8位数据
-    u16 angle_low = (reg04_data & 0xFC);  // 取高6位作为Angle<5:0>
-    // 组合14位角度值：Angle<13:6> << 6 + Angle<5:0>
-    float angle_raw = ((angle_high & 0x3F) << 6) | ((angle_low >> 2) & 0x3F);
+    // 1. 解析14位角度值
+    u16 angle_raw = ((reg03_data & 0xFF) << 6) | ((reg04_data & 0xFC) >> 2);
+    float angle_deg = angle_raw * (360.0f / 16384.0f);                 // 16384 = 2^14
+    float angle_abs = angle_deg * 0.017453292f + encoder.angle_offset; // deg to rad
 
-    // 转换为角度值（0~360°）
-    encoder.angle_deg = (float)angle_raw * 0.021972656f;                         // *360/16384  16384 = 2^14
-    encoder.angle_abs = encoder.angle_deg * 0.017453292f + encoder.angle_offset; // 角度值转弧度值
-    encoder.angle_inc += encoder.angle_abs - encoder.angle_last;
-    encoder.omega = (encoder.angle_abs - encoder.angle_last) / (HAL_GetTick() - time_last);
-    time_last = HAL_GetTick();
-    encoder.angle_last = encoder.angle_abs;
-    // 提取状态位（从reg04_data和reg05_data中）
+    // 2. 计算角速度 (rad/s)
+    if (time_diff > 0)
+    {
+        encoder.omega = (angle_abs - encoder.angle_last) / (time_diff * 0.001f);
+    }
+
+    // 3. 累积角度
+    encoder.angle_inc += angle_abs - encoder.angle_last;
+
+    // 4. 更新数据
+    encoder.angle_abs = angle_abs;
+    encoder.angle_last = angle_abs;
+    encoder.last_time = current_time;
+
+    // 5. 状态检查
     if (reg04_data & MT6816_NO_MAG_WARNING)
     {
         ENCODER_state_set(SINGNAL_ERROR);
@@ -103,9 +79,8 @@ void ENCODER_DEALDATA()
     {
         ENCODER_state_set(ONLINE);
     }
-    bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
-
     // 奇偶校验验证
+    bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
     // 计算14位角度值中1的个数
     u8 bit_count = 0;
     u16 temp_angle = angle_raw;
@@ -126,22 +101,89 @@ void ENCODER_DEALDATA()
         ENCODER_state_set(RUN_ERROR);
     else if (ENCODER_state_get() == RUN_ERROR)
         ENCODER_state_set(ONLINE);
-    DealDone_flag = true;
-    ENCODER_ReadData();
+    // 6. 立即启动下一次读取
+    if (ENCODER_StartRegisterRead(0x03))
+    {
+        encoder.state = ENCODER_STATE_WAIT_HIGH;
+    }
+    else
+    {
+        encoder.state = ENCODER_STATE_START_READ;
+    }
+    encoder.data_ready = true;
 }
+
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    if (hspi == (&ENcoder_SPI_Get_HSPI))
+    if (hspi != &ENcoder_SPI_Get_HSPI)
     {
-        if (DealDone_flag == false)
-            ENCODER_DEALDATA();
+        return;
+    }
+
+    ENCODER_SPI_CS_H(); // 拉高CS
+
+    u32 current_time = HAL_GetTick();
+
+    // 检查超时
+    if (current_time - transfer_start_time > TRANSFER_TIMEOUT_MS)
+    {
+        // 超时处理：重置状态机
+        encoder.state = ENCODER_STATE_START_READ;
+        return;
+    }
+
+    switch (encoder.state)
+    {
+    case ENCODER_STATE_WAIT_HIGH:
+        // 保存高位数据
+        reg03_data = rx_buffer[0];
+
+        if (reg03_data == 0xFF)
+        {
+            ENCODER_state_set(OFFLINE);
+            encoder.state = ENCODER_STATE_START_READ;
+            return;
+        }
+        else if (ENCODER_state_get() == OFFLINE)
+            ENCODER_state_set(ONLINE);
+
+        // 启动低位寄存器读取
+        if (ENCODER_StartRegisterRead(0x04))
+        {
+            encoder.state = ENCODER_STATE_WAIT_LOW;
+        }
+        else
+        {
+            encoder.state = ENCODER_STATE_START_READ;
+        }
+        break;
+
+    case ENCODER_STATE_WAIT_LOW:
+        // 保存低位数据
+        reg04_data = rx_buffer[0];
+
+        // 进入数据处理状态
+        encoder.state = ENCODER_STATE_PROCESS_DATA;
+        break;
+
+    default:
+        encoder.state = ENCODER_STATE_START_READ;
+        break;
     }
 }
 
 void ENCODER_Init()
 {
     memset(&encoder, 0, sizeof(ENCODER_t));
-    ENCODER_ReadData();
+    ENCODER_MainLoopTask();
+}
+void ENCODER_MainLoopTask()
+{
+    // 检查是否需要处理数据
+    if (encoder.state == ENCODER_STATE_PROCESS_DATA)
+    {
+        ENCODER_ProcessAndNextRead();
+    }
 }
 float GET_ENCODER_ANGLE_ABS()
 {

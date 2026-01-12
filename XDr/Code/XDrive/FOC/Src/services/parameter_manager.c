@@ -390,7 +390,7 @@ bool Param_init()
         g_Param.sw_vague_pid = 0;    // 模糊PID
         g_Param.sw_pvt = 0;          // PVT模式
         g_Param.foc_mode = 0;        // 运行模式
-        g_Param.loop_mode = 0;       // 环模式
+        g_Param.loop_mode = 4;       // 环模式
         g_Param.motor_polepairs = 7; // 电机转子对数
 
         g_Param.freq_current_loop = 1;
@@ -415,14 +415,14 @@ bool Param_init()
         g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad
 
         g_Param.kp_current = 0.5f;   // 电流环比例系数
-        g_Param.ki_current = 100.0f; // 电流环积分系数
+        g_Param.ki_current = 50.0f; // 电流环积分系数
         g_Param.kp_weakmag = 0.5f;   // 弱磁环比例系数
-        g_Param.ki_weakmag = 10.0f;  // 弱磁环积分系数
-        g_Param.kp_speed = 0.1f;     // 速度环比例系数
+        g_Param.ki_weakmag = 50.f;  // 弱磁环积分系数
+        g_Param.kp_speed = 0.05f;     // 速度环比例系数
         g_Param.ki_speed = 5.0f;     // 速度环积分系数
-        g_Param.kp_position = 50.0f; // 位置环比例系数
-        g_Param.ki_position = 1.0f;  // 位置环积分系数
-        g_Param.kd_position = 0.1f;  // 位置环微分系数
+        g_Param.kp_position = 0.5f; // 位置环比例系数
+        g_Param.ki_position = 0.05f;  // 位置环积分系数
+        g_Param.kd_position = 0.005f;  // 位置环微分系数
 
         g_Param.limit_current = 20.f;                     // 电流限幅 50A
         g_Param.limit_omega = rpm_to_rad(500.0f);         // 速度限幅 3000 RPM (假设转换后)

@@ -68,25 +68,36 @@ void stream_data_get(Data_stream_e stream, float *data)
         *data = g_foc.val->id_ref;
         break;
     case SPEED:
-        *data = rad_to_rpm(g_foc.val->omega_fb);
+        temp_val = rad_to_rpm(g_foc.val->omega_fb);
+        *data = temp_val;
         break;
     case SPEED_con:
-        *data = (float)rad_to_rpm(g_foc.val->omega_con);
+        temp_val = rad_to_rpm(g_foc.val->omega_con);
+        *data = temp_val;
         break;
     case SPEED_ref:
-        *data = (float)rad_to_rpm(g_foc.val->omega_ref);
+        temp_val = rad_to_rpm(g_foc.val->omega_ref);
+        *data = temp_val;
         break;
     case THETA_elec:
-        *data = rad_to_deg(g_foc.val->theta_elec);
+        temp_val = rad_to_deg(g_foc.val->theta_elec);
+        *data = temp_val;
         break;
     case THETA_mech:
-        *data = rad_to_deg(g_foc.val->theta_mech);
+        temp_val = rad_to_deg(g_foc.val->theta_mech);
+        *data = temp_val;
         break;
-    case THETA_mech_con:
-        *data = rad_to_deg(g_foc.val->pos_con);
+    case POSITION:
+        temp_val = rad_to_deg(g_foc.val->pos_fb);
+        *data = temp_val;
         break;
-    case THETA_mech_ref:
-        *data = rad_to_deg(g_foc.val->pos_ref);
+    case POSITION_con:
+        temp_val = rad_to_deg(g_foc.val->pos_con);
+        *data = temp_val;
+        break;
+    case POSITION_ref:
+        temp_val = rad_to_deg(g_foc.val->pos_ref);
+        *data = temp_val;
         break;
     default:
         break;

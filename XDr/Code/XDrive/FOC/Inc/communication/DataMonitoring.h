@@ -35,8 +35,9 @@ typedef enum
 
     THETA_elec,
     THETA_mech,
-    THETA_mech_con,
-    THETA_mech_ref,
+    POSITION,
+    POSITION_con,
+    POSITION_ref,
 } Data_stream_e;
 
 // 读取数据流

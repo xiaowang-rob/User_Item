@@ -3,6 +3,8 @@
 #include "math_fast.h"
 #include "parameter_manager.h"
 #include "sim_motor.h"
+#include "encoder.h"
+
 FOC_t g_foc = {0};
 
 #ifdef __DEBUG__
@@ -61,8 +63,9 @@ void fFOC_Init()
 
 void FOC_StateMachine_updata()
 {
-		float ua, ub, uc;
+    float ua, ub, uc;
     FOC_PREPARE();
+    ENCODER_MainLoopTask();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -71,9 +74,9 @@ void FOC_StateMachine_updata()
         if (auto_calibration_update())
             FOC_CHANGE_STATE(FOC_IDLE);
         FOC_RUN();
-				fGetPhaseVoltage(&ua, &ub, &uc);
-				motor_step(ua, ub, uc);
-				break;
+        fGetPhaseVoltage(&ua, &ub, &uc);
+        motor_step(ua, ub, uc);
+        break;
     case FOC_RESET:
         foc_core_reset();
         FOC_CHANGE_STATE(FOC_IDLE);
@@ -90,8 +93,8 @@ void FOC_StateMachine_updata()
         break;
     case FOC_RUNNING:
         FOC_RUN();
-				fGetPhaseVoltage(&ua, &ub, &uc);
-				motor_step(ua, ub, uc);
+        fGetPhaseVoltage(&ua, &ub, &uc);
+        motor_step(ua, ub, uc);
         break;
     case FOC_SHUTDOWN:
         if (SHUTDOWM())
@@ -108,7 +111,6 @@ void FOC_StateMachine_updata()
     default:
         break;
     }
-
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {

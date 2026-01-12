@@ -8,7 +8,7 @@ PMSM_Motor gMotor = {
         .Lq = 0.0002f,   // q轴电感 (表贴式电机Ld=Lq)
         .psi_f = 0.01f,  // 永磁体磁链
         .pole_pairs = 7, // 4对极
-        .J = 0.001f,    // 转动惯量
+        .J = 0.001f,     // 转动惯量
         .B = 0.0005f,    // 阻尼系数
         .Tl = 0.3f,      // 负载转矩
         .dt = Tcon,      // 10μs仿真步长
@@ -48,8 +48,10 @@ void motor_step(float va, float vb, float vc)
     diq_dt = (gMotor.state.uq - gMotor.params.Rs * gMotor.state.iq - omega_e * gMotor.params.Ld * gMotor.state.id - omega_e * gMotor.params.psi_f) / gMotor.params.Lq;
 
     // 4. 更新dq轴电流 (前向欧拉法)
-    gMotor.state.id += did_dt * gMotor.params.dt;
-    gMotor.state.iq += diq_dt * gMotor.params.dt;
+    float id_new = gMotor.state.id + did_dt * gMotor.params.dt;
+    float iq_new = gMotor.state.iq + diq_dt * gMotor.params.dt;
+    gMotor.state.id = gMotor.state.id * 0.9f + id_new * 0.1f;
+    gMotor.state.iq = gMotor.state.iq * 0.9f + iq_new * 0.1f;
 
     // 5. 计算电磁转矩
 
