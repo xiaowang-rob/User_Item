@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "device.h"
 #include "math_fast.h"
+
 /*Some Static Colors------------------------------*/
 const RGB_Color_TypeDef RED = {255, 0, 0};       // 红色
 const RGB_Color_TypeDef GREEN = {0, 255, 0};     // 绿色
@@ -131,7 +132,7 @@ static const u8 sine_table[256] = {
     37, 40, 42, 44, 47, 49, 52, 54, 57, 59, 62, 65, 67, 70, 73, 76,
     79, 82, 85, 88, 90, 93, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124};
 
-#define BREATHE_T_steps 256000 // 呼吸周期步数
+#define BREATHE_T_steps 128000 // 呼吸周期步数
 #define INDEX_T_steps BREATHE_T_steps / 256
 
 static u16 _tic = 0;
@@ -229,60 +230,34 @@ void LED_CAN_DIS(void)
 {
     HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
 }
-
 #define LED_T_ms 1000
 static u32 _led_time_zero = 0;
 static bool _led_switch = false;
-void led_on(LED_FUN_e fun)
-{
-    switch (fun)
-    {
-    case ENCODER:
-        LED_ENCODER_EN();
-        break;
-    case CAN:
-        LED_CAN_EN();
-        break;
-    default:
-        break;
-    }
-}
-void led_off(LED_FUN_e fun)
-{
-    switch (fun)
-    {
-    case ENCODER:
-        LED_ENCODER_DIS();
-        break;
-    case CAN:
-        LED_CAN_DIS();
-        break;
-    default:
-        break;
-    }
-}
-void led_flash(LED_FUN_e fun)
+
+static Drive_state_e can_led_state = 0;
+static Drive_state_e encoder_led_state = 0;
+// 0-灭 1 - 亮 2-闪烁
+// fun-哪个外设
+void led_show(Drive_state_e can_state, Drive_state_e encoder_state)
 {
     if (HAL_GetTick() - _led_time_zero >= LED_T_ms)
     {
         _led_switch = !_led_switch;
         _led_time_zero = HAL_GetTick();
     }
-    switch (fun)
+
+    if (_led_switch)
     {
-    case ENCODER:
-        if (_led_switch)
-            LED_ENCODER_EN();
-        else
-            LED_ENCODER_DIS();
-        break;
-    case CAN:
-        if (_led_switch)
+        if (can_state != OFFLINE)
             LED_CAN_EN();
-        else
+        if (encoder_state != OFFLINE)
+            LED_ENCODER_EN();
+    }
+    else
+    {
+        if (can_state != RUN_ERROR)
             LED_CAN_DIS();
-        break;
-    default:
-        break;
+        if (encoder_state != RUN_ERROR)
+            LED_ENCODER_DIS();
     }
 }

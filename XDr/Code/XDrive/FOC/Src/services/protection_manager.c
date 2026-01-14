@@ -11,18 +11,21 @@ u32 _time = 0;
 u32 _time_last = 0;
 bool Tolerance_check(float value, float max_value, float min_value, float tolerance)
 {
-    if (value > max_value * tolerance || value < min_value * tolerance)
-        _time += (HAL_GetTick() - _time_last);
-    else if (_time != 0)
-    {
-        if (_time > 1)
-            _time -= (HAL_GetTick() - _time_last);
-        else
-            _time = 0;
-    }
-    if (_time > g_pro_manager.tolerance_time_ms)
+    // if (value > max_value * tolerance || value < min_value * tolerance)
+    //     _time += (HAL_GetTick() - _time_last);
+    // else if (_time != 0)
+    // {
+    //     if (_time > 1)
+    //         _time -= (HAL_GetTick() - _time_last);
+    //     else
+    //         _time = 0;
+    // }
+    // if (_time > g_pro_manager.tolerance_time_ms)
+    //     return true;
+    // _time_last = HAL_GetTick();
+    // return false;
+    if (value > max_value * tolerance || value < min_value / tolerance)
         return true;
-    _time_last = HAL_GetTick();
     return false;
 }
 
@@ -106,7 +109,7 @@ void protection_manager_run()
     }
     // 3.电流过大
     if (g_foc.val->Iu > MAX_Current || g_foc.val->Iv > MAX_Current || g_foc.val->Iw > MAX_Current ||
-        Tolerance_check(g_foc.val->iq_fb, g_pro_manager.maxcurrent, 0, g_pro_manager.tolerance_current))
+        Tolerance_check(g_foc.val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
     {
         g_pro_manager.fault = OVER_CURRENT;
         g_pro_manager.fault_flag = true;
@@ -125,6 +128,7 @@ void protection_manager_run()
         }
         g_pro_manager.fault_flag = true;
     }
+
     // 警告：
     // 1温度过高
     if (g_pro_manager.temperature > MAX_Temperature)
@@ -151,36 +155,38 @@ void protection_manager_run()
     else
         clear_warning_flag(OVER_POSITION);
     //  4编码器状态检测
-    // if (g_foc.mode->run_mode == ENCODER_CONTROL)
-    // { // 有感模式启动编码器判断
-    //     if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
-    //     {
-    //         g_pro_manager.warning_flag = true;
-    //         switch (g_pro_manager.drive_state->ENCODER_state)
-    //         {
-    //         case RUN_ERROR:
-    //             g_pro_manager.warning = ENCODER_COM_ERROR;
-    //             break;
-    //         case SINGNAL_ERROR:
-    //             g_pro_manager.warning = ENCODER_WEAK_MAG;
-    //             break;
-    //         default: // 初始化失败
-    //             g_pro_manager.warning = ENCODER_OFFLINE;
-    //             break;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         clear_warning_flag(ENCODER_OFFLINE);
-    //         clear_warning_flag(ENCODER_COM_ERROR);
-    //         clear_warning_flag(ENCODER_WEAK_MAG);
-    //     }
-    // }
+    if (g_foc.mode->run_mode == ENCODER_CONTROL)
+    { // 有感模式启动编码器判断
+        if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
+        {
+            g_pro_manager.warning_flag = true;
+            if (g_pro_manager.drive_state->ENCODER_state == RUN_ERROR)
+
+                g_pro_manager.warning = ENCODER_COM_ERROR;
+            else
+                g_pro_manager.warning = ENCODER_OFFLINE;
+        }
+        else
+        {
+            clear_warning_flag(ENCODER_OFFLINE);
+            clear_warning_flag(ENCODER_COM_ERROR);
+        }
+    }
     //   B错误处理
-    if ((g_pro_manager.warning_flag || g_pro_manager.fault_flag) && !g_pro_manager.log_done)
+    if (g_pro_manager.fault_flag)
     {
         log_data_save();
         FOC_CHANGE_STATE(FOC_FAULT);
+        if (g_pro_manager.com_state->Host_port != NONE_port)
+            return; // 上位机模式下不进行日志写入
+        // log_data_write();
+        // g_pro_manager.log_done = true;
+    }
+    // 警告处理
+    if (g_pro_manager.warning_flag && !g_pro_manager.log_done)
+    {
+        log_data_save();
+        FOC_CHANGE_STATE(FOC_WARNING);
         if (g_pro_manager.com_state->Host_port != NONE_port)
             return; // 上位机模式下不进行日志写入
         // log_data_write();

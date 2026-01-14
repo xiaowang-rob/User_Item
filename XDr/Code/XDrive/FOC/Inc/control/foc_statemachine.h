@@ -15,7 +15,8 @@ typedef enum
     FOC_DISABLE,
     FOC_RUNNING,
     FOC_SHUTDOWN,
-    FOC_FAULT
+    FOC_FAULT,
+    FOC_WARNING,
 } FOC_STATE_e;
 
 typedef struct

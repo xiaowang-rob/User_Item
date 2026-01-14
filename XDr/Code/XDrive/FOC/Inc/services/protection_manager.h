@@ -23,9 +23,8 @@ typedef enum
     OVER_TEMPERATURE,
     OVER_SPEED,
     OVER_POSITION,
-    ENCODER_OFFLINE,   // 无编码器
+    ENCODER_OFFLINE,   // 无编码器 或者 磁场弱
     ENCODER_COM_ERROR, // 编码器通信错误
-    ENCODER_WEAK_MAG,  // 编码器磁场弱
 } Warning_e;
 typedef struct
 {

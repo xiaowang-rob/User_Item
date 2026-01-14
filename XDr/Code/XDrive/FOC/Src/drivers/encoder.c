@@ -5,7 +5,7 @@
 #include "math_fast.h"
 #include "drive_state.h"
 
-ENCODER_t encoder = {0};
+static ENCODER_t encoder = {0};
 
 void ENCODER_SPI_CS_H()
 {
@@ -15,30 +15,25 @@ void ENCODER_SPI_CS_L()
 {
     HAL_GPIO_WritePin(ENcoderCS_CPIOx, ENcoderCS_CPIOx_PIN, GPIO_PIN_RESET);
 }
-/**
- * @brief 启动单个寄存器读取
- * @param reg_addr: 寄存器地址 (0x03或0x04)
- * @return true: 启动成功，false: 失败
- */
-static bool ENCODER_StartRegisterRead(uint8_t reg_addr)
+static void ENCODER_Reg3_Read()
 {
-    tx_buffer[0] = reg_addr;
     ENCODER_SPI_CS_L();
 
-    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive_DMA(
-        &ENcoder_SPI_Get_HSPI,
-        tx_buffer,
-        rx_buffer,
-        1);
-
-    if (status != HAL_OK)
+    if (HAL_OK != HAL_SPI_TransmitReceive_DMA(&ENcoder_SPI_Get_HSPI, (u8 *)&reg03_cmd, (u8 *)&reg03_data, 1))
     {
         ENCODER_SPI_CS_H();
-        return false;
+        encoder.state = ENCODER_STATE_START_READ;
     }
+}
+static void ENCODER_Reg4_Read()
+{
+    ENCODER_SPI_CS_L();
 
-    transfer_start_time = HAL_GetTick();
-    return true;
+    if (HAL_OK != HAL_SPI_TransmitReceive_DMA(&ENcoder_SPI_Get_HSPI, (u8 *)&reg04_cmd, (u8 *)&reg04_data, 1))
+    {
+        ENCODER_SPI_CS_H();
+        encoder.state = ENCODER_STATE_START_READ;
+    }
 }
 
 static u8 valid = 0;
@@ -48,37 +43,44 @@ static u8 valid = 0;
  */
 static void ENCODER_ProcessAndNextRead(void)
 {
-    u32 current_time = HAL_GetTick();
-    u32 time_diff = current_time - encoder.last_time;
 
-    // 1. 解析14位角度值
-    u16 angle_raw = ((reg03_data & 0xFF) << 6) | ((reg04_data & 0xFC) >> 2);
-    float angle_deg = angle_raw * (360.0f / 16384.0f);                 // 16384 = 2^14
-    float angle_abs = angle_deg * 0.017453292f + encoder.angle_offset; // deg to rad
+    u32 current_time = HAL_GetTick_us();
+    u32 time_diff = HAL_GetTick_us() - encoder.last_time;
 
-    // 2. 计算角速度 (rad/s)
+    //  解析14位角度值
+    u16 angle_raw = ((reg03_data & 0x00FF) << 6) | ((reg04_data & 0x00FC) >> 2);
+    encoder.angle_abs = angle_raw * 0.000383495197 + encoder.angle_offset; // 16384 = 2^14
+
+    // 增量角度
+    float angle_delta = encoder.angle_abs - encoder.angle_last;
+    if (angle_delta < -M_PI || angle_delta > M_PI)
+    { // 圈数改变
+        encoder.num_turns += (angle_delta < 0) ? 1 : -1;
+    }
+    encoder.angle_inc = encoder.num_turns * M2_PI + encoder.angle_abs; // 弧度值
+    //  计算角速度 (rad/s)
     if (time_diff > 0)
     {
-        encoder.omega = (angle_abs - encoder.angle_last) / (time_diff * 0.001f);
+        encoder.omega = (encoder.angle_inc - encoder.angle_inc_last) / (time_diff * 0.000001f);
     }
 
-    // 3. 累积角度
-    encoder.angle_inc += angle_abs - encoder.angle_last;
-
-    // 4. 更新数据
-    encoder.angle_abs = angle_abs;
-    encoder.angle_last = angle_abs;
+    // 更新数据
+    encoder.angle_last = encoder.angle_abs;
+    encoder.angle_inc_last = encoder.angle_inc;
     encoder.last_time = current_time;
 
-    // 5. 状态检查
+    // 工作状态检查
     if (reg04_data & MT6816_NO_MAG_WARNING)
     {
-        ENCODER_state_set(SINGNAL_ERROR);
+        ENCODER_state_set(OFFLINE);
+        encoder.state = ENCODER_STATE_START_READ;
+        return;
     }
-    else if (ENCODER_state_get() == SINGNAL_ERROR)
+    else if (ENCODER_state_get() == OFFLINE)
     {
         ENCODER_state_set(ONLINE);
     }
+
     // 奇偶校验验证
     bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
     // 计算14位角度值中1的个数
@@ -101,16 +103,9 @@ static void ENCODER_ProcessAndNextRead(void)
         ENCODER_state_set(RUN_ERROR);
     else if (ENCODER_state_get() == RUN_ERROR)
         ENCODER_state_set(ONLINE);
-    // 6. 立即启动下一次读取
-    if (ENCODER_StartRegisterRead(0x03))
-    {
-        encoder.state = ENCODER_STATE_WAIT_HIGH;
-    }
-    else
-    {
-        encoder.state = ENCODER_STATE_START_READ;
-    }
-    encoder.data_ready = true;
+    // 立即启动下一次读取
+    encoder.state = ENCODER_STATE_WAIT_HIGH;
+    ENCODER_Reg3_Read();
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
@@ -119,63 +114,19 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
     {
         return;
     }
-
     ENCODER_SPI_CS_H(); // 拉高CS
-
-    u32 current_time = HAL_GetTick();
-
-    // 检查超时
-    if (current_time - transfer_start_time > TRANSFER_TIMEOUT_MS)
+    if (encoder.state == ENCODER_STATE_WAIT_HIGH)
     {
-        // 超时处理：重置状态机
-        encoder.state = ENCODER_STATE_START_READ;
-        return;
+        encoder.state = ENCODER_STATE_WAIT_LOW;
+        ENCODER_Reg4_Read();
     }
-
-    switch (encoder.state)
+    else if (encoder.state == ENCODER_STATE_WAIT_LOW)
     {
-    case ENCODER_STATE_WAIT_HIGH:
-        // 保存高位数据
-        reg03_data = rx_buffer[0];
-
-        if (reg03_data == 0xFF)
-        {
-            ENCODER_state_set(OFFLINE);
-            encoder.state = ENCODER_STATE_START_READ;
-            return;
-        }
-        else if (ENCODER_state_get() == OFFLINE)
-            ENCODER_state_set(ONLINE);
-
-        // 启动低位寄存器读取
-        if (ENCODER_StartRegisterRead(0x04))
-        {
-            encoder.state = ENCODER_STATE_WAIT_LOW;
-        }
-        else
-        {
-            encoder.state = ENCODER_STATE_START_READ;
-        }
-        break;
-
-    case ENCODER_STATE_WAIT_LOW:
-        // 保存低位数据
-        reg04_data = rx_buffer[0];
-
-        // 进入数据处理状态
         encoder.state = ENCODER_STATE_PROCESS_DATA;
-        break;
-
-    default:
-        encoder.state = ENCODER_STATE_START_READ;
-        break;
     }
 }
-
 void ENCODER_Init()
 {
-    memset(&encoder, 0, sizeof(ENCODER_t));
-    ENCODER_MainLoopTask();
 }
 void ENCODER_MainLoopTask()
 {
@@ -183,6 +134,11 @@ void ENCODER_MainLoopTask()
     if (encoder.state == ENCODER_STATE_PROCESS_DATA)
     {
         ENCODER_ProcessAndNextRead();
+    }
+    else if (encoder.state == ENCODER_STATE_START_READ)
+    {
+        encoder.state = ENCODER_STATE_WAIT_HIGH;
+        ENCODER_Reg3_Read();
     }
 }
 float GET_ENCODER_ANGLE_ABS()

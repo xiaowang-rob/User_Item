@@ -17,13 +17,13 @@ void svpwm_Init(float Vbus)
 {
     memset(&svpwm, 0, sizeof(SVPWM_t));
 
-    svpwm.k = sqrt3 * (float)ticpwm / Vbus;
+    svpwm.k = sqrt3_2 * (float)ticpwm / Vbus;
 }
 void pwm_out()
 {
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticu);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticu);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, svpwm.ticv);
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticw);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticw);
 }
 
 void ENABLE_PWM()
@@ -66,20 +66,29 @@ void svpwm_run(float ualpha, float ubeta)
     float Tx, Ty, Tzero;
     switch (vN)
     {
-    case 1:
-        svpwm.sector = 2;
-        Tx = -2 * svpwm.k * U1;
-        Ty = -svpwm.k * U3;
+    case 0:               // Zero vector (all negative)
+    case 7:               // Zero vector (all positive)
+        svpwm.sector = 0; // Use special sector 0
+        Tx = 0;
+        Ty = 0;
         break;
-    case 2:
-        svpwm.sector = 6;
+    case 1:
         Tx = -svpwm.k * U3;
         Ty = -2 * svpwm.k * U1;
+        svpwm.sector = 2;
+
+        break;
+    case 2:
+        Tx = svpwm.k * U3;
+        Ty = svpwm.k * U2;
+        svpwm.sector = 6;
+
         break;
     case 3:
+        Tx = -svpwm.k * U2;
+        Ty = -svpwm.k * U3;
         svpwm.sector = 1;
-        Tx = svpwm.k * U2;
-        Ty = 2 * svpwm.k * U1;
+
         break;
     case 4:
         svpwm.sector = 4;
@@ -87,14 +96,16 @@ void svpwm_run(float ualpha, float ubeta)
         Ty = -svpwm.k * U2;
         break;
     case 5:
+        Tx = svpwm.k * U2;
+        Ty = 2 * svpwm.k * U1;
         svpwm.sector = 3;
-        Tx = 2 * svpwm.k * U1;
-        Ty = svpwm.k * U3;
+
         break;
     case 6:
+        Tx = 2 * svpwm.k * U1;
+        Ty = svpwm.k * U3;
         svpwm.sector = 5;
-        Tx = svpwm.k * U3;
-        Ty = svpwm.k * U2;
+
         break;
     default:
         break;
@@ -126,28 +137,20 @@ void svpwm_run(float ualpha, float ubeta)
         tu2 = t3;
         tv1 = t1;
         tv2 = t2;
-        tw1 = 0;
-        tw2 = ticpwm;
         break;
     case 2: // V2(110), V3(010)
         tu1 = t1;
         tu2 = t2;
         tv1 = t0;
         tv2 = t3;
-        tw1 = 0;
-        tw2 = ticpwm;
         break;
     case 3: // V3(010), V4(011)
-        tu1 = 0;
-        tu2 = ticpwm;
         tv1 = t0;
         tv2 = t3;
         tw1 = t1;
         tw2 = t2;
         break;
     case 4: // V4(011), V5(001)
-        tu1 = 0;
-        tu2 = ticpwm;
         tv1 = t1;
         tv2 = t2;
         tw1 = t0;
@@ -156,20 +159,22 @@ void svpwm_run(float ualpha, float ubeta)
     case 5: // V5(001), V6(101)
         tu1 = t1;
         tu2 = t2;
-        tv1 = 0;
-        tv2 = ticpwm;
         tw1 = t0;
         tw2 = t3;
         break;
     case 6: // V6(101), V1(100)
         tu1 = t0;
         tu2 = t3;
-        tv1 = 0;
-        tv2 = ticpwm;
         tw1 = t1;
         tw2 = t2;
         break;
     default:
+        tu1 = 0;
+        tu2 = ticpwm;
+        tv1 = 0;
+        tv2 = ticpwm;
+        tw1 = 0;
+        tw2 = ticpwm;
         break;
     }
 

@@ -89,36 +89,36 @@ void foc_core_reset()
 // 电流重构 将采集的线电流重构为相电流
 void Current_reconstruction()
 {
-    // float ui, vi, wi;
-    // ADC_GET_Current(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
-    // switch (svpwm_GetSector())
-    // {
-    // case 1:
-    // case 4:
-    //     ui = foc_val.Iv + foc_val.Iw;
-    //     vi = -foc_val.Iv;
-    //     wi = -foc_val.Iw;
-    //     break;
-    // case 2:
-    // case 5:
-    //     ui = -foc_val.Iu;
-    //     vi = foc_val.Iu + foc_val.Iw;
-    //     wi = -foc_val.Iw;
-    //     break;
-    // case 3:
-    // case 6:
-    //     ui = -foc_val.Iu;
-    //     vi = -foc_val.Iv;
-    //     wi = foc_val.Iu + foc_val.Iv;
-    //     break;
-    // default:
-    //     ui = foc_val.Iu;
-    //     vi = foc_val.Iv;
-    //     wi = foc_val.Iw;
-    //     break;
-    // }
-    // clark_transform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
-    clark_transform(gMotor.state.ia, gMotor.state.ib, gMotor.state.ic, &foc_val.Ialpha, &foc_val.Ibeta);
+    float ui, vi, wi;
+    ADC_GET_Current(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
+    switch (svpwm_GetSector())
+    {
+    case 1:
+    case 4:
+        ui = foc_val.Iv + foc_val.Iw;
+        vi = -foc_val.Iv;
+        wi = -foc_val.Iw;
+        break;
+    case 2:
+    case 5:
+        ui = -foc_val.Iu;
+        vi = foc_val.Iu + foc_val.Iw;
+        wi = -foc_val.Iw;
+        break;
+    case 3:
+    case 6:
+        ui = -foc_val.Iu;
+        vi = -foc_val.Iv;
+        wi = foc_val.Iu + foc_val.Iv;
+        break;
+    default:
+        ui = foc_val.Iu;
+        vi = foc_val.Iv;
+        wi = foc_val.Iw;
+        break;
+    }
+    clark_transform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
+    // clark_transform(gMotor.state.ia, gMotor.state.ib, gMotor.state.ic, &foc_val.Ialpha, &foc_val.Ibeta);
 }
 // 无感 电流环初始角度对齐
 bool theta_align_curloop()
@@ -155,15 +155,15 @@ void foc_encoder_get_vitop()
 {
     ADC_GET_Voltage(&Motor.Udc);
     Current_reconstruction();
-    // foc_val.theta_mech = GET_ENCODER_ANGLE_ABS();
-    foc_val.theta_mech = gMotor.state.theta_m;
+    foc_val.theta_mech = GET_ENCODER_ANGLE_ABS();
+    //    foc_val.theta_mech = gMotor.state.theta_m;
     foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs;
     foc_val.theta_elec = normalize_angle_0_2pi(foc_val.theta_elec);
     park_transform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
-    // foc_val.omega_fb = GET_ENCODER_OMEGA();
-    foc_val.omega_fb = gMotor.state.omega_m;
-    // foc_val.pos_fb = GET_ENCODER_ANGLE_INC();
-    foc_val.pos_fb = gMotor.state.pos_m;
+
+    foc_val.pos_fb = GET_ENCODER_ANGLE_INC();
+    foc_val.omega_fb = GET_ENCODER_OMEGA();
+    //    foc_val.pos_fb = gMotor.state.pos_m;
 }
 
 // 无感模式 获取电压电流角度速度位置

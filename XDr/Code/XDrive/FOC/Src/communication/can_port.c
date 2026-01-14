@@ -40,26 +40,27 @@ void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE)
     sFilterConfig.FilterActivation = ENABLE;                     // 使能过滤器
     sFilterConfig.SlaveStartFilterBank = 14;                     // 从过滤器编号，0-27，对于单CAN实例该参数没有意义
 
+    can_state_change(ONLINE);
     // 配置CAN2的过滤器参数
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        can_state_change(INIT_ERROR);
+        can_state_change(OFFLINE);
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        can_state_change(INIT_ERROR);
+        can_state_change(OFFLINE);
     }
 
     /* Activate CAN RX notification - 激活CAN接收中断通知 */
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        can_state_change(INIT_ERROR);
+        can_state_change(OFFLINE);
     }
     if (can.queue_flag)
-        static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData));
-		can_state_change(ONLINE);
+        if (QUEUE_ERROR == static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData)))
+            can_state_change(OFFLINE);
 }
 
 /**

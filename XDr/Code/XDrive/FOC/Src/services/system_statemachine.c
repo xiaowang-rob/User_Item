@@ -44,7 +44,7 @@ void SystemStateMachine_run(void)
         else
             SystemState_change(SYSTEM_ERROR);
         break;
-    case SYSTEM_RUNNING:
+    case SYSTEM_RUNNING:		
         // 通讯层运行
         communication_run();
         // 控制层由定时器驱动

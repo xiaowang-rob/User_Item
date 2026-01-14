@@ -17,25 +17,21 @@ typedef struct
     float angle_abs; // 弧度值
     float angle_last;
     float angle_inc; // 角度增量值rad
-    float angle_deg; // 转换为角度值（0~360°）
+    float angle_inc_last;
     float omega;
     float angle_offset; // 角度偏移值
     u32 last_time;      // 上次读取时间
-    bool data_ready;
+    u32 time_T;         // 周期
+    int num_turns;      // 转数
 } ENCODER_t;
 
-bool encoder_data_ready = false;
-
 // 全局变量
-static ENCODER_t encoder = {0};
-static uint8_t reg03_data = 0; // 高位寄存器数据
-static uint8_t reg04_data = 0; // 低位寄存器数据
+static u16 reg03_cmd = 0x83ff;
+static u16 reg03_data = 0; // 高位寄存器数据
+static u16 reg04_cmd = 0x84ff;
+static u16 reg04_data = 0; // 低位寄存器数据
 static uint32_t transfer_start_time = 0;
 static const uint32_t TRANSFER_TIMEOUT_MS = 2; // 2ms超时
-
-// DMA缓冲区
-static uint8_t tx_buffer[1];
-static uint8_t rx_buffer[1];
 
 #if ENcoder == 1 // MT6816
 // MT6816 寄存器地址定义
@@ -50,7 +46,7 @@ static uint8_t rx_buffer[1];
 #endif
 
 // 函数声明
-void ENCODER_Init();
+
 void ENCODER_MainLoopTask();
 float GET_ENCODER_ANGLE_ABS();
 float GET_ENCODER_ANGLE_INC();

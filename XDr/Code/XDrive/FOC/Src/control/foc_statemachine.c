@@ -59,13 +59,12 @@ void fFOC_Init()
     g_foc.motor = get_motor_adr();
     foc_core_init();
     PWM_POWER_ON();
+		ENABLE_PWM();
 }
 
 void FOC_StateMachine_updata()
 {
-    float ua, ub, uc;
     FOC_PREPARE();
-    ENCODER_MainLoopTask();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -74,8 +73,6 @@ void FOC_StateMachine_updata()
         if (auto_calibration_update())
             FOC_CHANGE_STATE(FOC_IDLE);
         FOC_RUN();
-        fGetPhaseVoltage(&ua, &ub, &uc);
-        motor_step(ua, ub, uc);
         break;
     case FOC_RESET:
         foc_core_reset();
@@ -93,12 +90,10 @@ void FOC_StateMachine_updata()
         break;
     case FOC_RUNNING:
         FOC_RUN();
-        fGetPhaseVoltage(&ua, &ub, &uc);
-        motor_step(ua, ub, uc);
         break;
     case FOC_SHUTDOWN:
         if (SHUTDOWM())
-            FOC_CHANGE_STATE(FOC_FAULT);
+            FOC_CHANGE_STATE(FOC_WARNING);
         break;
     case FOC_FAULT:
         if (g_foc.foc_enable)
@@ -108,9 +103,17 @@ void FOC_StateMachine_updata()
             PWM_POWER_OFF();
         }
         break;
+    case FOC_WARNING:
+        if (g_foc.foc_enable)
+        {
+            g_foc.foc_enable = false;
+            DISABLE_PWM();
+        }
+        break;
     default:
         break;
     }
+    ENCODER_MainLoopTask();
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {

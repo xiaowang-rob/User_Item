@@ -5,9 +5,7 @@ typedef enum
 {
     OFFLINE,
     ONLINE,
-    INIT_ERROR,
     RUN_ERROR,
-    SINGNAL_ERROR,
 } Drive_state_e;
 
 typedef struct

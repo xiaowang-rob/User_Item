@@ -30,6 +30,5 @@ Drive_state_e FLASH_state_get(void)
 void drive_init()
 {
     FLASH_Init();
-    ENCODER_Init();
     ADC_DR_Init(); // 开启FOC循环
 }
