@@ -40,7 +40,9 @@ communication_state_t *com_state_get_adr();
 void communication_init();
 void communication_run();
 
-void usb_state_change(Drive_state_e state);
+void usb_connected();
+void usb_disconnected();
+
 void can_state_change(Drive_state_e state);
 
 #endif

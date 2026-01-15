@@ -14,6 +14,5 @@ typedef struct
 } USB_frame_t;
 bool usb_Frame_send(u8 id, u8 *data, u8 len);
 void usb_FrameData_deal(u8 id, u8 *data, u8 len);
-void USB_Connect_Status_set(u8 status);
 
 #endif /* __USB_INTERFACE_H */

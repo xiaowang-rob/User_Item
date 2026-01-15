@@ -32,8 +32,8 @@ void fHostComputer_send()
 {
     if (com_frame.com_port == UART_port)
         usart_frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
-    else
-        usb_Frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
+    else if (!usb_Frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
+        com_state.Host_port = NONE_port;
 }
 
 static u8 data_id = 0;
@@ -76,16 +76,19 @@ void frame_data_deal()
         {
             switch (com_frame.cmd_id)
             {
-            case USART_connect:
-                com_state.Host_port = UART_port;
+            case UC_connect:
+                if (com_frame.com_port == USB_port)
+                    com_state.Host_port = USB_port;
+                else
+                    com_state.Host_port = UART_port;
                 strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
-                usart_frame_send(SYSTEM_DESC, (u8 *)&com_frame.txdata, strlen((char *)com_frame.txdata));
+                com_frame.txdatalen = strlen((char *)com_frame.txdata);
                 com_frame.data_id_index[0] = STATUS;
                 com_frame.data_id_index[1] = TEMPERATURE;
                 com_frame.data_id_index[2] = VBUS;
                 com_frame.stream_num = 3;
                 break;
-            case USART_disconnect:
+            case UC_disconnect:
                 com_state.Host_port = NONE_port;
                 com_frame.stream_num = 0;
                 break;
@@ -264,9 +267,13 @@ void stream_data_trans()
         fHostComputer_send();
     }
 }
-void usb_state_change(Drive_state_e state)
+void usb_connected()
 {
-    com_state.usb_state = state;
+    com_state.usb_state = ONLINE;
+}
+void usb_disconnected()
+{
+    com_state.usb_state = OFFLINE;
 }
 void can_state_change(Drive_state_e state)
 {

@@ -6,12 +6,25 @@
 USB_frame_t UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
 USB_frame_t UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
 
+static u8 trans_fault_tic = 0;
 bool usbSendData(u8 *data, u8 len)
 {
-    if (CDC_Transmit_FS(data, len) == 0) // 成功返回0
+    u8 Trans_state = CDC_Transmit_FS(data, len);
+    if (Trans_state == 0) // 成功返回0
+    {
         return true;
-    else if (CDC_Transmit_FS(data, len) == 1) // 忙 重发
+        trans_fault_tic = 0;
+    }
+    else // 忙 重发
+    {
+        if (trans_fault_tic > 5)
+        {
+            trans_fault_tic = 0;
+            return false;
+        }
+				trans_fault_tic++;
         usbSendData(data, len);
+    }
     return false;
 }
 bool usb_Frame_send(u8 id, u8 *data, u8 len)
@@ -25,11 +38,9 @@ bool usb_Frame_send(u8 id, u8 *data, u8 len)
     UsbTxFrame.len = len;
     memcpy(UsbTxFrame.data, data, len);
     UsbTxFrame.check = (u8)check & 0x01;
-    usbSendData((u8 *)&UsbTxFrame, len + 3);     // 3是head,id,len的长度
-    if (usbSendData((u8 *)&UsbTxFrame.check, 2)) // 2是check,tail的长度
-        return true;
-    else
-        return false;
+    UsbTxFrame.data[len] = UsbTxFrame.check;
+    UsbTxFrame.data[len + 1] = UsbTxFrame.tail;
+    return usbSendData((u8 *)&UsbTxFrame, len + 5); // 5是head,id,len,check,tail的长度
 }
 __weak void usb_FrameData_deal(u8 id, u8 *data, u8 len)
 {
@@ -57,11 +68,4 @@ bool usbRecvByte(u8 *data, u8 *len)
         }
     }
     return true;
-}
-void USB_Connect_Status_set(u8 status)
-{
-    if (status == 1)
-        usb_state_change(ONLINE);
-    else
-        usb_state_change(OFFLINE);
 }

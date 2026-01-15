@@ -2,8 +2,8 @@
 #define __PROTOCOL_H
 
 /***********CMD ID***********/
-#define USART_connect 0xf0    // 串口上位机连接
-#define USART_disconnect 0xfe // 串口上位机断开
+#define UC_connect 0xf0    // 上位机连接
+#define UC_disconnect 0xfe // 上位机断开
 
 #define SYSTEM_DESC 0xff   // 系统描述
 #define START_TUNNING 0xf1 // 开始调参
@@ -33,8 +33,8 @@
 发送 ： 包头  ID（PC指令）  长度   数据（PC查询数据）  校验   包尾
 Index==0xff时，表示查询所有参数
 */
-#define USB_PACKET_HEAD 0x2C
-#define USB_PACKET_TAIL 0xC2
+#define USB_PACKET_HEAD 0x3A
+#define USB_PACKET_TAIL 0x0D
 /***********UART Config***********/
 // 默认和校验
 // 115200bps
