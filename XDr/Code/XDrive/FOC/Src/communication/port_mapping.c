@@ -35,7 +35,23 @@ void fHostComputer_send()
     else if (!usb_Frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
         com_state.Host_port = NONE_port;
 }
-
+static bool param_send_flag = false;
+static u8 param_index = 0;
+void all_params_send()
+{
+    if (param_send_flag == false)
+        return;
+    Param_get((Parameter_e)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
+		com_frame.txdata[0]=param_index;
+		com_frame.txdatalen+=1;
+    fHostComputer_send();
+    param_index++;
+    if (param_index == COUNT_PARAM)
+    {
+        param_index = 0;
+        param_send_flag = false;
+    }
+}
 static u8 data_id = 0;
 // 命令解析
 void frame_data_deal()
@@ -83,6 +99,7 @@ void frame_data_deal()
                     com_state.Host_port = UART_port;
                 strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
                 com_frame.txdatalen = strlen((char *)com_frame.txdata);
+                fHostComputer_send();
                 com_frame.data_id_index[0] = STATUS;
                 com_frame.data_id_index[1] = TEMPERATURE;
                 com_frame.data_id_index[2] = VBUS;
@@ -145,7 +162,12 @@ void frame_data_deal()
             case PARAM_WRITE: // 指定写入
                 Param_set(com_frame.rxdata[0], &com_frame.rxdata[1]);
                 break;
-            case PARAM_READ: // 指定读取
+            case PARAM_READ:
+                if (com_frame.rxdata[0] == 0xff)
+                { // 读取所有参数
+                    param_send_flag = true;
+                    break;
+                } // 指定读取
                 Param_get(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
                 fHostComputer_send();
                 break;
@@ -246,8 +268,24 @@ static u32 _time_ms = 0;
 static u32 _time_prev_ms = 0;
 void stream_data_trans()
 {
-    if (com_frame.stream_num == 0)
+    if (param_send_flag)
+    {
+        _time_ms = HAL_GetTick();
+        if (_time_ms - _time_prev_ms < DATA_stream_T)
+            return;
+        all_params_send();
+        _time_prev_ms = HAL_GetTick();
         return;
+    }
+    if (com_frame.is_busy)
+        return;
+    else
+        com_frame.cmd_id = CMD_STREAM_SET;
+    if (com_frame.stream_num == 0)
+    {
+        _time_prev_ms = HAL_GetTick();
+        return;
+    }
     _time_ms = HAL_GetTick();
     if (_time_ms - _time_prev_ms < DATA_stream_T)
         return;

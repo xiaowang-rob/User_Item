@@ -1079,7 +1079,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="parameter">
        <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="0,0,0,0,0,0,0,0,0">
@@ -1550,7 +1550,18 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="FOCmode"/>
+            <widget class="QComboBox" name="FOCmode">
+             <item>
+              <property name="text">
+               <string>有感</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>无感</string>
+              </property>
+             </item>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_70">
@@ -1569,7 +1580,33 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="LOOPmode"/>
+            <widget class="QComboBox" name="LOOPmode">
+             <item>
+              <property name="text">
+               <string>电压环</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>电流环</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>速度环</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>绝对位置环</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>增量位置环</string>
+              </property>
+             </item>
+            </widget>
            </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_72">
@@ -1588,7 +1625,18 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QComboBox" name="CANmode"/>
+            <widget class="QComboBox" name="CANmode">
+             <item>
+              <property name="text">
+               <string>实时控制</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>队列控制</string>
+              </property>
+             </item>
+            </widget>
            </item>
            <item row="3" column="0">
             <widget class="QLabel" name="label_73">
@@ -1986,7 +2034,7 @@
             </widget>
            </item>
            <item row="6" column="1">
-            <widget class="QLineEdit" name="B_val">
+            <widget class="QLineEdit" name="J_val">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -2021,7 +2069,7 @@
             </widget>
            </item>
            <item row="7" column="1">
-            <widget class="QLineEdit" name="B">
+            <widget class="QLineEdit" name="B_val">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3436,8 +3484,21 @@
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_ch1">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: red;</string>
+              </property>
               <property name="text">
-               <string>ch1</string>
+               <string>通道1</string>
+              </property>
+              <property name="scaledContents">
+               <bool>false</bool>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -3481,8 +3542,18 @@
             </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_ch2">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: green;</string>
+              </property>
               <property name="text">
-               <string>ch2</string>
+               <string>通道2</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -3523,8 +3594,18 @@
             </item>
             <item row="7" column="0">
              <widget class="QLabel" name="label_ch3">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: blue;</string>
+              </property>
               <property name="text">
-               <string>ch3</string>
+               <string>通道3</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -3533,8 +3614,18 @@
             </item>
             <item row="9" column="0">
              <widget class="QLabel" name="label_ch4">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: yellow;</string>
+              </property>
               <property name="text">
-               <string>ch4</string>
+               <string>通道4</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -3556,8 +3647,18 @@
             </item>
             <item row="11" column="0">
              <widget class="QLabel" name="label_ch5">
+              <property name="font">
+               <font>
+                <pointsize>15</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: purple;</string>
+              </property>
               <property name="text">
-               <string>ch5</string>
+               <string>通道5</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -3600,7 +3701,11 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="1,0,1,8,1,0,1,1">
           <item>
-           <widget class="QLineEdit" name="controlval_show"/>
+           <widget class="QLineEdit" name="controlval_show">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer_10">
@@ -3616,7 +3721,14 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="VAL_min"/>
+           <widget class="QLineEdit" name="VAL_min">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QSlider" name="VAL_slider">
@@ -3626,7 +3738,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="VAL_max"/>
+           <widget class="QLineEdit" name="VAL_max">
+            <property name="text">
+             <string>10</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer_11">
@@ -3642,7 +3761,14 @@
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="VAL"/>
+           <widget class="QLineEdit" name="VAL">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="VAL_write">

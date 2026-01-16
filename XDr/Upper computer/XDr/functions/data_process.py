@@ -1,9 +1,52 @@
+from .parameter import Cmd
+from PyQt5.QtWidgets import QMessageBox
+
+import struct
 class DataProcess:
     def __init__(self, main_window):
         self.main_window = main_window
+        
+    def handle_received_data(self, cmd_id: int, data: bytes):
+        """处理已解析的有效数据包"""
+        try:
+            match cmd_id:
+                case Cmd.UC_CONNECT:  # UC连接成功 返回系统参数
+                    self.main_window.param_manager.system_desc = data.decode('utf-8')
+                    # QMessageBox.information(self.main_window, "系统参数", self.main_window.param_manager.system_desc)
+                    return
+                case Cmd.LOG_ERASE:
+                    if(data[0] == 0xf0):
+                        QMessageBox.information(self.main_window, "提示", "日志已清除")
+                    else:
+                        QMessageBox.warning(self.main_window, "警告", "日志清除失败")
+                    return
+                case Cmd.PARAM_ERASE:  # 参数读取返回
+                    if(data[0] == 0xf0):
+                        QMessageBox.information(self.main_window, "提示", "参数已清除")
+                    else:
+                        QMessageBox.warning(self.main_window, "警告", "参数清除失败")
+                    return
+                case Cmd.PARAM_SAVE:  # 参数保存返回
+                    if(data[0] == 0xf0):
+                        QMessageBox.information(self.main_window, "提示", "参数已保存")
+                    else:
+                        QMessageBox.warning(self.main_window, "警告", "参数保存失败")
+                    return
+                case Cmd.PARAM_READ:
+                    idx=data[0]
+                    self.main_window.param_manager.show_param(idx, data[1:])
+                case Cmd.CMD_STREAM_SET:  # 监控值返回
+                    byte_len=int(len(data)/4)+3
+                    for i in range(byte_len):
+                        if i<4:
+                            self.main_window.data.set_data(i,data[i])
+                        else:
+                            self.main_window.data.set_data(i,struct.unpack('<f',data[(i-3)*4:(i-2)*4])[0])
+                    self.main_window.data.show_data()
+                    return
 
-    def handle_received_data(self, data):
-        """处理串口接收的数据"""
-        # 根据数据格式解析并更新UI
-        # 例如：接收实时电流、速度等监控数据
-        pass
+
+
+        except Exception as e:
+            print(f"数据处理异常: {e}")
+       

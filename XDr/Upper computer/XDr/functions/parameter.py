@@ -1,13 +1,13 @@
 import struct
 import threading
 from PyQt5.QtWidgets import QFileDialog
+import time
 
 # 命令 ID 定义
 class Cmd:
 
     UC_CONNECT    = 0xF0
     UC_DISCONNECT = 0xFE
-    SYSTEM_DESC   = 0xFF
     START_TUNNING = 0xF1
     BRAKE         = 0xF2
     FOC_NRST      = 0xF3
@@ -25,20 +25,22 @@ class Cmd:
     CMD_STREAM_GET   = 0x23
     CMD_STREAM_SET   = 0x25
 
-# 参数枚举索引 (对应 C 语言 Enum)
 class PIdx:
-    SW_CANQUEUE          = 0
-    SW_WEAKMAG           = 1
-    SW_FAN               = 2
-    SW_VAGUE_PID         = 3
-    SW_PVT               = 4
-    FOC_MODE             = 5
-    LOOP_MODE            = 6
+    # bool 类型参数
+    FOC_MODE             = 0
+    LOOP_MODE            = 1
+    SW_CANQUEUE          = 2
+    SW_WEAKMAG           = 3
+    SW_FAN               = 4
+    SW_VAGUE_PID         = 5
+    SW_PVT               = 6
     MOTOR_POLEPAIRS      = 7
     FREQ_CURRENT_LOOP    = 8
     FREQ_SPEED_LOOP      = 9
     FREQ_POSITION_LOOP   = 10
+    #u32 类型参数
     CAN_ID               = 11
+    # float 类型参数
     F_PWM                = 12
     F_CURRENT_LOOP       = 13
     F_SPEED_LOOP         = 14
@@ -80,9 +82,17 @@ class ParameterManager:
     def __init__(self, main_window, com_port):
         self.mw = main_window
         self.com = com_port
-        
+        self.system_desc = "无"
         # 建立 索引(Int) -> UI控件 的映射
         self.param_map = {
+            #模式
+            PIdx.FOC_MODE:self.mw.ui.FOCmode,
+            PIdx.LOOP_MODE:self.mw.ui.LOOPmode,
+            PIdx.SW_CANQUEUE:self.mw.ui.CANmode,
+            PIdx.SW_WEAKMAG:self.mw.ui.weakmag,
+            PIdx.SW_FAN:self.mw.ui.FAN,
+            PIdx.SW_VAGUE_PID:self.mw.ui.vaguePID,
+            PIdx.SW_PVT:self.mw.ui.PVT,
             #控制参数
             PIdx.CAN_ID:     self.mw.ui.CANID,
             PIdx.KP_CURRENT: self.mw.ui.CURKp,
@@ -105,67 +115,93 @@ class ParameterManager:
             PIdx.MOTOR_B:    self.mw.ui.B_val,
             #静态参数
             PIdx.F_PWM:self.mw.ui.f_pwm,
-            PIdx.F_CURRENT_LOOP:self.mw.ui.f_current_loop,
-            PIdx.F_SPEED_LOOP:self.mw.ui.f_speed_loop,
-            PIdx.F_POSITION_LOOP:self.mw.ui.f_position_loop,
-            PIdx.FREQ_CURRENT_LOOP:self.mw.ui.freq_current_loop,
-            PIdx.FREQ_SPEED_LOOP:self.mw.ui.freq_speed_loop,
-            PIdx.FREQ_POSITION_LOOP:self.mw.ui.freq_position_loop,
+            PIdx.F_CURRENT_LOOP:self.mw.ui.f_current,
+            PIdx.F_SPEED_LOOP:self.mw.ui.f_speed,
+            PIdx.F_POSITION_LOOP:self.mw.ui.f_postion,
+            PIdx.FREQ_CURRENT_LOOP:self.mw.ui.freq_cur,
+            PIdx.FREQ_SPEED_LOOP:self.mw.ui.freq_speed,
+            PIdx.FREQ_POSITION_LOOP:self.mw.ui.freq_pos,
             PIdx.LIMIT_CURRENT:self.mw.ui.limit_current,
             PIdx.LIMIT_SPEED:self.mw.ui.limit_speed,
-            PIdx.LIMIT_POSITION_MIN:self.mw.ui.limit_position_min,
-            PIdx.LIMIT_POSITION_MAX:self.mw.ui.limit_position_max,
-            PIdx.TOLERANCE_TIME:self.mw.ui.tolerance_time,
-            PIdx.TOLERANCE_VOLTAGE:self.mw.ui.tolerance_voltage,
-            PIdx.TOLERANCE_CURRENT:self.mw.ui.tolerance_current,
-            PIdx.TOLERANCE_SPEED:self.mw.ui.tolerance_speed,
-            PIdx.TOLERANCE_POSITION:self.mw.ui.tolerance_position,
-            PIdx.STARTUP_POS_GRAD:self.mw.ui.startup_pos_grad,
-            PIdx.STARTUP_SPE_GRAD:self.mw.ui.startup_spe_grad,
+            PIdx.LIMIT_POSITION_MIN:self.mw.ui.min_postion,
+            PIdx.LIMIT_POSITION_MAX:self.mw.ui.max_postion,
+            PIdx.TOLERANCE_TIME:self.mw.ui.tolerate_time,
+            PIdx.TOLERANCE_VOLTAGE:self.mw.ui.tolerate_voltage,
+            PIdx.TOLERANCE_CURRENT:self.mw.ui.tolerate_current,
+            PIdx.TOLERANCE_SPEED:self.mw.ui.tolerate_speed,
+            PIdx.TOLERANCE_POSITION:self.mw.ui.tolerate_postion,
+            PIdx.STARTUP_POS_GRAD:self.mw.ui.postion_speed,
+            PIdx.STARTUP_SPE_GRAD:self.mw.ui.acceleration,
             PIdx.ALIGN_CURRENT:self.mw.ui.align_current,
             PIdx.ALIGN_TIME:self.mw.ui.align_time,
-            PIdx.OPEN_LOOP_CURRENT:self.mw.ui.open_loop_current,
-            PIdx.OPEN_LOOP_SPEED:self.mw.ui.open_loop_speed,
-            PIdx.CHANGE_LOOP_SPEED:self.mw.ui.change_loop_speed,
-            #模式
-            PIdx.FOC_MODE:self.mw.ui.foc_mode,
-            PIdx.LOOP_MODE:self.mw.ui.loop_mode,
-            PIdx.SW_CANQUEUE:self.mw.ui.sw_canqueue,
-            PIdx.SW_WEAKMAG:self.mw.ui.sw_weakmag,
-            PIdx.SW_FAN:self.mw.ui.sw_fan,
-            PIdx.SW_VAGUE_PID:self.mw.ui.sw_vague_pid,
-            PIdx.SW_PVT:self.mw.ui.sw_pvt,
+            PIdx.OPEN_LOOP_CURRENT:self.mw.ui.openloop_current,
+            PIdx.OPEN_LOOP_SPEED:self.mw.ui.openloop_speed,
+            PIdx.CHANGE_LOOP_SPEED:self.mw.ui.changeloop_speed,
+
         }
+        print("param_map keys:", sorted(self.param_map.keys()))
 
     def write_all(self):
         """遍历映射表发送参数包"""
         def task():
             for idx, widget in self.param_map.items():
-                val_str = widget.text()
+                print(f"正在处理参数 idx={idx}, widget={widget}")  
                 try:
-                    # 转换逻辑：尝试转为浮点4字节，若无小数点则选整型4字节
-                    if '.' in val_str:
-                        raw_val = struct.pack('<f', float(val_str))
+                    if idx < PIdx.CAN_ID:
+                        print(f"{idx}")
+                        if idx<PIdx.SW_WEAKMAG:
+                            val = widget.currentIndex()
+                        elif idx>=PIdx.MOTOR_POLEPAIRS:
+                            val = int(widget.text())
+                        else:
+                            val=0;
+                        if not (0<=val<=255):
+                            raise ValueError("uint8值超出范围")
+                        raw_val = struct.pack('<B', val)
+                    elif idx < PIdx.F_PWM:
+                        val = int(widget.text())
+                        if val < 0:
+                            raise ValueError("uint32值不能为负值")
+                        raw_val = struct.pack('<I', val)
+                    elif idx < PIdx.THETA_OFFSET:
+                        continue
                     else:
-                        raw_val = struct.pack('<i', int(val_str))
-                    
+                        val_str = widget.text()
+                        raw_val = struct.pack('<f', float(val_str))
                     # 组合数据段：参数索引(1b) + 数据(4b)
                     payload = bytes([idx]) + raw_val
                     self.com.send_packet(Cmd.PARAM_WRITE, payload)
-                except: continue
+                    time.sleep(0.002)
+                    print(f"参数{idx}写入成功,{payload}")
+                except Exception as e: 
+                    print(f"参数{idx}写入失败: {e}")
+                    continue
+                
+            
             print("参数批量发送完成")
         
         threading.Thread(target=task, daemon=True).start()
 
     def read_all(self):
         """发送读取指令"""
-        def task():
-            for idx in self.param_map.keys():
-                self.com.send_packet(Cmd.PARAM_READ, bytes([idx]))
-        threading.Thread(target=task, daemon=True).start()
+        self.com.send_packet(Cmd.PARAM_READ, bytes([0xff]))
+
+    def show_param(self,index,data):
+        if index < PIdx.CAN_ID:
+            val=struct.unpack('<B', data)[0]
+            if index < PIdx.SW_WEAKMAG:
+                self.param_map[index].setCurrentIndex(val)
+            elif index>=PIdx.MOTOR_POLEPAIRS:
+                self.param_map[index].setText(str(val))
+        elif index < PIdx.F_PWM:
+            val=struct.unpack('<i', data)[0]
+            self.param_map[index].setText(str(val))
+        else:
+            val=struct.unpack('<f', data)[0]
+            self.param_map[index].setText(f"{val:.6g}")
 
     def save_flash(self):
-        self.com.send_packet(Cmd.PARAM_SAVE, bytes([0x01]))
+        self.com.send_packet(Cmd.PARAM_SAVE, bytes())
 
     def erase_flash(self):
-        self.com.send_packet(Cmd.PARAM_ERASE, bytes([0x01]))
+        self.com.send_packet(Cmd.PARAM_ERASE, bytes())

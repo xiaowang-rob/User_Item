@@ -8,13 +8,12 @@
 #define Description "XDr-standard"
 #define VERSION "1.0.0"
 #define AUTHOR "xiaowang"
-#define Frequency_string "20kHz"
 #define MAX_CURRENT_string "50A"
 #define MAX_Voltage_string "34V"
 #define MIN_Voltage_string "20V"
-#define MAX_Temperature_string "80"
+#define MAX_Temperature_string "80度"
 #define SYSTEM_DESC_str \
-    Description "," VERSION "," AUTHOR "," Frequency_string "," MAX_CURRENT_string "," MAX_Voltage_string "," MIN_Voltage_string "," MAX_Temperature_string
+    Description "," VERSION "," AUTHOR "," MAX_CURRENT_string "," MAX_Voltage_string "," MIN_Voltage_string "," MAX_Temperature_string
 
 #define fpwm (unsigned int)20000 // 20kHz
 #define Tpwm 1.0f / fpwm         // 50us
@@ -35,7 +34,7 @@
 #define MIN_Voltage 20
 #define MAX_Temperature 80
 
-#define DATA_stream_T 2    // 监测数据发送周期 ms
+#define DATA_stream_T 4    // 监测数据发送周期 ms
 #define TEMP_sample_T 1000 // 温度、电压采样计数周期 为while的多少倍
 
 #endif

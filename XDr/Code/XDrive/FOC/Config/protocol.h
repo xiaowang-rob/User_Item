@@ -5,7 +5,6 @@
 #define UC_connect 0xf0    // 上位机连接
 #define UC_disconnect 0xfe // 上位机断开
 
-#define SYSTEM_DESC 0xff   // 系统描述
 #define START_TUNNING 0xf1 // 开始调参
 #define BRAKE 0xf2         // 刹车
 #define FOC_NRST 0xf3      // FOC复位
