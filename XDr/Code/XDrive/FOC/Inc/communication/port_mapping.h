@@ -22,7 +22,7 @@ typedef struct
     u8 *rxdata;
 
     u8 txdatalen;
-    u8 txdata[MAX_frame_length];
+    u8 txdata[MAX_frame_length] __attribute__((aligned(4))); // 强制 4 字节对齐;
 
     u8 stream_num;
     Data_stream_e data_id_index[8];

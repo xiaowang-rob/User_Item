@@ -2,7 +2,7 @@
 #include "adc.h"
 #include "tim.h"
 #include "system_parameters.h"
-
+#include "filter.h"
 static bool _calibration = false;
 
 static u16 Cur_zero_u = 0;
@@ -44,12 +44,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
                 _calibration = true;
             }
         }
-        else
-        {
-            Cur_u = (float)(ADC1_buffer[0] - Cur_zero_u) > 0 ? (float)(ADC1_buffer[0] - Cur_zero_u) * ADCval_to_Cur : 0;
-            Cur_v = (float)(ADC1_buffer[1] - Cur_zero_v) > 0 ? (float)(ADC1_buffer[1] - Cur_zero_v) * ADCval_to_Cur : 0;
-            Cur_w = (float)(ADC1_buffer[2] - Cur_zero_w) > 0 ? (float)(ADC1_buffer[2] - Cur_zero_w) * ADCval_to_Cur : 0;
-        }
     }
 }
 
@@ -70,7 +64,17 @@ const u8 adc_to_temp[255] = {
     21, 21, 20, 20, 20, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17,
     17, 16, 16, 16, 16, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 12,
     12, 12, 12, 11, 11, 11, 11, 10, 10, 9, 9, 8, 7, 6, 6, 5};
-
+void ADC_Cur_Calibration()
+{
+    _tic = 0;
+    _u_sum = 0;
+    _v_sum = 0;
+    _w_sum = 0;
+    _calibration = false;
+}
+FirstOrderLagFilter ui_filter;
+FirstOrderLagFilter vi_filter;
+FirstOrderLagFilter wi_filter;
 void ADC_DR_Init()
 {
     HAL_TIM_Base_Start_IT(&htim8);
@@ -78,6 +82,9 @@ void ADC_DR_Init()
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
     ADC_sample_change(1);
+    first_order_lag_init(&ui_filter, 0.8f, 0);
+    first_order_lag_init(&vi_filter, 0.8f, 0);
+    first_order_lag_init(&wi_filter, 0.8f, 0);
 }
 
 static u16 _tic_smp = 0;
@@ -91,9 +98,13 @@ void ADC2_sample()
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)
 {
-    *ui = Cur_u;
-    *vi = Cur_v;
-    *wi = Cur_w;
+    Cur_u = (float)(ADC1_buffer[0] - Cur_zero_u) > 0 ? (float)(ADC1_buffer[0] - Cur_zero_u) * ADCval_to_Cur : 0;
+    Cur_v = (float)(ADC1_buffer[1] - Cur_zero_v) > 0 ? (float)(ADC1_buffer[1] - Cur_zero_v) * ADCval_to_Cur : 0;
+    Cur_w = (float)(ADC1_buffer[2] - Cur_zero_w) > 0 ? (float)(ADC1_buffer[2] - Cur_zero_w) * ADCval_to_Cur : 0;
+
+    *ui = first_order_lag_filter(&ui_filter, Cur_u);
+    *vi = first_order_lag_filter(&vi_filter, Cur_v);
+    *wi = first_order_lag_filter(&wi_filter, Cur_w);
 }
 void ADC_sample_change(u16 compare)
 {
@@ -109,30 +120,15 @@ void ADC_GET_Temp(u8 *ut, u8 *vt, u8 *wt, float *Temperature)
     switch (tempIndex)
     {
     case 0:
-        if (ADC2_buffer[0] < temp120_adc_val)
-            *ut = 120;
-        else if (ADC2_buffer[0] > temp0_adc_val)
-            *ut = 0;
-        else
-            *ut = adc_to_temp[ADC2_buffer[0] - temp120_adc_val];
+        *ut = adc_to_temp[ADC2_buffer[0]];
         tempIndex = 1;
         break;
     case 1:
-        if (ADC2_buffer[1] < temp120_adc_val)
-            *vt = 120;
-        else if (ADC2_buffer[1] > temp0_adc_val)
-            *vt = 0;
-        else
-            *vt = adc_to_temp[ADC2_buffer[1] - temp120_adc_val];
+        *vt = adc_to_temp[ADC2_buffer[1]];
         tempIndex = 2;
         break;
     case 2:
-        if (ADC2_buffer[2] < temp120_adc_val)
-            *wt = 120;
-        else if (ADC2_buffer[2] > temp0_adc_val)
-            *wt = 0;
-        else
-            *wt = adc_to_temp[ADC2_buffer[2] - temp120_adc_val];
+        *wt = adc_to_temp[ADC2_buffer[2]];
         tempIndex = 3;
         break;
     default:

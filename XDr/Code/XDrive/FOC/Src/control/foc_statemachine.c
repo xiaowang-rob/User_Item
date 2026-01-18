@@ -59,7 +59,7 @@ void fFOC_Init()
     g_foc.motor = get_motor_adr();
     foc_core_init();
     PWM_POWER_ON();
-		ENABLE_PWM();
+    ENABLE_PWM();
 }
 
 void FOC_StateMachine_updata()

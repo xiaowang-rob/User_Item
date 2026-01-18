@@ -5,6 +5,7 @@
 #include "protection_manager.h"
 #include "drive_state.h"
 #include "port_mapping.h"
+#include "adcDr.h"
 
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
 
@@ -23,6 +24,8 @@ bool system_init_event(void)
     communication_init();
     //  控制层初始化
     fFOC_Init();
+    ADC_Cur_Calibration(); // 驱动芯片上电后重新校准
+
     return true;
 }
 
@@ -44,7 +47,7 @@ void SystemStateMachine_run(void)
         else
             SystemState_change(SYSTEM_ERROR);
         break;
-    case SYSTEM_RUNNING:		
+    case SYSTEM_RUNNING:
         // 通讯层运行
         communication_run();
         // 控制层由定时器驱动

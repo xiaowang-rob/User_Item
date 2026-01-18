@@ -6,10 +6,10 @@
 #include "math.h"
 
 #define M_PI 3.1415926535f
-#define M2_PI M_PI * 2
+#define M2_PI (M_PI * 2)
 #define sqrt3 1.732050807f
-#define sqrt3_2 sqrt3 / 2
-#define insqrt3 1 / sqrt3
+#define sqrt3_2 (sqrt3 / 2)
+#define insqrt3 (1 / sqrt3)
 
 float rad_to_rpm(float rad);
 float rpm_to_rad(float rpm);

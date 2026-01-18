@@ -44,8 +44,8 @@ static u8 valid = 0;
 static void ENCODER_ProcessAndNextRead(void)
 {
 
-    u32 current_time = HAL_GetTick_us();
-    u32 time_diff = HAL_GetTick_us() - encoder.last_time;
+    u32 current_time = HAL_GetTick();
+    u32 time_diff = current_time - encoder.last_time;
 
     //  解析14位角度值
     u16 angle_raw = ((reg03_data & 0x00FF) << 6) | ((reg04_data & 0x00FC) >> 2);
@@ -61,7 +61,7 @@ static void ENCODER_ProcessAndNextRead(void)
     //  计算角速度 (rad/s)
     if (time_diff > 0)
     {
-        encoder.omega = (encoder.angle_inc - encoder.angle_inc_last) / (time_diff * 0.000001f);
+        encoder.omega = (encoder.angle_inc - encoder.angle_inc_last) / (time_diff * 0.001f);
     }
 
     // 更新数据
@@ -74,6 +74,12 @@ static void ENCODER_ProcessAndNextRead(void)
     {
         ENCODER_state_set(OFFLINE);
         encoder.state = ENCODER_STATE_START_READ;
+        encoder.angle_abs = 0;
+        encoder.angle_last = 0;
+        encoder.angle_inc = 0;
+        encoder.angle_inc_last = 0;
+        encoder.omega = 0;
+        encoder.num_turns = 0;
         return;
     }
     else if (ENCODER_state_get() == OFFLINE)

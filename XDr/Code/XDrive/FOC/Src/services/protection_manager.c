@@ -183,13 +183,13 @@ void protection_manager_run()
         // g_pro_manager.log_done = true;
     }
     // 警告处理
-    if (g_pro_manager.warning_flag && !g_pro_manager.log_done)
-    {
-        log_data_save();
-        FOC_CHANGE_STATE(FOC_WARNING);
-        if (g_pro_manager.com_state->Host_port != NONE_port)
-            return; // 上位机模式下不进行日志写入
-        // log_data_write();
-        // g_pro_manager.log_done = true;
-    }
+//    if (g_pro_manager.warning_flag && !g_pro_manager.log_done)
+//    {
+//        log_data_save();
+//        FOC_CHANGE_STATE(FOC_WARNING);
+//        if (g_pro_manager.com_state->Host_port != NONE_port)
+//            return; // 上位机模式下不进行日志写入
+//        // log_data_write();
+//        // g_pro_manager.log_done = true;
+//    }
 }

@@ -17,22 +17,19 @@ float rad_to_deg(float rad)
     return rad * 57.29577951f;
 }
 /**
- * @brief Clark 变换 (abc → αβ)
+ * @brief Clark 变换 (abc → αβ)(等幅值)
  * @param ia, ib, ic: 三相电流或电压
  * @param alpha, beta: 输出的 αβ 轴分量
  */
 void clark_transform(float ia, float ib, float ic, float *alpha, float *beta)
 {
-    // 使用功率不变变换（系数 2/3）
+    // 使用幅值不变变换（系数 2/3）
+    // 简化电流 ia+ib+ic=0
     *alpha = ia;
-    *beta = insqrt3 * (2 * ib - ic);
-
-    // 或者更精确的变换：
-    // *alpha = ia;
-    // *beta = (1.0f / sqrtf(3.0f)) * (2 * ib + ia);
+    *beta = insqrt3 * (ib - ic);
 }
 /**
- * @brief Clark 反变换 (αβ → abc)
+ * @brief Clark 反变换 (αβ → abc)(等幅值)
  * @param alpha, beta: αβ 轴分量
  * @param ia, ib, ic: 输出的三相值
  */

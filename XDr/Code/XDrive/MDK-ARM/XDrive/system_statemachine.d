@@ -39,4 +39,4 @@ xdrive/system_statemachine.o: ..\FOC\Src\services\system_statemachine.c \
   ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
   ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\drive_state.h
+  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\drivers\adcDr.h

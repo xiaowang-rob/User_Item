@@ -262,13 +262,13 @@ void position_rel_loop_run()
 void FOC_PREPARE()
 {
     Frequency_division_update();
-    if (foc_mode.run_mode == ENCODER_CONTROL)
+    if (foc_mode.run_mode == SENSORLESS_CONTROL)
     {
-        foc_encoder_get_vitop();
+        foc_senless_get_vito();
     }
     else
     {
-        foc_senless_get_vito();
+        foc_encoder_get_vitop();
     }
 }
 

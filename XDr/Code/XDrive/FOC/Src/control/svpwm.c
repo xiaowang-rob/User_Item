@@ -17,7 +17,7 @@ void svpwm_Init(float Vbus)
 {
     memset(&svpwm, 0, sizeof(SVPWM_t));
 
-    svpwm.k = sqrt3_2 * (float)ticpwm / Vbus;
+    svpwm.k = sqrt3 * (float)ticpwm / Vbus;
 }
 void pwm_out()
 {
@@ -57,8 +57,8 @@ void PWM_POWER_OFF()
 void svpwm_run(float ualpha, float ubeta)
 {
     float U1 = ubeta;
-    float U2 = sqrt3 * ualpha - ubeta;
-    float U3 = -U2 - 2 * ubeta;
+    float U2 = sqrt3_2 * ualpha - 0.5 * ubeta;
+    float U3 = -U2 - ubeta;
     u8 A = U1 > 0;
     u8 B = U2 > 0;
     u8 C = U3 > 0;
@@ -73,43 +73,39 @@ void svpwm_run(float ualpha, float ubeta)
         Ty = 0;
         break;
     case 1:
-        Tx = -svpwm.k * U3;
-        Ty = -2 * svpwm.k * U1;
         svpwm.sector = 2;
-
-        break;
-    case 2:
-        Tx = svpwm.k * U3;
-        Ty = svpwm.k * U2;
-        svpwm.sector = 6;
-
-        break;
-    case 3:
         Tx = -svpwm.k * U2;
         Ty = -svpwm.k * U3;
+        break;
+    case 2:
+        svpwm.sector = 6;
+        Tx = -svpwm.k * U3;
+        Ty = -svpwm.k * U1;
+        break;
+    case 3:
         svpwm.sector = 1;
-
+        Tx = svpwm.k * U2;
+        Ty = svpwm.k * U1;
         break;
     case 4:
         svpwm.sector = 4;
-        Tx = -2 * svpwm.k * U1;
+        Tx = -svpwm.k * U1;
         Ty = -svpwm.k * U2;
         break;
     case 5:
-        Tx = svpwm.k * U2;
-        Ty = 2 * svpwm.k * U1;
         svpwm.sector = 3;
-
+        Tx = svpwm.k * U1;
+        Ty = svpwm.k * U3;
         break;
     case 6:
-        Tx = 2 * svpwm.k * U1;
-        Ty = svpwm.k * U3;
         svpwm.sector = 5;
-
+        Tx = svpwm.k * U3;
+        Ty = svpwm.k * U2;
         break;
     default:
         break;
     }
+
     if (Tx + Ty > ticpwm)
     {
         Tx = Tx * ticpwm / (Tx + Ty);
@@ -124,65 +120,53 @@ void svpwm_run(float ualpha, float ubeta)
     float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
     float t1 = t0 + Tx;   // V1作用
     float t2 = t1 + Ty;   // V2作用
-    float t3 = t2 + t0;   // V7作用中间零向量（1，1，1）
 
-    float tu1 = 0, tu2 = ticpwm; // 默认全低
-    float tv1 = 0, tv2 = ticpwm;
-    float tw1 = 0, tw2 = ticpwm;
+    float tu = t0; // 默认全低
+    float tv = t0;
+    float tw = t0;
 
     switch (svpwm.sector)
     {
+    case 0: // V0(000)
+        tu = 0;
+        tv = 0;
+        tw = 0;
+        break;
     case 1: // V1(100), V2(110)
-        tu1 = t0;
-        tu2 = t3;
-        tv1 = t1;
-        tv2 = t2;
+        tu = t2;
+        tv = t1;
         break;
     case 2: // V2(110), V3(010)
-        tu1 = t1;
-        tu2 = t2;
-        tv1 = t0;
-        tv2 = t3;
+        tv = t2;
+        tu = t1;
         break;
     case 3: // V3(010), V4(011)
-        tv1 = t0;
-        tv2 = t3;
-        tw1 = t1;
-        tw2 = t2;
+        tv = t2;
+        tw = t1;
         break;
     case 4: // V4(011), V5(001)
-        tv1 = t1;
-        tv2 = t2;
-        tw1 = t0;
-        tw2 = t3;
+        tw = t2;
+        tv = t1;
         break;
     case 5: // V5(001), V6(101)
-        tu1 = t1;
-        tu2 = t2;
-        tw1 = t0;
-        tw2 = t3;
+        tw = t2;
+        tu = t1;
         break;
     case 6: // V6(101), V1(100)
-        tu1 = t0;
-        tu2 = t3;
-        tw1 = t1;
-        tw2 = t2;
+        tu = t2;
+        tw = t1;
         break;
-    default:
-        tu1 = 0;
-        tu2 = ticpwm;
-        tv1 = 0;
-        tv2 = ticpwm;
-        tw1 = 0;
-        tw2 = ticpwm;
+    default:         // (1,1,1)
+        tu = ticpwm; //
+        tv = ticpwm;
+        tw = ticpwm;
         break;
     }
 
     // 计算中心对齐 PWM 的比较值（CCR = (上升沿 + 下降沿) / 2）
-
-    svpwm.ticu = (u16)((tu1 + tu2) / 2.0f);
-    svpwm.ticv = (u16)((tv1 + tv2) / 2.0f);
-    svpwm.ticw = (u16)((tw1 + tw2) / 2.0f);
+    svpwm.ticu = (u16)tu;
+    svpwm.ticv = (u16)tv;
+    svpwm.ticw = (u16)tw;
     // 更新比较值
     pwm_out();
 }
@@ -280,16 +264,17 @@ void smaple_point_change()
         break;
     }
 }
-void fGetPhaseVoltage(float *U, float *V, float *W)
+float fGetVoltage_u()
 {
-    float a = svpwm.ticu * sqrt3 / svpwm.k;
-    float b = svpwm.ticv * sqrt3 / svpwm.k;
-    float c = svpwm.ticw * sqrt3 / svpwm.k;
-    float vN = (a + b + c) / 3.0f;
-
-    *U = a - vN;
-    *V = b - vN;
-    *W = c - vN;
+    return svpwm.ticu * sqrt3 / svpwm.k;
+}
+float fGetVoltage_v()
+{
+    return svpwm.ticv * sqrt3 / svpwm.k;
+}
+float fGetVoltage_w()
+{
+    return svpwm.ticw * sqrt3 / svpwm.k;
 }
 
 void svpwm_SetVbus(float Vbus)
