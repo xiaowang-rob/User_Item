@@ -194,8 +194,11 @@ void Svpwm_output()
 {
     svpwm_run(foc_val.Ualpha, foc_val.Ubeta);
 }
+static float _theta_elec = 0;
 void voltage_control()
 {
+    _theta_elec += foc_val.omega_openloop * Tcon;
+    foc_val.theta_elec = normalize_angle_0_2pi(_theta_elec);
     inv_park_transform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
 }
 void current_loop_run()

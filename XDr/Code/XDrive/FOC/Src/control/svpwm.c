@@ -31,6 +31,7 @@ void ENABLE_PWM()
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
@@ -117,13 +118,19 @@ void svpwm_run(float ualpha, float ubeta)
         Tzero = ticpwm - Tx - Ty;
     }
     // 以七段式开关序列方式输出--更小的电流纹波和中心对称性（5段 可以减小开关次数）
-    float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
-    float t1 = t0 + Tx;   // V1作用
-    float t2 = t1 + Ty;   // V2作用
 
-    float tu = t0; // 默认全低
-    float tv = t0;
-    float tw = t0;
+//    float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
+//    float t1 = t0 + Tx;   // V1作用
+//    float t2 = t1 + Ty;   // V2作用
+
+    float t0 = Tzero / 2;   // V0作用起点零向量（0，0，0）
+    float t1 = ticpwm - t0; // V1作用
+    float t2 = t1 - Tx;     // V2作用
+    float t3 = t2 - Ty;     // V3作用
+
+    float tu = t3; // 默认全低
+    float tv = t3;
+    float tw = t3;
 
     switch (svpwm.sector)
     {
@@ -133,28 +140,28 @@ void svpwm_run(float ualpha, float ubeta)
         tw = 0;
         break;
     case 1: // V1(100), V2(110)
-        tu = t2;
-        tv = t1;
+        tu = t1;
+        tv = t2;
         break;
     case 2: // V2(110), V3(010)
-        tv = t2;
-        tu = t1;
+        tv = t1;
+        tu = t2;
         break;
     case 3: // V3(010), V4(011)
-        tv = t2;
-        tw = t1;
+        tv = t1;
+        tw = t2;
         break;
     case 4: // V4(011), V5(001)
-        tw = t2;
-        tv = t1;
+        tw = t1;
+        tv = t2;
         break;
     case 5: // V5(001), V6(101)
-        tw = t2;
-        tu = t1;
+        tw = t1;
+        tu = t2;
         break;
     case 6: // V6(101), V1(100)
-        tu = t2;
-        tw = t1;
+        tu = t1;
+        tw = t2;
         break;
     default:         // (1,1,1)
         tu = ticpwm; //
