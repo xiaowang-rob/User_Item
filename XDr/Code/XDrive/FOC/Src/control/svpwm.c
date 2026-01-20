@@ -28,6 +28,7 @@ void pwm_out()
 
 void ENABLE_PWM()
 {
+	
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
@@ -35,6 +36,7 @@ void ENABLE_PWM()
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
+		PWM_POWER_ON();
 }
 void DISABLE_PWM()
 {
@@ -44,6 +46,7 @@ void DISABLE_PWM()
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_3);
+		PWM_POWER_OFF();
 }
 void PWM_POWER_ON()
 {
@@ -119,9 +122,9 @@ void svpwm_run(float ualpha, float ubeta)
     }
     // 以七段式开关序列方式输出--更小的电流纹波和中心对称性（5段 可以减小开关次数）
 
-//    float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
-//    float t1 = t0 + Tx;   // V1作用
-//    float t2 = t1 + Ty;   // V2作用
+    //    float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
+    //    float t1 = t0 + Tx;   // V1作用
+    //    float t2 = t1 + Ty;   // V2作用
 
     float t0 = Tzero / 2;   // V0作用起点零向量（0，0，0）
     float t1 = ticpwm - t0; // V1作用
@@ -183,6 +186,10 @@ void smaple_point_change()
 {
     switch (svpwm.sector)
     {
+    case 0:
+    case 7:
+        change_Index = 1;
+        break;
     case 1:
     case 4:
         if (svpwm.ticu > ticDT + ticTN)
@@ -258,14 +265,14 @@ void smaple_point_change()
 
     switch (change_Index)
     {
-    case 1:
-        ADC_sample_change(1);
+    case 1: // 低调制 25us开始采样
+        ADC_sample_change(ticpwm - 50);
         break;
-    case 2:
-        ADC_sample_change(svpwm.ticu - tics);
+    case 2: // 中调制 u相高打开前 ts（采样时间）开始采样
+        ADC_sample_change(svpwm.ticu + tics);
         break;
-    case 3:
-        ADC_sample_change(svpwm.ticu + ticDT + ticTN);
+    case 3: // 高调制 u相高开启之后 ts tn 开始采样
+        ADC_sample_change(svpwm.ticu - ticDT - ticTN);
         break;
     default:
         break;

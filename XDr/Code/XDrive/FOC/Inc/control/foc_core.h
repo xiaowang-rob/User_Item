@@ -28,7 +28,6 @@ typedef struct
     bool weak_mag;
 } FOC_mode_t;
 
-
 typedef struct
 {
     float Iu, Iv, Iw;
@@ -51,7 +50,6 @@ typedef struct
 
 typedef struct
 {
-    float pos_gradient;
     float omega_gradient;
 
     float align_ud; // 对齐电压
@@ -67,15 +65,16 @@ typedef struct
 
 typedef struct
 {
-    float Udc;          // 直流母线电压
-    float pole_pairs;   // 极对数
-    float offset_angle; // 偏移角度
-    float Rs;           // 定子电阻
-    float Ls;           // 定子电感
-    float Psi_f;        // 永磁体磁链
-    float Ke;           // 反电动势常数
-    float J;            // 转动惯量
-    float B;            // 摩擦系数
+    float Udc;            // 直流母线电压
+    int8_t Wire_sequence; // 线序 +1-正线序 -1-反线序
+    u8 pole_pairs;        // 极对数
+    float offset_angle;   // 偏移角度
+    float Rs;             // 定子电阻
+    float Ls;             // 定子电感
+    float Psi_f;          // 永磁体磁链
+    float Ke;             // 反电动势常数
+    float J;              // 转动惯量
+    float B;              // 摩擦系数
 } Motor_t;
 
 void foc_core_init();
@@ -85,6 +84,8 @@ void FOC_PREPARE();
 void FOC_RUN();
 bool SHUTDOWM();
 bool auto_calibration_update();
+void SET_Theta_offset(float thetaoffset);
+void SET_Wire_sequence(int wire_sequence);
 
 void FOC_SET_OMEGA_con(float value);
 void FOC_SET_VER_VALUE(float *value);

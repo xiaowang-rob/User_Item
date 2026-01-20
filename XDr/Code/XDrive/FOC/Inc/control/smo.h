@@ -6,14 +6,15 @@
 // 无感 SMO 结构体
 typedef struct
 {
-    float theta_offset; // 角度偏移
-    u8 pole_pairs;      // 极对数
-    float Rs;           // 定子电阻
-    float Ls;           // 定子电感
-    float Psi_f;        // 永磁体磁链
-    float Ke;           // 反电动势常数
-    float J;            // 转动惯量
-    float B;            // 摩擦系数
+    float theta_offset;  // 角度偏移
+    short wire_sequence; // 线序
+    u8 pole_pairs;       // 极对数
+    float Rs;            // 定子电阻
+    float Ls;            // 定子电感
+    float Psi_f;         // 永磁体磁链
+    float Ke;            // 反电动势常数
+    float J;             // 转动惯量
+    float B;             // 摩擦系数
 
     float dt;    // 控制周期
     float k_sl;  // 滑模增益
@@ -37,7 +38,7 @@ typedef struct
 } smo_t;
 smo_t *get_smo_adr();
 // 初始化
-void smo_init(float Rs, float Ls, float Psi_f, float max_speed, float pole_pairs,
+void smo_init(float Rs, float Ls, float Psi_f, float max_speed, short WireS, float pole_pairs,
               float Ke, float J, float B);
 void smo_reset();
 // 更新（输入：电压、电流）
@@ -52,6 +53,7 @@ float smo_get_omega();
 typedef enum
 {
     PARAM_TUNE_IDLE = 0,
+    PARAM_TUNE_WireS,        // 线序整定
     PARAM_TUNE_THETA_OFFSET, // 角度偏移
     PARAM_TUNE_RS,           // 电阻
     PARAM_TUNE_LS,           // 电感
@@ -70,14 +72,12 @@ typedef enum
     PARAM_FAULT_HIGH,      // 过高
     PARAM_FAULT_UNBALANCE, // 不平衡
 
+    PARAM_FAULT_WS_LOCKED,           // 电机堵转
     PARAM_FAULT_POLE_PAIRS_INVALID,  // 极对数无效
     PARAM_FAULT_POLE_PAIRS_MISMATCH, // 极对数不匹配
 } param_fault_t;
 
 /*****************************************参数整定*********************************** */
-// pwm的1/4频率跑
-#define tun_divider (u8)4 // 分频系数
-#define TUN_f (u32)(fpwm / tun_divider)
 
 // 参数整定结构体
 typedef struct
@@ -88,16 +88,23 @@ typedef struct
 
     u32 time_tic;
     u32 tune_samples;
+    u32 steady_samples;
 
     float Udc; // 电压
-    float theta_mech_prev;
+    float theta_elec_prev;
     float cur_iq_id[2];
-    float cur_uq_uq[2];
+    float cur_uq_ud[2];
+
+    u8 num_test_wire;
+
     float omega_ref;
     float steady_i;
     float steady_v;
 
     bool inject_flag;
+    bool alpha_beta_flag;
+    float L_alpha;
+    float L_beta;
     float sum_di_dt_alpha_pos;
     u32 alpha_pos_count;
     float sum_di_dt_alpha_neg;

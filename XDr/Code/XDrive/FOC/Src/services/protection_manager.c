@@ -146,14 +146,17 @@ void protection_manager_run()
     }
     else
         clear_warning_flag(OVER_SPEED);
-    // 3位置检测
-    if (Tolerance_check(g_foc.val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+    // 3位置检测 位置模式下监测
+    if (g_foc.mode->loop_mode == POSITION_ABS_LOOP || g_foc.mode->loop_mode == POSITION_REL_LOOP)
     {
-        g_pro_manager.warning = OVER_POSITION;
-        g_pro_manager.warning_flag = true;
+        if (Tolerance_check(g_foc.val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+        {
+            g_pro_manager.warning = OVER_POSITION;
+            g_pro_manager.warning_flag = true;
+        }
+        else
+            clear_warning_flag(OVER_POSITION);
     }
-    else
-        clear_warning_flag(OVER_POSITION);
     //  4编码器状态检测
     if (g_foc.mode->run_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
@@ -180,7 +183,7 @@ void protection_manager_run()
         if (g_pro_manager.com_state->Host_port != NONE_port)
             return; // 上位机模式下不进行日志写入
         // log_data_write();
-        // g_pro_manager.log_done = true;
+        g_pro_manager.log_done = true;
     }
     // 警告处理
     if (g_pro_manager.warning_flag && !g_pro_manager.log_done)
@@ -190,6 +193,6 @@ void protection_manager_run()
         if (g_pro_manager.com_state->Host_port != NONE_port)
             return; // 上位机模式下不进行日志写入
         // log_data_write();
-        // g_pro_manager.log_done = true;
+        g_pro_manager.log_done = true;
     }
 }

@@ -17,7 +17,8 @@ typedef enum
     SW_VAGUE_PID, // 模糊PID
     SW_PVT,       // PVT 模式
 
-    MOTOR_POLEPAIRS, // 电机转子对数
+    MOTOR_WIRE_SEQUENCE, // 电机线圈顺序 0-正线 1-反线
+    MOTOR_POLEPAIRS,     // 电机转子对数
 
     FREQ_CURRENT_LOOP,  // 电流环分频系数
     FREQ_SPEED_LOOP,    // 速度环分频系数
@@ -60,7 +61,6 @@ typedef enum
     TOLERANCE_SPEED,    // 速度容忍度
     TOLERANCE_POSITION, // 位置容忍度
 
-    STARTUP_POS_GRAD,  // 启动位置斜率
     STARTUP_SPE_GRAD,  // 启动速度斜率
     ALIGN_CURRENT,     // 对齐电流
     ALIGN_TIME,        // 对齐时间
@@ -82,6 +82,7 @@ typedef struct
     u8 sw_pvt;
     u8 foc_mode;
     u8 loop_mode;
+    u8 motor_wire_sequence; // 电机线圈顺序 0-正线 1-反线
     u8 motor_polepairs;
 
     u8 freq_current_loop;  // 电流环分频系数
@@ -121,8 +122,7 @@ typedef struct
     float tolerance_current;
     float tolerance_speed;
     float tolerance_position;
-    float startup_pos_grad;
-    float startup_ome_grad;
+    float startup_acc; // 启动加速度
     float align_current;
     float align_time;
     float open_loop_current;

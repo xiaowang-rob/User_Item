@@ -6,21 +6,26 @@
  * @param arr 待排序的数组
  * @param n 数组大小
  */
-void bubble_sort(int arr[], int n) {
-    if (arr == NULL || n <= 1) {
+void bubble_sort(int arr[], int n)
+{
+    if (arr == NULL || n <= 1)
+    {
         return; // 如果数组为空或只有一个元素，直接返回
     }
-    
+
     int i, j;
     int temp;
     int swapped; // 优化标志，如果某一轮没有交换，说明已经有序
-    
-    for (i = 0; i < n - 1; i++) {
+
+    for (i = 0; i < n - 1; i++)
+    {
         swapped = 0; // 每轮开始前重置交换标志
-        
+
         // 每轮将最大的元素"冒泡"到末尾
-        for (j = 0; j < n - 1 - i; j++) {
-            if (arr[j] > arr[j + 1]) {
+        for (j = 0; j < n - 1 - i; j++)
+        {
+            if (arr[j] > arr[j + 1])
+            {
                 // 交换相邻元素
                 temp = arr[j];
                 arr[j] = arr[j + 1];
@@ -28,9 +33,10 @@ void bubble_sort(int arr[], int n) {
                 swapped = 1; // 标记发生了交换
             }
         }
-        
+
         // 如果这一轮没有发生交换，说明数组已经有序，可以提前结束
-        if (!swapped) {
+        if (!swapped)
+        {
             break;
         }
     }
@@ -203,15 +209,15 @@ float kalman_filter(KalmanFilter *filter, float measurement)
 }
 
 /* 防脉冲干扰平均滤波法 */
-void pulse_interference_init(PulseInterferenceFilter *filter, int *buffer, int size)
+void pulse_interference_init(PulseInterferenceFilter *filter, uint16_t *buffer, uint8_t size)
 {
     filter->buffer = buffer;
     filter->size = size;
     filter->index = 0;
-    memset(buffer, 0, size * sizeof(int));
+    memset(buffer, 0, size * sizeof(uint16_t));
 }
 
-int pulse_interference_filter(PulseInterferenceFilter *filter, int new_value)
+uint16_t pulse_interference_filter(PulseInterferenceFilter *filter, uint16_t new_value)
 {
     int i, sum = 0;
     int buf[filter->size];

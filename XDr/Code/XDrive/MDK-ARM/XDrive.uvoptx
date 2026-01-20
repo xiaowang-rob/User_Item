@@ -153,7 +153,7 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_foc</ItemText>
+          <ItemText>g_foc,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
@@ -244,6 +244,16 @@
           <count>18</count>
           <WinNumber>1</WinNumber>
           <ItemText>huart1</ItemText>
+        </Ww>
+        <Ww>
+          <count>19</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Cur_u</ItemText>
+        </Ww>
+        <Ww>
+          <count>20</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Ls_alpha</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

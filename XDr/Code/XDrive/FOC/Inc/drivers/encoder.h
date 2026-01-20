@@ -19,10 +19,9 @@ typedef struct
     float angle_inc; // 角度增量值rad
     float angle_inc_last;
     float omega;
-    float angle_offset; // 角度偏移值
-    u32 last_time;      // 上次读取时间
-    u32 time_T;         // 周期
-    int num_turns;      // 转数
+    u32 last_time; // 上次读取时间
+    u32 time_T;    // 周期
+    int num_turns; // 转数
 } ENCODER_t;
 
 // 全局变量
@@ -51,7 +50,5 @@ void ENCODER_MainLoopTask();
 float GET_ENCODER_ANGLE_ABS();
 float GET_ENCODER_ANGLE_INC();
 float GET_ENCODER_OMEGA();
-void SET_ENCODER_ANGLE_OFFSET(float offset);
-float GET_ENCODER_ANGLE_OFFSET();
 
 #endif // ENCODER_H

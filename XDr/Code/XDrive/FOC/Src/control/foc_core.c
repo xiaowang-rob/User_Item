@@ -18,8 +18,7 @@ Motor_t Motor = {0};
 void startup_machine_init(Parameter_t param)
 {
     memset(&startup_machine, 0, sizeof(startup_mechine_t));
-    startup_machine.omega_gradient = param.startup_ome_grad * g_loop_con.fd.Tspd;
-    startup_machine.pos_gradient = param.startup_pos_grad * g_loop_con.fd.Tpos;
+    startup_machine.omega_gradient = param.startup_acc * g_loop_con.fd.Tspd;
     startup_machine.align_ud = param.align_current * param.motor_rs;
     startup_machine.align_steps = (u32)(param.align_time / Tcon);
     startup_machine.openloop_uq = param.open_loop_current * param.motor_rs;
@@ -34,6 +33,7 @@ void mode_init(Parameter_t param)
 }
 void motor_init(Parameter_t param)
 {
+    Motor.Wire_sequence = param.motor_wire_sequence == 0 ? 1 : -1;
     Motor.offset_angle = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
     Motor.Rs = param.motor_rs;
@@ -46,7 +46,8 @@ void motor_init(Parameter_t param)
 void auto_calibration_init(Parameter_t param)
 {
     float max_omega = param.limit_omega;
-    smo_init(param.motor_rs, param.motor_ls, param.motor_psif, max_omega,
+    short wireSeq = param.motor_wire_sequence == 0 ? 1 : -1;
+    smo_init(param.motor_rs, param.motor_ls, param.motor_psif, max_omega, wireSeq,
              param.motor_polepairs, param.motor_ke, param.motor_j, param.motor_b);
     param_tuning_init(Motor.Udc);
 }
@@ -94,19 +95,19 @@ void Current_reconstruction()
     switch (svpwm_GetSector())
     {
     case 1:
-    case 4:
+    case 6:
         ui = foc_val.Iv + foc_val.Iw;
         vi = -foc_val.Iv;
         wi = -foc_val.Iw;
         break;
     case 2:
-    case 5:
+    case 3:
         ui = -foc_val.Iu;
         vi = foc_val.Iu + foc_val.Iw;
         wi = -foc_val.Iw;
         break;
-    case 3:
-    case 6:
+    case 4:
+    case 5:
         ui = -foc_val.Iu;
         vi = -foc_val.Iv;
         wi = foc_val.Iu + foc_val.Iv;
@@ -156,14 +157,14 @@ void foc_encoder_get_vitop()
     ADC_GET_Voltage(&Motor.Udc);
     Current_reconstruction();
     foc_val.theta_mech = GET_ENCODER_ANGLE_ABS();
-    //    foc_val.theta_mech = gMotor.state.theta_m;
-    foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs;
-    foc_val.theta_elec = normalize_angle_0_2pi(foc_val.theta_elec);
+    // 角度偏移调整
+    foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs - Motor.offset_angle;
+    // 正负线序调整
+    foc_val.theta_elec = Motor.Wire_sequence * normalize_angle_0_2pi(foc_val.theta_elec);
     park_transform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
 
     foc_val.pos_fb = GET_ENCODER_ANGLE_INC();
     foc_val.omega_fb = GET_ENCODER_OMEGA();
-    //    foc_val.pos_fb = gMotor.state.pos_m;
 }
 
 // 无感模式 获取电压电流角度速度位置
@@ -194,11 +195,15 @@ void Svpwm_output()
 {
     svpwm_run(foc_val.Ualpha, foc_val.Ubeta);
 }
+
 static float _theta_elec = 0;
 void voltage_control()
 {
-    _theta_elec += foc_val.omega_openloop * Tcon;
-    foc_val.theta_elec = normalize_angle_0_2pi(_theta_elec);
+//        _theta_elec += foc_val.omega_openloop * Tcon;
+//        _theta_elec = normalize_angle_0_2pi(_theta_elec);
+//    		foc_val.theta_elec = Motor.Wire_sequence*_theta_elec;
+    //		inv_park_transform(foc_val.ud, foc_val.uq, 0, &foc_val.Ualpha, &foc_val.Ubeta);
+
     inv_park_transform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
 }
 void current_loop_run()
@@ -237,13 +242,9 @@ void position_abs_loop_run()
         return;
     // 目标位置归一化
     foc_val.pos_ref = fmod(foc_val.pos_ref, M2_PI);
-    // 启动过程
-    if (foc_val.pos_ref - foc_val.pos_con > startup_machine.pos_gradient)
-        foc_val.pos_con += startup_machine.pos_gradient;
-    else if (foc_val.pos_ref - foc_val.pos_con < -startup_machine.pos_gradient)
-        foc_val.pos_con -= startup_machine.pos_gradient;
-    else
-        foc_val.pos_con = foc_val.pos_ref;
+    // 启动过程 不需要
+
+    foc_val.pos_con = foc_val.pos_ref;
     // 进位置环
     foc_val.omega_ref = Position_abs_loop(foc_val.pos_con, foc_val.pos_fb);
 }
@@ -252,12 +253,7 @@ void position_rel_loop_run()
     if (!g_loop_con.fd.position_updata)
         return;
     // 启动过程
-    if (foc_val.pos_ref - foc_val.pos_con > startup_machine.pos_gradient)
-        foc_val.pos_con += startup_machine.pos_gradient;
-    else if (foc_val.pos_ref - foc_val.pos_con < -startup_machine.pos_gradient)
-        foc_val.pos_con -= startup_machine.pos_gradient;
-    else
-        foc_val.pos_con = foc_val.pos_ref;
+    foc_val.pos_con = foc_val.pos_ref;
     // 进位置环
     foc_val.omega_ref = Position_abs_loop(foc_val.pos_con, foc_val.pos_fb);
 }
@@ -377,12 +373,9 @@ void FOC_SET_RUNMODE(RUN_mode_e mode)
     foc_core_reset();
     foc_mode.run_mode = mode;
 }
-static u8 _tic = 0;
+
 bool auto_calibration_update()
 {
-    if (_tic++ < tun_divider - 1)
-        return false;
-    _tic = 0;
     param_tuning_update(&foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
                         &foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, foc_val.omega_fb,
                         Motor.pole_pairs, foc_val.iq_fb);
@@ -392,6 +385,15 @@ bool auto_calibration_update()
         return true;
     }
     return false;
+}
+void SET_Theta_offset(float thetaoffset)
+{
+    Motor.offset_angle = thetaoffset;
+}
+//+1 正线序  -1 反线序
+void SET_Wire_sequence(int wire_sequence)
+{
+    Motor.Wire_sequence = wire_sequence;
 }
 bool SHUTDOWM()
 {

@@ -58,8 +58,6 @@ void fFOC_Init()
     g_foc.svpwm = get_svpwm_adr();
     g_foc.motor = get_motor_adr();
     foc_core_init();
-    PWM_POWER_ON();
-    ENABLE_PWM();
 }
 
 void FOC_StateMachine_updata()
@@ -70,8 +68,13 @@ void FOC_StateMachine_updata()
     case FOC_IDLE:
         break;
     case FOC_AUTO_TUNE:
+        if (!g_foc.foc_enable)
+        {
+            ENABLE_PWM();
+            g_foc.foc_enable = true;
+        }
         if (auto_calibration_update())
-            FOC_CHANGE_STATE(FOC_IDLE);
+            FOC_CHANGE_STATE(FOC_DISABLE);
         FOC_RUN();
         break;
     case FOC_RESET:
@@ -100,7 +103,6 @@ void FOC_StateMachine_updata()
         {
             g_foc.foc_enable = false;
             DISABLE_PWM();
-            PWM_POWER_OFF();
         }
         break;
     case FOC_WARNING:

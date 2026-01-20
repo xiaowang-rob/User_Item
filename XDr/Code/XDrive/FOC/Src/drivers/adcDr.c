@@ -5,9 +5,9 @@
 #include "filter.h"
 static bool _calibration = false;
 
-static u16 Cur_zero_u = 0;
-static u16 Cur_zero_v = 0;
-static u16 Cur_zero_w = 0;
+static float Cur_zero_u = 0;
+static float Cur_zero_v = 0;
+static float Cur_zero_w = 0;
 
 static u8 _tic;
 static float _u_sum = 0;
@@ -32,15 +32,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
         if (!_calibration)
         {
-            _u_sum += ADC1_buffer[0];
-            _v_sum += ADC1_buffer[1];
-            _w_sum += ADC1_buffer[2];
+            _u_sum += (float)ADCval_to_Cur * ADC1_buffer[0];
+            _v_sum += (float)ADCval_to_Cur * ADC1_buffer[1];
+            _w_sum += (float)ADCval_to_Cur * ADC1_buffer[2];
             _tic++;
-            if (_tic == 99)
+            if (_tic == 100)
             {
-                Cur_zero_u = _u_sum / 100 + 0.5f;
-                Cur_zero_v = _v_sum / 100 + 0.5f;
-                Cur_zero_w = _w_sum / 100 + 0.5f;
+                Cur_zero_u = _u_sum / 100;
+                Cur_zero_v = _v_sum / 100;
+                Cur_zero_w = _w_sum / 100;
                 _calibration = true;
             }
         }
@@ -72,19 +72,25 @@ void ADC_Cur_Calibration()
     _w_sum = 0;
     _calibration = false;
 }
-FirstOrderLagFilter ui_filter;
-FirstOrderLagFilter vi_filter;
-FirstOrderLagFilter wi_filter;
+#define filter_buffer_size 5
+
+PulseInterferenceFilter ui_filter;
+PulseInterferenceFilter vi_filter;
+PulseInterferenceFilter wi_filter;
+static u16 ui_buffer[filter_buffer_size];
+static u16 vi_buffer[filter_buffer_size];
+static u16 wi_buffer[filter_buffer_size];
+
 void ADC_DR_Init()
 {
     HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)ADC1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)ADC2_buffer, 4);
-    ADC_sample_change(1);
-    first_order_lag_init(&ui_filter, 0.8f, 0);
-    first_order_lag_init(&vi_filter, 0.8f, 0);
-    first_order_lag_init(&wi_filter, 0.8f, 0);
+    ADC_sample_change(2050);
+    pulse_interference_init(&ui_filter, ui_buffer, filter_buffer_size);
+    pulse_interference_init(&vi_filter, vi_buffer, filter_buffer_size);
+    pulse_interference_init(&wi_filter, wi_buffer, filter_buffer_size);
 }
 
 static u16 _tic_smp = 0;
@@ -98,13 +104,19 @@ void ADC2_sample()
 }
 void ADC_GET_Current(float *ui, float *vi, float *wi)
 {
-    Cur_u = (float)(ADC1_buffer[0] - Cur_zero_u) > 0 ? (float)(ADC1_buffer[0] - Cur_zero_u) * ADCval_to_Cur : 0;
-    Cur_v = (float)(ADC1_buffer[1] - Cur_zero_v) > 0 ? (float)(ADC1_buffer[1] - Cur_zero_v) * ADCval_to_Cur : 0;
-    Cur_w = (float)(ADC1_buffer[2] - Cur_zero_w) > 0 ? (float)(ADC1_buffer[2] - Cur_zero_w) * ADCval_to_Cur : 0;
+    ADC1_buffer[0] = pulse_interference_filter(&ui_filter, ADC1_buffer[0]);
+    ADC1_buffer[1] = pulse_interference_filter(&vi_filter, ADC1_buffer[1]);
+    ADC1_buffer[2] = pulse_interference_filter(&wi_filter, ADC1_buffer[2]);
+    Cur_u = (float)(ADC1_buffer[0] * ADCval_to_Cur - Cur_zero_u) > 0 ? (float)(ADC1_buffer[0] * ADCval_to_Cur - Cur_zero_u) : 0;
+    Cur_v = (float)(ADC1_buffer[1] * ADCval_to_Cur - Cur_zero_v) > 0 ? (float)(ADC1_buffer[1] * ADCval_to_Cur - Cur_zero_v) : 0;
+    Cur_w = (float)(ADC1_buffer[2] * ADCval_to_Cur - Cur_zero_w) > 0 ? (float)(ADC1_buffer[2] * ADCval_to_Cur - Cur_zero_w) : 0;
 
-    *ui = first_order_lag_filter(&ui_filter, Cur_u);
-    *vi = first_order_lag_filter(&vi_filter, Cur_v);
-    *wi = first_order_lag_filter(&wi_filter, Cur_w);
+    *ui = Cur_u;
+    *vi = Cur_v;
+    *wi = Cur_w;
+    //    *ui = first_order_lag_filter(&ui_filter, Cur_u);
+    //    *vi = first_order_lag_filter(&vi_filter, Cur_v);
+    //    *wi = first_order_lag_filter(&wi_filter, Cur_w);
 }
 void ADC_sample_change(u16 compare)
 {

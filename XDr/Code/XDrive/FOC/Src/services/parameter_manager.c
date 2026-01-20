@@ -37,6 +37,9 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.sw_pvt = *(u8 *)value;
         break;
 
+    case MOTOR_WIRE_SEQUENCE:
+        g_Param.motor_wire_sequence = *(u8 *)value;
+        break;
     case MOTOR_POLEPAIRS:
         g_Param.motor_polepairs = *(u8 *)value;
         break;
@@ -137,13 +140,10 @@ void Param_set(Parameter_e para, u8 *value)
     case TOLERANCE_POSITION:
         g_Param.tolerance_position = *(float *)value;
         break;
-    case STARTUP_POS_GRAD:
-        temp = *(float *)value;
-        g_Param.startup_pos_grad = deg_to_rad(temp);
-        break;
+
     case STARTUP_SPE_GRAD:
         temp = *(float *)value;
-        g_Param.startup_ome_grad = rpm_to_rad(temp);
+        g_Param.startup_acc = rpm_to_rad(temp);
         break;
     case ALIGN_CURRENT:
         g_Param.align_current = *(float *)value;
@@ -199,6 +199,11 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     case SW_PVT:
         *(u8 *)value = g_Param.sw_pvt;
+        *len = sizeof(u8);
+        break;
+
+    case MOTOR_WIRE_SEQUENCE:
+        *(u8 *)value = g_Param.motor_wire_sequence;
         *len = sizeof(u8);
         break;
 
@@ -346,13 +351,9 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *(float *)value = g_Param.tolerance_position;
         *len = sizeof(float);
         break;
-    case STARTUP_POS_GRAD:
-        temp = rad_to_deg(g_Param.startup_pos_grad);
-        *(float *)value = temp;
-        *len = sizeof(float);
-        break;
+
     case STARTUP_SPE_GRAD:
-        temp = rad_to_rpm(g_Param.startup_ome_grad);
+        temp = rad_to_rpm(g_Param.startup_acc);
         *(float *)value = temp;
         *len = sizeof(float);
         break;
@@ -402,14 +403,16 @@ bool Param_init()
         g_Param.none_flag = 0x01;
         // 初始化u8类型参数
         // 初始化u8类型参数
-        g_Param.sw_canqueue = 0;      // CAN队列开关
-        g_Param.sw_weakmag = 0;       // 弱磁开关
-        g_Param.sw_fan = 0;           // 风扇
-        g_Param.sw_vague_pid = 0;     // 模糊PID
-        g_Param.sw_pvt = 0;           // PVT模式
-        g_Param.foc_mode = 0;         // 运行模式
-        g_Param.loop_mode = 0;        // 环模式
-        g_Param.motor_polepairs = 7; // 电机转子对数
+        g_Param.sw_canqueue = 0;  // CAN队列开关
+        g_Param.sw_weakmag = 0;   // 弱磁开关
+        g_Param.sw_fan = 0;       // 风扇
+        g_Param.sw_vague_pid = 0; // 模糊PID
+        g_Param.sw_pvt = 0;       // PVT模式
+        g_Param.foc_mode = 0;     // 运行模式
+        g_Param.loop_mode = 0;    // 环模式
+
+        g_Param.motor_wire_sequence = 0; // 电机线圈顺序
+        g_Param.motor_polepairs = 14;    // 电机转子对数
 
         g_Param.freq_current_loop = 1;
         g_Param.freq_speed_loop = 4;
@@ -424,39 +427,38 @@ bool Param_init()
         g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
         g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 
-        g_Param.theta_offset = 0.0f; // 角度补偿
-        g_Param.motor_rs = 0.05f;    // 电阻Rs 50mΩ
-        g_Param.motor_ls = 0.0002f;  // 电感Ls 200μH
-        g_Param.motor_psif = 0.01f;  // 磁链 0.01Wb
+        g_Param.theta_offset = 4.56895971f; // 角度补偿
+        g_Param.motor_rs = 0.05f;           // 电阻Rs 50mΩ
+        g_Param.motor_ls = 0.0002f;         // 电感Ls 200μH
+        g_Param.motor_psif = 0.01f;         // 磁链 0.01Wb
         g_Param.motor_ke = 0.01f;
         g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
         g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad
 
-        g_Param.kp_current = 0.5f;    // 电流环比例系数
-        g_Param.ki_current = 20.f;   // 电流环积分系数
-        g_Param.kp_weakmag = 0.5f;    // 弱磁环比例系数
-        g_Param.ki_weakmag = 10.f;    // 弱磁环积分系数
-        g_Param.kp_speed = 0.05f;     // 速度环比例系数
-        g_Param.ki_speed = 5.0f;      // 速度环积分系数
+        g_Param.kp_current = 0.2f;    // 电流环比例系数
+        g_Param.ki_current = 40.0f;   // 电流环积分系数
+        g_Param.kp_weakmag = 0.05f;   // 弱磁环比例系数
+        g_Param.ki_weakmag = 40.f;    // 弱磁环积分系数
+        g_Param.kp_speed = 3.0f;      // 速度环比例系数
+        g_Param.ki_speed = 20.f;      // 速度环积分系数
         g_Param.kp_position = 0.5f;   // 位置环比例系数
         g_Param.ki_position = 0.05f;  // 位置环积分系数
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
-        g_Param.limit_current = 10.f;                      // 电流限幅 50A
-        g_Param.limit_omega = rpm_to_rad(500.0f);         // 速度限幅 3000 RPM (假设转换后)
+        g_Param.limit_current = 20.0f;                       // 电流限幅 50A
+        g_Param.limit_omega = rpm_to_rad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
         g_Param.limit_position_min = deg_to_rad(-100000.0f); // 最小位置限制 -10000度 (弧度)
         g_Param.limit_position_max = deg_to_rad(100000.0f);  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;                    // 容忍时间 0.1秒
-        g_Param.tolerance_voltage = 1.2f;                 // 电压容忍度 1.2
-        g_Param.tolerance_current = 1.1f;                 // 电流容忍度 1.1
-        g_Param.tolerance_speed = 1.1f;                   // 速度容忍度 1.1
-        g_Param.tolerance_position = 1.1f;                // 位置容忍度 1.1
+        g_Param.tolerance_time = 0.1f;                       // 容忍时间 0.1秒
+        g_Param.tolerance_voltage = 1.2f;                    // 电压容忍度 1.2
+        g_Param.tolerance_current = 1.1f;                    // 电流容忍度 1.1
+        g_Param.tolerance_speed = 1.1f;                      // 速度容忍度 1.1
+        g_Param.tolerance_position = 1.1f;                   // 位置容忍度 1.1
 
-        g_Param.startup_pos_grad = deg_to_rad(1000.0f); // 启动位置梯度 10度/秒 (弧度)
-        g_Param.startup_ome_grad = rpm_to_rad(1000.0f); // 启动速度梯度 1000 RPM/秒 (弧度/秒²)
+        g_Param.startup_acc = rpm_to_rad(1000.0f);      // 启动加速度 1000 RPM/秒
         g_Param.align_current = 5.0f;                   // 对齐电流 5A
         g_Param.align_time = 0.5f;                      // 对齐时间 0.5秒
-        g_Param.open_loop_current = 5.0f;               // 开环电流 5A
+        g_Param.open_loop_current = 1.0f;               // 开环电流 5A
         g_Param.open_loop_omega = rpm_to_rad(150.0f);   // 开环速度 150 RPM (弧度/秒)
         g_Param.change_loop_omega = rpm_to_rad(100.0f); // 切环速度 100 RPM (弧度/秒) (弧度/秒)
     }

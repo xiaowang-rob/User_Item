@@ -1,6 +1,8 @@
 #ifndef __FILTER_H
 #define __FILTER_H
 
+
+#include "main.h"
 /* 限幅滤波法 */
 typedef struct
 {
@@ -75,13 +77,13 @@ float kalman_filter(KalmanFilter *filter, float measurement);
 /* 防脉冲干扰平均滤波法 */
 typedef struct
 {
-    int *buffer; // 数据缓冲区
-    int size;    // 缓冲区大小
-    int index;   // 当前索引
+    uint16_t *buffer; // 数据缓冲区
+    uint8_t size;     // 缓冲区大小
+    uint8_t index;    // 当前索引
 } PulseInterferenceFilter;
 
-void pulse_interference_init(PulseInterferenceFilter *filter, int *buffer, int size);
-int pulse_interference_filter(PulseInterferenceFilter *filter, int new_value);
+void pulse_interference_init(PulseInterferenceFilter *filter, uint16_t *buffer, uint8_t size);
+uint16_t pulse_interference_filter(PulseInterferenceFilter *filter, uint16_t new_value);
 
 /* 算术平均滤波法（静态函数，不需要状态） */
 int arithmetic_mean_filter(const int *data_buf, int size);

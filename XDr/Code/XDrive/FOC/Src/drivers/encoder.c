@@ -49,7 +49,7 @@ static void ENCODER_ProcessAndNextRead(void)
 
     //  解析14位角度值
     u16 angle_raw = ((reg03_data & 0x00FF) << 6) | ((reg04_data & 0x00FC) >> 2);
-    encoder.angle_abs = angle_raw * 0.000383495197 + encoder.angle_offset; // 16384 = 2^14
+    encoder.angle_abs = angle_raw * 0.000383495197f; // 16384 = 2^14
 
     // 增量角度
     float angle_delta = encoder.angle_abs - encoder.angle_last;
@@ -158,12 +158,4 @@ float GET_ENCODER_ANGLE_INC()
 float GET_ENCODER_OMEGA()
 {
     return encoder.omega;
-}
-void SET_ENCODER_ANGLE_OFFSET(float offset)
-{
-    encoder.angle_offset = offset;
-}
-float GET_ENCODER_ANGLE_OFFSET()
-{
-    return encoder.angle_offset;
 }
