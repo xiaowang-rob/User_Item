@@ -196,14 +196,15 @@ void Svpwm_output()
     svpwm_run(foc_val.Ualpha, foc_val.Ubeta);
 }
 
-static float _theta_elec = 0;
+static bool opend_loop_flag = false;
 void voltage_control()
 {
-//        _theta_elec += foc_val.omega_openloop * Tcon;
-//        _theta_elec = normalize_angle_0_2pi(_theta_elec);
-//    		foc_val.theta_elec = Motor.Wire_sequence*_theta_elec;
-    //		inv_park_transform(foc_val.ud, foc_val.uq, 0, &foc_val.Ualpha, &foc_val.Ubeta);
-
+    if (opend_loop_flag)
+    {
+        foc_val.theta_openloop += foc_val.omega_openloop * Tcon;
+        foc_val.theta_openloop = normalize_angle_0_2pi(foc_val.theta_openloop);
+        foc_val.theta_elec = foc_val.theta_openloop;
+    }
     inv_park_transform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
 }
 void current_loop_run()
@@ -333,6 +334,7 @@ void FOC_RUN()
     }
     Svpwm_output();
     smaple_point_change();
+		smo_update(foc_val.Ualpha,foc_val.Ubeta,foc_val.Ialpha,foc_val.Ibeta);
 }
 void FOC_SET_OMEGA_con(float value)
 {
@@ -376,7 +378,7 @@ void FOC_SET_RUNMODE(RUN_mode_e mode)
 
 bool auto_calibration_update()
 {
-    param_tuning_update(&foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
+    param_tuning_update(foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
                         &foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, foc_val.omega_fb,
                         Motor.pole_pairs, foc_val.iq_fb);
     if (param_tuning_get_state() == PARAM_TUNE_COMPLETE)
@@ -394,6 +396,23 @@ void SET_Theta_offset(float thetaoffset)
 void SET_Wire_sequence(int wire_sequence)
 {
     Motor.Wire_sequence = wire_sequence;
+}
+void opend_loop_enable()
+{
+    opend_loop_flag = true;
+}
+void opend_loop_disable()
+{
+    opend_loop_flag = false;
+}
+void SET_opend_loop_theta(float theta_elec)
+{
+    foc_val.omega_openloop = 0.0f;
+    foc_val.theta_openloop = theta_elec;
+}
+void SET_opend_loop_omega(float omega_elec)
+{
+    foc_val.omega_openloop = omega_elec;
 }
 bool SHUTDOWM()
 {

@@ -37,6 +37,7 @@ typedef struct
     float iq_ref;
     float id_ref;
     float iq_fb, id_fb;
+    float theta_openloop;
     float omega_openloop;
     float ud, uq;
     float Ualpha, Ubeta;
@@ -86,6 +87,11 @@ bool SHUTDOWM();
 bool auto_calibration_update();
 void SET_Theta_offset(float thetaoffset);
 void SET_Wire_sequence(int wire_sequence);
+
+void opend_loop_enable();
+void opend_loop_disable();
+void SET_opend_loop_theta(float theta_elec);
+void SET_opend_loop_omega(float omega_elec);
 
 void FOC_SET_OMEGA_con(float value);
 void FOC_SET_VER_VALUE(float *value);

@@ -427,9 +427,9 @@ bool Param_init()
         g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
         g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 
-        g_Param.theta_offset = 4.56895971f; // 角度补偿
-        g_Param.motor_rs = 0.05f;           // 电阻Rs 50mΩ
-        g_Param.motor_ls = 0.0002f;         // 电感Ls 200μH
+        g_Param.theta_offset = 0.453290999f; // 角度补偿
+        g_Param.motor_rs = 0.0218206495f;    // 电阻Rs 50mΩ3.062550.0218206495
+        g_Param.motor_ls = 0.00003f;         // 电感Ls 30μH
         g_Param.motor_psif = 0.01f;         // 磁链 0.01Wb
         g_Param.motor_ke = 0.01f;
         g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
@@ -445,7 +445,7 @@ bool Param_init()
         g_Param.ki_position = 0.05f;  // 位置环积分系数
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
-        g_Param.limit_current = 20.0f;                       // 电流限幅 50A
+        g_Param.limit_current = 30.0f;                       // 电流限幅 50A
         g_Param.limit_omega = rpm_to_rad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
         g_Param.limit_position_min = deg_to_rad(-100000.0f); // 最小位置限制 -10000度 (弧度)
         g_Param.limit_position_max = deg_to_rad(100000.0f);  // 最大位置限制 10000度 (弧度)

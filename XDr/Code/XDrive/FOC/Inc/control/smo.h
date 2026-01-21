@@ -16,12 +16,7 @@ typedef struct
     float J;             // 转动惯量
     float B;             // 摩擦系数
 
-    float dt;    // 控制周期
-    float k_sl;  // 滑模增益
-    float k_f;   // 滤波器增益
-    float delta; // 边界层厚度
-    float max_omega;
-    float speed_filter_gain; // 速度滤波增益
+    float dt; // 控制周期
 
     // 状态变量
     float i_alpha_hat;
@@ -30,11 +25,24 @@ typedef struct
     float e_beta;
     float e_alpha_filtered;
     float e_beta_filtered;
-
-    // 输出
-    float theta; // 电角度
-    float omega; // 电角速度
+    float theta;
     float theta_prev;
+    float omega;
+
+    // 新增：启动控制
+    bool is_aligned;         // 是否完成初始对齐
+    uint32_t alignment_time; // 对齐时间计数
+    float startup_gain;      // 启动增益（从0逐渐增加）
+
+    // 新增：积分器保护
+    float integrator_alpha; // 电流观测器积分增益
+    float integrator_limit; // 积分器限幅
+
+    // 参数
+    float k_sl;
+    float delta;
+    float k_f;
+    float max_omega;
 } smo_t;
 smo_t *get_smo_adr();
 // 初始化
@@ -134,7 +142,7 @@ param_tuning_t *get_tuning_adr();
 void param_tuning_init(float udc);
 // 开始整定
 
-void param_tuning_update(float *theta_elec, float theta_mech, float *u_alpha, float *u_beta,
+void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
                          float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q);
 
 param_tune_state_t param_tuning_get_state();
