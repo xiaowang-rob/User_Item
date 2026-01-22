@@ -61,7 +61,7 @@ void Status_send()
     {
         strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
         com_frame.txdatalen = strlen((char *)com_frame.txdata);
-			system_message_send_flag=true;
+        system_message_send_flag = true;
     }
     else
     {
@@ -80,6 +80,7 @@ void Status_send()
 }
 
 static u8 data_id = 0;
+static float value_ref[2];
 // 命令解析
 void frame_data_deal()
 {
@@ -199,7 +200,9 @@ void frame_data_deal()
                 fHostComputer_send();
                 break;
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
-                FOC_SET_VER_VALUE((float *)com_frame.rxdata);
+                memcpy(value_ref, com_frame.rxdata, 4);
+                value_ref[1] = 0.0f;
+                FOC_SET_VER_VALUE(value_ref);
                 break;
             case CMD_MODE_SET: // 模式设置 1byte
                 FOC_SET_LOOPMODE(com_frame.rxdata[0]);
@@ -288,10 +291,10 @@ void stream_data_trans()
         return;
     }
     if (com_frame.is_busy) // 端口忙
-		{
-			_state_prev_ms = HAL_GetTick();
-			return;
-		}
+    {
+        _state_prev_ms = HAL_GetTick();
+        return;
+    }
     _time_ms = HAL_GetTick();
 
     if (com_state.Host_port != NONE_port)
@@ -305,7 +308,7 @@ void stream_data_trans()
         { // 数据发送
             if (com_frame.stream_num == 0)
                 return;
-						com_frame.cmd_id=CMD_STREAM_SET;
+            com_frame.cmd_id = CMD_STREAM_SET;
             for (u8 i = 0; i < com_frame.stream_num; i++)
             {
                 stream_data_get(com_frame.data_id_index[i], (float *)&com_frame.txdata[i * 4]);

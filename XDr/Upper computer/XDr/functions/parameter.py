@@ -84,6 +84,8 @@ class ParameterManager:
         self.mw = main_window
         self.com = com_port
         self.system_desc = "无"
+
+        self.refvalue_map = ["目标电压/V","目标电流/A", "目标速度/rpm", "目标位置/°"]
         # 建立 索引(Int) -> UI控件 的映射
         self.param_map = {
             #模式
@@ -158,6 +160,7 @@ class ParameterManager:
                             # 下拉列表
                             case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
                                 val = widget.currentIndex()
+                                
                             # 双态开关
                             case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
                                 val=0
@@ -190,6 +193,7 @@ class ParameterManager:
                 
             
             print("参数批量发送完成")
+            self.read_all()
         
         threading.Thread(target=task, daemon=True).start()
 
@@ -205,7 +209,9 @@ class ParameterManager:
                 case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
                     self.param_map[index].setCurrentIndex(val)    
                     if index in self.param_show_map:
-                        self.param_show_map[index].setText(self.param_map[index].currentText())                
+                        self.param_show_map[index].setText(self.param_map[index].currentText())
+                    if index == PIdx.LOOP_MODE:
+                        self.mw.ui.controlval_show.setText(self.refvalue_map[val])                
                 # 双态开关
                 case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
                     print("双态开关处理")

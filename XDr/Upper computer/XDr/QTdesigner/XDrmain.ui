@@ -50,7 +50,183 @@
     </size>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">/* 深色主题全局样式 */
+MainWindow, QDialog, QWidget {
+    background-color: #353535;
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+QLabel {
+    color: #ffffff;
+}
+
+QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QAbstractSpinBox {
+    background-color: #232326;
+    border: 1px solid #555555;
+    color: #ffffff;
+    padding: 2px;
+    selection-background-color: #2a82da;
+    selection-color: white;
+    border-radius: 2px;
+}
+
+QLineEdit:focus, QSpinBox:focus, QComboBox:focus {
+    border: 1px solid #2a82da;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/down_arrow_white.png);
+    width: 12px;
+    height: 12px;
+}
+
+QPushButton {
+    background-color: #2a2a2e;
+    border: 1px solid #555555;
+    color: #ffffff;
+    padding: 4px 8px;
+    min-width: 70px;
+    border-radius: 3px;
+    font-weight: normal;
+}
+
+QPushButton:hover {
+    background-color: #3a3a3e;
+    border: 1px solid #777777;
+}
+
+QPushButton:pressed {
+    background-color: #1a1a1e;
+    border: 1px solid #333333;
+}
+
+QPushButton:disabled {
+    color: #888888;
+    background-color: #2a2a2e;
+    border: 1px solid #444444;
+}
+
+QPushButton#criticalButton { /* 清除按钮等重要操作 */
+    background-color: #d32f2f;
+    border: 1px solid #b71c1c;
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#criticalButton:hover {
+    background-color: #f44336;
+    border: 1px solid #e53935;
+}
+
+QPushButton#criticalButton:pressed {
+    background-color: #b71c1c;
+}
+
+QCheckBox {
+    spacing: 5px;
+    color: #cccccc;
+}
+
+QCheckBox::indicator {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #555555;
+    background-color: #232326;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #2a82da;
+    border: 1px solid #2a82da;
+    image: url(:/icons/check_mark_white.png);
+}
+
+QGroupBox {
+    border: 1px solid #555555;
+    margin-top: 1ex;
+    font-weight: bold;
+    color: #aaaaaa;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 5px;
+    padding: 0 3px 0 3px;
+}
+
+QTabWidget::pane {
+    border: 1px solid #555555;
+    background-color: #232326;
+}
+
+QTabBar::tab {
+    background-color: #2a2a2e;
+    color: #cccccc;
+    padding: 5px 10px;
+    border: 1px solid #555555;
+    border-bottom: none;
+    margin-right: 2px;
+}
+
+QTabBar::tab:selected {
+    background-color: #353535;
+    color: white;
+    border-top: 2px solid #2a82da;
+}
+
+QTableWidget {
+    background-color: #232326;
+    gridline-color: #444444;
+    color: white;
+    selection-background-color: #2a82da;
+}
+
+QHeaderView::section {
+    background-color: #2a2a2e;
+    color: #aaaaaa;
+    padding: 4px;
+    border: 1px solid #444444;
+    font-weight: bold;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #2a2a2e;
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #555555;
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: #2a2a2e;
+    height: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #555555;
+    min-width: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+}</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
@@ -94,11 +270,11 @@
             </property>
             <property name="font">
              <font>
-              <family>微软雅黑</family>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
-              <weight>75</weight>
+              <weight>50</weight>
               <italic>false</italic>
-              <bold>true</bold>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -116,17 +292,17 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>0</width>
+              <width>88</width>
               <height>0</height>
              </size>
             </property>
             <property name="font">
              <font>
-              <family>微软雅黑</family>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
-              <weight>75</weight>
+              <weight>50</weight>
               <italic>false</italic>
-              <bold>true</bold>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -852,17 +1028,17 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>129</width>
+              <width>88</width>
               <height>0</height>
              </size>
             </property>
             <property name="font">
              <font>
-              <family>微软雅黑</family>
+              <family>Segoe UI</family>
               <pointsize>9</pointsize>
-              <weight>75</weight>
+              <weight>50</weight>
               <italic>false</italic>
-              <bold>true</bold>
+              <bold>false</bold>
              </font>
             </property>
             <property name="text">
@@ -882,17 +1058,17 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
+                <width>88</width>
                 <height>0</height>
                </size>
               </property>
               <property name="font">
                <font>
-                <family>微软雅黑</family>
+                <family>Segoe UI</family>
                 <pointsize>9</pointsize>
-                <weight>75</weight>
+                <weight>50</weight>
                 <italic>false</italic>
-                <bold>true</bold>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -910,17 +1086,17 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
+                <width>88</width>
                 <height>0</height>
                </size>
               </property>
               <property name="font">
                <font>
-                <family>微软雅黑</family>
+                <family>Segoe UI</family>
                 <pointsize>9</pointsize>
-                <weight>75</weight>
+                <weight>50</weight>
                 <italic>false</italic>
-                <bold>true</bold>
+                <bold>false</bold>
                </font>
               </property>
               <property name="text">
@@ -989,7 +1165,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
+           <width>88</width>
            <height>0</height>
           </size>
          </property>
@@ -1014,7 +1190,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
+           <width>88</width>
            <height>0</height>
           </size>
          </property>
@@ -1039,7 +1215,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
+           <width>88</width>
            <height>0</height>
           </size>
          </property>
@@ -1098,7 +1274,7 @@
            </size>
           </property>
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -1149,6 +1325,15 @@
              </property>
              <property name="verticalSpacing">
               <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>18</number>
+             </property>
+             <property name="topMargin">
+              <number>18</number>
+             </property>
+             <property name="rightMargin">
+              <number>18</number>
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_16">
@@ -1533,6 +1718,15 @@
            <property name="verticalSpacing">
             <number>10</number>
            </property>
+           <property name="leftMargin">
+            <number>18</number>
+           </property>
+           <property name="topMargin">
+            <number>18</number>
+           </property>
+           <property name="rightMargin">
+            <number>18</number>
+           </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_69">
              <property name="sizePolicy">
@@ -1806,6 +2000,15 @@
            </property>
            <property name="verticalSpacing">
             <number>10</number>
+           </property>
+           <property name="leftMargin">
+            <number>18</number>
+           </property>
+           <property name="topMargin">
+            <number>18</number>
+           </property>
+           <property name="rightMargin">
+            <number>18</number>
            </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_79">
@@ -2150,6 +2353,15 @@
            </property>
            <property name="verticalSpacing">
             <number>10</number>
+           </property>
+           <property name="leftMargin">
+            <number>18</number>
+           </property>
+           <property name="topMargin">
+            <number>18</number>
+           </property>
+           <property name="rightMargin">
+            <number>18</number>
            </property>
            <item row="0" column="0">
             <widget class="QLabel" name="label_64">
@@ -3026,7 +3238,7 @@
            </size>
           </property>
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -3481,6 +3693,7 @@
              <widget class="QLabel" name="label_ch1">
               <property name="font">
                <font>
+                <family>Segoe UI</family>
                 <pointsize>15</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
@@ -3539,6 +3752,7 @@
              <widget class="QLabel" name="label_ch2">
               <property name="font">
                <font>
+                <family>Segoe UI</family>
                 <pointsize>15</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
@@ -3591,6 +3805,7 @@
              <widget class="QLabel" name="label_ch3">
               <property name="font">
                <font>
+                <family>Segoe UI</family>
                 <pointsize>15</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
@@ -3611,6 +3826,7 @@
              <widget class="QLabel" name="label_ch4">
               <property name="font">
                <font>
+                <family>Segoe UI</family>
                 <pointsize>15</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
@@ -3644,6 +3860,7 @@
              <widget class="QLabel" name="label_ch5">
               <property name="font">
                <font>
+                <family>Segoe UI</family>
                 <pointsize>15</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>

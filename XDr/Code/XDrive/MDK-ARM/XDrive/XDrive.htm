@@ -3,7 +3,7 @@
 <title>Static Call Graph - [XDrive\XDrive.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image XDrive\XDrive.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Thu Jan 22 16:01:34 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Thu Jan 22 20:44:44 2026
 <BR><P>
 <H3>Maximum Stack Usage =        352 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -3039,15 +3039,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_PREPARE
 </UL>
 
-<P><STRONG><a name="[ac]"></a>frame_data_deal</STRONG> (Thumb, 726 bytes, Stack size 16 bytes, port_mapping.o(.text.frame_data_deal))
+<P><STRONG><a name="[ac]"></a>frame_data_deal</STRONG> (Thumb, 762 bytes, Stack size 16 bytes, port_mapping.o(.text.frame_data_deal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[18b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_save
 <LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_erase
 <LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_erase
 <LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_reset
-<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_VER_VALUE
+<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
 <LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_CHANGE_STATE
 <LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_set
 <LI><a href="#[185]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_get
@@ -3200,8 +3200,8 @@ Global Symbols
 <P><STRONG><a name="[1cb]"></a>param_tuning_update</STRONG> (Thumb, 2820 bytes, Stack size 40 bytes, smo.o(.text.param_tuning_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
-<LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_VER_VALUE
+<BR>[Calls]<UL><LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_VER_VALUE
+<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
 <LI><a href="#[1f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_opend_loop_theta
 <LI><a href="#[1ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_disable
 <LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_enable

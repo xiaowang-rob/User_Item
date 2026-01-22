@@ -30,7 +30,183 @@ class Ui_XDr(object):
         sizePolicy.setHeightForWidth(self.MainWidget.sizePolicy().hasHeightForWidth())
         self.MainWidget.setSizePolicy(sizePolicy)
         self.MainWidget.setMaximumSize(QtCore.QSize(1400, 900))
-        self.MainWidget.setStyleSheet("")
+        self.MainWidget.setStyleSheet("/* 深色主题全局样式 */\n"
+"MainWindow, QDialog, QWidget {\n"
+"    background-color: #353535;\n"
+"    color: #ffffff;\n"
+"    font-family: \'Segoe UI\', Arial, sans-serif;\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"    color: #ffffff;\n"
+"}\n"
+"\n"
+"QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QAbstractSpinBox {\n"
+"    background-color: #232326;\n"
+"    border: 1px solid #555555;\n"
+"    color: #ffffff;\n"
+"    padding: 2px;\n"
+"    selection-background-color: #2a82da;\n"
+"    selection-color: white;\n"
+"    border-radius: 2px;\n"
+"}\n"
+"\n"
+"QLineEdit:focus, QSpinBox:focus, QComboBox:focus {\n"
+"    border: 1px solid #2a82da;\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    border: none;\n"
+"    width: 20px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/icons/down_arrow_white.png);\n"
+"    width: 12px;\n"
+"    height: 12px;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"    background-color: #2a2a2e;\n"
+"    border: 1px solid #555555;\n"
+"    color: #ffffff;\n"
+"    padding: 4px 8px;\n"
+"    min-width: 70px;\n"
+"    border-radius: 3px;\n"
+"    font-weight: normal;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #3a3a3e;\n"
+"    border: 1px solid #777777;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1a1a1e;\n"
+"    border: 1px solid #333333;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: #888888;\n"
+"    background-color: #2a2a2e;\n"
+"    border: 1px solid #444444;\n"
+"}\n"
+"\n"
+"QPushButton#criticalButton { /* 清除按钮等重要操作 */\n"
+"    background-color: #d32f2f;\n"
+"    border: 1px solid #b71c1c;\n"
+"    color: white;\n"
+"    font-weight: bold;\n"
+"}\n"
+"\n"
+"QPushButton#criticalButton:hover {\n"
+"    background-color: #f44336;\n"
+"    border: 1px solid #e53935;\n"
+"}\n"
+"\n"
+"QPushButton#criticalButton:pressed {\n"
+"    background-color: #b71c1c;\n"
+"}\n"
+"\n"
+"QCheckBox {\n"
+"    spacing: 5px;\n"
+"    color: #cccccc;\n"
+"}\n"
+"\n"
+"QCheckBox::indicator {\n"
+"    width: 15px;\n"
+"    height: 15px;\n"
+"    border: 1px solid #555555;\n"
+"    background-color: #232326;\n"
+"}\n"
+"\n"
+"QCheckBox::indicator:checked {\n"
+"    background-color: #2a82da;\n"
+"    border: 1px solid #2a82da;\n"
+"    image: url(:/icons/check_mark_white.png);\n"
+"}\n"
+"\n"
+"QGroupBox {\n"
+"    border: 1px solid #555555;\n"
+"    margin-top: 1ex;\n"
+"    font-weight: bold;\n"
+"    color: #aaaaaa;\n"
+"}\n"
+"\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    left: 5px;\n"
+"    padding: 0 3px 0 3px;\n"
+"}\n"
+"\n"
+"QTabWidget::pane {\n"
+"    border: 1px solid #555555;\n"
+"    background-color: #232326;\n"
+"}\n"
+"\n"
+"QTabBar::tab {\n"
+"    background-color: #2a2a2e;\n"
+"    color: #cccccc;\n"
+"    padding: 5px 10px;\n"
+"    border: 1px solid #555555;\n"
+"    border-bottom: none;\n"
+"    margin-right: 2px;\n"
+"}\n"
+"\n"
+"QTabBar::tab:selected {\n"
+"    background-color: #353535;\n"
+"    color: white;\n"
+"    border-top: 2px solid #2a82da;\n"
+"}\n"
+"\n"
+"QTableWidget {\n"
+"    background-color: #232326;\n"
+"    gridline-color: #444444;\n"
+"    color: white;\n"
+"    selection-background-color: #2a82da;\n"
+"}\n"
+"\n"
+"QHeaderView::section {\n"
+"    background-color: #2a2a2e;\n"
+"    color: #aaaaaa;\n"
+"    padding: 4px;\n"
+"    border: 1px solid #444444;\n"
+"    font-weight: bold;\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"    border: none;\n"
+"    background: #2a2a2e;\n"
+"    width: 10px;\n"
+"    margin: 0px 0px 0px 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:vertical {\n"
+"    background: #555555;\n"
+"    min-height: 20px;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {\n"
+"    height: 0px;\n"
+"}\n"
+"\n"
+"QScrollBar:horizontal {\n"
+"    border: none;\n"
+"    background: #2a2a2e;\n"
+"    height: 10px;\n"
+"    margin: 0px 0px 0px 0px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal {\n"
+"    background: #555555;\n"
+"    min-width: 20px;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {\n"
+"    width: 0px;\n"
+"}")
         self.MainWidget.setObjectName("MainWidget")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.MainWidget)
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
@@ -69,11 +245,11 @@ class Ui_XDr(object):
         sizePolicy.setHeightForWidth(self.connectbutton.sizePolicy().hasHeightForWidth())
         self.connectbutton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily("微软雅黑")
+        font.setFamily("Segoe UI")
         font.setPointSize(9)
-        font.setBold(True)
+        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(50)
         self.connectbutton.setFont(font)
         self.connectbutton.setObjectName("connectbutton")
         self.verticalLayout_2.addWidget(self.connectbutton)
@@ -83,13 +259,13 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.systemdesc.sizePolicy().hasHeightForWidth())
         self.systemdesc.setSizePolicy(sizePolicy)
-        self.systemdesc.setMinimumSize(QtCore.QSize(0, 0))
+        self.systemdesc.setMinimumSize(QtCore.QSize(88, 0))
         font = QtGui.QFont()
-        font.setFamily("微软雅黑")
+        font.setFamily("Segoe UI")
         font.setPointSize(9)
-        font.setBold(True)
+        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(50)
         self.systemdesc.setFont(font)
         self.systemdesc.setObjectName("systemdesc")
         self.verticalLayout_2.addWidget(self.systemdesc)
@@ -466,13 +642,13 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.loadconfigfile.sizePolicy().hasHeightForWidth())
         self.loadconfigfile.setSizePolicy(sizePolicy)
-        self.loadconfigfile.setMinimumSize(QtCore.QSize(129, 0))
+        self.loadconfigfile.setMinimumSize(QtCore.QSize(88, 0))
         font = QtGui.QFont()
-        font.setFamily("微软雅黑")
+        font.setFamily("Segoe UI")
         font.setPointSize(9)
-        font.setBold(True)
+        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(50)
         self.loadconfigfile.setFont(font)
         self.loadconfigfile.setObjectName("loadconfigfile")
         self.verticalLayout_3.addWidget(self.loadconfigfile)
@@ -484,13 +660,13 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.saveconfigfile.sizePolicy().hasHeightForWidth())
         self.saveconfigfile.setSizePolicy(sizePolicy)
-        self.saveconfigfile.setMinimumSize(QtCore.QSize(60, 0))
+        self.saveconfigfile.setMinimumSize(QtCore.QSize(88, 0))
         font = QtGui.QFont()
-        font.setFamily("微软雅黑")
+        font.setFamily("Segoe UI")
         font.setPointSize(9)
-        font.setBold(True)
+        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(50)
         self.saveconfigfile.setFont(font)
         self.saveconfigfile.setObjectName("saveconfigfile")
         self.horizontalLayout_3.addWidget(self.saveconfigfile)
@@ -500,13 +676,13 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.removeconfigfile.sizePolicy().hasHeightForWidth())
         self.removeconfigfile.setSizePolicy(sizePolicy)
-        self.removeconfigfile.setMinimumSize(QtCore.QSize(60, 0))
+        self.removeconfigfile.setMinimumSize(QtCore.QSize(88, 0))
         font = QtGui.QFont()
-        font.setFamily("微软雅黑")
+        font.setFamily("Segoe UI")
         font.setPointSize(9)
-        font.setBold(True)
+        font.setBold(False)
         font.setItalic(False)
-        font.setWeight(75)
+        font.setWeight(50)
         self.removeconfigfile.setFont(font)
         self.removeconfigfile.setObjectName("removeconfigfile")
         self.horizontalLayout_3.addWidget(self.removeconfigfile)
@@ -537,7 +713,7 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabbutton_parameterset.sizePolicy().hasHeightForWidth())
         self.tabbutton_parameterset.setSizePolicy(sizePolicy)
-        self.tabbutton_parameterset.setMinimumSize(QtCore.QSize(20, 0))
+        self.tabbutton_parameterset.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_parameterset.setMaximumSize(QtCore.QSize(80, 16777215))
         self.tabbutton_parameterset.setObjectName("tabbutton_parameterset")
         self.horizontalLayout_2.addWidget(self.tabbutton_parameterset)
@@ -547,7 +723,7 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabbutton_log.sizePolicy().hasHeightForWidth())
         self.tabbutton_log.setSizePolicy(sizePolicy)
-        self.tabbutton_log.setMinimumSize(QtCore.QSize(20, 0))
+        self.tabbutton_log.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_log.setMaximumSize(QtCore.QSize(80, 16777215))
         self.tabbutton_log.setObjectName("tabbutton_log")
         self.horizontalLayout_2.addWidget(self.tabbutton_log)
@@ -557,7 +733,7 @@ class Ui_XDr(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabbutton_control.sizePolicy().hasHeightForWidth())
         self.tabbutton_control.setSizePolicy(sizePolicy)
-        self.tabbutton_control.setMinimumSize(QtCore.QSize(20, 0))
+        self.tabbutton_control.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_control.setMaximumSize(QtCore.QSize(80, 16777215))
         self.tabbutton_control.setObjectName("tabbutton_control")
         self.horizontalLayout_2.addWidget(self.tabbutton_control)
@@ -582,6 +758,7 @@ class Ui_XDr(object):
         sizePolicy.setHeightForWidth(self.liftbackground.sizePolicy().hasHeightForWidth())
         self.liftbackground.setSizePolicy(sizePolicy)
         self.liftbackground.setMinimumSize(QtCore.QSize(100, 0))
+        self.liftbackground.setText("")
         self.liftbackground.setObjectName("liftbackground")
         self.horizontalLayout_10.addWidget(self.liftbackground)
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -606,6 +783,7 @@ class Ui_XDr(object):
         self.control_parameter = QtWidgets.QGroupBox(self.parameter)
         self.control_parameter.setObjectName("control_parameter")
         self.formLayout_5 = QtWidgets.QFormLayout(self.control_parameter)
+        self.formLayout_5.setContentsMargins(18, 18, 18, -1)
         self.formLayout_5.setSpacing(10)
         self.formLayout_5.setObjectName("formLayout_5")
         self.label_16 = QtWidgets.QLabel(self.control_parameter)
@@ -807,6 +985,7 @@ class Ui_XDr(object):
         self.mode_parameter = QtWidgets.QGroupBox(self.parameter)
         self.mode_parameter.setObjectName("mode_parameter")
         self.formLayout_3 = QtWidgets.QFormLayout(self.mode_parameter)
+        self.formLayout_3.setContentsMargins(18, 18, 18, -1)
         self.formLayout_3.setSpacing(10)
         self.formLayout_3.setObjectName("formLayout_3")
         self.label_69 = QtWidgets.QLabel(self.mode_parameter)
@@ -932,6 +1111,7 @@ class Ui_XDr(object):
         self.motor_parameter = QtWidgets.QGroupBox(self.parameter)
         self.motor_parameter.setObjectName("motor_parameter")
         self.formLayout_4 = QtWidgets.QFormLayout(self.motor_parameter)
+        self.formLayout_4.setContentsMargins(18, 18, 18, -1)
         self.formLayout_4.setSpacing(10)
         self.formLayout_4.setObjectName("formLayout_4")
         self.label_79 = QtWidgets.QLabel(self.motor_parameter)
@@ -1106,6 +1286,7 @@ class Ui_XDr(object):
         self.static_parameter = QtWidgets.QGroupBox(self.parameter)
         self.static_parameter.setObjectName("static_parameter")
         self.formLayout_2 = QtWidgets.QFormLayout(self.static_parameter)
+        self.formLayout_2.setContentsMargins(18, 18, 18, -1)
         self.formLayout_2.setSpacing(10)
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_64 = QtWidgets.QLabel(self.static_parameter)
@@ -1541,6 +1722,7 @@ class Ui_XDr(object):
         sizePolicy.setHeightForWidth(self.rightbackground.sizePolicy().hasHeightForWidth())
         self.rightbackground.setSizePolicy(sizePolicy)
         self.rightbackground.setMinimumSize(QtCore.QSize(100, 0))
+        self.rightbackground.setText("")
         self.rightbackground.setObjectName("rightbackground")
         self.horizontalLayout_10.addWidget(self.rightbackground)
         self.tabpage.addWidget(self.parameter)
@@ -1754,6 +1936,7 @@ class Ui_XDr(object):
         self.gridLayout_2.addWidget(self.wave_start, 1, 0, 1, 1)
         self.label_ch1 = QtWidgets.QLabel(self.control)
         font = QtGui.QFont()
+        font.setFamily("Segoe UI")
         font.setPointSize(15)
         font.setBold(True)
         font.setWeight(75)
@@ -1775,6 +1958,7 @@ class Ui_XDr(object):
         self.gridLayout_2.addItem(spacerItem15, 2, 0, 1, 1)
         self.label_ch2 = QtWidgets.QLabel(self.control)
         font = QtGui.QFont()
+        font.setFamily("Segoe UI")
         font.setPointSize(15)
         font.setBold(True)
         font.setWeight(75)
@@ -1789,6 +1973,7 @@ class Ui_XDr(object):
         self.gridLayout_2.addItem(spacerItem17, 6, 0, 1, 1)
         self.label_ch3 = QtWidgets.QLabel(self.control)
         font = QtGui.QFont()
+        font.setFamily("Segoe UI")
         font.setPointSize(15)
         font.setBold(True)
         font.setWeight(75)
@@ -1799,6 +1984,7 @@ class Ui_XDr(object):
         self.gridLayout_2.addWidget(self.label_ch3, 7, 0, 1, 1)
         self.label_ch4 = QtWidgets.QLabel(self.control)
         font = QtGui.QFont()
+        font.setFamily("Segoe UI")
         font.setPointSize(15)
         font.setBold(True)
         font.setWeight(75)
@@ -1818,6 +2004,7 @@ class Ui_XDr(object):
         self.gridLayout_2.addWidget(self.wave_stop, 1, 1, 1, 1)
         self.label_ch5 = QtWidgets.QLabel(self.control)
         font = QtGui.QFont()
+        font.setFamily("Segoe UI")
         font.setPointSize(15)
         font.setBold(True)
         font.setWeight(75)
@@ -1896,7 +2083,7 @@ class Ui_XDr(object):
         self.verticalLayout_7.addWidget(self.tabpage)
 
         self.retranslateUi(XDr)
-        self.tabpage.setCurrentIndex(0)
+        self.tabpage.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(XDr)
 
     def retranslateUi(self, XDr):
@@ -1939,7 +2126,6 @@ class Ui_XDr(object):
         self.tabbutton_parameterset.setText(_translate("XDr", "参数设置"))
         self.tabbutton_log.setText(_translate("XDr", "日志"))
         self.tabbutton_control.setText(_translate("XDr", "控制监控"))
-        self.liftbackground.setText(_translate("XDr", "TextLabel"))
         self.all_erase.setText(_translate("XDr", "一键擦除"))
         self.all_read.setText(_translate("XDr", "一键读取"))
         self.all_write.setText(_translate("XDr", "一键写入"))
@@ -2038,7 +2224,6 @@ class Ui_XDr(object):
         self.openloop_speed.setText(_translate("XDr", "150"))
         self.label_66.setText(_translate("XDr", "切环速度"))
         self.changeloop_speed.setText(_translate("XDr", "100"))
-        self.rightbackground.setText(_translate("XDr", "TextLabel"))
         self.log_read.setText(_translate("XDr", "读取日志"))
         self.log_erase.setText(_translate("XDr", "擦除日志"))
         self.label_13.setText(_translate("XDr", "序号"))
