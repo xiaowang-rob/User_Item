@@ -1,3 +1,6 @@
+from .parameter import Cmd
+
+
 class status:
     sys_state=["INIT","RUN","ERROR"]
     foc_state=["IDLE","TUNE","RESET","ENABLE","DISABLE","RUNNING","SHUTDOWN","FAULT","WARNING"]
@@ -52,12 +55,12 @@ class DataIndex:
 class Data:
     def __init__(self, main_window):
         self.mw = main_window
-        self.data=["无"]*26
+        self.data=[0.0]*26
         self.showindex=[]
-
+        self.channal_index=[]
         options = ["NONE"] + [
         "温度",
-        "VBUS",
+        "Vbus",
         "VOL_U",
         "VOL_V",
         "VOL_W",
@@ -91,7 +94,7 @@ class Data:
             combo.clear()
             combo.addItems(options)
 
-    def set_data(self,index, data):
+    def set_status(self, index, data):
         if index==0:
             self.data[index] = status.sys_state[int(data)]
         elif index==1:
@@ -101,21 +104,31 @@ class Data:
         elif index==3:
             self.data[index] = status.warning_state[int(data)]
         else:
-            self.data[index] = data
-
+            self.data[index] = data       
+    def set_data(self,index, data):
+        self.data[self.showindex[index]+3]=data
+        print(self.showindex[index]+3,data)
+        print(self.data[self.showindex[index]+3])
     def get_data(self, index):
         return self.data[index]
     
-    def show_data(self):
+    def show_status(self):
         # 状态显示
         self.mw.ui.systemstateshow.setText(self.data[0])
         self.mw.ui.FOCstateshow.setText(self.data[1])
         self.mw.ui.erroeshow.setText(self.data[2])
         self.mw.ui.warnningshow.setText(self.data[3])
         self.mw.ui.tempshow.setText(f"{self.data[4]:.2f}")
-        self.mw.ui.voltageshow.setText(f"{self.data[5]:.2f}")
+        self.mw.ui.voltageshow.setText(f"{self.data[5]:.2f}")        
+
+    def show_data(self):
         # 自定义波形显示
-        self.mw.waveform_widget.add_waveform_data(0, self.data[5])
+        
+        for i in range(len(self.showindex)):
+            # 注意：确保 self.data 索引不越界
+            data_index = self.showindex[i] + 3
+            self.mw.waveform_widget.add_waveform_data(self.channal_index[i], self.data[data_index])
+
 
     def send_stream_id(self):
         combo_boxes = [
@@ -125,12 +138,17 @@ class Data:
             self.mw.ui.combo_ch4,
             self.mw.ui.combo_ch5,
         ]
-        for combo in combo_boxes:
+        self.showindex.clear()
+        self.channal_index.clear()
+        for  i,combo in enumerate(combo_boxes):
             current_text = combo.currentText()
             if current_text != "NONE":
-                idx =combo.currentIndex()
-                if idx is not None:
-                    self.showindex.append(idx)
+                self.showindex.append(combo.currentIndex()) 
+                self.channal_index.append(i)
+        print(self.channal_index)
+        self.mw.com_port.send_packet(Cmd.CMD_STREAM_SET, bytes(self.showindex))
 
-        
+    def send_none_stream(self):
+        self.showindex.clear()
+        self.mw.com_port.send_packet(Cmd.CMD_STREAM_SET, bytes())
         

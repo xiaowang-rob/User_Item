@@ -33,7 +33,7 @@ class WaveformWidget(QWidget):
         # 自动调节计时器
         self.auto_scale_timer = QTimer()
         self.auto_scale_timer.timeout.connect(self.auto_scale_y_axis)
-        self.auto_scale_timer.start(1000)  # 每秒自动调节一次
+        self.auto_scale_timer.start(10)  # 每10ms自动调节一次
         
         # X轴范围
         self.x_min = 0
@@ -54,9 +54,6 @@ class WaveformWidget(QWidget):
         # 添加控制面板
         control_layout = QHBoxLayout()
         
-        # 开始/停止按钮
-        self.start_stop_btn = QPushButton("停止示波")
-        self.start_stop_btn.clicked.connect(self.toggle_oscilloscope)
         
         # Y轴范围控制
         y_range_label = QLabel("Y轴范围:")
@@ -92,7 +89,6 @@ class WaveformWidget(QWidget):
         clear_btn.clicked.connect(self.clear_waveforms)
         
         # 添加到控制面板
-        control_layout.addWidget(self.start_stop_btn)
         control_layout.addWidget(y_range_label)
         control_layout.addWidget(self.y_min_spin)
         control_layout.addWidget(self.y_max_spin)
@@ -120,16 +116,9 @@ class WaveformWidget(QWidget):
         """停止示波"""
         if self.is_running:
             self.is_running = False
-            self.start_stop_btn.setText("开始示波")
             # 停止自动缩放
             self.auto_scale_timer.stop()
     
-    def toggle_oscilloscope(self):
-        """切换示波状态"""
-        if self.is_running:
-            self.stop_oscilloscope()
-        else:
-            self.start_oscilloscope()
     
     def add_waveform_data(self, channel, data):
         """

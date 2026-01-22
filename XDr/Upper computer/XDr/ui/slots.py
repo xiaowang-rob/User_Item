@@ -32,8 +32,8 @@ class Slots:
         ui.tabbutton_control.clicked.connect(self._handle_control_page)
 
         #示波界面
-        ui.wave_start.clicked.connect(self.mw.waveform_widget.start_oscilloscope)
-        ui.wave_stop.clicked.connect(self.mw.waveform_widget.stop_oscilloscope)
+        ui.wave_start.clicked.connect(self._handle_wave_start)
+        ui.wave_stop.clicked.connect(self._handle_wave_stop)
 
     def _handle_conn(self):
         btn = self.mw.ui.connectbutton
@@ -64,8 +64,8 @@ class Slots:
         self.mw.ui.tabpage.setCurrentIndex(2)
 
     def _handle_wave_start(self):
-        
+        self.mw.data.send_stream_id()
         self.mw.waveform_widget.start_oscilloscope()
     def _handle_wave_stop(self):
-
+        self.mw.data.send_none_stream()
         self.mw.waveform_widget.stop_oscilloscope

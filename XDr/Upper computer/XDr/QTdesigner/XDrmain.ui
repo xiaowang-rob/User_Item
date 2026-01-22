@@ -1837,12 +1837,15 @@
                <height>0</height>
               </size>
              </property>
+             <property name="text">
+              <string>0</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="label_11">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1858,7 +1861,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QLineEdit" name="Pole_pires">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1877,7 +1880,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="label_32">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1893,7 +1896,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QLineEdit" name="Rs">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1912,7 +1915,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_31">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1928,7 +1931,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QLineEdit" name="Ls">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1947,7 +1950,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_80">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1963,7 +1966,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QLineEdit" name="psif">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1982,7 +1985,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="label_28">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -1998,7 +2001,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QLineEdit" name="Ke">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2017,7 +2020,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="label_30">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2033,7 +2036,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="J_val">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2052,7 +2055,7 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="label_27">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2068,7 +2071,7 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <widget class="QLineEdit" name="B_val">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2085,6 +2088,36 @@
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_38">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>三相线序</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="WireSequence">
+             <item>
+              <property name="text">
+               <string>正线序</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>反线序</string>
+              </property>
+             </item>
             </widget>
            </item>
           </layout>
@@ -2118,6 +2151,47 @@
            <property name="verticalSpacing">
             <number>10</number>
            </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_64">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>PWM频率/Hz</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="f_pwm">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>20000</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_48">
              <property name="sizePolicy">
@@ -2190,7 +2264,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>5000</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2231,13 +2305,136 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1000</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_81">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>电流环分频系数</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="freq_cur">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>1</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_82">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>速度环分频系数</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="freq_speed">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>4</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_83">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>位置环分频系数</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="freq_pos">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>5</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -2272,7 +2469,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>20</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2310,7 +2507,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>100</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2348,7 +2545,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>-10000</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2386,7 +2583,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>10000</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2424,7 +2621,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2462,7 +2659,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1.1</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2500,7 +2697,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1.2</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2538,7 +2735,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1.3</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2576,7 +2773,7 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1.0</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2584,44 +2781,6 @@
             </widget>
            </item>
            <item row="16" column="0">
-            <widget class="QLabel" name="label_54">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>位置环速度</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="16" column="1">
-            <widget class="QLineEdit" name="postion_speed">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>20000</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="17" column="0">
             <widget class="QLabel" name="label_55">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2637,7 +2796,7 @@
              </property>
             </widget>
            </item>
-           <item row="17" column="1">
+           <item row="16" column="1">
             <widget class="QLineEdit" name="acceleration">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2652,14 +2811,14 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>1000</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="18" column="0">
+           <item row="17" column="0">
             <widget class="QLabel" name="label_56">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2675,7 +2834,7 @@
              </property>
             </widget>
            </item>
-           <item row="18" column="1">
+           <item row="17" column="1">
             <widget class="QLineEdit" name="align_current">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2690,14 +2849,14 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>2.0</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="19" column="0">
+           <item row="18" column="0">
             <widget class="QLabel" name="label_57">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2713,7 +2872,7 @@
              </property>
             </widget>
            </item>
-           <item row="19" column="1">
+           <item row="18" column="1">
             <widget class="QLineEdit" name="align_time">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2728,14 +2887,14 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>0.5</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="20" column="0">
+           <item row="19" column="0">
             <widget class="QLabel" name="label_12">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2751,7 +2910,7 @@
              </property>
             </widget>
            </item>
-           <item row="20" column="1">
+           <item row="19" column="1">
             <widget class="QLineEdit" name="openloop_current">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2766,14 +2925,14 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>2.0</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="21" column="0">
+           <item row="20" column="0">
             <widget class="QLabel" name="label_65">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2789,7 +2948,7 @@
              </property>
             </widget>
            </item>
-           <item row="21" column="1">
+           <item row="20" column="1">
             <widget class="QLineEdit" name="openloop_speed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2804,14 +2963,14 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>150</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
-           <item row="22" column="0">
+           <item row="21" column="0">
             <widget class="QLabel" name="label_66">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2827,7 +2986,7 @@
              </property>
             </widget>
            </item>
-           <item row="22" column="1">
+           <item row="21" column="1">
             <widget class="QLineEdit" name="changeloop_speed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2842,174 +3001,10 @@
               </size>
              </property>
              <property name="text">
-              <string>20000</string>
+              <string>100</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_64">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>PWM频率/Hz</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="f_pwm">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>20000</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_81">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>电流环分频系数</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_82">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>速度环分频系数</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_83">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>位置环分频系数</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="freq_cur">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>20000</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="freq_speed">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>20000</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="freq_pos">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>20000</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="readOnly">
-              <bool>false</bool>
              </property>
             </widget>
            </item>

@@ -34,44 +34,45 @@ class PIdx:
     SW_FAN               = 4
     SW_VAGUE_PID         = 5
     SW_PVT               = 6
-    MOTOR_POLEPAIRS      = 7
-    FREQ_CURRENT_LOOP    = 8
-    FREQ_SPEED_LOOP      = 9
-    FREQ_POSITION_LOOP   = 10
+
+    MOTOR_WIRE_SEQUENCE  = 7
+    MOTOR_POLEPAIRS      = 8
+    FREQ_CURRENT_LOOP    = 9
+    FREQ_SPEED_LOOP      = 10
+    FREQ_POSITION_LOOP   = 11
     #u32 类型参数
-    CAN_ID               = 11
+    CAN_ID               = 12
     # float 类型参数
-    F_PWM                = 12
-    F_CURRENT_LOOP       = 13
-    F_SPEED_LOOP         = 14
-    F_POSITION_LOOP      = 15
-    THETA_OFFSET         = 16
-    MOTOR_RS             = 17
-    MOTOR_LS             = 18
-    MOTOR_PSIF           = 19
-    MOTOR_KE             = 20
-    MOTOR_J              = 21
-    MOTOR_B              = 22
-    KP_CURRENT           = 23
-    KI_CURRENT           = 24
-    KP_WEAKMAG           = 25
-    KI_WEAKMAG           = 26
-    KP_SPEED             = 27
-    KI_SPEED             = 28
-    KP_POSITION          = 29
-    KI_POSITION          = 30
-    KD_POSITION          = 31
-    LIMIT_CURRENT        = 32
-    LIMIT_SPEED          = 33
-    LIMIT_POSITION_MIN   = 34
-    LIMIT_POSITION_MAX   = 35
-    TOLERANCE_TIME       = 36
-    TOLERANCE_VOLTAGE    = 37
-    TOLERANCE_CURRENT    = 38
-    TOLERANCE_SPEED      = 39
-    TOLERANCE_POSITION   = 40
-    STARTUP_POS_GRAD     = 41
-    STARTUP_SPE_GRAD     = 42
+    F_PWM                = 13
+    F_CURRENT_LOOP       = 14
+    F_SPEED_LOOP         = 15
+    F_POSITION_LOOP      = 16
+    THETA_OFFSET         = 17
+    MOTOR_RS             = 18
+    MOTOR_LS             = 19
+    MOTOR_PSIF           = 20
+    MOTOR_KE             = 21
+    MOTOR_J              = 22
+    MOTOR_B              = 23
+    KP_CURRENT           = 24
+    KI_CURRENT           = 25
+    KP_WEAKMAG           = 26
+    KI_WEAKMAG           = 27
+    KP_SPEED             = 28
+    KI_SPEED             = 29
+    KP_POSITION          = 30
+    KI_POSITION          = 31
+    KD_POSITION          = 32
+    LIMIT_CURRENT        = 33
+    LIMIT_SPEED          = 34
+    LIMIT_POSITION_MIN   = 35
+    LIMIT_POSITION_MAX   = 36
+    TOLERANCE_TIME       = 37
+    TOLERANCE_VOLTAGE    = 38
+    TOLERANCE_CURRENT    = 39
+    TOLERANCE_SPEED      = 40
+    TOLERANCE_POSITION   = 41
+    STARTUP_ACC          = 42
     ALIGN_CURRENT        = 43
     ALIGN_TIME           = 44
     OPEN_LOOP_CURRENT    = 45
@@ -106,6 +107,7 @@ class ParameterManager:
             PIdx.KD_POSITION:self.mw.ui.POSKd,
             #电机参数
             PIdx.THETA_OFFSET:self.mw.ui.thetaoffset,
+            PIdx.MOTOR_WIRE_SEQUENCE:self.mw.ui.WireSequence,
             PIdx.MOTOR_POLEPAIRS:self.mw.ui.Pole_pires,
             PIdx.MOTOR_RS:   self.mw.ui.Rs,
             PIdx.MOTOR_LS:   self.mw.ui.Ls,
@@ -130,16 +132,20 @@ class ParameterManager:
             PIdx.TOLERANCE_CURRENT:self.mw.ui.tolerate_current,
             PIdx.TOLERANCE_SPEED:self.mw.ui.tolerate_speed,
             PIdx.TOLERANCE_POSITION:self.mw.ui.tolerate_postion,
-            PIdx.STARTUP_POS_GRAD:self.mw.ui.postion_speed,
-            PIdx.STARTUP_SPE_GRAD:self.mw.ui.acceleration,
+            PIdx.STARTUP_ACC:self.mw.ui.acceleration,
             PIdx.ALIGN_CURRENT:self.mw.ui.align_current,
             PIdx.ALIGN_TIME:self.mw.ui.align_time,
             PIdx.OPEN_LOOP_CURRENT:self.mw.ui.openloop_current,
             PIdx.OPEN_LOOP_SPEED:self.mw.ui.openloop_speed,
             PIdx.CHANGE_LOOP_SPEED:self.mw.ui.changeloop_speed,
-
         }
-        print("param_map keys:", sorted(self.param_map.keys()))
+        self.param_show_map = {
+            PIdx.FOC_MODE:self.mw.ui.FOCmodeshow,
+            PIdx.LOOP_MODE:self.mw.ui.loopmodeshow,
+            PIdx.SW_CANQUEUE:self.mw.ui.canmodeshow,
+            #todo: 双态开关绑定处理
+            PIdx.CAN_ID:self.mw.ui.CANIDshow,
+        }
 
     def write_all(self):
         """遍历映射表发送参数包"""
@@ -148,15 +154,20 @@ class ParameterManager:
                 print(f"正在处理参数 idx={idx}, widget={widget}")  
                 try:
                     if idx < PIdx.CAN_ID:
+                        match idx:
+                            # 下拉列表
+                            case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
+                                val = widget.currentIndex()
+                            # 双态开关
+                            case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
+                                val=0
+                                #todo: 双态开关处理
+                                
+                            # 数字输入框
+                            case PIdx.MOTOR_POLEPAIRS|PIdx.FREQ_CURRENT_LOOP|PIdx.FREQ_SPEED_LOOP|PIdx.FREQ_POSITION_LOOP:
+                                val = int(widget.text())
+                                
                         print(f"{idx}")
-                        if idx<PIdx.SW_WEAKMAG:
-                            val = widget.currentIndex()
-                        elif idx>=PIdx.MOTOR_POLEPAIRS:
-                            val = int(widget.text())
-                        else:
-                            val=0;
-                        if not (0<=val<=255):
-                            raise ValueError("uint8值超出范围")
                         raw_val = struct.pack('<B', val)
                     elif idx < PIdx.F_PWM:
                         val = int(widget.text())
@@ -189,13 +200,25 @@ class ParameterManager:
     def show_param(self,index,data):
         if index < PIdx.CAN_ID:
             val=struct.unpack('<B', data)[0]
-            if index < PIdx.SW_WEAKMAG:
-                self.param_map[index].setCurrentIndex(val)
-            elif index>=PIdx.MOTOR_POLEPAIRS:
-                self.param_map[index].setText(str(val))
+            match index:
+                # 下拉列表
+                case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
+                    self.param_map[index].setCurrentIndex(val)    
+                    if index in self.param_show_map:
+                        self.param_show_map[index].setText(self.param_map[index].currentText())                
+                # 双态开关
+                case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
+                    print("双态开关处理")
+                    #todo: 双态开关处理
+                # 数字输入框
+                case PIdx.MOTOR_POLEPAIRS|PIdx.FREQ_CURRENT_LOOP|PIdx.FREQ_SPEED_LOOP|PIdx.FREQ_POSITION_LOOP:
+                    self.param_map[index].setText(str(val))
         elif index < PIdx.F_PWM:
             val=struct.unpack('<i', data)[0]
             self.param_map[index].setText(str(val))
+            if(index in self.param_show_map):
+                self.param_show_map[index].setText(str(val))
+
         else:
             val=struct.unpack('<f', data)[0]
             self.param_map[index].setText(f"{val:.6g}")

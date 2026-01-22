@@ -61,7 +61,7 @@ typedef enum
     TOLERANCE_SPEED,    // 速度容忍度
     TOLERANCE_POSITION, // 位置容忍度
 
-    STARTUP_SPE_GRAD,  // 启动速度斜率
+    STARTUP_ACC,       // 启动速度斜率
     ALIGN_CURRENT,     // 对齐电流
     ALIGN_TIME,        // 对齐时间
     OPEN_LOOP_CURRENT, // 开环电流

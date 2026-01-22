@@ -35,6 +35,7 @@
 #define MAX_Temperature 80
 
 #define DATA_stream_T 2    // 监测数据发送周期 ms
+#define STATE_stream_T 500 // 状态数据发送周期 ms
 #define TEMP_sample_T 1000 // 温度、电压采样计数周期 为while的多少倍
 
 #endif

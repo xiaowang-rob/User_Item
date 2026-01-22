@@ -62,7 +62,7 @@ void Param_set(Parameter_e para, u8 *value)
 
         // float类型参数
     case THETA_OFFSET:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.theta_offset = deg_to_rad(temp);
         break;
     case MOTOR_RS:
@@ -114,15 +114,15 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.limit_current = *(float *)value;
         break;
     case LIMIT_SPEED:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.limit_omega = rpm_to_rad(temp);
         break;
     case LIMIT_POSITION_min:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.limit_position_min = deg_to_rad(temp);
         break;
     case LIMIT_POSITION_max:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.limit_position_max = deg_to_rad(temp);
         break;
     case TOLERANCE_TIME:
@@ -141,8 +141,8 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.tolerance_position = *(float *)value;
         break;
 
-    case STARTUP_SPE_GRAD:
-        temp = *(float *)value;
+    case STARTUP_ACC:
+        memcpy(&temp, value, 4);
         g_Param.startup_acc = rpm_to_rad(temp);
         break;
     case ALIGN_CURRENT:
@@ -155,11 +155,11 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.open_loop_current = *(float *)value;
         break;
     case OPEN_LOOP_SPEED:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.open_loop_omega = rpm_to_rad(temp);
         break;
     case CHANGE_LOOP_SPEED:
-        temp = *(float *)value;
+        memcpy(&temp, value, 4);
         g_Param.change_loop_omega = rpm_to_rad(temp);
     default:
         Param_write_foc();
@@ -249,7 +249,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     case THETA_OFFSET:
         temp = rad_to_deg(g_Param.theta_offset);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case MOTOR_RS:
@@ -318,17 +318,17 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     case LIMIT_SPEED:
         temp = rad_to_rpm(g_Param.limit_omega);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_min:
         temp = rad_to_deg(g_Param.limit_position_min);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_max:
         temp = rad_to_deg(g_Param.limit_position_max);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case TOLERANCE_TIME:
@@ -352,9 +352,9 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
 
-    case STARTUP_SPE_GRAD:
+    case STARTUP_ACC:
         temp = rad_to_rpm(g_Param.startup_acc);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case ALIGN_CURRENT:
@@ -371,12 +371,12 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     case OPEN_LOOP_SPEED:
         temp = rad_to_rpm(g_Param.open_loop_omega);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case CHANGE_LOOP_SPEED:
         temp = rad_to_rpm(g_Param.change_loop_omega);
-        *(float *)value = temp;
+        memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
 
@@ -430,7 +430,7 @@ bool Param_init()
         g_Param.theta_offset = 0.453290999f; // 角度补偿
         g_Param.motor_rs = 0.0218206495f;    // 电阻Rs 50mΩ3.062550.0218206495
         g_Param.motor_ls = 0.00003f;         // 电感Ls 30μH
-        g_Param.motor_psif = 0.01f;         // 磁链 0.01Wb
+        g_Param.motor_psif = 0.01f;          // 磁链 0.01Wb
         g_Param.motor_ke = 0.01f;
         g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
         g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad
@@ -456,7 +456,7 @@ bool Param_init()
         g_Param.tolerance_position = 1.1f;                   // 位置容忍度 1.1
 
         g_Param.startup_acc = rpm_to_rad(1000.0f);      // 启动加速度 1000 RPM/秒
-        g_Param.align_current = 5.0f;                   // 对齐电流 5A
+        g_Param.align_current = 2.0f;                   // 对齐电流 5A
         g_Param.align_time = 0.5f;                      // 对齐时间 0.5秒
         g_Param.open_loop_current = 1.0f;               // 开环电流 5A
         g_Param.open_loop_omega = rpm_to_rad(150.0f);   // 开环速度 150 RPM (弧度/秒)
@@ -479,6 +479,6 @@ void Param_write_foc()
 {
     // 带参数写入的全部初始化
     protection_manager_init();
-    CAN_PORT_Init(g_Param.can_id, g_Param.sw_canqueue);
+    CAN_SET_ID_QUEUE(g_Param.can_id, g_Param.sw_canqueue);
     fFOC_Init();
 }
