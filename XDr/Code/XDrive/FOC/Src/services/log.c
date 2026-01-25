@@ -5,19 +5,16 @@
 #include "math_fast.h"
 #include "foc_statemachine.h"
 
+/*
+只记录每次上电之后所有的报错和警告
+*/
 Index_t Index;
 LOG_t Log;
 void log_init(void)
 {
-    FLASH_Read_data((u8 *)&Index, Index_start_addr, sizeof(Index));
-    if (Index.num == 0xff)
-    { // 被擦除过
-        Index.num = 0;
-        Index.block_erase_num = 0;
-        Index.write_addr = Log_start_addr;
-    }
-    if (Index.num == 9)
-        log_erase();
+    Index.num = 0;
+    Index.write_addr = Log_start_addr;
+    log_erase();
 }
 void log_data_save(void)
 {
@@ -38,41 +35,61 @@ void log_data_save(void)
     Log.run_mode = g_foc.mode->run_mode;
     Log.fault = (fault_e)g_pro_manager.fault;
     Log.warning = (Warning_e)g_pro_manager.warning;
-    Log.num = Index.num + 1;
+
+    Log.usb_state = g_pro_manager.com_state->usb_state;
+    Log.can_state = g_pro_manager.com_state->can_state;
+    Log.flash_state = g_pro_manager.drive_state->FLASH_state;
+    Log.encoder_state = g_pro_manager.drive_state->ENCODER_state;
+    Log.num = Index.num;
     u32 time = HAL_GetTick();
-    Log.minute = time / 1000 / 60;
-    Log.seconds = time / 1000 % 60;
+    Log.seconds = time / 1000;
 }
-void log_data_write(void)
+bool log_data_write(void)
 {
-    FLASH_Write_Word((u8 *)&Log, Index.write_addr, sizeof(LOG_t));
+    FLASH_Write_Word((u8 *)&Log, Index.write_addr, sizeof(Log));
     Index.num++;
-    Index.write_addr += sizeof(LOG_t);
-    Index.block_erase_num++;
-    FLASH_erase_sector(Index_start_addr, sizeof(Index));
-    FLASH_Write_Word((u8 *)&Index, Index_start_addr, sizeof(Index));
+    Index.write_addr += sizeof(Log);
+    if (Index.num >= MAX_log_NUM)
+        return false; // 日志已满 强制检查日志手动清除
+
+    return true;
 }
-// 全部读取
-void log_read(u8 *num, u32 *block_erase_num, u8 *len, u8 *data)
+
+static u8 read_index = 0;
+bool log_read_flash(u8 *data, u8 *len)
 {
-    if (Index.num == 0)
-        *num = 0;
+    if (read_index < MAX_log_NUM)
+    {
+        FLASH_Read_data((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
+        if (Log.num == read_index)
+        {
+            *len = sizeof(Log);
+            read_index++;
+            memcpy(data, &Log, sizeof(Log));
+            return false;
+        }
+        else
+        {
+            read_index = 0;
+            return true;
+        }
+    }
     else
     {
-        *num = Index.num;
-        *len = sizeof(LOG_t) * Index.num;
-        FLASH_Read_data(data, Log_start_addr, *len);
+        *len = 0;
+        read_index = 0;
+        return true;
     }
+}
+void log_read_now(u8 *data, u8 *len)
+{
+    memcpy(data, &Log, sizeof(Log));
+    *len = sizeof(Log);
 }
 
 void log_erase()
 {
-    if (Index.num == 0)
-        return;
-    FLASH_erase_sector(Log_Sector_start * 0x00001000, (Index.num + 1) * sizeof(LOG_t));
+    FLASH_erase_sector(Log_start_addr, MAX_log_NUM * sizeof(Log));
     Index.num = 0;
-    Index.block_erase_num++;
     Index.write_addr = Log_start_addr;
-    FLASH_erase_sector(0, sizeof(Index));
-    FLASH_Write_Word((u8 *)&Index, 0, sizeof(Index));
 }

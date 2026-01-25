@@ -24,6 +24,7 @@ class status:
     "编码器离线",
     "编码器通信错误"
 ]
+    drive_state=["离线","在线","运行错误"]
 class DataIndex:
     SYSTEM_state = 0
     FOC_state = 1

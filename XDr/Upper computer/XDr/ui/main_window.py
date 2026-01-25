@@ -7,6 +7,9 @@ from functions.data_process import DataProcess
 from functions.data_show import Data
 from functions.wave import WaveformWidget
 from PyQt5.QtWidgets import QVBoxLayout
+from functions.log import LogManager
+from functions.config import Pconfig
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -18,7 +21,9 @@ class MainWindow(QMainWindow):
         self.com_port = ComPort(self)
         self.data_processor = DataProcess(self)
         self.param_manager = ParameterManager(self, self.com_port)
+        self.pconfig=Pconfig(self)
         self.data = Data(self)
+        self.log=LogManager(self, self.com_port)
 
         # 3. 添加波形显示组件
         self.waveform_widget = WaveformWidget()

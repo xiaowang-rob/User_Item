@@ -5,6 +5,7 @@
 #include "log.h"
 #include "adcDr.h"
 #include "parameter_manager.h"
+#include "system_statemachine.h"
 
 protection_manager_t g_pro_manager = {0};
 u32 _time = 0;
@@ -73,6 +74,8 @@ void protection_manager_run()
 
     if (g_pro_manager.fault_flag)
         return;
+    if (g_pro_manager.warning_flag && g_pro_manager.com_state->Host_port != NONE_port)
+        return; // 上位机模式下 只能主动清除警告
     // A监管保护
     // 错误：
     // 驱动状态--flash一定得是ONLINE
@@ -180,9 +183,7 @@ void protection_manager_run()
     {
         log_data_save();
         FOC_CHANGE_STATE(FOC_FAULT);
-        if (g_pro_manager.com_state->Host_port != NONE_port)
-            return; // 上位机模式下不进行日志写入
-        // log_data_write();
+        log_data_write();
         g_pro_manager.log_done = true;
     }
     // 警告处理
@@ -190,9 +191,8 @@ void protection_manager_run()
     {
         log_data_save();
         FOC_CHANGE_STATE(FOC_WARNING);
-        if (g_pro_manager.com_state->Host_port != NONE_port)
-            return; // 上位机模式下不进行日志写入
-        // log_data_write();
+        if (!log_data_write()) // 警告超过9个，强制进入错误状态
+            SystemState_change(SYSTEM_ERROR);
         g_pro_manager.log_done = true;
     }
 }

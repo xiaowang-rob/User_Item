@@ -39,8 +39,6 @@ static bool param_send_flag = false;
 static u8 param_index = 0;
 void all_params_send()
 {
-    if (param_send_flag == false)
-        return;
     Param_get((Parameter_e)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
     com_frame.txdatalen += 1;
@@ -51,6 +49,14 @@ void all_params_send()
         param_index = 0;
         param_send_flag = false;
     }
+}
+static bool log_send_flag = false;
+void all_log_send()
+{
+    if (log_read_flash(com_frame.txdata, &com_frame.txdatalen))
+        log_send_flag = false;
+    else
+        fHostComputer_send();
 }
 static u8 Noresponse_tic = 0; // 无响应次数
 static bool system_message_send_flag = false;
@@ -131,6 +137,7 @@ void frame_data_deal()
                 }
                 break;
             case UC_disconnect:
+								system_message_send_flag = false;
                 com_state.Host_port = NONE_port;
                 com_frame.stream_num = 0;
                 break;
@@ -151,6 +158,9 @@ void frame_data_deal()
                 break;
             case PROTECT_RESET:
                 protection_manager_reset();
+                break;
+            case LOG_GET:
+                log_send_flag = true;
                 break;
             case LOG_ERASE:
                 log_erase();
@@ -175,12 +185,9 @@ void frame_data_deal()
             case CMD_STREAM_SET: // 除了状态位清除检测值
                 com_frame.stream_num = 0;
                 break;
+
             default:
                 break;
-            }
-            if (com_frame.cmd_id == LOG_GET)
-            {
-                // todo:改进
             }
         }
         else if (com_frame.rxdatalen <= 5 || com_frame.rxdatalen == 8)
@@ -281,21 +288,31 @@ static u32 _time_prev_ms = 0;
 static u32 _state_prev_ms = 0;
 void stream_data_trans()
 {
-    if (param_send_flag)
-    { // 优先参数发送
-        _time_ms = HAL_GetTick();
-        if (_time_ms - _time_prev_ms < DATA_stream_T)
-            return;
-        all_params_send();
-        _time_prev_ms = HAL_GetTick();
-        return;
-    }
     if (com_frame.is_busy) // 端口忙
     {
         _state_prev_ms = HAL_GetTick();
         return;
     }
     _time_ms = HAL_GetTick();
+
+    // 参数发送
+    if (param_send_flag)
+    {
+        if (_time_ms - _time_prev_ms < DATA_stream_T)
+            return;
+        all_params_send();
+        _time_prev_ms = HAL_GetTick();
+        return;
+    }
+    // 日志发送
+    if (log_send_flag)
+    {
+        if (_time_ms - _time_prev_ms < DATA_stream_T)
+            return;
+        all_log_send();
+        _time_prev_ms = HAL_GetTick();
+        return;
+    }
 
     if (com_state.Host_port != NONE_port)
     { // 上位机连接状态下

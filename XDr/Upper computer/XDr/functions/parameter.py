@@ -3,6 +3,11 @@ import threading
 from PyQt5.QtWidgets import QFileDialog
 import time
 
+
+class Mode:
+    run_mode=["有感","无感","svpwm"]
+    loop_mode=["电压环","电流环","速度环","绝对位置环","相对位置环"]
+
 # 命令 ID 定义
 class Cmd:
 
@@ -92,10 +97,10 @@ class ParameterManager:
             PIdx.FOC_MODE:self.mw.ui.FOCmode,
             PIdx.LOOP_MODE:self.mw.ui.LOOPmode,
             PIdx.SW_CANQUEUE:self.mw.ui.CANmode,
-            PIdx.SW_WEAKMAG:self.mw.ui.weakmag,
-            PIdx.SW_FAN:self.mw.ui.FAN,
-            PIdx.SW_VAGUE_PID:self.mw.ui.vaguePID,
-            PIdx.SW_PVT:self.mw.ui.PVT,
+            PIdx.SW_WEAKMAG:self.mw.ui.WEAKmagmode,
+            PIdx.SW_FAN:self.mw.ui.FANmode,
+            PIdx.SW_VAGUE_PID:self.mw.ui.VaguePIDmode,
+            PIdx.SW_PVT:self.mw.ui.PVTmode,
             #控制参数
             PIdx.CAN_ID:     self.mw.ui.CANID,
             PIdx.KP_CURRENT: self.mw.ui.CURKp,
@@ -158,14 +163,9 @@ class ParameterManager:
                     if idx < PIdx.CAN_ID:
                         match idx:
                             # 下拉列表
-                            case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
+                            case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE|PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
                                 val = widget.currentIndex()
-                                
-                            # 双态开关
-                            case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
-                                val=0
-                                #todo: 双态开关处理
-                                
+                                                                
                             # 数字输入框
                             case PIdx.MOTOR_POLEPAIRS|PIdx.FREQ_CURRENT_LOOP|PIdx.FREQ_SPEED_LOOP|PIdx.FREQ_POSITION_LOOP:
                                 val = int(widget.text())
@@ -206,16 +206,13 @@ class ParameterManager:
             val=struct.unpack('<B', data)[0]
             match index:
                 # 下拉列表
-                case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE:
+                case PIdx.FOC_MODE| PIdx.LOOP_MODE|PIdx.SW_CANQUEUE|PIdx.MOTOR_WIRE_SEQUENCE|PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
                     self.param_map[index].setCurrentIndex(val)    
                     if index in self.param_show_map:
                         self.param_show_map[index].setText(self.param_map[index].currentText())
                     if index == PIdx.LOOP_MODE:
                         self.mw.ui.controlval_show.setText(self.refvalue_map[val])                
-                # 双态开关
-                case PIdx.SW_FAN|PIdx.SW_VAGUE_PID|PIdx.SW_PVT|PIdx.SW_WEAKMAG:
-                    print("双态开关处理")
-                    #todo: 双态开关处理
+
                 # 数字输入框
                 case PIdx.MOTOR_POLEPAIRS|PIdx.FREQ_CURRENT_LOOP|PIdx.FREQ_SPEED_LOOP|PIdx.FREQ_POSITION_LOOP:
                     self.param_map[index].setText(str(val))
@@ -234,3 +231,5 @@ class ParameterManager:
 
     def erase_flash(self):
         self.com.send_packet(Cmd.PARAM_ERASE, bytes())
+
+

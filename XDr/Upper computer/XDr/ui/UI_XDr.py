@@ -14,209 +14,280 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_XDr(object):
     def setupUi(self, XDr):
         XDr.setObjectName("XDr")
-        XDr.resize(1400, 900)
+        XDr.resize(1600, 900)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(XDr.sizePolicy().hasHeightForWidth())
         XDr.setSizePolicy(sizePolicy)
-        XDr.setMaximumSize(QtCore.QSize(1400, 900))
+        XDr.setMinimumSize(QtCore.QSize(1400, 900))
+        XDr.setMaximumSize(QtCore.QSize(1600, 900))
         XDr.setStyleSheet("")
         self.MainWidget = QtWidgets.QWidget(XDr)
-        self.MainWidget.setGeometry(QtCore.QRect(0, 0, 1400, 900))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.MainWidget.setGeometry(QtCore.QRect(0, 0, 1600, 900))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.MainWidget.sizePolicy().hasHeightForWidth())
         self.MainWidget.setSizePolicy(sizePolicy)
-        self.MainWidget.setMaximumSize(QtCore.QSize(1400, 900))
-        self.MainWidget.setStyleSheet("/* 深色主题全局样式 */\n"
-"MainWindow, QDialog, QWidget {\n"
+        self.MainWidget.setMinimumSize(QtCore.QSize(1400, 900))
+        self.MainWidget.setMaximumSize(QtCore.QSize(1600, 900))
+        self.MainWidget.setStyleSheet("/* ==================== 全局深色主题基础设置 ==================== */\n"
+"/*直接添加到qtdesigner的mainwidiget的style中*/\n"
+"/* 应用于主窗口、对话框、普通控件容器，设置整体背景和默认文字 */\n"
+"MainWindow,\n"
+"QDialog,\n"
+"QWidget {\n"
 "    background-color: #353535;\n"
-"    color: #ffffff;\n"
+"    /* 主背景：深灰 */\n"
+"    color: #ABB2BF;\n"
+"    /* 默认文字颜色：白色 */\n"
 "    font-family: \'Segoe UI\', Arial, sans-serif;\n"
+"    /* 使用现代无衬线字体 */\n"
 "}\n"
 "\n"
+"/* 所有 QLabel 文字颜色设为白色（确保与背景对比清晰） */\n"
 "QLabel {\n"
-"    color: #ffffff;\n"
+"    color: #ABB2BF;\n"
 "}\n"
 "\n"
-"QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QAbstractSpinBox {\n"
-"    background-color: #232326;\n"
+"/* ==================== 输入类控件通用样式 ==================== */\n"
+"/* 包括单行文本框、整数/浮点微调框、下拉框等 */\n"
+"QLineEdit,\n"
+"QSpinBox,\n"
+"QDoubleSpinBox,\n"
+"QComboBox,\n"
+"QAbstractSpinBox {\n"
+"    background-color: #2e2a31;\n"
+"    /* 输入区域背景：略带紫调的深灰 */\n"
 "    border: 1px solid #555555;\n"
-"    color: #ffffff;\n"
+"    /* 边框：中灰色 */\n"
+"    color: #ABB2BF;\n"
+"    /* 输入文字颜色：浅灰蓝（比纯白更柔和） */\n"
 "    padding: 2px;\n"
-"    selection-background-color: #2a82da;\n"
+"    /* 内边距，避免文字贴边 */\n"
+"    selection-background-color: #25425f;\n"
+"    /* 选中文本背景：亮蓝色 */\n"
 "    selection-color: white;\n"
-"    border-radius: 2px;\n"
+"    /* 选中文本颜色：白色 */\n"
+"    border-radius: 10px;\n"
+"    /* 大圆角，现代感更强 */\n"
 "}\n"
 "\n"
-"QLineEdit:focus, QSpinBox:focus, QComboBox:focus {\n"
-"    border: 1px solid #2a82da;\n"
+"/* 获得焦点时（用户点击或 Tab 切入），边框高亮为蓝色 */\n"
+"QLineEdit:focus,\n"
+"QSpinBox:focus,\n"
+"QComboBox:focus {\n"
+"    border: 1px solid #076122;\n"
+"    /* 聚焦边框：亮蓝色，提示当前输入位置 */\n"
 "}\n"
 "\n"
+"/* ==================== QComboBox 特定样式 ==================== */\n"
+"/* 下拉箭头区域：隐藏边框，固定宽度 */\n"
 "QComboBox::drop-down {\n"
 "    border: none;\n"
+"    /* 去掉下拉按钮的边框 */\n"
 "    width: 20px;\n"
+"    /* 下拉区域宽度 */\n"
 "}\n"
 "\n"
-"QComboBox::down-arrow {\n"
-"    image: url(:/icons/down_arrow_white.png);\n"
-"    width: 12px;\n"
-"    height: 12px;\n"
+"\n"
+"QComboBox {\n"
+"    padding-left: 10px;\n"
+"    padding-right: 10px;\n"
+"    text-align: center;\n"
+"    /* 尝试设置，部分版本有效 */\n"
 "}\n"
 "\n"
+"/* ==================== 按钮通用样式 ==================== */\n"
 "QPushButton {\n"
-"    background-color: #2a2a2e;\n"
-"    border: 1px solid #555555;\n"
-"    color: #ffffff;\n"
+"    background-color: #23272E;\n"
+"    /* 按钮背景：深灰 */\n"
+"    border: 1px solid #616161;\n"
+"    /* 边框：中灰 */\n"
+"    color: #ABB2BF;\n"
+"    /* 文字：白色 */\n"
 "    padding: 4px 8px;\n"
+"    /* 内边距（上下4px，左右8px） */\n"
 "    min-width: 70px;\n"
-"    border-radius: 3px;\n"
+"    /* 最小宽度，避免按钮太窄 */\n"
+"    border-radius: 10px;\n"
+"    /* 小圆角，保持简洁 */\n"
 "    font-weight: normal;\n"
+"    /* 正常字重（非粗体） */\n"
 "}\n"
 "\n"
+"QPushButton:checked {\n"
+"    background-color: #56cf8d;\n"
+"    /* 开启时变为蓝色 */\n"
+"    color: #3f4247;\n"
+"    border: 1px solid #217edb00;\n"
+"    font-weight: bold;\n"
+"}\n"
+"\n"
+"/* 鼠标悬停效果 */\n"
 "QPushButton:hover {\n"
 "    background-color: #3a3a3e;\n"
+"    /* 背景稍亮 */\n"
+"    border: 1px solid #777777;\n"
+"    /* 边框变亮，增强反馈 */\n"
+"}\n"
+"\n"
+"/* 按下状态 */\n"
+"QPushButton:pressed {\n"
+"    background-color: #1a1a1e;\n"
+"    /* 背景变暗，模拟“按下”感 */\n"
+"    border: 1px solid #333333;\n"
+"    /* 边框变暗 */\n"
+"}\n"
+"\n"
+"/* 禁用状态 */\n"
+"QPushButton:disabled {\n"
+"    color: #afafaf;\n"
+"    /* 文字变灰 */\n"
+"    background-color: #2a2a2e;\n"
+"    /* 背景保持但不可交互 */\n"
+"    border: 1px solid #444444;\n"
+"    /* 边框变暗灰 */\n"
+"}\n"
+"\n"
+"\n"
+"/* ==================== 分组框（GroupBox）样式 ==================== */\n"
+"QGroupBox {\n"
+"    border: 1px solid #555555;\n"
+"    /* 边框 */\n"
+"    margin-top: 1ex;\n"
+"    /* 顶部留出标题空间 */\n"
+"    font-weight: bold;\n"
+"    /* 标题加粗 */\n"
+"    color: #cec9c9;\n"
+"    /* 标题文字：浅灰 */\n"
+"}\n"
+"\n"
+"/* 标题位置 */\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    /* 相对于 margin 定位 */\n"
+"    left: 5px;\n"
+"    /* 左偏移 */\n"
+"    padding: 0 3px 0 3px;\n"
+"    /* 标题内边距 */\n"
+"}\n"
+"\n"
+"/* ==================== 标签页（TabWidget）样式 ==================== */\n"
+"/* 标签页内容面板 */\n"
+"QTabWidget::pane {\n"
+"    border: 1px solid #555555;\n"
+"    /* 面板边框 */\n"
+"    background-color: #232326;\n"
+"    /* 面板背景：深灰 */\n"
+"}\n"
+"\n"
+"/* 单个标签页 */\n"
+"QTabBar::tab {\n"
+"    background-color: #2a2a2e;\n"
+"    /* 未选中标签背景 */\n"
+"    color: #cccccc;\n"
+"    /* 未选中文字：浅灰 */\n"
+"    padding: 5px 10px;\n"
+"    /* 内边距 */\n"
+"    border: 1px solid #555555;\n"
+"    /* 边框 */\n"
+"    border-bottom: none;\n"
+"    /* 底部无边框，与 pane 无缝衔接 */\n"
+"    margin-right: 2px;\n"
+"    /* 标签之间留空隙 */\n"
+"}\n"
+"\n"
+"/* 选中的标签页 */\n"
+"QTabBar::tab:selected {\n"
+"    background-color: #353535;\n"
+"    /* 背景与主窗口一致 */\n"
+"    color: white;\n"
+"    /* 文字变白 */\n"
+"    border-top: 2px solid #2a82da;\n"
+"    /* 顶部加蓝色高亮条，表示激活 */\n"
+"}\n"
+"\n"
+"/* ==================== 滑块控件（QSlider）样式 ==================== */\n"
+"/* 水平滑块轨道 */\n"
+"QSlider::groove:horizontal {\n"
+"    border: 1px solid #555555;\n"
+"    height: 6px;\n"
+"    /* 轨道高度 */\n"
+"    background: #232326;\n"
+"    /* 轨道背景：深灰 */\n"
+"    margin: 0px;\n"
+"    /* 与滑块对齐 */\n"
+"    border-radius: 3px;\n"
+"    /* 圆角轨道 */\n"
+"}\n"
+"\n"
+"/* 垂直滑块轨道 */\n"
+"QSlider::groove:vertical {\n"
+"    border: 1px solid #555555;\n"
+"    width: 6px;\n"
+"    /* 轨道宽度 */\n"
+"    background: #232326;\n"
+"    margin: 0px;\n"
+"    border-radius: 3px;\n"
+"}\n"
+"\n"
+"/* 水平滑块已滑过部分（激活部分） */\n"
+"QSlider::sub-page:horizontal {\n"
+"    background: #2ae6dc;\n"
+"    /* 强调蓝色，表示已选择范围 */\n"
+"    border-radius: 3px;\n"
+"}\n"
+"\n"
+"/* 垂直滑块已滑过部分（从底部到滑块） */\n"
+"QSlider::sub-page:vertical {\n"
+"    background: #2a82da;\n"
+"    border-radius: 3px;\n"
+"}\n"
+"\n"
+"/* 滑块手柄（可拖动的圆点/方块） */\n"
+"QSlider::handle {\n"
+"    background: #5f5fca;\n"
+"    /* 手柄背景：略亮于轨道 */\n"
+"    border: 1px solid #55555500;\n"
+"    width: 16px;\n"
+"    height: 16px;\n"
+"    margin: -5px;\n"
+"    /* 负边距使手柄覆盖轨道，居中显示 */\n"
+"    border-radius: 8px;\n"
+"    /* 圆形手柄（宽高相等 + 半径=宽/2） */\n"
+"}\n"
+"\n"
+"/* 手柄悬停效果 */\n"
+"QSlider::handle:hover {\n"
+"    background: #4a4a4e;\n"
 "    border: 1px solid #777777;\n"
 "}\n"
 "\n"
-"QPushButton:pressed {\n"
-"    background-color: #1a1a1e;\n"
-"    border: 1px solid #333333;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"    color: #888888;\n"
-"    background-color: #2a2a2e;\n"
-"    border: 1px solid #444444;\n"
-"}\n"
-"\n"
-"QPushButton#criticalButton { /* 清除按钮等重要操作 */\n"
-"    background-color: #d32f2f;\n"
-"    border: 1px solid #b71c1c;\n"
-"    color: white;\n"
-"    font-weight: bold;\n"
-"}\n"
-"\n"
-"QPushButton#criticalButton:hover {\n"
-"    background-color: #f44336;\n"
-"    border: 1px solid #e53935;\n"
-"}\n"
-"\n"
-"QPushButton#criticalButton:pressed {\n"
-"    background-color: #b71c1c;\n"
-"}\n"
-"\n"
-"QCheckBox {\n"
-"    spacing: 5px;\n"
-"    color: #cccccc;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator {\n"
-"    width: 15px;\n"
-"    height: 15px;\n"
-"    border: 1px solid #555555;\n"
-"    background-color: #232326;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"    background-color: #2a82da;\n"
+"/* 手柄按下效果 */\n"
+"QSlider::handle:pressed {\n"
+"    background: #2a82da;\n"
+"    /* 按下时变为强调色，增强反馈 */\n"
 "    border: 1px solid #2a82da;\n"
-"    image: url(:/icons/check_mark_white.png);\n"
 "}\n"
 "\n"
-"QGroupBox {\n"
-"    border: 1px solid #555555;\n"
-"    margin-top: 1ex;\n"
-"    font-weight: bold;\n"
-"    color: #aaaaaa;\n"
-"}\n"
-"\n"
-"QGroupBox::title {\n"
-"    subcontrol-origin: margin;\n"
-"    left: 5px;\n"
-"    padding: 0 3px 0 3px;\n"
-"}\n"
-"\n"
-"QTabWidget::pane {\n"
-"    border: 1px solid #555555;\n"
-"    background-color: #232326;\n"
-"}\n"
-"\n"
-"QTabBar::tab {\n"
-"    background-color: #2a2a2e;\n"
-"    color: #cccccc;\n"
-"    padding: 5px 10px;\n"
-"    border: 1px solid #555555;\n"
-"    border-bottom: none;\n"
-"    margin-right: 2px;\n"
-"}\n"
-"\n"
-"QTabBar::tab:selected {\n"
-"    background-color: #353535;\n"
-"    color: white;\n"
-"    border-top: 2px solid #2a82da;\n"
-"}\n"
-"\n"
-"QTableWidget {\n"
-"    background-color: #232326;\n"
-"    gridline-color: #444444;\n"
-"    color: white;\n"
-"    selection-background-color: #2a82da;\n"
-"}\n"
-"\n"
-"QHeaderView::section {\n"
-"    background-color: #2a2a2e;\n"
-"    color: #aaaaaa;\n"
-"    padding: 4px;\n"
-"    border: 1px solid #444444;\n"
-"    font-weight: bold;\n"
-"}\n"
-"\n"
-"QScrollBar:vertical {\n"
-"    border: none;\n"
-"    background: #2a2a2e;\n"
-"    width: 10px;\n"
-"    margin: 0px 0px 0px 0px;\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical {\n"
-"    background: #555555;\n"
-"    min-height: 20px;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {\n"
-"    height: 0px;\n"
-"}\n"
-"\n"
-"QScrollBar:horizontal {\n"
-"    border: none;\n"
-"    background: #2a2a2e;\n"
-"    height: 10px;\n"
-"    margin: 0px 0px 0px 0px;\n"
-"}\n"
-"\n"
-"QScrollBar::handle:horizontal {\n"
-"    background: #555555;\n"
-"    min-width: 20px;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {\n"
-"    width: 0px;\n"
+"/* 可选：禁用状态下的滑块 */\n"
+"QSlider:disabled {\n"
+"    opacity: 0.6;\n"
+"    /* 整体变灰（Qt 5.12+ 支持） */\n"
 "}")
         self.MainWidget.setObjectName("MainWidget")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.MainWidget)
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.top_widget = QtWidgets.QWidget(self.MainWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.top_widget.sizePolicy().hasHeightForWidth())
         self.top_widget.setSizePolicy(sizePolicy)
+        self.top_widget.setMinimumSize(QtCore.QSize(0, 150))
         self.top_widget.setStyleSheet("")
         self.top_widget.setObjectName("top_widget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.top_widget)
@@ -316,12 +387,16 @@ class Ui_XDr(object):
         self.CANIDshow.setObjectName("CANIDshow")
         self.horizontalLayout_4.addWidget(self.CANIDshow)
         self.weakmagshow = QtWidgets.QPushButton(self.widget_5)
+        self.weakmagshow.setCheckable(True)
+        self.weakmagshow.setChecked(False)
         self.weakmagshow.setObjectName("weakmagshow")
         self.horizontalLayout_4.addWidget(self.weakmagshow)
         self.MODEshow1 = QtWidgets.QPushButton(self.widget_5)
+        self.MODEshow1.setCheckable(True)
         self.MODEshow1.setObjectName("MODEshow1")
         self.horizontalLayout_4.addWidget(self.MODEshow1)
         self.FANshow = QtWidgets.QPushButton(self.widget_5)
+        self.FANshow.setCheckable(True)
         self.FANshow.setObjectName("FANshow")
         self.horizontalLayout_4.addWidget(self.FANshow)
         self.horizontalLayout_4.setStretch(0, 1)
@@ -363,12 +438,15 @@ class Ui_XDr(object):
         self.canmodeshow.setObjectName("canmodeshow")
         self.horizontalLayout_5.addWidget(self.canmodeshow)
         self.vaguePIDshow = QtWidgets.QPushButton(self.widget_5)
+        self.vaguePIDshow.setCheckable(True)
         self.vaguePIDshow.setObjectName("vaguePIDshow")
         self.horizontalLayout_5.addWidget(self.vaguePIDshow)
         self.MODEshow2 = QtWidgets.QPushButton(self.widget_5)
+        self.MODEshow2.setCheckable(True)
         self.MODEshow2.setObjectName("MODEshow2")
         self.horizontalLayout_5.addWidget(self.MODEshow2)
         self.PVTshow = QtWidgets.QPushButton(self.widget_5)
+        self.PVTshow.setCheckable(True)
         self.PVTshow.setObjectName("PVTshow")
         self.horizontalLayout_5.addWidget(self.PVTshow)
         self.horizontalLayout_5.setStretch(0, 1)
@@ -380,7 +458,7 @@ class Ui_XDr(object):
         self.horizontalLayout_5.setStretch(6, 1)
         self.verticalLayout_4.addLayout(self.horizontalLayout_5)
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_6.setContentsMargins(-1, -1, -1, 1)
+        self.horizontalLayout_6.setContentsMargins(-1, 6, -1, 6)
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.Enable = QtWidgets.QPushButton(self.widget_5)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -586,10 +664,10 @@ class Ui_XDr(object):
         self.horizontalLayout_9.setStretch(5, 2)
         self.verticalLayout_5.addLayout(self.horizontalLayout_9)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_7.setContentsMargins(-1, 0, -1, 0)
+        self.horizontalLayout_7.setContentsMargins(6, 6, 6, 6)
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.Brake = QtWidgets.QPushButton(self.widget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Brake.sizePolicy().hasHeightForWidth())
@@ -599,7 +677,7 @@ class Ui_XDr(object):
         spacerItem3 = QtWidgets.QSpacerItem(30, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem3)
         self.Protectreset = QtWidgets.QPushButton(self.widget_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Protectreset.sizePolicy().hasHeightForWidth())
@@ -634,7 +712,6 @@ class Ui_XDr(object):
         self.configfile.setSizePolicy(sizePolicy)
         self.configfile.setMinimumSize(QtCore.QSize(0, 0))
         self.configfile.setObjectName("configfile")
-        self.configfile.addItem("")
         self.verticalLayout_3.addWidget(self.configfile)
         self.loadconfigfile = QtWidgets.QPushButton(self.widget_4)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
@@ -694,7 +771,7 @@ class Ui_XDr(object):
         self.horizontalLayout.setStretch(6, 1)
         self.verticalLayout_7.addWidget(self.top_widget)
         self.tab_index = QtWidgets.QWidget(self.MainWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tab_index.sizePolicy().hasHeightForWidth())
@@ -715,6 +792,8 @@ class Ui_XDr(object):
         self.tabbutton_parameterset.setSizePolicy(sizePolicy)
         self.tabbutton_parameterset.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_parameterset.setMaximumSize(QtCore.QSize(80, 16777215))
+        self.tabbutton_parameterset.setCheckable(True)
+        self.tabbutton_parameterset.setChecked(True)
         self.tabbutton_parameterset.setObjectName("tabbutton_parameterset")
         self.horizontalLayout_2.addWidget(self.tabbutton_parameterset)
         self.tabbutton_log = QtWidgets.QPushButton(self.tab_index)
@@ -725,6 +804,7 @@ class Ui_XDr(object):
         self.tabbutton_log.setSizePolicy(sizePolicy)
         self.tabbutton_log.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_log.setMaximumSize(QtCore.QSize(80, 16777215))
+        self.tabbutton_log.setCheckable(True)
         self.tabbutton_log.setObjectName("tabbutton_log")
         self.horizontalLayout_2.addWidget(self.tabbutton_log)
         self.tabbutton_control = QtWidgets.QPushButton(self.tab_index)
@@ -735,6 +815,7 @@ class Ui_XDr(object):
         self.tabbutton_control.setSizePolicy(sizePolicy)
         self.tabbutton_control.setMinimumSize(QtCore.QSize(88, 0))
         self.tabbutton_control.setMaximumSize(QtCore.QSize(80, 16777215))
+        self.tabbutton_control.setCheckable(True)
         self.tabbutton_control.setObjectName("tabbutton_control")
         self.horizontalLayout_2.addWidget(self.tabbutton_control)
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -1042,9 +1123,6 @@ class Ui_XDr(object):
         self.label_73.setAlignment(QtCore.Qt.AlignCenter)
         self.label_73.setObjectName("label_73")
         self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_73)
-        self.weakmag = QtWidgets.QPushButton(self.mode_parameter)
-        self.weakmag.setObjectName("weakmag")
-        self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.weakmag)
         self.label_74 = QtWidgets.QLabel(self.mode_parameter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -1054,9 +1132,6 @@ class Ui_XDr(object):
         self.label_74.setAlignment(QtCore.Qt.AlignCenter)
         self.label_74.setObjectName("label_74")
         self.formLayout_3.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_74)
-        self.TLC = QtWidgets.QPushButton(self.mode_parameter)
-        self.TLC.setObjectName("TLC")
-        self.formLayout_3.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.TLC)
         self.label_75 = QtWidgets.QLabel(self.mode_parameter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -1066,9 +1141,6 @@ class Ui_XDr(object):
         self.label_75.setAlignment(QtCore.Qt.AlignCenter)
         self.label_75.setObjectName("label_75")
         self.formLayout_3.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_75)
-        self.CLS = QtWidgets.QPushButton(self.mode_parameter)
-        self.CLS.setObjectName("CLS")
-        self.formLayout_3.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.CLS)
         self.label_76 = QtWidgets.QLabel(self.mode_parameter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -1078,9 +1150,6 @@ class Ui_XDr(object):
         self.label_76.setAlignment(QtCore.Qt.AlignCenter)
         self.label_76.setObjectName("label_76")
         self.formLayout_3.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.label_76)
-        self.vaguePID = QtWidgets.QPushButton(self.mode_parameter)
-        self.vaguePID.setObjectName("vaguePID")
-        self.formLayout_3.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.vaguePID)
         self.label_77 = QtWidgets.QLabel(self.mode_parameter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -1090,9 +1159,6 @@ class Ui_XDr(object):
         self.label_77.setAlignment(QtCore.Qt.AlignCenter)
         self.label_77.setObjectName("label_77")
         self.formLayout_3.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.label_77)
-        self.PVT = QtWidgets.QPushButton(self.mode_parameter)
-        self.PVT.setObjectName("PVT")
-        self.formLayout_3.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.PVT)
         self.label_78 = QtWidgets.QLabel(self.mode_parameter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -1102,9 +1168,32 @@ class Ui_XDr(object):
         self.label_78.setAlignment(QtCore.Qt.AlignCenter)
         self.label_78.setObjectName("label_78")
         self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.label_78)
-        self.FAN = QtWidgets.QPushButton(self.mode_parameter)
-        self.FAN.setObjectName("FAN")
-        self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.FAN)
+        self.WEAKmagmode = QtWidgets.QComboBox(self.mode_parameter)
+        self.WEAKmagmode.setObjectName("WEAKmagmode")
+        self.WEAKmagmode.addItem("")
+        self.WEAKmagmode.addItem("")
+        self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.WEAKmagmode)
+        self.mode1 = QtWidgets.QComboBox(self.mode_parameter)
+        self.mode1.setObjectName("mode1")
+        self.formLayout_3.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.mode1)
+        self.mode2 = QtWidgets.QComboBox(self.mode_parameter)
+        self.mode2.setObjectName("mode2")
+        self.formLayout_3.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.mode2)
+        self.VaguePIDmode = QtWidgets.QComboBox(self.mode_parameter)
+        self.VaguePIDmode.setObjectName("VaguePIDmode")
+        self.VaguePIDmode.addItem("")
+        self.VaguePIDmode.addItem("")
+        self.formLayout_3.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.VaguePIDmode)
+        self.PVTmode = QtWidgets.QComboBox(self.mode_parameter)
+        self.PVTmode.setObjectName("PVTmode")
+        self.PVTmode.addItem("")
+        self.PVTmode.addItem("")
+        self.formLayout_3.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.PVTmode)
+        self.FANmode = QtWidgets.QComboBox(self.mode_parameter)
+        self.FANmode.setObjectName("FANmode")
+        self.FANmode.addItem("")
+        self.FANmode.addItem("")
+        self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.FANmode)
         self.horizontalLayout_10.addWidget(self.mode_parameter)
         spacerItem7 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_10.addItem(spacerItem7)
@@ -1743,9 +1832,9 @@ class Ui_XDr(object):
         self.log_erase.setObjectName("log_erase")
         self.horizontalLayout_13.addWidget(self.log_erase)
         self.verticalLayout_8.addLayout(self.horizontalLayout_13)
-        self.widget = QtWidgets.QWidget(self.log)
-        self.widget.setObjectName("widget")
-        self.verticalLayout_8.addWidget(self.widget)
+        self.LogList = QtWidgets.QListWidget(self.log)
+        self.LogList.setObjectName("LogList")
+        self.verticalLayout_8.addWidget(self.LogList)
         self.verticalLayout_8.setStretch(0, 1)
         self.verticalLayout_8.setStretch(1, 10)
         self.horizontalLayout_14.addLayout(self.verticalLayout_8)
@@ -1806,107 +1895,139 @@ class Ui_XDr(object):
         self.label_23 = QtWidgets.QLabel(self.widget_8)
         self.label_23.setAlignment(QtCore.Qt.AlignCenter)
         self.label_23.setObjectName("label_23")
-        self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.label_23)
-        self.voltage = QtWidgets.QLineEdit(self.widget_8)
-        self.voltage.setReadOnly(True)
-        self.voltage.setObjectName("voltage")
-        self.formLayout.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.voltage)
+        self.formLayout.setWidget(10, QtWidgets.QFormLayout.LabelRole, self.label_23)
+        self.log_voltage = QtWidgets.QLineEdit(self.widget_8)
+        self.log_voltage.setReadOnly(True)
+        self.log_voltage.setObjectName("log_voltage")
+        self.formLayout.setWidget(10, QtWidgets.QFormLayout.FieldRole, self.log_voltage)
         self.label_25 = QtWidgets.QLabel(self.widget_8)
         self.label_25.setAlignment(QtCore.Qt.AlignCenter)
         self.label_25.setObjectName("label_25")
-        self.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.label_25)
-        self.temperature = QtWidgets.QLineEdit(self.widget_8)
-        self.temperature.setReadOnly(True)
-        self.temperature.setObjectName("temperature")
-        self.formLayout.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.temperature)
+        self.formLayout.setWidget(11, QtWidgets.QFormLayout.LabelRole, self.label_25)
+        self.log_temperature = QtWidgets.QLineEdit(self.widget_8)
+        self.log_temperature.setReadOnly(True)
+        self.log_temperature.setObjectName("log_temperature")
+        self.formLayout.setWidget(11, QtWidgets.QFormLayout.FieldRole, self.log_temperature)
         self.label_24 = QtWidgets.QLabel(self.widget_8)
         self.label_24.setAlignment(QtCore.Qt.AlignCenter)
         self.label_24.setObjectName("label_24")
-        self.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.label_24)
-        self.iu = QtWidgets.QLineEdit(self.widget_8)
-        self.iu.setReadOnly(True)
-        self.iu.setObjectName("iu")
-        self.formLayout.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.iu)
+        self.formLayout.setWidget(12, QtWidgets.QFormLayout.LabelRole, self.label_24)
+        self.log_iu = QtWidgets.QLineEdit(self.widget_8)
+        self.log_iu.setReadOnly(True)
+        self.log_iu.setObjectName("log_iu")
+        self.formLayout.setWidget(12, QtWidgets.QFormLayout.FieldRole, self.log_iu)
         self.label_21 = QtWidgets.QLabel(self.widget_8)
         self.label_21.setAlignment(QtCore.Qt.AlignCenter)
         self.label_21.setObjectName("label_21")
-        self.formLayout.setWidget(9, QtWidgets.QFormLayout.LabelRole, self.label_21)
-        self.iv = QtWidgets.QLineEdit(self.widget_8)
-        self.iv.setReadOnly(True)
-        self.iv.setObjectName("iv")
-        self.formLayout.setWidget(9, QtWidgets.QFormLayout.FieldRole, self.iv)
+        self.formLayout.setWidget(13, QtWidgets.QFormLayout.LabelRole, self.label_21)
+        self.log_iv = QtWidgets.QLineEdit(self.widget_8)
+        self.log_iv.setReadOnly(True)
+        self.log_iv.setObjectName("log_iv")
+        self.formLayout.setWidget(13, QtWidgets.QFormLayout.FieldRole, self.log_iv)
         self.label_19 = QtWidgets.QLabel(self.widget_8)
         self.label_19.setAlignment(QtCore.Qt.AlignCenter)
         self.label_19.setObjectName("label_19")
-        self.formLayout.setWidget(10, QtWidgets.QFormLayout.LabelRole, self.label_19)
-        self.iw = QtWidgets.QLineEdit(self.widget_8)
-        self.iw.setReadOnly(True)
-        self.iw.setObjectName("iw")
-        self.formLayout.setWidget(10, QtWidgets.QFormLayout.FieldRole, self.iw)
+        self.formLayout.setWidget(14, QtWidgets.QFormLayout.LabelRole, self.label_19)
+        self.log_iw = QtWidgets.QLineEdit(self.widget_8)
+        self.log_iw.setReadOnly(True)
+        self.log_iw.setObjectName("log_iw")
+        self.formLayout.setWidget(14, QtWidgets.QFormLayout.FieldRole, self.log_iw)
         self.label_17 = QtWidgets.QLabel(self.widget_8)
         self.label_17.setAlignment(QtCore.Qt.AlignCenter)
         self.label_17.setObjectName("label_17")
-        self.formLayout.setWidget(11, QtWidgets.QFormLayout.LabelRole, self.label_17)
-        self.id = QtWidgets.QLineEdit(self.widget_8)
-        self.id.setReadOnly(True)
-        self.id.setObjectName("id")
-        self.formLayout.setWidget(11, QtWidgets.QFormLayout.FieldRole, self.id)
+        self.formLayout.setWidget(15, QtWidgets.QFormLayout.LabelRole, self.label_17)
+        self.log_id = QtWidgets.QLineEdit(self.widget_8)
+        self.log_id.setReadOnly(True)
+        self.log_id.setObjectName("log_id")
+        self.formLayout.setWidget(15, QtWidgets.QFormLayout.FieldRole, self.log_id)
         self.label_26 = QtWidgets.QLabel(self.widget_8)
         self.label_26.setAlignment(QtCore.Qt.AlignCenter)
         self.label_26.setObjectName("label_26")
-        self.formLayout.setWidget(12, QtWidgets.QFormLayout.LabelRole, self.label_26)
-        self.id_ref = QtWidgets.QLineEdit(self.widget_8)
-        self.id_ref.setReadOnly(True)
-        self.id_ref.setObjectName("id_ref")
-        self.formLayout.setWidget(12, QtWidgets.QFormLayout.FieldRole, self.id_ref)
+        self.formLayout.setWidget(16, QtWidgets.QFormLayout.LabelRole, self.label_26)
+        self.log_id_ref = QtWidgets.QLineEdit(self.widget_8)
+        self.log_id_ref.setReadOnly(True)
+        self.log_id_ref.setObjectName("log_id_ref")
+        self.formLayout.setWidget(16, QtWidgets.QFormLayout.FieldRole, self.log_id_ref)
         self.label_35 = QtWidgets.QLabel(self.widget_8)
         self.label_35.setAlignment(QtCore.Qt.AlignCenter)
         self.label_35.setObjectName("label_35")
-        self.formLayout.setWidget(13, QtWidgets.QFormLayout.LabelRole, self.label_35)
-        self.iq = QtWidgets.QLineEdit(self.widget_8)
-        self.iq.setReadOnly(True)
-        self.iq.setObjectName("iq")
-        self.formLayout.setWidget(13, QtWidgets.QFormLayout.FieldRole, self.iq)
+        self.formLayout.setWidget(17, QtWidgets.QFormLayout.LabelRole, self.label_35)
+        self.log_iq = QtWidgets.QLineEdit(self.widget_8)
+        self.log_iq.setReadOnly(True)
+        self.log_iq.setObjectName("log_iq")
+        self.formLayout.setWidget(17, QtWidgets.QFormLayout.FieldRole, self.log_iq)
         self.label_37 = QtWidgets.QLabel(self.widget_8)
         self.label_37.setAlignment(QtCore.Qt.AlignCenter)
         self.label_37.setObjectName("label_37")
-        self.formLayout.setWidget(14, QtWidgets.QFormLayout.LabelRole, self.label_37)
-        self.iq_ref = QtWidgets.QLineEdit(self.widget_8)
-        self.iq_ref.setReadOnly(True)
-        self.iq_ref.setObjectName("iq_ref")
-        self.formLayout.setWidget(14, QtWidgets.QFormLayout.FieldRole, self.iq_ref)
+        self.formLayout.setWidget(18, QtWidgets.QFormLayout.LabelRole, self.label_37)
+        self.log_iq_ref = QtWidgets.QLineEdit(self.widget_8)
+        self.log_iq_ref.setReadOnly(True)
+        self.log_iq_ref.setObjectName("log_iq_ref")
+        self.formLayout.setWidget(18, QtWidgets.QFormLayout.FieldRole, self.log_iq_ref)
         self.label_36 = QtWidgets.QLabel(self.widget_8)
         self.label_36.setAlignment(QtCore.Qt.AlignCenter)
         self.label_36.setObjectName("label_36")
-        self.formLayout.setWidget(15, QtWidgets.QFormLayout.LabelRole, self.label_36)
-        self.speed = QtWidgets.QLineEdit(self.widget_8)
-        self.speed.setReadOnly(True)
-        self.speed.setObjectName("speed")
-        self.formLayout.setWidget(15, QtWidgets.QFormLayout.FieldRole, self.speed)
+        self.formLayout.setWidget(19, QtWidgets.QFormLayout.LabelRole, self.label_36)
+        self.log_speed = QtWidgets.QLineEdit(self.widget_8)
+        self.log_speed.setReadOnly(True)
+        self.log_speed.setObjectName("log_speed")
+        self.formLayout.setWidget(19, QtWidgets.QFormLayout.FieldRole, self.log_speed)
         self.label_34 = QtWidgets.QLabel(self.widget_8)
         self.label_34.setAlignment(QtCore.Qt.AlignCenter)
         self.label_34.setObjectName("label_34")
-        self.formLayout.setWidget(16, QtWidgets.QFormLayout.LabelRole, self.label_34)
-        self.speed_ref = QtWidgets.QLineEdit(self.widget_8)
-        self.speed_ref.setReadOnly(True)
-        self.speed_ref.setObjectName("speed_ref")
-        self.formLayout.setWidget(16, QtWidgets.QFormLayout.FieldRole, self.speed_ref)
+        self.formLayout.setWidget(20, QtWidgets.QFormLayout.LabelRole, self.label_34)
+        self.log_speed_ref = QtWidgets.QLineEdit(self.widget_8)
+        self.log_speed_ref.setReadOnly(True)
+        self.log_speed_ref.setObjectName("log_speed_ref")
+        self.formLayout.setWidget(20, QtWidgets.QFormLayout.FieldRole, self.log_speed_ref)
         self.label_33 = QtWidgets.QLabel(self.widget_8)
         self.label_33.setAlignment(QtCore.Qt.AlignCenter)
         self.label_33.setObjectName("label_33")
-        self.formLayout.setWidget(17, QtWidgets.QFormLayout.LabelRole, self.label_33)
-        self.postion = QtWidgets.QLineEdit(self.widget_8)
-        self.postion.setReadOnly(True)
-        self.postion.setObjectName("postion")
-        self.formLayout.setWidget(17, QtWidgets.QFormLayout.FieldRole, self.postion)
+        self.formLayout.setWidget(21, QtWidgets.QFormLayout.LabelRole, self.label_33)
+        self.log_position = QtWidgets.QLineEdit(self.widget_8)
+        self.log_position.setReadOnly(True)
+        self.log_position.setObjectName("log_position")
+        self.formLayout.setWidget(21, QtWidgets.QFormLayout.FieldRole, self.log_position)
         self.label_29 = QtWidgets.QLabel(self.widget_8)
         self.label_29.setAlignment(QtCore.Qt.AlignCenter)
         self.label_29.setObjectName("label_29")
-        self.formLayout.setWidget(18, QtWidgets.QFormLayout.LabelRole, self.label_29)
-        self.pos_ref = QtWidgets.QLineEdit(self.widget_8)
-        self.pos_ref.setReadOnly(True)
-        self.pos_ref.setObjectName("pos_ref")
-        self.formLayout.setWidget(18, QtWidgets.QFormLayout.FieldRole, self.pos_ref)
+        self.formLayout.setWidget(22, QtWidgets.QFormLayout.LabelRole, self.label_29)
+        self.log_pos_ref = QtWidgets.QLineEdit(self.widget_8)
+        self.log_pos_ref.setReadOnly(True)
+        self.log_pos_ref.setObjectName("log_pos_ref")
+        self.formLayout.setWidget(22, QtWidgets.QFormLayout.FieldRole, self.log_pos_ref)
+        self.label_54 = QtWidgets.QLabel(self.widget_8)
+        self.label_54.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_54.setObjectName("label_54")
+        self.formLayout.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.label_54)
+        self.label_71 = QtWidgets.QLabel(self.widget_8)
+        self.label_71.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_71.setObjectName("label_71")
+        self.formLayout.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.label_71)
+        self.label_84 = QtWidgets.QLabel(self.widget_8)
+        self.label_84.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_84.setObjectName("label_84")
+        self.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.label_84)
+        self.label_85 = QtWidgets.QLabel(self.widget_8)
+        self.label_85.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_85.setObjectName("label_85")
+        self.formLayout.setWidget(9, QtWidgets.QFormLayout.LabelRole, self.label_85)
+        self.usb_state = QtWidgets.QLineEdit(self.widget_8)
+        self.usb_state.setReadOnly(True)
+        self.usb_state.setObjectName("usb_state")
+        self.formLayout.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.usb_state)
+        self.can_state = QtWidgets.QLineEdit(self.widget_8)
+        self.can_state.setReadOnly(True)
+        self.can_state.setObjectName("can_state")
+        self.formLayout.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.can_state)
+        self.flash_state = QtWidgets.QLineEdit(self.widget_8)
+        self.flash_state.setReadOnly(True)
+        self.flash_state.setObjectName("flash_state")
+        self.formLayout.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.flash_state)
+        self.encoder_state = QtWidgets.QLineEdit(self.widget_8)
+        self.encoder_state.setReadOnly(True)
+        self.encoder_state.setObjectName("encoder_state")
+        self.formLayout.setWidget(9, QtWidgets.QFormLayout.FieldRole, self.encoder_state)
         self.horizontalLayout_14.addWidget(self.widget_8)
         spacerItem11 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_14.addItem(spacerItem11)
@@ -2083,7 +2204,7 @@ class Ui_XDr(object):
         self.verticalLayout_7.addWidget(self.tabpage)
 
         self.retranslateUi(XDr)
-        self.tabpage.setCurrentIndex(2)
+        self.tabpage.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(XDr)
 
     def retranslateUi(self, XDr):
@@ -2119,7 +2240,6 @@ class Ui_XDr(object):
         self.warnningshow.setText(_translate("XDr", "无"))
         self.Brake.setText(_translate("XDr", "紧急刹车"))
         self.Protectreset.setText(_translate("XDr", "保护复位"))
-        self.configfile.setItemText(0, _translate("XDr", "默认"))
         self.loadconfigfile.setText(_translate("XDr", "加载配置"))
         self.saveconfigfile.setText(_translate("XDr", "保存"))
         self.removeconfigfile.setText(_translate("XDr", "删除"))
@@ -2155,17 +2275,19 @@ class Ui_XDr(object):
         self.CANmode.setItemText(0, _translate("XDr", "实时控制"))
         self.CANmode.setItemText(1, _translate("XDr", "队列控制"))
         self.label_73.setText(_translate("XDr", "弱磁控制"))
-        self.weakmag.setText(_translate("XDr", "PushButton"))
         self.label_74.setText(_translate("XDr", "TLC"))
-        self.TLC.setText(_translate("XDr", "PushButton"))
         self.label_75.setText(_translate("XDr", "CLS"))
-        self.CLS.setText(_translate("XDr", "PushButton"))
         self.label_76.setText(_translate("XDr", "模糊PID"))
-        self.vaguePID.setText(_translate("XDr", "PushButton"))
         self.label_77.setText(_translate("XDr", "PVT"))
-        self.PVT.setText(_translate("XDr", "PushButton"))
         self.label_78.setText(_translate("XDr", "风扇"))
-        self.FAN.setText(_translate("XDr", "PushButton"))
+        self.WEAKmagmode.setItemText(0, _translate("XDr", "禁用"))
+        self.WEAKmagmode.setItemText(1, _translate("XDr", "启用"))
+        self.VaguePIDmode.setItemText(0, _translate("XDr", "禁用"))
+        self.VaguePIDmode.setItemText(1, _translate("XDr", "启用"))
+        self.PVTmode.setItemText(0, _translate("XDr", "禁用"))
+        self.PVTmode.setItemText(1, _translate("XDr", "启用"))
+        self.FANmode.setItemText(0, _translate("XDr", "禁用"))
+        self.FANmode.setItemText(1, _translate("XDr", "启用"))
         self.motor_parameter.setTitle(_translate("XDr", "电机参数"))
         self.label_79.setText(_translate("XDr", "角度偏移"))
         self.thetaoffset.setText(_translate("XDr", "0"))
@@ -2245,6 +2367,10 @@ class Ui_XDr(object):
         self.label_34.setText(_translate("XDr", "目标速度"))
         self.label_33.setText(_translate("XDr", "位置"))
         self.label_29.setText(_translate("XDr", "目标位置"))
+        self.label_54.setText(_translate("XDr", "USB状态"))
+        self.label_71.setText(_translate("XDr", "CAN状态"))
+        self.label_84.setText(_translate("XDr", "闪存状态"))
+        self.label_85.setText(_translate("XDr", "编码状态"))
         self.wave_start.setText(_translate("XDr", "start"))
         self.label_ch1.setText(_translate("XDr", "通道1"))
         self.label_ch2.setText(_translate("XDr", "通道2"))

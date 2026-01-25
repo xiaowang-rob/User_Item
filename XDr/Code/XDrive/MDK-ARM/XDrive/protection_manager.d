@@ -40,4 +40,4 @@ xdrive/protection_manager.o: ..\FOC\Src\services\protection_manager.c \
   ..\FOC\Inc\control\foc_statemachine.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\services\log.h \
-  ..\FOC\Inc\drivers\adcDr.h
+  ..\FOC\Inc\drivers\adcDr.h ..\FOC\Inc\services\system_statemachine.h

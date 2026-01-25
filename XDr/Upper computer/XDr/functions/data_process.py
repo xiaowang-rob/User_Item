@@ -21,9 +21,9 @@ class DataProcess:
                         self.main_window.com_port.send_packet(Cmd.UC_CONNECT,bytes())
                     else:
                         self.main_window.param_manager.system_desc = data.decode('utf-8')
-                        QMessageBox.information(self.main_window, "系统参数", self.main_window.param_manager.system_desc)
                     return
-                
+                case Cmd.LOG_GET:  # 日志读取返回
+                    self.main_window.log.add_log(data)
                 case Cmd.LOG_ERASE:
                     if(data[0] == 0xfe):
                         QMessageBox.information(self.main_window, "提示", "日志已清除")

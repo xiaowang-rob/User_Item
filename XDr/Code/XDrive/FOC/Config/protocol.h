@@ -25,7 +25,7 @@
 #define CMD_STREAM_GET 0x23   // 监测值获取 单个值直接获取
 #define CMD_STREAM_SET 0x25   // 要连续传输的数据流设置
 
-#define MAX_frame_length 64 // 通讯帧最大长度
+#define MAX_frame_length 128 // 通讯帧最大长度
 /***********USB Config***********/
 /*
 接收 ： 包头  ID（PC指令）  长度   数据（8bit)Index+Value     校验   包尾
