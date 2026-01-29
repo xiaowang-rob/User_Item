@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/images">
+    <file>UI/images/logo.png</file>
+    <file>UI/images/x .svg</file>
+  </qresource>
+</RCC>

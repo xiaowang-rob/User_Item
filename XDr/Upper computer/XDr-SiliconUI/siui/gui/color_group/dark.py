@@ -69,7 +69,7 @@ class DarkColorGroup(SiColorGroup):
         self.assign(SiColor.CHECKBOX_UNCHECKED, "#979797")
         self.assign(SiColor.CHECKBOX_CHECKED, "#9c65ae")
 
-        self.assign(SiColor.BUTTON_TEXT_BUTTON_IDLE, "#c58bc2")
+        self.assign(SiColor.BUTTON_TEXT_BUTTON_IDLE, "#c58bc2fb")
         self.assign(SiColor.BUTTON_TEXT_BUTTON_FLASH, "#c58bc2")
         self.assign(SiColor.BUTTON_TEXT_BUTTON_HOVER, "#fabef8")
 

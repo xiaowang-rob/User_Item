@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Data\Github\User_Item\XDr\Upper computer\XDr-SiliconUI\QTdesigner\mainwindow.ui'
+# Form implementation generated from reading ui file 'c:\Data\Github\User_Item\XDr\Upper computer\XDr-SiliconUI\UI\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -14,9 +14,64 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(1400, 900)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setStyleSheet("background-color: #1E2227;")
         self.centralwidget.setObjectName("centralwidget")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setContentsMargins(6, 6, 6, 6)
+        self.horizontalLayout.setSpacing(12)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.connect_area = QtWidgets.QWidget(self.centralwidget)
+        self.connect_area.setObjectName("connect_area")
+        self.horizontalLayout.addWidget(self.connect_area)
+        self.mode_area = QtWidgets.QWidget(self.centralwidget)
+        self.mode_area.setObjectName("mode_area")
+        self.horizontalLayout.addWidget(self.mode_area)
+        self.status_area = QtWidgets.QWidget(self.centralwidget)
+        self.status_area.setObjectName("status_area")
+        self.horizontalLayout.addWidget(self.status_area)
+        self.config_area = QtWidgets.QWidget(self.centralwidget)
+        self.config_area.setObjectName("config_area")
+        self.horizontalLayout.addWidget(self.config_area)
+        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 2)
+        self.horizontalLayout.setStretch(2, 2)
+        self.horizontalLayout.setStretch(3, 1)
+        self.verticalLayout_3.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.navegation_area = QtWidgets.QWidget(self.centralwidget)
+        self.navegation_area.setObjectName("navegation_area")
+        self.horizontalLayout_2.addWidget(self.navegation_area)
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setMaximumSize(QtCore.QSize(70, 70))
+        self.label.setObjectName("label")
+        self.horizontalLayout_2.addWidget(self.label)
+        self.cmdbutton_area = QtWidgets.QWidget(self.centralwidget)
+        self.cmdbutton_area.setObjectName("cmdbutton_area")
+        self.horizontalLayout_2.addWidget(self.cmdbutton_area)
+        self.horizontalLayout_2.setStretch(0, 4)
+        self.horizontalLayout_2.setStretch(1, 1)
+        self.horizontalLayout_2.setStretch(2, 12)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
+        self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
+        self.stackedWidget.setObjectName("stackedWidget")
+        self.parameter_page = QtWidgets.QWidget()
+        self.parameter_page.setObjectName("parameter_page")
+        self.stackedWidget.addWidget(self.parameter_page)
+        self.log_page = QtWidgets.QWidget()
+        self.log_page.setObjectName("log_page")
+        self.stackedWidget.addWidget(self.log_page)
+        self.control_page = QtWidgets.QWidget()
+        self.control_page.setObjectName("control_page")
+        self.stackedWidget.addWidget(self.control_page)
+        self.verticalLayout_3.addWidget(self.stackedWidget)
+        self.verticalLayout_3.setStretch(0, 2)
+        self.verticalLayout_3.setStretch(1, 1)
+        self.verticalLayout_3.setStretch(2, 13)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -25,3 +80,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/UI/images/x .svg\"/></p></body></html>"))
+import resources_rc
