@@ -26,9 +26,3 @@ Drive_state_e FLASH_state_get(void)
 {
     return drive_state.FLASH_state;
 }
-
-void drive_init()
-{
-    FLASH_Init();
-    ADC_DR_Init(); // 开启FOC循环
-}

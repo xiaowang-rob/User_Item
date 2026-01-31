@@ -3,6 +3,9 @@
 #include "can.h"
 #include "port_mapping.h"
 
+#define STD_ID_MASK 0x7FF      // 11bit [31：21] 32位模式下 [15:5] 16位模式下
+#define EXT_ID_MASK 0xFFFFFFFF // 29bit [31:3]
+
 static u8 idindex;
 static u8 txbuffer[8];
 static u8 rxtemp;
@@ -21,30 +24,47 @@ QueueStatus CAN_deQUEUE_data(u8 *data)
  * @brief  CAN过滤器配置和初始化函数
  * @note   配置CAN2的过滤器，启动CAN2外设，并使能接收中断
  */
+u8 can_init_ok = 0x12;
 
 void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE)
 {
+
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
-    CAN_FilterTypeDef sFilterConfig;
 
     /* Configure the CAN Filter - 配置CAN过滤器 */
-    sFilterConfig.FilterBank = 0;                                // 过滤器编号，使用一个CAN，则可选0-13；使用两个CAN可选0-27
-    sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;            // 过滤器模式，掩码模式或列表模式
-    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;           // 过滤器位宽，32位模式（支持标准帧和扩展帧）
-    sFilterConfig.FilterIdHigh = ((can.id << 5) >> 16) & 0xFFFF; // 过滤器验证码ID高16位，0-0xFFFF
-    sFilterConfig.FilterIdLow = (can.id << 5) & 0xFFFF;          // 过滤器验证码ID低16位，0-0xFFFF
-    sFilterConfig.FilterMaskIdHigh = 0x0000;                     // 过滤器掩码ID高16位，0-0xFFFF
-    sFilterConfig.FilterMaskIdLow = 0x0000;                      // 过滤器掩码ID低16位，0-0xFFFF
-    sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;           // FIFOx，0或1，指定接收消息存入FIFO0
-    sFilterConfig.FilterActivation = ENABLE;                     // 使能过滤器
-    sFilterConfig.SlaveStartFilterBank = 14;                     // 从过滤器编号，0-27，对于单CAN实例该参数没有意义
+    CAN_FilterTypeDef sFilterConfig;
 
-    can_state_change(ONLINE);
-    // 配置CAN2的过滤器参数
+    sFilterConfig.FilterBank = 14;                     // CAN2使用14-27
+    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;  // 掩码模式（更适合单个ID匹配）
+    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT; // 32位模式
+    sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    sFilterConfig.FilterActivation = CAN_FILTER_ENABLE;
+
+    // 计算标准帧ID的过滤器寄存器值
+    u32 std_id = can.id & STD_ID_MASK;
+    u32 id_reg = (std_id << 21) | 0x00; // STID[10:0]在[31:21], IDE=0, RTR=0
+
+    // 设置要匹配的ID
+    sFilterConfig.FilterIdHigh = (id_reg >> 16) & 0xFFFF;
+    sFilterConfig.FilterIdLow = id_reg & 0xFFFF;
+
+    // 设置掩码：匹配ID的11位 + IDE位 + RTR位
+    // 0x7FF << 21 = 匹配所有11位ID
+    // 0x04 = 匹配IDE位（必须为0）
+    // 0x02 = 匹配RTR位（必须为0）
+    u32 mask_reg = (STD_ID_MASK << 21) | 0x06; // 匹配ID、IDE和RTR位
+    sFilterConfig.FilterMaskIdHigh = (mask_reg >> 16) & 0xffff;
+    sFilterConfig.FilterMaskIdLow = mask_reg & 0xffff;
+
+    // 配置过滤器
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
         can_state_change(OFFLINE);
+    }
+    else
+    {
+        can_state_change(ONLINE);
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
@@ -58,33 +78,69 @@ void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE)
     {
         can_state_change(OFFLINE);
     }
+    // 如果开启了队列模式则初始化队列
     if (can.queue_flag)
         if (QUEUE_ERROR == static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData)))
             can_state_change(OFFLINE);
+
+    CAN_Send_Msg(&can_init_ok, 1);
 }
+
 void CAN_SET_ID_QUEUE(u32 CAN_ID, bool canQUEUE)
 {
+    // 停止CAN2
+    HAL_CAN_Stop(&hcan2);
+
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
 
+    /* Configure the CAN Filter - 配置CAN过滤器 */
     CAN_FilterTypeDef sFilterConfig;
 
-    /* Configure the CAN Filter - 配置CAN过滤器 */
-    sFilterConfig.FilterBank = 0;                                // 过滤器编号，使用一个CAN，则可选0-13；使用两个CAN可选0-27
-    sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;            // 过滤器模式，掩码模式或列表模式
-    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;           // 过滤器位宽，32位模式（支持标准帧和扩展帧）
-    sFilterConfig.FilterIdHigh = ((can.id << 5) >> 16) & 0xFFFF; // 过滤器验证码ID高16位，0-0xFFFF
-    sFilterConfig.FilterIdLow = (can.id << 5) & 0xFFFF;          // 过滤器验证码ID低16位，0-0xFFFF
-    sFilterConfig.FilterMaskIdHigh = 0x0000;                     // 过滤器掩码ID高16位，0-0xFFFF
-    sFilterConfig.FilterMaskIdLow = 0x0000;                      // 过滤器掩码ID低16位，0-0xFFFF
-    sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;           // FIFOx，0或1，指定接收消息存入FIFO0
-    sFilterConfig.FilterActivation = ENABLE;                     // 使能过滤器
-    sFilterConfig.SlaveStartFilterBank = 14;
+    sFilterConfig.FilterBank = 14;                     // CAN2使用14-27
+    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;  // 掩码模式（更适合单个ID匹配）
+    sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT; // 32位模式
+    sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    sFilterConfig.FilterActivation = CAN_FILTER_ENABLE;
 
+    // 计算标准帧ID的过滤器寄存器值
+    u32 std_id = can.id & STD_ID_MASK;
+    u32 id_reg = (std_id << 21) | 0x00; // STID[10:0]在[31:21], IDE=0, RTR=0
+
+    // 设置要匹配的ID
+    sFilterConfig.FilterIdHigh = (id_reg >> 16) & 0xFFFF;
+    sFilterConfig.FilterIdLow = id_reg & 0xFFFF;
+
+    // 设置掩码：匹配ID的11位 + IDE位 + RTR位
+    // 0x7FF << 21 = 匹配所有11位ID
+    // 0x04 = 匹配IDE位（必须为0）
+    // 0x02 = 匹配RTR位（必须为0）
+    u32 mask_reg = (STD_ID_MASK << 21) | 0x06; // 匹配ID、IDE和RTR位
+    sFilterConfig.FilterMaskIdHigh = (mask_reg >> 16) & 0xffff;
+    sFilterConfig.FilterMaskIdLow = mask_reg & 0xffff;
+
+    // 配置过滤器
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
         can_state_change(OFFLINE);
     }
+    else
+    {
+        can_state_change(ONLINE);
+    }
+
+    // 重新启动CAN2
+    if (HAL_CAN_Start(&hcan2) != HAL_OK)
+    {
+        can_state_change(OFFLINE);
+    }
+
+    // 重新激活接收中断
+    if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+    {
+        can_state_change(OFFLINE);
+    }
+
     if (can.queue_flag)
         if (QUEUE_ERROR == static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData)))
             can_state_change(OFFLINE);

@@ -6,25 +6,26 @@
 #include "drive_state.h"
 #include "port_mapping.h"
 #include "adcDr.h"
+#include "flashDr.h"
 
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
 
 bool system_init_event(void)
 {
-    // 驱动层初始化
-    drive_init(); // 顺便启动ADC数据刷新和foc定时器
-
-    // 服务层初始化 首先参数 然后保护 最后日志
+    /*
+    这里的顺序不能乱，因为里面有一些初始化函数，如果顺序不对，会导致一些变量没有初始化，导致程序出错
+    参数必须尽早出现 flash在其之前，初始化的时候最好不要有其他中断干涉，所有adc得往后放，但是foc初始化必须得有adc值，故最后
+    正确的顺序应该是：
+    flash-参数-通讯-保护-日志-adc -foc初始化
+    */
+    FLASH_Init();
     if (!Param_init())
         return false;
+    communication_init();
     protection_manager_init();
     log_init();
-
-    // 通讯层初始化
-    communication_init();
-    //  控制层初始化
+    ADC_DR_Init();
     fFOC_Init();
-    ADC_Cur_Calibration(); // 驱动芯片上电后重新校准
 
     return true;
 }

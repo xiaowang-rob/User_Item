@@ -79,9 +79,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  SCB->CPACR |= (3UL << 20) | (3UL << 22); // Enable CP10 and CP11 for full access
-  __DSB();                                 // 数据同步屏障
-  __ISB();                                 // 指令同步屏障
+//  SCB->CPACR |= (3UL << 20) | (3UL << 22); // Enable CP10 and CP11 for full access
+//  __DSB();                                 // 数据同步屏障
+//  __ISB();                                 // 指令同步屏障
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

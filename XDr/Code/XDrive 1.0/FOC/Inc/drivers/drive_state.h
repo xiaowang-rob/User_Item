@@ -20,5 +20,4 @@ void FLASH_state_set(Drive_state_e state);
 Drive_state_e ENCODER_state_get(void);
 Drive_state_e FLASH_state_get(void);
 
-void drive_init();
 #endif // __DRIVE_STATE_H__

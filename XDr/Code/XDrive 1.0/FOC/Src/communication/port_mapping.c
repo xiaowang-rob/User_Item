@@ -137,7 +137,7 @@ void frame_data_deal()
                 }
                 break;
             case UC_disconnect:
-								system_message_send_flag = false;
+                system_message_send_flag = false;
                 com_state.Host_port = NONE_port;
                 com_frame.stream_num = 0;
                 break;
@@ -237,12 +237,19 @@ void CAN_RxData_Deal(u8 *RxData, u8 len)
 {
     if (com_frame.is_busy)
         return;
-    if (len == 4 || len == 8)
+    if (len == 4)
     {
         com_frame.cmd_id = CMD_REFVALUE_SET;
         com_frame.rxdatalen = len;
         com_frame.rxdata = RxData;
+				memset(&com_frame.rxdata[4],0,4);
     }
+		else if(len==8)
+		{
+		com_frame.cmd_id = CMD_REFVALUE_SET;
+		com_frame.rxdatalen = len;
+    com_frame.rxdata = RxData;	
+		}
     else if (len == 1)
     {
         com_frame.cmd_id = *RxData;
