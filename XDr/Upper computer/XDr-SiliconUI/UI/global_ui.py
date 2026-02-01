@@ -9,7 +9,9 @@ from functons.message_show import init_message_system
 from functons.com_port import ComPort
 from .middle_area import MiddleArea
 from .parameter_page import ParameterPage
-
+from .log_page import LogPage
+from .control_page import ControlPage
+from functons.wave import Wave
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -42,5 +44,7 @@ class MainWindow(QMainWindow):
         self.mid_area=MiddleArea(self)
 
         self.parameter_page=ParameterPage(self)
+        self.log_page=LogPage(self)
+        self.control_page=ControlPage(self)
 
-
+        self.wave = Wave(self) 

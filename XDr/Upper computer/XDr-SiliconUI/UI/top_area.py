@@ -181,7 +181,7 @@ class TopArea:
         self.Vbus_show.setAlignment(Qt.AlignCenter) 
         self.Vbus_show.setReadOnly(True)
         self.Vbus_show.setTitle("电压")
-        self.Vbus_show.setText("12.0V")
+        self.Vbus_show.setText("0.0V")
 
         self.temp_show=SiCapsuleLineEdit()
         self.temp_show.resize(all_W,40)
@@ -189,7 +189,8 @@ class TopArea:
         self.temp_show.setTitleFixedWidth(title_W)  
         self.temp_show.setAlignment(Qt.AlignCenter) 
         self.temp_show.setReadOnly(True)
-        self.temp_show.setText("30°C")
+        self.temp_show.setTitle("温度")
+        self.temp_show.setText("0°C")
 
         self.fault_show=SiCapsuleLineEdit()
         self.fault_show.resize(all_W,40)

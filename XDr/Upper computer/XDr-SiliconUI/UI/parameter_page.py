@@ -1,8 +1,40 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QScrollArea
+from PyQt5.QtCore import Qt
 from siui.components import (
     SiPushButton,
     SiTitledWidgetGroup,
 )
+from siui.components.button import (
+    SiCapsuleButton,
+    SiCheckBox,
+    SiCheckBoxRefactor,
+    SiFlatButton,
+    SiFlatButtonWithIndicator,
+    SiLongPressButtonRefactor,
+    SiOptionButton,
+    SiProgressPushButton,
+    SiPushButtonRefactor,
+    SiRadioButton,
+    SiRadioButtonR,
+    SiRadioButtonWithAvatar,
+    SiRadioButtonWithDescription,
+    SiSwitchRefactor,
+    SiToggleButtonRefactor,
+)
+from siui.components.editbox import SiCapsuleLineEdit
+from siui.components.widgets.label import SiLabel
+from siui.core import SiGlobal, GlobalFont
+from siui.core import Si
+from siui.gui import SiFont
+from siui.components.combobox_ import SiCapsuleComboBox
+
+from .data_map import Midx
+
+
+title_W=60
+drive_title_W=100
+all_W=180
+
 
 class ParameterPage():
     def __init__(self, main_window):
@@ -10,12 +42,609 @@ class ParameterPage():
         self.widget=main_window.ui.parameter_page
 
 
-        main_layout=QHBoxLayout()
-        main_layout.setContentsMargins(24,0,24,0)
-        main_layout.setSpacing(24)
+        main_layout=QHBoxLayout(self.widget)
+        main_layout.setContentsMargins(24,12,24,0)
+        main_layout.setSpacing(36)
 
-        self.control_group=QVBoxLayout(self.widget)
-        self.control_group.setContentsMargins(0,0,0,0)
-        self.control_group.setSpacing(12)
+        self.control_group=QWidget(self.widget)
+        self.control_group.setStyleSheet("""
+            background-color: #332E38;
+            border-radius: 12px;  
+        """)
+        self.mode_group=QWidget(self.widget)
+        self.mode_group.setStyleSheet("""
+            background-color: #332E38;
+            border-radius: 12px;  
+        """)
+        self.motor_group=QWidget(self.widget)
+        self.motor_group.setStyleSheet("""
+            background-color: #332E38;
+            border-radius: 12px;  
+        """)
+        self.drive_group=QWidget(self.widget)
+        self.drive_group.setStyleSheet("""
+            background-color: #332E38;
+            border-radius: 12px;  
+        """)
 
+        #控制参数##################################################################
+        control_layout=QVBoxLayout(self.control_group)
+        control_layout.setContentsMargins(24,12,24,12)
+        control_layout.setSpacing(12)
+
+        Title_control=SiLabel()
+        Title_control.setStyleSheet("color:#E5E5E5;")
+        Title_control.setText("控制参数")
+        Title_control.setFont(SiFont.tokenized(GlobalFont.M_BOLD))
+        Title_control.setFixedHeight(26)
+        Title_control.setAlignment(Qt.AlignBottom)
+        Title_control.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)        
+
+        button_layout1=QHBoxLayout()
+        button_layout1.setContentsMargins(0,0,0,0)
+        button_layout1.setSpacing(12)
+
+        self.all_read_button=SiPushButtonRefactor()
+        self.all_read_button.setText("一键读取")
+        self.all_read_button.adjustSize()
+        self.all_read_button.setFixedHeight(30)
+        self.all_read_button.clicked.connect(self.on_all_read_clicked)
+        button_layout1.addWidget(self.all_read_button)
+
+        self.all_write_button=SiPushButtonRefactor()
+        self.all_write_button.setText("一键写入")
+        self.all_write_button.adjustSize()
+        self.all_write_button.setFixedHeight(30)
+        self.all_write_button.clicked.connect(self.on_all_write_clicked)
+        button_layout1.addWidget(self.all_write_button)
+
+ 
+        button_layout2=QHBoxLayout()
+        button_layout2.setContentsMargins(0,0,0,0)
+        button_layout2.setSpacing(12)
+
+        self.save_button=SiPushButtonRefactor()
+        self.save_button.setText("一键保存")
+        self.save_button.adjustSize()
+        self.save_button.setFixedHeight(30)
+        self.save_button.clicked.connect(self.on_save_clicked)
+        button_layout2.addWidget(self.save_button)
+
+        self.all_erase_button=SiLongPressButtonRefactor()
+        self.all_erase_button.setText("清除参数")
+        self.all_erase_button.setToolTip("长按清除所有参数")
+        self.all_erase_button.adjustSize()
+        self.all_erase_button.setFixedHeight(30)
+        self.all_erase_button.longPressed.connect(self.on_all_erase_long_pressed)
+        button_layout2.addWidget(self.all_erase_button)
+
+        #输入区域
+        self.CAN_ID_input=SiCapsuleLineEdit()
+        self.CAN_ID_input.resize(all_W,40)
+        self.CAN_ID_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.CAN_ID_input.setTitleFixedWidth(title_W) 
+        self.CAN_ID_input.setAlignment(Qt.AlignCenter) 
+        self.CAN_ID_input.setTitle("CAN ID")
+        self.CAN_ID_input.setText("0")
+
+        # 电流环 P
+        self.current_loop_P_input = SiCapsuleLineEdit()
+        self.current_loop_P_input.resize(all_W, 40)
+        self.current_loop_P_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.current_loop_P_input.setTitleFixedWidth(title_W)
+        self.current_loop_P_input.setAlignment(Qt.AlignCenter)
+        self.current_loop_P_input.setTitle("电流环P")
+        self.current_loop_P_input.setText("0")
+
+        # 电流环 I
+        self.current_loop_I_input = SiCapsuleLineEdit()
+        self.current_loop_I_input.resize(all_W, 40)
+        self.current_loop_I_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.current_loop_I_input.setTitleFixedWidth(title_W)
+        self.current_loop_I_input.setAlignment(Qt.AlignCenter)
+        self.current_loop_I_input.setTitle("电流环I")
+        self.current_loop_I_input.setText("0")
+
+        # 弱磁环 P
+        self.flux_weakening_P_input = SiCapsuleLineEdit()
+        self.flux_weakening_P_input.resize(all_W, 40)
+        self.flux_weakening_P_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.flux_weakening_P_input.setTitleFixedWidth(title_W)
+        self.flux_weakening_P_input.setAlignment(Qt.AlignCenter)
+        self.flux_weakening_P_input.setTitle("弱磁环P")
+        self.flux_weakening_P_input.setText("0")
+
+        # 弱磁环 I
+        self.flux_weakening_I_input = SiCapsuleLineEdit()
+        self.flux_weakening_I_input.resize(all_W, 40)
+        self.flux_weakening_I_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.flux_weakening_I_input.setTitleFixedWidth(title_W)
+        self.flux_weakening_I_input.setAlignment(Qt.AlignCenter)
+        self.flux_weakening_I_input.setTitle("弱磁环I")
+        self.flux_weakening_I_input.setText("0")
+
+        # 速度环 P
+        self.speed_loop_P_input = SiCapsuleLineEdit()
+        self.speed_loop_P_input.resize(all_W, 40)
+        self.speed_loop_P_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.speed_loop_P_input.setTitleFixedWidth(title_W)
+        self.speed_loop_P_input.setAlignment(Qt.AlignCenter)
+        self.speed_loop_P_input.setTitle("速度环P")
+        self.speed_loop_P_input.setText("0")
+
+        # 速度环 I
+        self.speed_loop_I_input = SiCapsuleLineEdit()
+        self.speed_loop_I_input.resize(all_W, 40)
+        self.speed_loop_I_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.speed_loop_I_input.setTitleFixedWidth(title_W)
+        self.speed_loop_I_input.setAlignment(Qt.AlignCenter)
+        self.speed_loop_I_input.setTitle("速度环I")
+        self.speed_loop_I_input.setText("0")
+
+        # 位置环 P
+        self.position_loop_P_input = SiCapsuleLineEdit()
+        self.position_loop_P_input.resize(all_W, 40)
+        self.position_loop_P_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.position_loop_P_input.setTitleFixedWidth(title_W)
+        self.position_loop_P_input.setAlignment(Qt.AlignCenter)
+        self.position_loop_P_input.setTitle("位置环P")
+        self.position_loop_P_input.setText("0")
+
+        # 位置环 I
+        self.position_loop_I_input = SiCapsuleLineEdit()
+        self.position_loop_I_input.resize(all_W, 40)
+        self.position_loop_I_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.position_loop_I_input.setTitleFixedWidth(title_W)
+        self.position_loop_I_input.setAlignment(Qt.AlignCenter)
+        self.position_loop_I_input.setTitle("位置环I")
+        self.position_loop_I_input.setText("0")
+
+        # 位置环 D
+        self.position_loop_D_input = SiCapsuleLineEdit()
+        self.position_loop_D_input.resize(all_W, 40)
+        self.position_loop_D_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.position_loop_D_input.setTitleFixedWidth(title_W)
+        self.position_loop_D_input.setAlignment(Qt.AlignCenter)
+        self.position_loop_D_input.setTitle("位置环D")
+        self.position_loop_D_input.setText("0")
+
+        control_layout.addWidget(Title_control)
+        control_layout.addLayout(button_layout1)
+        control_layout.addLayout(button_layout2)
+        control_layout.addWidget(self.CAN_ID_input)
+        control_layout.addWidget(self.current_loop_P_input)
+        control_layout.addWidget(self.current_loop_I_input)
+        control_layout.addWidget(self.flux_weakening_P_input)
+        control_layout.addWidget(self.flux_weakening_I_input)
+        control_layout.addWidget(self.speed_loop_P_input)
+        control_layout.addWidget(self.speed_loop_I_input)
+        control_layout.addWidget(self.position_loop_P_input)
+        control_layout.addWidget(self.position_loop_I_input)
+        control_layout.addWidget(self.position_loop_D_input)
+        control_layout.setAlignment(Qt.AlignTop)
+
+    
+        #模式参数##############################################
+        mode_layout=QVBoxLayout(self.mode_group)
+        mode_layout.setContentsMargins(24,12,24,12)
+        mode_layout.setSpacing(12)
+
+        Title_mode=SiLabel()
+        Title_mode.setStyleSheet("color:#E5E5E5;")
+        Title_mode.setText("模式设置")
+        Title_mode.setFont(SiFont.tokenized(GlobalFont.M_BOLD))
+        Title_mode.setFixedHeight(26)
+        Title_mode.setAlignment(Qt.AlignBottom)
+        Title_mode.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)        
+
+        self.sensormode_input=SiCapsuleComboBox()
+        self.sensormode_input.setTitle("感应模式")
+        self.sensormode_input.setEditable(False)
+        self.sensormode_input.setFixedHeight(36)
+        self.sensormode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.sensormode_input.setTitleFixedWidth(title_W)
+        for i in Midx.sensor_mode:
+            self.sensormode_input.addItem(i)
+
+        self.loopmode_input=SiCapsuleComboBox()
+        self.loopmode_input.setTitle("控制环")
+        self.loopmode_input.setEditable(False)
+        self.loopmode_input.setFixedHeight(36)
+        self.loopmode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.loopmode_input.setTitleFixedWidth(title_W)
+        for i in Midx.loop_mode:
+            self.loopmode_input.addItem(i)
+
+        self.can_mode_input=SiCapsuleComboBox()
+        self.can_mode_input.setTitle("CAN模式")
+        self.can_mode_input.setEditable(False)
+        self.can_mode_input.setFixedHeight(36)
+        self.can_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.can_mode_input.setTitleFixedWidth(title_W)
+        for i in Midx.can_mode:
+            self.can_mode_input.addItem(i)
+
+        self.weakmag_mode_input=SiCapsuleComboBox()
+        self.weakmag_mode_input.setTitle("弱磁控制")
+        self.weakmag_mode_input.setEditable(False)
+        self.weakmag_mode_input.setFixedHeight(36)
+        self.weakmag_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.weakmag_mode_input.setTitleFixedWidth(title_W)
+        for i in Midx.weakmag_mode:
+            self.weakmag_mode_input.addItem(i)
+
+        self.vaguePID_input=SiCapsuleComboBox()
+        self.vaguePID_input.setTitle("模糊PID")
+        self.vaguePID_input.setFixedHeight(36)
+        self.vaguePID_input.setEditable(False)
+        self.vaguePID_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.vaguePID_input.setTitleFixedWidth(title_W)
+        for i in Midx.vague_PID_mode:
+            self.vaguePID_input.addItem(i)
+
+        self.PVT_mode_input=SiCapsuleComboBox()
+        self.PVT_mode_input.setTitle("PVT模式")
+        self.PVT_mode_input.setEditable(False)
+        self.PVT_mode_input.setFixedHeight(36)
+        self.PVT_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.PVT_mode_input.setTitleFixedWidth(title_W)
+        for i in Midx.pvt_mode:
+            self.PVT_mode_input.addItem(i)
+
+        self.FAN_mode_input=SiCapsuleComboBox()
+        self.FAN_mode_input.setTitle("风扇模式")
+        self.FAN_mode_input.setEditable(False)
+        self.FAN_mode_input.setFixedHeight(36)
+        self.FAN_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.FAN_mode_input.setTitleFixedWidth(title_W)
+        for i in Midx.fan_mode:
+            self.FAN_mode_input.addItem(i)
+
+
+
+        mode_layout.addWidget(Title_mode)
+        mode_layout.addWidget(self.sensormode_input)
+        mode_layout.addWidget(self.loopmode_input)
+        mode_layout.addWidget(self.can_mode_input)
+        mode_layout.addWidget(self.weakmag_mode_input)
+        mode_layout.addWidget(self.vaguePID_input)
+        mode_layout.addWidget(self.PVT_mode_input)
+        mode_layout.addWidget(self.FAN_mode_input)
+        mode_layout.setAlignment(Qt.AlignTop)
+
+        #电机参数#########################################################
+        motor_layout=QVBoxLayout(self.motor_group)
+        motor_layout.setContentsMargins(24,12,24,12)
+        motor_layout.setSpacing(12)
+
+        Title_motor=SiLabel()
+        Title_motor.setStyleSheet("color:#E5E5E5;")
+        Title_motor.setText("电机参数")
+        Title_motor.setFont(SiFont.tokenized(GlobalFont.M_BOLD))
+        Title_motor.setFixedHeight(26)
+        Title_motor.setAlignment(Qt.AlignBottom)
+        Title_motor.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)        
+
+        self.motor_WireSequence_input=SiCapsuleComboBox()
+        self.motor_WireSequence_input.setTitle("三相线序")
+        self.motor_WireSequence_input.setEditable(False)
+        self.motor_WireSequence_input.setFixedHeight(36)
+        self.motor_WireSequence_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_WireSequence_input.setTitleFixedWidth(title_W)
+        self.motor_WireSequence_input.addItem("正线序")
+        self.motor_WireSequence_input.addItem("逆线序")
+
+        self.offsetangle_input=SiCapsuleLineEdit()
+        self.offsetangle_input.resize(all_W,40)
+        self.offsetangle_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.offsetangle_input.setTitleFixedWidth(title_W) 
+        self.offsetangle_input.setAlignment(Qt.AlignCenter) 
+        self.offsetangle_input.setTitle("偏转角度")
+        self.offsetangle_input.setText("0")
+
+        self.motor_polepairs_input=SiCapsuleLineEdit()
+        self.motor_polepairs_input.resize(all_W,40)
+        self.motor_polepairs_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_polepairs_input.setTitleFixedWidth(title_W) 
+        self.motor_polepairs_input.setAlignment(Qt.AlignCenter) 
+        self.motor_polepairs_input.setTitle("电机极数")
+        self.motor_polepairs_input.setText("7")
+
+        self.motor_resistance_input=SiCapsuleLineEdit()
+        self.motor_resistance_input.resize(all_W,40)
+        self.motor_resistance_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_resistance_input.setTitleFixedWidth(title_W) 
+        self.motor_resistance_input.setAlignment(Qt.AlignCenter) 
+        self.motor_resistance_input.setTitle("相电阻")
+        self.motor_resistance_input.setText("0.001")
+
+        self.motor_inductance_input=SiCapsuleLineEdit()
+        self.motor_inductance_input.resize(all_W,40)
+        self.motor_inductance_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_inductance_input.setTitleFixedWidth(title_W) 
+        self.motor_inductance_input.setAlignment(Qt.AlignCenter) 
+        self.motor_inductance_input.setTitle("相电感")
+        self.motor_inductance_input.setText("0.001")
+
+        self.motor_psif_input=SiCapsuleLineEdit()
+        self.motor_psif_input.resize(all_W,40)
+        self.motor_psif_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_psif_input.setTitleFixedWidth(title_W) 
+        self.motor_psif_input.setAlignment(Qt.AlignCenter) 
+        self.motor_psif_input.setTitle("磁链")
+        self.motor_psif_input.setText("0.001")
+
+        self.motor_Ke_input=SiCapsuleLineEdit()
+        self.motor_Ke_input.resize(all_W,40)
+        self.motor_Ke_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_Ke_input.setTitleFixedWidth(title_W) 
+        self.motor_Ke_input.setAlignment(Qt.AlignCenter) 
+        self.motor_Ke_input.setTitle("反电动势")
+        self.motor_Ke_input.setText("0.001")
+
+        self.motor_J_input=SiCapsuleLineEdit()
+        self.motor_J_input.resize(all_W,40)
+        self.motor_J_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_J_input.setTitleFixedWidth(title_W) 
+        self.motor_J_input.setAlignment(Qt.AlignCenter) 
+        self.motor_J_input.setTitle("转动惯量")
+        self.motor_J_input.setText("0.001")
+
+        self.motor_B_input=SiCapsuleLineEdit()
+        self.motor_B_input.resize(all_W,40)
+        self.motor_B_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.motor_B_input.setTitleFixedWidth(title_W) 
+        self.motor_B_input.setAlignment(Qt.AlignCenter) 
+        self.motor_B_input.setTitle("摩擦系数")
+        self.motor_B_input.setText("0.001")
+
+
+
+        motor_layout.addWidget(Title_motor)
+        motor_layout.addWidget(self.offsetangle_input)
+        motor_layout.addWidget(self.motor_WireSequence_input)
+        motor_layout.addWidget(self.motor_polepairs_input)
+        motor_layout.addWidget(self.motor_resistance_input)
+        motor_layout.addWidget(self.motor_inductance_input)
+        motor_layout.addWidget(self.motor_psif_input)
+        motor_layout.addWidget(self.motor_Ke_input)
+        motor_layout.addWidget(self.motor_J_input)
+        motor_layout.addWidget(self.motor_B_input)
+        motor_layout.setAlignment(Qt.AlignTop)
+
+        #驱动器参数################################################
+        drive_layout=QVBoxLayout(self.drive_group)
+        drive_layout.setContentsMargins(24,12,24,12)
+
+        Title_drive=SiLabel()
+        Title_drive.setStyleSheet("color:#E5E5E5;")
+        Title_drive.setText("驱动器参数")
+        Title_drive.setFont(SiFont.tokenized(GlobalFont.M_BOLD))
+        Title_drive.setFixedHeight(26)
+        Title_drive.setAlignment(Qt.AlignBottom)
+        Title_drive.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)        
+
+        self.f_pwm=SiCapsuleLineEdit()
+        self.f_pwm.setReadOnly(True)
+        self.f_pwm.resize(all_W,40)
+        self.f_pwm.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.f_pwm.setTitleFixedWidth(drive_title_W) 
+        self.f_pwm.setAlignment(Qt.AlignCenter) 
+        self.f_pwm.setTitle("PWM频率/Hz")
+        self.f_pwm.setText("20000")
+
+        self.f_current_loop=SiCapsuleLineEdit()
+        self.f_current_loop.setReadOnly(True)
+        self.f_current_loop.resize(all_W,40)
+        self.f_current_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.f_current_loop.setTitleFixedWidth(drive_title_W) 
+        self.f_current_loop.setAlignment(Qt.AlignCenter) 
+        self.f_current_loop.setTitle("电流环频率/Hz")
+        self.f_current_loop.setText("20000")
+
+        self.f_speed_loop=SiCapsuleLineEdit()
+        self.f_speed_loop.setReadOnly(True)
+        self.f_speed_loop.resize(all_W,40)
+        self.f_speed_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.f_speed_loop.setTitleFixedWidth(drive_title_W) 
+        self.f_speed_loop.setAlignment(Qt.AlignCenter) 
+        self.f_speed_loop.setTitle("速度环频率/Hz")
+        self.f_speed_loop.setText("20000")
+
+        self.f_position_loop=SiCapsuleLineEdit()
+        self.f_position_loop.setReadOnly(True)
+        self.f_position_loop.resize(all_W,40)
+        self.f_position_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.f_position_loop.setTitleFixedWidth(drive_title_W) 
+        self.f_position_loop.setAlignment(Qt.AlignCenter) 
+        self.f_position_loop.setTitle("位置环频率/Hz")
+        self.f_position_loop.setText("20000")
+
+        self.freq_current_loop=SiCapsuleLineEdit()
+        self.freq_current_loop.resize(all_W,40)
+        self.freq_current_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.freq_current_loop.setTitleFixedWidth(drive_title_W) 
+        self.freq_current_loop.setAlignment(Qt.AlignCenter) 
+        self.freq_current_loop.setTitle("电流环分频系数")
+        self.freq_current_loop.setText("1")
+
+        self.freq_speed_loop=SiCapsuleLineEdit()
+        self.freq_speed_loop.resize(all_W,40)
+        self.freq_speed_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.freq_speed_loop.setTitleFixedWidth(drive_title_W) 
+        self.freq_speed_loop.setAlignment(Qt.AlignCenter) 
+        self.freq_speed_loop.setTitle("速度环分频系数")
+        self.freq_speed_loop.setText("1")
+
+        self.freq_position_loop=SiCapsuleLineEdit()
+        self.freq_position_loop.resize(all_W,40)
+        self.freq_position_loop.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.freq_position_loop.setTitleFixedWidth(drive_title_W) 
+        self.freq_position_loop.setAlignment(Qt.AlignCenter) 
+        self.freq_position_loop.setTitle("位置环分频系数")
+        self.freq_position_loop.setText("1")
+
+        self.limit_current=SiCapsuleLineEdit()
+        self.limit_current.resize(all_W,40)
+        self.limit_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.limit_current.setTitleFixedWidth(drive_title_W) 
+        self.limit_current.setAlignment(Qt.AlignCenter) 
+        self.limit_current.setTitle("电流限幅/A")
+        self.limit_current.setText("50")
+
+        self.limit_speed=SiCapsuleLineEdit()
+        self.limit_speed.resize(all_W,40)
+        self.limit_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.limit_speed.setTitleFixedWidth(drive_title_W) 
+        self.limit_speed.setAlignment(Qt.AlignCenter) 
+        self.limit_speed.setTitle("速度限幅/rpm")
+        self.limit_speed.setText("1000")
+
+        self.min_position=SiCapsuleLineEdit()
+        self.min_position.resize(all_W,40)
+        self.min_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.min_position.setTitleFixedWidth(drive_title_W) 
+        self.min_position.setAlignment(Qt.AlignCenter) 
+        self.min_position.setTitle("最小位置/°")
+        self.min_position.setText("-10000")
+
+        self.max_position=SiCapsuleLineEdit()
+        self.max_position.resize(all_W,40)
+        self.max_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.max_position.setTitleFixedWidth(drive_title_W) 
+        self.max_position.setAlignment(Qt.AlignCenter) 
+        self.max_position.setTitle("最大位置/°")
+        self.max_position.setText("10000")
+
+        self.tolerance_time=SiCapsuleLineEdit()
+        self.tolerance_time.resize(all_W,40)
+        self.tolerance_time.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tolerance_time.setTitleFixedWidth(drive_title_W) 
+        self.tolerance_time.setAlignment(Qt.AlignCenter) 
+        self.tolerance_time.setTitle("容忍时间/ms")
+        self.tolerance_time.setText("1")
+
+        self.tolerance_voltage=SiCapsuleLineEdit()
+        self.tolerance_voltage.resize(all_W,40)
+        self.tolerance_voltage.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tolerance_voltage.setTitleFixedWidth(drive_title_W) 
+        self.tolerance_voltage.setAlignment(Qt.AlignCenter) 
+        self.tolerance_voltage.setTitle("电压容忍度")
+        self.tolerance_voltage.setText("1.0")
+
+        self.tolerance_current=SiCapsuleLineEdit()
+        self.tolerance_current.resize(all_W,40)
+        self.tolerance_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tolerance_current.setTitleFixedWidth(drive_title_W) 
+        self.tolerance_current.setAlignment(Qt.AlignCenter) 
+        self.tolerance_current.setTitle("电流容忍度")
+        self.tolerance_current.setText("1.1")
+
+        self.tolerance_speed=SiCapsuleLineEdit()
+        self.tolerance_speed.resize(all_W,40)
+        self.tolerance_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tolerance_speed.setTitleFixedWidth(drive_title_W) 
+        self.tolerance_speed.setAlignment(Qt.AlignCenter) 
+        self.tolerance_speed.setTitle("速度容忍度")
+        self.tolerance_speed.setText("1.1")
+
+        self.tolerance_position=SiCapsuleLineEdit()
+        self.tolerance_position.resize(all_W,40)
+        self.tolerance_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tolerance_position.setTitleFixedWidth(drive_title_W) 
+        self.tolerance_position.setAlignment(Qt.AlignCenter) 
+        self.tolerance_position.setTitle("位置容忍度")
+        self.tolerance_position.setText("1.1")
+
+        self.start_accel=SiCapsuleLineEdit()
+        self.start_accel.resize(all_W,40)
+        self.start_accel.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.start_accel.setTitleFixedWidth(drive_title_W) 
+        self.start_accel.setAlignment(Qt.AlignCenter) 
+        self.start_accel.setTitle("启动加速度/rpm/s")
+        self.start_accel.setText("1000")
+
+        self.algin_current=SiCapsuleLineEdit()
+        self.algin_current.resize(all_W,40)
+        self.algin_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.algin_current.setTitleFixedWidth(drive_title_W) 
+        self.algin_current.setAlignment(Qt.AlignCenter) 
+        self.algin_current.setTitle("对齐电流/A")
+        self.algin_current.setText("1")
+
+        self.algin_time=SiCapsuleLineEdit()
+        self.algin_time.resize(all_W,40)
+        self.algin_time.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.algin_time.setTitleFixedWidth(drive_title_W) 
+        self.algin_time.setAlignment(Qt.AlignCenter) 
+        self.algin_time.setTitle("对齐时间/ms")
+        self.algin_time.setText("100")
+
+        self.open_loop_current=SiCapsuleLineEdit()
+        self.open_loop_current.resize(all_W,40)
+        self.open_loop_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.open_loop_current.setTitleFixedWidth(drive_title_W) 
+        self.open_loop_current.setAlignment(Qt.AlignCenter) 
+        self.open_loop_current.setTitle("开环电流/A")
+        self.open_loop_current.setText("1")
+
+        self.open_loop_speed=SiCapsuleLineEdit()
+        self.open_loop_speed.resize(all_W,40)
+        self.open_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.open_loop_speed.setTitleFixedWidth(drive_title_W) 
+        self.open_loop_speed.setAlignment(Qt.AlignCenter) 
+        self.open_loop_speed.setTitle("开环速度/rpm")
+        self.open_loop_speed.setText("1000")
+
+        self.change_loop_speed=SiCapsuleLineEdit()
+        self.change_loop_speed.resize(all_W,40)
+        self.change_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.change_loop_speed.setTitleFixedWidth(drive_title_W) 
+        self.change_loop_speed.setAlignment(Qt.AlignCenter) 
+        self.change_loop_speed.setTitle("切换速度/rpm")
+        self.change_loop_speed.setText("1000")
+
+        drive_layout.addWidget(Title_drive)
+        drive_layout.addWidget(self.f_pwm)
+        drive_layout.addWidget(self.f_current_loop)
+        drive_layout.addWidget(self.f_speed_loop)
+        drive_layout.addWidget(self.f_position_loop)
+        drive_layout.addWidget(self.freq_current_loop)
+        drive_layout.addWidget(self.freq_speed_loop)
+        drive_layout.addWidget(self.freq_position_loop)
+        drive_layout.addWidget(self.limit_current)
+        drive_layout.addWidget(self.limit_speed)
+        drive_layout.addWidget(self.min_position)
+        drive_layout.addWidget(self.max_position)
+        drive_layout.addWidget(self.tolerance_time)
+        drive_layout.addWidget(self.tolerance_voltage)
+        drive_layout.addWidget(self.tolerance_current)
+        drive_layout.addWidget(self.tolerance_speed)
+        drive_layout.addWidget(self.tolerance_position)
+        drive_layout.addWidget(self.start_accel)
+        drive_layout.addWidget(self.algin_current)
+        drive_layout.addWidget(self.algin_time)
+        drive_layout.addWidget(self.open_loop_current)
+        drive_layout.addWidget(self.open_loop_speed)
+        drive_layout.addWidget(self.change_loop_speed)
+        drive_layout.setAlignment(Qt.AlignTop)
+
+##########################################################
+        main_layout.addWidget(self.control_group)
+        main_layout.addWidget(self.mode_group)
+        main_layout.addWidget(self.motor_group)
+        main_layout.addWidget(self.drive_group)
+
+
+    def on_all_read_clicked(self):
+        pass
+
+    def on_all_write_clicked(self):
+        pass
+
+    def on_save_clicked(self):
+        pass
+
+    def on_all_erase_long_pressed(self):
+        pass
 

@@ -10,6 +10,8 @@ class SiSliderH(QAbstractSlider):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # 值指示
+        self.text="0.0"
         # 颜色组
         self.color_group = SiColorGroup(reference=SiGlobal.siui.colors)
 
@@ -39,7 +41,7 @@ class SiSliderH(QAbstractSlider):
         self.handle.setFixedStyleSheet("border-radius: 4px")
         self.handle.dragged.connect(self._dragged_handler)
         self.handle.moved.connect(self._moved_handler)
-        self.handle.setHint(str(self.value()))
+        self.handle.setHint(self.text)
 
         self.setMaximum(100)
         self.setMinimum(-100)
@@ -71,7 +73,7 @@ class SiSliderH(QAbstractSlider):
         :param move_to: Use moving animation
         """
         super().setValue(value)
-        self.handle.setHint(self.getHintFromValue(self.value()))
+        self.handle.setHint(self.text)
         self._move_handle_according_to_value(move_to=move_to)
 
     def mousePressEvent(self, event):
@@ -184,3 +186,6 @@ class SiSliderH(QAbstractSlider):
 
         # 依照自己的 value, 保证滑块在正确的位置上
         self._move_handle_according_to_value()
+
+    def setText(self, text):
+        self.text = text

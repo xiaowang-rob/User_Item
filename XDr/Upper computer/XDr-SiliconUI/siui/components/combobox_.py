@@ -346,3 +346,9 @@ class SiCapsuleComboBox(QComboBox):
     def resizeEvent(self, e):
         super().resizeEvent(e)
         self._line_edit.resize(e.size())
+
+    def setTitleWidthMode(self, mode: SiCapsuleLineEdit.TitleWidthMode):
+        self._line_edit.setTitleWidthMode(mode)
+
+    def setTitleFixedWidth(self, width: int):
+        self._line_edit.setTitleFixedWidth(width)
