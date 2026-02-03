@@ -58,6 +58,8 @@ class SiCapsuleLineEdit(QLineEdit):
 
         self.setFont(SiFont.getFont(size=14))
 
+        self._user_title_color=None
+
         self.style_data = LineEditStyleData()
 
         self._left_edge_container = SiBoxContainer(self)
@@ -416,8 +418,10 @@ class SiCapsuleLineEdit(QLineEdit):
         super().focusInEvent(a0)
         self.text_indicator_color_ani.setEndValue(self.style_data.text_indicator_color_editing)
         self.text_indicator_color_ani.start()
-        self.title_color_ani.setEndValue(self.style_data.title_color_focused)
-        self.title_color_ani.start()
+
+        if self._user_title_color is None:  # ← 只有未设置用户颜色时才切换
+            self.title_color_ani.setEndValue(self.style_data.title_color_focused)
+            self.title_color_ani.start()
 
         self._onTextEdited(self.text())
 
@@ -425,14 +429,29 @@ class SiCapsuleLineEdit(QLineEdit):
         super().focusOutEvent(a0)
         self.text_indicator_color_ani.setEndValue(self.style_data.text_indicator_color_idle)
         self.text_indicator_color_ani.start()
-        self.title_color_ani.setEndValue(self.style_data.title_color_idle)
-        self.title_color_ani.start()
+
+        if self._user_title_color is None:  # ← 只有未设置用户颜色时才切换
+            self.title_color_ani.setEndValue(self.style_data.title_color_idle)
+            self.title_color_ani.start()
 
         self._onTextEdited("")
 
     def resizeEvent(self, a0):
         super().resizeEvent(a0)
         self._updateContainerGeometry()
+    def setTitleColor(self, color: QColor | str | None) -> None:
+        if color is None:
+            self._user_title_color = None
+            target = self.style_data.title_color_focused if self.hasFocus() else self.style_data.title_color_idle
+            self.title_color_ani.setEndValue(target)
+            self.title_color_ani.start()
+        else:
+            self._user_title_color = QColor(color)
+            self.title_color_ani.stop()
+            self.title_color_ani.setCurrentValue(self._user_title_color)
+            self.title_color_ani.setEndValue(self._user_title_color)
+            self._title_color = self._user_title_color
+            self.update()
 
 class AnimatedCharObject(QObject):
 

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [XDrive\XDrive.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image XDrive\XDrive.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Sat Jan 31 19:15:32 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Mon Feb  2 21:53:18 2026
 <BR><P>
 <H3>Maximum Stack Usage =        352 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -163,7 +163,7 @@ Global Symbols
 <P><STRONG><a name="[70]"></a>__main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry.o(.ARM.Collect$$$$00000000))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(.text)
 </UL>
-<P><STRONG><a name="[20c]"></a>_main_stk</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry2.o(.ARM.Collect$$$$00000001))
+<P><STRONG><a name="[20b]"></a>_main_stk</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry2.o(.ARM.Collect$$$$00000001))
 
 <P><STRONG><a name="[83]"></a>_main_scatterload</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry5.o(.ARM.Collect$$$$00000004))
 <BR><BR>[Calls]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
@@ -173,15 +173,15 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__scatterload
 </UL>
 
-<P><STRONG><a name="[20d]"></a>_main_clock</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry7b.o(.ARM.Collect$$$$00000008))
+<P><STRONG><a name="[20c]"></a>_main_clock</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry7b.o(.ARM.Collect$$$$00000008))
 
-<P><STRONG><a name="[20e]"></a>_main_cpp_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry8b.o(.ARM.Collect$$$$0000000A))
+<P><STRONG><a name="[20d]"></a>_main_cpp_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry8b.o(.ARM.Collect$$$$0000000A))
 
-<P><STRONG><a name="[20f]"></a>_main_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry9a.o(.ARM.Collect$$$$0000000B))
+<P><STRONG><a name="[20e]"></a>_main_init</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry9a.o(.ARM.Collect$$$$0000000B))
 
-<P><STRONG><a name="[210]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000D))
+<P><STRONG><a name="[20f]"></a>__rt_final_cpp</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry10a.o(.ARM.Collect$$$$0000000D))
 
-<P><STRONG><a name="[211]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$0000000F))
+<P><STRONG><a name="[210]"></a>__rt_final_exit</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, entry11a.o(.ARM.Collect$$$$0000000F))
 
 <P><STRONG><a name="[16]"></a>Reset_Handler</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, startup_stm32f405xx.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(RESET)
@@ -397,30 +397,30 @@ Global Symbols
 
 <P><STRONG><a name="[b2]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Status_send
-<LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
+<LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_Frame_send
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_frame_send
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_Send_Msg
 <LI><a href="#[b6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbRecvByte
 </UL>
 
-<P><STRONG><a name="[212]"></a>__aeabi_memcpy4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
+<P><STRONG><a name="[211]"></a>__aeabi_memcpy4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
 
-<P><STRONG><a name="[213]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
+<P><STRONG><a name="[212]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memcpya.o(.text), UNUSED)
 
 <P><STRONG><a name="[89]"></a>__aeabi_memset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_memset$wrapper
 <LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 </UL>
 
-<P><STRONG><a name="[214]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[213]"></a>__aeabi_memset4</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
-<P><STRONG><a name="[215]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[214]"></a>__aeabi_memset8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[88]"></a>__aeabi_memclr</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, memseta.o(.text))
 <BR><BR>[Calls]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
+<BR>[Called By]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pulse_interference_init
 </UL>
 
@@ -428,18 +428,18 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
 <LI><a href="#[7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Init
 <LI><a href="#[1a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_3_alternate
-<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
-<LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
+<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
+<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_RUNMODE
 <LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_reset
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_reset
-<LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop_parameter_init
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
-<LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_init
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_init
+<LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop_parameter_init
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_init
+<LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_init
 </UL>
 
-<P><STRONG><a name="[216]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
+<P><STRONG><a name="[215]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, memseta.o(.text), UNUSED)
 
 <P><STRONG><a name="[8a]"></a>_memset$wrapper</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, memseta.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memset
@@ -488,7 +488,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
-<LI><a href="#[20b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_invalid
+<LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_invalid
 </UL>
 
 <P><STRONG><a name="[d6]"></a>__aeabi_f2d</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, f2d.o(.text))
@@ -515,28 +515,28 @@ Global Symbols
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
 </UL>
 
-<P><STRONG><a name="[217]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llshl.o(.text), UNUSED)
+<P><STRONG><a name="[216]"></a>_ll_shift_l</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llshl.o(.text), UNUSED)
 
 <P><STRONG><a name="[86]"></a>__aeabi_llsr</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, llushr.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_epilogue
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uldivmod
 </UL>
 
-<P><STRONG><a name="[218]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llushr.o(.text), UNUSED)
+<P><STRONG><a name="[217]"></a>_ll_ushift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llushr.o(.text), UNUSED)
 
 <P><STRONG><a name="[8c]"></a>__aeabi_lasr</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, llsshr.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
 
-<P><STRONG><a name="[219]"></a>_ll_sshift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llsshr.o(.text), UNUSED)
+<P><STRONG><a name="[218]"></a>_ll_sshift_r</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, llsshr.o(.text), UNUSED)
 
-<P><STRONG><a name="[21a]"></a>__I$use$fp</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, iusefp.o(.text), UNUSED)
+<P><STRONG><a name="[219]"></a>__I$use$fp</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, iusefp.o(.text), UNUSED)
 
 <P><STRONG><a name="[94]"></a>_float_round</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, fepilogue.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 </UL>
 
-<P><STRONG><a name="[21b]"></a>_float_epilogue</STRONG> (Thumb, 92 bytes, Stack size 4 bytes, fepilogue.o(.text), UNUSED)
+<P><STRONG><a name="[21a]"></a>_float_epilogue</STRONG> (Thumb, 92 bytes, Stack size 4 bytes, fepilogue.o(.text), UNUSED)
 
 <P><STRONG><a name="[8e]"></a>_double_round</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, depilogue.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = _double_round
@@ -572,11 +572,11 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_main_scatterload
 </UL>
 
-<P><STRONG><a name="[21c]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
+<P><STRONG><a name="[21b]"></a>__scatterload_rt2</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, init.o(.text), UNUSED)
 
-<P><STRONG><a name="[21d]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
+<P><STRONG><a name="[21c]"></a>__decompress</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
 
-<P><STRONG><a name="[21e]"></a>__decompress0</STRONG> (Thumb, 58 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
+<P><STRONG><a name="[21d]"></a>__decompress0</STRONG> (Thumb, 58 bytes, Stack size unknown bytes, __dczerorl.o(.text), UNUSED)
 
 <P><STRONG><a name="[97]"></a>ADC2_sample</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, adcdr.o(.text.ADC2_sample))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = ADC2_sample &rArr; HAL_ADC_Start_DMA &rArr; HAL_DMA_Start_IT
@@ -606,19 +606,19 @@ Global Symbols
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1f6]"></a>ADC_GET_Temp</STRONG> (Thumb, 160 bytes, Stack size 8 bytes, adcdr.o(.text.ADC_GET_Temp))
+<P><STRONG><a name="[1f5]"></a>ADC_GET_Temp</STRONG> (Thumb, 160 bytes, Stack size 8 bytes, adcdr.o(.text.ADC_GET_Temp))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = ADC_GET_Temp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_run
 </UL>
 
-<P><STRONG><a name="[1d8]"></a>ADC_GET_Voltage</STRONG> (Thumb, 48 bytes, Stack size 0 bytes, adcdr.o(.text.ADC_GET_Voltage))
+<P><STRONG><a name="[1d7]"></a>ADC_GET_Voltage</STRONG> (Thumb, 48 bytes, Stack size 0 bytes, adcdr.o(.text.ADC_GET_Voltage))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_senless_get_vito
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
-<P><STRONG><a name="[1fa]"></a>ADC_sample_change</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, adcdr.o(.text.ADC_sample_change))
+<P><STRONG><a name="[1f9]"></a>ADC_sample_change</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, adcdr.o(.text.ADC_sample_change))
 <BR><BR>[Called By]<UL><LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smaple_point_change
 </UL>
 
@@ -858,7 +858,7 @@ Global Symbols
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_state_set
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
+<BR>[Called By]<UL><LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
 <LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_init
 </UL>
 
@@ -871,7 +871,7 @@ Global Symbols
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_state_set
 </UL>
 <BR>[Called By]<UL><LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_save
-<LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_write
+<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_write
 </UL>
 
 <P><STRONG><a name="[d0]"></a>FLASH_erase_sector</STRONG> (Thumb, 36 bytes, Stack size 16 bytes, flashdr.o(.text.FLASH_erase_sector))
@@ -880,7 +880,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Erase_one_Sector
 </UL>
 <BR>[Called By]<UL><LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_save
-<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_erase
+<LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_erase
 <LI><a href="#[19c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_init
 </UL>
 
@@ -896,15 +896,15 @@ Global Symbols
 <LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_run
 </UL>
 
-<P><STRONG><a name="[1cf]"></a>FOC_GET_MODE_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_MODE_adr))
+<P><STRONG><a name="[1cd]"></a>FOC_GET_MODE_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_MODE_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d1]"></a>FOC_GET_STARTUP_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_STARTUP_adr))
+<P><STRONG><a name="[1cf]"></a>FOC_GET_STARTUP_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_STARTUP_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d0]"></a>FOC_GET_VAL_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_VAL_adr))
+<P><STRONG><a name="[1ce]"></a>FOC_GET_VAL_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_GET_VAL_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
@@ -938,12 +938,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
 </UL>
 
-<P><STRONG><a name="[1e5]"></a>FOC_SET_LOOPMODE</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_SET_LOOPMODE))
+<P><STRONG><a name="[1e4]"></a>FOC_SET_LOOPMODE</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_SET_LOOPMODE))
 <BR><BR>[Called By]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 <LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
-<P><STRONG><a name="[1f1]"></a>FOC_SET_OMEGA_con</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_SET_OMEGA_con))
+<P><STRONG><a name="[1f0]"></a>FOC_SET_OMEGA_con</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.FOC_SET_OMEGA_con))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
@@ -970,15 +970,15 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_PREPARE
 </UL>
 
-<P><STRONG><a name="[1df]"></a>GET_ENCODER_ANGLE_ABS</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_ANGLE_ABS))
+<P><STRONG><a name="[1de]"></a>GET_ENCODER_ANGLE_ABS</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_ANGLE_ABS))
 <BR><BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1e1]"></a>GET_ENCODER_ANGLE_INC</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_ANGLE_INC))
+<P><STRONG><a name="[1e0]"></a>GET_ENCODER_ANGLE_INC</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_ANGLE_INC))
 <BR><BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1e2]"></a>GET_ENCODER_OMEGA</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_OMEGA))
+<P><STRONG><a name="[1e1]"></a>GET_ENCODER_OMEGA</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, encoder.o(.text.GET_ENCODER_OMEGA))
 <BR><BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
@@ -1245,7 +1245,7 @@ Global Symbols
 
 <P><STRONG><a name="[bd]"></a>HAL_GPIO_WritePin</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, stm32f4xx_hal_gpio.o(.text.HAL_GPIO_WritePin))
 <BR><BR>[Called By]<UL><LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
-<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
+<LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_Init
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_Write_Word
 <LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_Read_data
@@ -1264,7 +1264,7 @@ Global Symbols
 <LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick_us
-<LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[14e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_TransmitReceive
 <LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Receive
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
@@ -1273,10 +1273,10 @@ Global Symbols
 <LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SPI_WaitFlagStateUntilTimeout
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CAN_Start
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CAN_Stop
-<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
-<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
+<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
+<LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
 <LI><a href="#[1a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_3_alternate
-<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
+<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ENCODER_MainLoopTask
 </UL>
 
@@ -1787,7 +1787,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[155]"></a>HAL_TIM_IRQHandler</STRONG> (Thumb, 330 bytes, Stack size 16 bytes, stm32f4xx_hal_tim.o(.text.HAL_TIM_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
+<BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIMEx_CommutCallback
 <LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_TriggerCallback
@@ -1854,8 +1854,8 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Start_IT
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_3_alternate
-<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
-<LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
+<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
+<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
 </UL>
 
 <P><STRONG><a name="[bb]"></a>HAL_TIM_PWM_Stop</STRONG> (Thumb, 156 bytes, Stack size 8 bytes, stm32f4xx_hal_tim.o(.text.HAL_TIM_PWM_Stop))
@@ -1865,7 +1865,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[159]"></a>HAL_TIM_PeriodElapsedCallback</STRONG> (Thumb, 228 bytes, Stack size 16 bytes, foc_statemachine.o(.text.HAL_TIM_PeriodElapsedCallback))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264<LI>Call Chain = HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
+<BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick_us
 <LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ENCODER_MainLoopTask
@@ -1936,7 +1936,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Start_Receive_DMA
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
+<BR>[Called By]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
 <LI><a href="#[16f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usartRecvByte
 </UL>
 
@@ -1958,7 +1958,7 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Start_IT
 </UL>
-<BR>[Called By]<UL><LI><a href="#[202]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vofa_send_multi_float
+<BR>[Called By]<UL><LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vofa_send_multi_float
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_frame_send
 </UL>
 
@@ -2136,7 +2136,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[187]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rad_to_deg
 <LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rad_to_rpm
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 </UL>
 
@@ -2178,23 +2178,23 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
 </UL>
 
-<P><STRONG><a name="[1f7]"></a>RGB_SetOne_Color</STRONG> (Thumb, 336 bytes, Stack size 28 bytes, rgb.o(.text.RGB_SetOne_Color))
+<P><STRONG><a name="[1f6]"></a>RGB_SetOne_Color</STRONG> (Thumb, 336 bytes, Stack size 28 bytes, rgb.o(.text.RGB_SetOne_Color))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = RGB_SetOne_Color
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_3_alternate
-<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
-<LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
+<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
+<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
 </UL>
 
-<P><STRONG><a name="[1ef]"></a>SET_Theta_offset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.SET_Theta_offset))
+<P><STRONG><a name="[1ee]"></a>SET_Theta_offset</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.SET_Theta_offset))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
-<P><STRONG><a name="[1ee]"></a>SET_Wire_sequence</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, foc_core.o(.text.SET_Wire_sequence))
+<P><STRONG><a name="[1ed]"></a>SET_Wire_sequence</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, foc_core.o(.text.SET_Wire_sequence))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
-<P><STRONG><a name="[1f3]"></a>SET_opend_loop_theta</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, foc_core.o(.text.SET_opend_loop_theta))
+<P><STRONG><a name="[1f2]"></a>SET_opend_loop_theta</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, foc_core.o(.text.SET_opend_loop_theta))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
@@ -2216,7 +2216,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
 </UL>
 
-<P><STRONG><a name="[193]"></a>Status_send</STRONG> (Thumb, 172 bytes, Stack size 16 bytes, port_mapping.o(.text.Status_send))
+<P><STRONG><a name="[193]"></a>Status_send</STRONG> (Thumb, 176 bytes, Stack size 16 bytes, port_mapping.o(.text.Status_send))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = Status_send &rArr; usb_Frame_send &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
 <BR>[Calls]<UL><LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_Frame_send
@@ -2225,7 +2225,7 @@ Global Symbols
 <LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 </UL>
 
 <P><STRONG><a name="[1f]"></a>SysTick_Handler</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text.SysTick_Handler))
@@ -2272,7 +2272,7 @@ Global Symbols
 <LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_run
 </UL>
 
-<P><STRONG><a name="[1fe]"></a>SystemState_get</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, system_statemachine.o(.text.SystemState_get))
+<P><STRONG><a name="[1fd]"></a>SystemState_get</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, system_statemachine.o(.text.SystemState_get))
 <BR><BR>[Called By]<UL><LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 </UL>
 
@@ -2285,7 +2285,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[4c]"></a>TIM8_UP_TIM13_IRQHandler</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text.TIM8_UP_TIM13_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = TIM8_UP_TIM13_IRQHandler &rArr; HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
+<BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = TIM8_UP_TIM13_IRQHandler &rArr; HAL_TIM_IRQHandler &rArr; HAL_TIM_PeriodElapsedCallback &rArr; auto_calibration_update &rArr; param_tuning_update &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_IRQHandler
 </UL>
@@ -2886,22 +2886,20 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
 </UL>
 
-<P><STRONG><a name="[1e9]"></a>arm_cos_f32</STRONG> (Thumb, 152 bytes, Stack size 0 bytes, arm_cos_f32.o(.text.arm_cos_f32))
+<P><STRONG><a name="[1e8]"></a>arm_cos_f32</STRONG> (Thumb, 152 bytes, Stack size 0 bytes, arm_cos_f32.o(.text.arm_cos_f32))
 <BR><BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inv_park_transform
-<LI><a href="#[1e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
+<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
 </UL>
 
-<P><STRONG><a name="[1e8]"></a>arm_sin_f32</STRONG> (Thumb, 144 bytes, Stack size 0 bytes, arm_sin_f32.o(.text.arm_sin_f32))
+<P><STRONG><a name="[1e7]"></a>arm_sin_f32</STRONG> (Thumb, 144 bytes, Stack size 0 bytes, arm_sin_f32.o(.text.arm_sin_f32))
 <BR><BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;inv_park_transform
-<LI><a href="#[1e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
+<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
 </UL>
 
-<P><STRONG><a name="[161]"></a>auto_calibration_update</STRONG> (Thumb, 80 bytes, Stack size 8 bytes, foc_core.o(.text.auto_calibration_update))
-<BR><BR>[Stack]<UL><LI>Max Depth = 248<LI>Call Chain = auto_calibration_update &rArr; param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[161]"></a>auto_calibration_update</STRONG> (Thumb, 64 bytes, Stack size 8 bytes, foc_core.o(.text.auto_calibration_update))
+<BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = auto_calibration_update &rArr; param_tuning_update &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_get_state
-<LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<BR>[Calls]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 <BR>[Called By]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PeriodElapsedCallback
 </UL>
@@ -2913,19 +2911,19 @@ Global Symbols
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_PORT_Init
 </UL>
 
-<P><STRONG><a name="[1de]"></a>clark_transform</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, math_fast.o(.text.clark_transform))
+<P><STRONG><a name="[1dd]"></a>clark_transform</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, math_fast.o(.text.clark_transform))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_senless_get_vito
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1f4]"></a>com_state_get_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, port_mapping.o(.text.com_state_get_adr))
+<P><STRONG><a name="[1f3]"></a>com_state_get_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, port_mapping.o(.text.com_state_get_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_init
 </UL>
 
 <P><STRONG><a name="[19b]"></a>communication_init</STRONG> (Thumb, 42 bytes, Stack size 8 bytes, port_mapping.o(.text.communication_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = communication_init &rArr; CAN_PORT_Init &rArr; HAL_CAN_Start
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
+<BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_port_Init
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_PORT_Init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
@@ -2934,7 +2932,7 @@ Global Symbols
 <P><STRONG><a name="[19d]"></a>communication_run</STRONG> (Thumb, 14 bytes, Stack size 8 bytes, port_mapping.o(.text.communication_run))
 <BR><BR>[Stack]<UL><LI>Max Depth = 296<LI>Call Chain = communication_run &rArr; CAN_QUEUE_Deal &rArr; CAN_RxData_Deal &rArr; frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Calls]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_QUEUE_Deal
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
@@ -2945,64 +2943,64 @@ Global Symbols
 <LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_init
 </UL>
 
-<P><STRONG><a name="[1f5]"></a>drive_state_get_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, drive_state.o(.text.drive_state_get_adr))
+<P><STRONG><a name="[1f4]"></a>drive_state_get_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, drive_state.o(.text.drive_state_get_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_init
 </UL>
 
 <P><STRONG><a name="[18f]"></a>fFOC_Init</STRONG> (Thumb, 70 bytes, Stack size 8 bytes, foc_statemachine.o(.text.fFOC_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_svpwm_adr
-<LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_tuning_adr
-<LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_smo_adr
-<LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_loop_con_adr
-<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_motor_adr
-<LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_STARTUP_adr
-<LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_VAL_adr
-<LI><a href="#[1cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_MODE_adr
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<BR>[Calls]<UL><LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_svpwm_adr
+<LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_tuning_adr
+<LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_smo_adr
+<LI><a href="#[1d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_loop_con_adr
+<LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_motor_adr
+<LI><a href="#[1cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_STARTUP_adr
+<LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_VAL_adr
+<LI><a href="#[1cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_GET_MODE_adr
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
-<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_reset
+<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_reset
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_set
 </UL>
 
-<P><STRONG><a name="[200]"></a>fGetVoltage_u</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_u))
+<P><STRONG><a name="[1ff]"></a>fGetVoltage_u</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_u))
 <BR><BR>[Called By]<UL><LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 </UL>
 
-<P><STRONG><a name="[1ff]"></a>fGetVoltage_v</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_v))
+<P><STRONG><a name="[1fe]"></a>fGetVoltage_v</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_v))
 <BR><BR>[Called By]<UL><LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 </UL>
 
-<P><STRONG><a name="[201]"></a>fGetVoltage_w</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_w))
+<P><STRONG><a name="[200]"></a>fGetVoltage_w</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, svpwm.o(.text.fGetVoltage_w))
 <BR><BR>[Called By]<UL><LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 </UL>
 
-<P><STRONG><a name="[1d7]"></a>fHostComputer_send</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, port_mapping.o(.text.fHostComputer_send))
+<P><STRONG><a name="[1d6]"></a>fHostComputer_send</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, port_mapping.o(.text.fHostComputer_send))
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = fHostComputer_send &rArr; usb_Frame_send &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
 <BR>[Calls]<UL><LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_Frame_send
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_frame_send
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 </UL>
 
-<P><STRONG><a name="[1cc]"></a>foc_core_init</STRONG> (Thumb, 352 bytes, Stack size 176 bytes, foc_core.o(.text.foc_core_init))
+<P><STRONG><a name="[1d5]"></a>foc_core_init</STRONG> (Thumb, 352 bytes, Stack size 176 bytes, foc_core.o(.text.foc_core_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_Init
+<BR>[Calls]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_Init
 <LI><a href="#[e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_reset
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop_reset
-<LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop_parameter_init
-<LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
-<LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_init
-<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_init
+<LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop_parameter_init
+<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_init
+<LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_init
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
-<LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_calibration_update
+<LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
 <P><STRONG><a name="[162]"></a>foc_core_reset</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, foc_core.o(.text.foc_core_reset))
@@ -3018,15 +3016,15 @@ Global Symbols
 <P><STRONG><a name="[d4]"></a>foc_encoder_get_vitop</STRONG> (Thumb, 262 bytes, Stack size 24 bytes, foc_core.o(.text.foc_encoder_get_vitop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = foc_encoder_get_vitop &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_OMEGA
-<LI><a href="#[1e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_ANGLE_INC
-<LI><a href="#[1e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
-<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_ANGLE_ABS
+<BR>[Calls]<UL><LI><a href="#[1e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_OMEGA
+<LI><a href="#[1e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_ANGLE_INC
+<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;park_transform
+<LI><a href="#[1de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GET_ENCODER_ANGLE_ABS
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;normalize_angle_0_2pi
-<LI><a href="#[1de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;clark_transform
-<LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_GetSector
+<LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;clark_transform
+<LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_GetSector
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Current
-<LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
+<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_PREPARE
 </UL>
@@ -3034,14 +3032,14 @@ Global Symbols
 <P><STRONG><a name="[d3]"></a>foc_senless_get_vito</STRONG> (Thumb, 312 bytes, Stack size 16 bytes, foc_core.o(.text.foc_senless_get_vito))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = foc_senless_get_vito &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_get_theta
+<BR>[Calls]<UL><LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_get_theta
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
-<LI><a href="#[1e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_get_omega
+<LI><a href="#[1e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_get_omega
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;normalize_angle_0_2pi
-<LI><a href="#[1de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;clark_transform
-<LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_GetSector
+<LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;clark_transform
+<LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;svpwm_GetSector
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Current
-<LI><a href="#[1d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
+<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Voltage
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_PREPARE
 </UL>
@@ -3051,54 +3049,54 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_save
 <LI><a href="#[185]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_erase
-<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_reset
-<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_erase
+<LI><a href="#[1e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_reset
+<LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_erase
 <LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_VER_VALUE
-<LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
+<LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_CHANGE_STATE
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_set
 <LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_get
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_Frame_send
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_frame_send
-<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_Send_Msg
 </UL>
-<BR>[Called By]<UL><LI><a href="#[203]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_farmedata_deal
-<LI><a href="#[204]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_FrameData_deal
+<BR>[Called By]<UL><LI><a href="#[202]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_farmedata_deal
+<LI><a href="#[203]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_FrameData_deal
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CAN_RxData_Deal
 </UL>
 
-<P><STRONG><a name="[1d2]"></a>get_loop_con_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, loop_control.o(.text.get_loop_con_adr))
+<P><STRONG><a name="[1d0]"></a>get_loop_con_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, loop_control.o(.text.get_loop_con_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d6]"></a>get_motor_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.get_motor_adr))
+<P><STRONG><a name="[1d4]"></a>get_motor_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, foc_core.o(.text.get_motor_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d3]"></a>get_smo_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, smo.o(.text.get_smo_adr))
+<P><STRONG><a name="[1d1]"></a>get_smo_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, smo.o(.text.get_smo_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d5]"></a>get_svpwm_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, svpwm.o(.text.get_svpwm_adr))
+<P><STRONG><a name="[1d3]"></a>get_svpwm_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, svpwm.o(.text.get_svpwm_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
-<P><STRONG><a name="[1d4]"></a>get_tuning_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, smo.o(.text.get_tuning_adr))
+<P><STRONG><a name="[1d2]"></a>get_tuning_adr</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, smo.o(.text.get_tuning_adr))
 <BR><BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 </UL>
 
 <P><STRONG><a name="[dd]"></a>inv_park_transform</STRONG> (Thumb, 80 bytes, Stack size 48 bytes, math_fast.o(.text.inv_park_transform))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = inv_park_transform
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cos_f32
-<LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_sin_f32
+<BR>[Calls]<UL><LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cos_f32
+<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_sin_f32
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
 </UL>
 
-<P><STRONG><a name="[1ea]"></a>led_show</STRONG> (Thumb, 122 bytes, Stack size 24 bytes, rgb.o(.text.led_show))
+<P><STRONG><a name="[1e9]"></a>led_show</STRONG> (Thumb, 122 bytes, Stack size 24 bytes, rgb.o(.text.led_show))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = led_show
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -3107,7 +3105,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;status_feedback
 </UL>
 
-<P><STRONG><a name="[1eb]"></a>log_data_save</STRONG> (Thumb, 196 bytes, Stack size 16 bytes, log.o(.text.log_data_save))
+<P><STRONG><a name="[1ea]"></a>log_data_save</STRONG> (Thumb, 196 bytes, Stack size 16 bytes, log.o(.text.log_data_save))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = log_data_save
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -3117,7 +3115,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_run
 </UL>
 
-<P><STRONG><a name="[1ec]"></a>log_data_write</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, log.o(.text.log_data_write))
+<P><STRONG><a name="[1eb]"></a>log_data_write</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, log.o(.text.log_data_write))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = log_data_write &rArr; FLASH_Write_Word &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_Write_Word
@@ -3125,7 +3123,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;protection_manager_run
 </UL>
 
-<P><STRONG><a name="[1e6]"></a>log_erase</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, log.o(.text.log_erase))
+<P><STRONG><a name="[1e5]"></a>log_erase</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, log.o(.text.log_erase))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = log_erase &rArr; FLASH_erase_sector &rArr; Erase_one_Sector &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_erase_sector
@@ -3141,27 +3139,27 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
 </UL>
 
-<P><STRONG><a name="[1ed]"></a>log_read_flash</STRONG> (Thumb, 102 bytes, Stack size 24 bytes, log.o(.text.log_read_flash))
+<P><STRONG><a name="[1ec]"></a>log_read_flash</STRONG> (Thumb, 102 bytes, Stack size 24 bytes, log.o(.text.log_read_flash))
 <BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = log_read_flash &rArr; FLASH_Read_data &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_Read_data
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 </UL>
 
-<P><STRONG><a name="[1d9]"></a>loop_parameter_init</STRONG> (Thumb, 280 bytes, Stack size 48 bytes, loop_control.o(.text.loop_parameter_init))
+<P><STRONG><a name="[1d8]"></a>loop_parameter_init</STRONG> (Thumb, 280 bytes, Stack size 48 bytes, loop_control.o(.text.loop_parameter_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
 <P><STRONG><a name="[e4]"></a>loop_reset</STRONG> (Thumb, 62 bytes, Stack size 0 bytes, loop_control.o(.text.loop_reset))
 <BR><BR>[Called By]<UL><LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_RUNMODE
 <LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_reset
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
 <P><STRONG><a name="[6e]"></a>main</STRONG> (Thumb, 90 bytes, Stack size 0 bytes, main.o(.text.main))
@@ -3198,48 +3196,45 @@ Global Symbols
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1f0]"></a>opend_loop_disable</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.opend_loop_disable))
+<P><STRONG><a name="[1ef]"></a>opend_loop_disable</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.opend_loop_disable))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
-<P><STRONG><a name="[1f2]"></a>opend_loop_enable</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.opend_loop_enable))
+<P><STRONG><a name="[1f1]"></a>opend_loop_enable</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, foc_core.o(.text.opend_loop_enable))
 <BR><BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 </UL>
 
-<P><STRONG><a name="[1cb]"></a>param_tuning_get_state</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, smo.o(.text.param_tuning_get_state))
-<BR><BR>[Called By]<UL><LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_calibration_update
-</UL>
-
-<P><STRONG><a name="[1db]"></a>param_tuning_init</STRONG> (Thumb, 46 bytes, Stack size 16 bytes, smo.o(.text.param_tuning_init))
+<P><STRONG><a name="[1da]"></a>param_tuning_init</STRONG> (Thumb, 46 bytes, Stack size 16 bytes, smo.o(.text.param_tuning_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = param_tuning_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
-<P><STRONG><a name="[1ca]"></a>param_tuning_update</STRONG> (Thumb, 2820 bytes, Stack size 40 bytes, smo.o(.text.param_tuning_update))
-<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = param_tuning_update &rArr; smo_update &rArr; normalize_angle_0_2pi &rArr; __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
+<P><STRONG><a name="[1ca]"></a>param_tuning_update</STRONG> (Thumb, 2932 bytes, Stack size 40 bytes, smo.o(.text.param_tuning_update))
+<BR><BR>[Stack]<UL><LI>Max Depth = 264<LI>Call Chain = param_tuning_update &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_VER_VALUE
-<LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
-<LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_opend_loop_theta
-<LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_disable
-<LI><a href="#[1f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_enable
-<LI><a href="#[1ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_Wire_sequence
-<LI><a href="#[1ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_Theta_offset
+<LI><a href="#[1e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_LOOPMODE
+<LI><a href="#[1f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_opend_loop_theta
+<LI><a href="#[1ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_disable
+<LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;opend_loop_enable
+<LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_Wire_sequence
+<LI><a href="#[1ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SET_Theta_offset
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_RUNMODE
-<LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_OMEGA_con
+<LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_OMEGA_con
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_calibration_update
 </UL>
 
-<P><STRONG><a name="[1e0]"></a>park_transform</STRONG> (Thumb, 80 bytes, Stack size 48 bytes, math_fast.o(.text.park_transform))
+<P><STRONG><a name="[1df]"></a>park_transform</STRONG> (Thumb, 80 bytes, Stack size 48 bytes, math_fast.o(.text.park_transform))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = park_transform
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cos_f32
-<LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_sin_f32
+<BR>[Calls]<UL><LI><a href="#[1e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cos_f32
+<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_sin_f32
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
@@ -3247,14 +3242,14 @@ Global Symbols
 <P><STRONG><a name="[18e]"></a>protection_manager_init</STRONG> (Thumb, 96 bytes, Stack size 8 bytes, protection_manager.o(.text.protection_manager_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = protection_manager_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;com_state_get_adr
-<LI><a href="#[1f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;drive_state_get_adr
+<BR>[Calls]<UL><LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;com_state_get_adr
+<LI><a href="#[1f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;drive_state_get_adr
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_set
 </UL>
 
-<P><STRONG><a name="[1e7]"></a>protection_manager_reset</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, protection_manager.o(.text.protection_manager_reset))
+<P><STRONG><a name="[1e6]"></a>protection_manager_reset</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, protection_manager.o(.text.protection_manager_reset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = protection_manager_reset &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
@@ -3267,9 +3262,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemState_change
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_CHANGE_STATE
-<LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_write
-<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
-<LI><a href="#[1f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Temp
+<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_write
+<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
+<LI><a href="#[1f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_GET_Temp
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC2_sample
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
@@ -3292,13 +3287,13 @@ Global Symbols
 <P><STRONG><a name="[187]"></a>rad_to_deg</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, math_fast.o(.text.rad_to_deg))
 <BR><BR>[Called By]<UL><LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_get
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
-<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
+<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
 </UL>
 
 <P><STRONG><a name="[188]"></a>rad_to_rpm</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, math_fast.o(.text.rad_to_rpm))
 <BR><BR>[Called By]<UL><LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_get
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
-<LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
+<LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_data_save
 </UL>
 
 <P><STRONG><a name="[1a2]"></a>rgb_3_alternate</STRONG> (Thumb, 234 bytes, Stack size 40 bytes, rgb.o(.text.rgb_3_alternate))
@@ -3306,28 +3301,28 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_Start_DMA
-<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
+<LI><a href="#[1f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Fault_feedback
 </UL>
 
-<P><STRONG><a name="[1f8]"></a>rgb_alternate</STRONG> (Thumb, 208 bytes, Stack size 32 bytes, rgb.o(.text.rgb_alternate))
+<P><STRONG><a name="[1f7]"></a>rgb_alternate</STRONG> (Thumb, 208 bytes, Stack size 32 bytes, rgb.o(.text.rgb_alternate))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = rgb_alternate &rArr; HAL_TIM_PWM_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_Start_DMA
-<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
+<LI><a href="#[1f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;status_feedback
 </UL>
 
-<P><STRONG><a name="[1f9]"></a>rgb_breathe</STRONG> (Thumb, 262 bytes, Stack size 16 bytes, rgb.o(.text.rgb_breathe))
+<P><STRONG><a name="[1f8]"></a>rgb_breathe</STRONG> (Thumb, 262 bytes, Stack size 16 bytes, rgb.o(.text.rgb_breathe))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = rgb_breathe &rArr; HAL_TIM_PWM_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_Start_DMA
-<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
+<LI><a href="#[1f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RGB_SetOne_Color
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;status_feedback
@@ -3339,25 +3334,25 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[df]"></a>smaple_point_change</STRONG> (Thumb, 144 bytes, Stack size 0 bytes, svpwm.o(.text.smaple_point_change))
-<BR><BR>[Calls]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_sample_change
+<BR><BR>[Calls]<UL><LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC_sample_change
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
 </UL>
 
-<P><STRONG><a name="[1e3]"></a>smo_get_omega</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, smo.o(.text.smo_get_omega))
+<P><STRONG><a name="[1e2]"></a>smo_get_omega</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, smo.o(.text.smo_get_omega))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_senless_get_vito
 </UL>
 
-<P><STRONG><a name="[1e4]"></a>smo_get_theta</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, smo.o(.text.smo_get_theta))
+<P><STRONG><a name="[1e3]"></a>smo_get_theta</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, smo.o(.text.smo_get_theta))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_senless_get_vito
 </UL>
 
-<P><STRONG><a name="[1da]"></a>smo_init</STRONG> (Thumb, 110 bytes, Stack size 8 bytes, smo.o(.text.smo_init))
+<P><STRONG><a name="[1d9]"></a>smo_init</STRONG> (Thumb, 110 bytes, Stack size 8 bytes, smo.o(.text.smo_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = smo_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
 <P><STRONG><a name="[e5]"></a>smo_reset</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, smo.o(.text.smo_reset))
@@ -3367,7 +3362,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_SET_RUNMODE
 <LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_reset
-<LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
 <P><STRONG><a name="[e0]"></a>smo_update</STRONG> (Thumb, 1232 bytes, Stack size 56 bytes, smo.o(.text.smo_update))
@@ -3377,9 +3372,9 @@ Global Symbols
 <LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_d2f
 <LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;normalize_angle_0_2pi
-<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
-<LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
+<LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;param_tuning_update
 <LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FOC_RUN
@@ -3402,9 +3397,9 @@ Global Symbols
 <P><STRONG><a name="[19f]"></a>status_feedback</STRONG> (Thumb, 140 bytes, Stack size 8 bytes, status_feedback.o(.text.status_feedback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = status_feedback &rArr; rgb_alternate &rArr; HAL_TIM_PWM_Start_DMA &rArr; HAL_DMA_Start_IT
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
-<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
-<LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
+<BR>[Calls]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;led_show
+<LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_alternate
+<LI><a href="#[1f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rgb_breathe
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_run
 </UL>
@@ -3413,40 +3408,40 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = stream_data_get
 </UL>
 <BR>[Calls]<UL><LI><a href="#[187]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rad_to_deg
-<LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_w
+<LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_w
 <LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;rad_to_rpm
-<LI><a href="#[200]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_u
-<LI><a href="#[1ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_v
-<LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemState_get
+<LI><a href="#[1ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_u
+<LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fGetVoltage_v
+<LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemState_get
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Status_send
 </UL>
 
-<P><STRONG><a name="[1ce]"></a>stream_data_trans</STRONG> (Thumb, 472 bytes, Stack size 24 bytes, port_mapping.o(.text.stream_data_trans))
+<P><STRONG><a name="[1cc]"></a>stream_data_trans</STRONG> (Thumb, 472 bytes, Stack size 24 bytes, port_mapping.o(.text.stream_data_trans))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = stream_data_trans &rArr; log_read_flash &rArr; FLASH_Read_data &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[202]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vofa_send_multi_float
+<LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vofa_send_multi_float
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Status_send
-<LI><a href="#[1ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
+<LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;log_read_flash
 <LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Param_get
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_Frame_send
 <LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_frame_send
-<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_get
 </UL>
 <BR>[Called By]<UL><LI><a href="#[19d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;communication_run
 </UL>
 
-<P><STRONG><a name="[1dd]"></a>svpwm_GetSector</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, svpwm.o(.text.svpwm_GetSector))
+<P><STRONG><a name="[1dc]"></a>svpwm_GetSector</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, svpwm.o(.text.svpwm_GetSector))
 <BR><BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_senless_get_vito
 <LI><a href="#[d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_encoder_get_vitop
 </UL>
 
-<P><STRONG><a name="[1dc]"></a>svpwm_Init</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, svpwm.o(.text.svpwm_Init))
-<BR><BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
+<P><STRONG><a name="[1db]"></a>svpwm_Init</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, svpwm.o(.text.svpwm_Init))
+<BR><BR>[Called By]<UL><LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;foc_core_init
 </UL>
 
 <P><STRONG><a name="[de]"></a>svpwm_run</STRONG> (Thumb, 480 bytes, Stack size 24 bytes, svpwm.o(.text.svpwm_run))
@@ -3463,13 +3458,13 @@ Global Symbols
 <P><STRONG><a name="[16f]"></a>usartRecvByte</STRONG> (Thumb, 228 bytes, Stack size 16 bytes, uart_port.o(.text.usartRecvByte))
 <BR><BR>[Stack]<UL><LI>Max Depth = 272<LI>Call Chain = usartRecvByte &rArr; usart_farmedata_deal &rArr; frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[203]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_farmedata_deal
+<BR>[Calls]<UL><LI><a href="#[202]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usart_farmedata_deal
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_DMA
 </UL>
 <BR>[Called By]<UL><LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 </UL>
 
-<P><STRONG><a name="[203]"></a>usart_farmedata_deal</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, port_mapping.o(.text.usart_farmedata_deal))
+<P><STRONG><a name="[202]"></a>usart_farmedata_deal</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, port_mapping.o(.text.usart_farmedata_deal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = usart_farmedata_deal &rArr; frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
@@ -3483,13 +3478,13 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Status_send
-<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 </UL>
 
-<P><STRONG><a name="[1cd]"></a>usart_port_Init</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, uart_port.o(.text.usart_port_Init))
+<P><STRONG><a name="[1cb]"></a>usart_port_Init</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, uart_port.o(.text.usart_port_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = usart_port_Init &rArr; HAL_UART_Receive_DMA &rArr; UART_Start_Receive_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_DMA
@@ -3501,13 +3496,13 @@ Global Symbols
 <P><STRONG><a name="[b6]"></a>usbRecvByte</STRONG> (Thumb, 218 bytes, Stack size 24 bytes, usb_port.o(.text.usbRecvByte))
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = usbRecvByte &rArr; usb_FrameData_deal &rArr; frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[204]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_FrameData_deal
+<BR>[Calls]<UL><LI><a href="#[203]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_FrameData_deal
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Receive_FS
 </UL>
 
-<P><STRONG><a name="[204]"></a>usb_FrameData_deal</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, port_mapping.o(.text.usb_FrameData_deal))
+<P><STRONG><a name="[203]"></a>usb_FrameData_deal</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, port_mapping.o(.text.usb_FrameData_deal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 256<LI>Call Chain = usb_FrameData_deal &rArr; frame_data_deal &rArr; Param_set &rArr; fFOC_Init &rArr; foc_core_init &rArr; loop_parameter_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
@@ -3521,61 +3516,61 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_FS
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;frame_data_deal
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Status_send
-<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 </UL>
 
 <P><STRONG><a name="[b3]"></a>usb_connected</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, port_mapping.o(.text.usb_connected))
 <BR><BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Control_FS
 </UL>
 
-<P><STRONG><a name="[202]"></a>vofa_send_multi_float</STRONG> (Thumb, 134 bytes, Stack size 8 bytes, uart_port.o(.text.vofa_send_multi_float))
+<P><STRONG><a name="[201]"></a>vofa_send_multi_float</STRONG> (Thumb, 134 bytes, Stack size 8 bytes, uart_port.o(.text.vofa_send_multi_float))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = vofa_send_multi_float &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT
 </UL>
 <BR>[Calls]<UL><LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
+<BR>[Called By]<UL><LI><a href="#[1cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;stream_data_trans
 </UL>
 
-<P><STRONG><a name="[205]"></a>__ARM_fpclassifyf</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, fpclassifyf.o(i.__ARM_fpclassifyf))
-<BR><BR>[Called By]<UL><LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
-<LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
+<P><STRONG><a name="[204]"></a>__ARM_fpclassifyf</STRONG> (Thumb, 38 bytes, Stack size 0 bytes, fpclassifyf.o(i.__ARM_fpclassifyf))
+<BR><BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
 </UL>
 
-<P><STRONG><a name="[1fd]"></a>__hardfp_atan2f</STRONG> (Thumb, 594 bytes, Stack size 32 bytes, atan2f.o(i.__hardfp_atan2f))
+<P><STRONG><a name="[1fc]"></a>__hardfp_atan2f</STRONG> (Thumb, 594 bytes, Stack size 32 bytes, atan2f.o(i.__hardfp_atan2f))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = __hardfp_atan2f
 </UL>
-<BR>[Calls]<UL><LI><a href="#[207]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
-<LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
-<LI><a href="#[208]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan2
-<LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
+<BR>[Calls]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
+<LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
+<LI><a href="#[207]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan2
+<LI><a href="#[204]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
 </UL>
 
-<P><STRONG><a name="[1fc]"></a>__hardfp_expf</STRONG> (Thumb, 430 bytes, Stack size 16 bytes, expf.o(i.__hardfp_expf))
+<P><STRONG><a name="[1fb]"></a>__hardfp_expf</STRONG> (Thumb, 430 bytes, Stack size 16 bytes, expf.o(i.__hardfp_expf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __hardfp_expf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[207]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
-<LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
-<LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_overflow
-<LI><a href="#[209]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan
-<LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
+<BR>[Calls]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
+<LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
+<LI><a href="#[209]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_overflow
+<LI><a href="#[208]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan
+<LI><a href="#[204]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
-<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
+<LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
 </UL>
 
-<P><STRONG><a name="[21f]"></a>__mathlib_expf</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, expf.o(i.__hardfp_expf), UNUSED)
+<P><STRONG><a name="[21e]"></a>__mathlib_expf</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, expf.o(i.__hardfp_expf), UNUSED)
 
 <P><STRONG><a name="[d7]"></a>__hardfp_fmod</STRONG> (Thumb, 254 bytes, Stack size 48 bytes, fmod.o(i.__hardfp_fmod))
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = __hardfp_fmod &rArr; _drem &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[207]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
-<LI><a href="#[20b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_invalid
+<BR>[Calls]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__set_errno
+<LI><a href="#[20a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_dbl_invalid
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_drem
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
 </UL>
@@ -3583,18 +3578,18 @@ Global Symbols
 <LI><a href="#[dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;normalize_angle_0_2pi
 </UL>
 
-<P><STRONG><a name="[1fb]"></a>__hardfp_tanhf</STRONG> (Thumb, 208 bytes, Stack size 16 bytes, tanhf.o(i.__hardfp_tanhf))
+<P><STRONG><a name="[1fa]"></a>__hardfp_tanhf</STRONG> (Thumb, 208 bytes, Stack size 16 bytes, tanhf.o(i.__hardfp_tanhf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = __hardfp_tanhf &rArr; __hardfp_expf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
-<LI><a href="#[209]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan
-<LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<BR>[Calls]<UL><LI><a href="#[205]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_underflow
+<LI><a href="#[208]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__mathlib_flt_infnan
+<LI><a href="#[204]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_fpclassifyf
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;smo_update
 </UL>
 
-<P><STRONG><a name="[20b]"></a>__mathlib_dbl_invalid</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_invalid))
+<P><STRONG><a name="[20a]"></a>__mathlib_dbl_invalid</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, dunder.o(i.__mathlib_dbl_invalid))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = __mathlib_dbl_invalid &rArr; __aeabi_ddiv &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
@@ -3602,35 +3597,35 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_fmod
 </UL>
 
-<P><STRONG><a name="[209]"></a>__mathlib_flt_infnan</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_infnan))
-<BR><BR>[Called By]<UL><LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<P><STRONG><a name="[208]"></a>__mathlib_flt_infnan</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_infnan))
+<BR><BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
 </UL>
 
-<P><STRONG><a name="[208]"></a>__mathlib_flt_infnan2</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_infnan2))
-<BR><BR>[Called By]<UL><LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
+<P><STRONG><a name="[207]"></a>__mathlib_flt_infnan2</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_infnan2))
+<BR><BR>[Called By]<UL><LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
 </UL>
 
-<P><STRONG><a name="[20a]"></a>__mathlib_flt_overflow</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_overflow))
-<BR><BR>[Called By]<UL><LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<P><STRONG><a name="[209]"></a>__mathlib_flt_overflow</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_overflow))
+<BR><BR>[Called By]<UL><LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
 </UL>
 
-<P><STRONG><a name="[206]"></a>__mathlib_flt_underflow</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_underflow))
-<BR><BR>[Called By]<UL><LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
-<LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
+<P><STRONG><a name="[205]"></a>__mathlib_flt_underflow</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, funder.o(i.__mathlib_flt_underflow))
+<BR><BR>[Called By]<UL><LI><a href="#[1fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_tanhf
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
 </UL>
 
-<P><STRONG><a name="[220]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
+<P><STRONG><a name="[21f]"></a>__scatterload_copy</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_copy), UNUSED)
 
-<P><STRONG><a name="[221]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
+<P><STRONG><a name="[220]"></a>__scatterload_null</STRONG> (Thumb, 2 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_null), UNUSED)
 
-<P><STRONG><a name="[222]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
+<P><STRONG><a name="[221]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
-<P><STRONG><a name="[207]"></a>__set_errno</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, errno.o(i.__set_errno))
+<P><STRONG><a name="[206]"></a>__set_errno</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, errno.o(i.__set_errno))
 <BR><BR>[Called By]<UL><LI><a href="#[d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_fmod
-<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
-<LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
+<LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_expf
+<LI><a href="#[1fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_atan2f
 </UL>
 <P>
 <H3>

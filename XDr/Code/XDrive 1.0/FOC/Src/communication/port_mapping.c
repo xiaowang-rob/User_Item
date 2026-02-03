@@ -81,6 +81,7 @@ void Status_send()
     if (Noresponse_tic > 10)
     {
         com_state.Host_port = NONE_port;
+				system_message_send_flag=false;
         com_frame.stream_num = 0;
     }
 }

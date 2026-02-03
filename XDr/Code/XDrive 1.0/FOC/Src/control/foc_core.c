@@ -334,7 +334,7 @@ void FOC_RUN()
     }
     Svpwm_output();
     smaple_point_change();
-		smo_update(foc_val.Ualpha,foc_val.Ubeta,foc_val.Ialpha,foc_val.Ibeta);
+    smo_update(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
 }
 void FOC_SET_OMEGA_con(float value)
 {
@@ -378,14 +378,11 @@ void FOC_SET_RUNMODE(RUN_mode_e mode)
 
 bool auto_calibration_update()
 {
-    param_tuning_update(foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
-                        &foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, foc_val.omega_fb,
-                        Motor.pole_pairs, foc_val.iq_fb);
-    if (param_tuning_get_state() == PARAM_TUNE_COMPLETE)
-    {
-        foc_core_init();
+
+    if (PARAM_TUNE_COMPLETE == param_tuning_update(foc_val.theta_elec, foc_val.theta_mech, &foc_val.Ualpha,
+                                                   &foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, foc_val.omega_fb,
+                                                   Motor.pole_pairs, foc_val.iq_fb))
         return true;
-    }
     return false;
 }
 void SET_Theta_offset(float thetaoffset)

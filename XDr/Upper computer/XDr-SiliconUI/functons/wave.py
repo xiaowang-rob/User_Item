@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont
 import numpy as np
 import time
+from UI.data_ui_map import Cidx
+
 
 class WaveformWidget(QWidget):
     # 新增信号：当自动缩放状态变化时发出
@@ -16,11 +18,11 @@ class WaveformWidget(QWidget):
         # 核心属性
         self.max_points = 1000
         self.colors = [
-            (255, 0, 0),      # 红色
-            (0, 255, 0),      # 绿色
-            (0, 0, 255),      # 蓝色
-            (255, 255, 0),    # 黄色
-            (255, 0, 255)     # 紫色
+            (88, 230, 217),   # #58E6D9
+            (255, 170, 51),   # #FFAA33
+            (255, 107, 157),  # #FF6B9D
+            (136, 204, 102),  # #88CC66
+            (184, 134, 255),  # #B886FF
         ]
         self.wave_data = [[] for _ in range(5)]
         self.is_running = True
@@ -40,12 +42,12 @@ class WaveformWidget(QWidget):
         # 创建值标签
         self.value_labels = []
         font = QFont()
-        font.setPointSize(9)
-        
+        font.setPointSize(11)  # 字号稍大
+
         for i in range(5):
             label = pg.TextItem(
-                text=f"Ch{i+1}: N/A",
-                color=(255, 255, 255),
+                text="N/A",
+                color=self.colors[i],  # ← 关键：使用对应曲线颜色
                 border=pg.mkPen(80, 80, 80, 200),
                 fill=pg.mkBrush(35, 35, 38, 220),
                 anchor=(0.5, 0.5)
@@ -66,7 +68,6 @@ class WaveformWidget(QWidget):
         self.plot_widget.scene().sigMouseClicked.connect(self._on_mouse_clicked)
     
     def init_ui(self):
-        # 仅包含绘图区域（无任何控制按钮）
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         
@@ -91,12 +92,14 @@ class WaveformWidget(QWidget):
             # X轴缩放 → 关闭X轴自动缩放
             scale = 0.9 if event.angleDelta().y() > 0 else 1.1
             self.plot_widget.getViewBox().scaleBy(x=scale)
-            self.set_auto_x_scale(False)  # ← 关键：同步状态并发出信号
+            self.set_auto_x_scale(False)
+            print(f"X轴缩放：{scale}")
         else:
             # Y轴缩放 → 关闭Y轴自动缩放
             scale = 0.9 if event.angleDelta().y() > 0 else 1.1
             self.plot_widget.getViewBox().scaleBy(y=scale)
-            self.set_auto_y_scale(False)  # ← 关键：同步状态并发出信号
+            self.set_auto_y_scale(False)
+            print(f"Y轴缩放：{scale}")
         
         # 进入手动模式（3秒内禁用自动缩放）
         self.manual_mode_until = time.time() * 1000 + 3000
@@ -107,8 +110,8 @@ class WaveformWidget(QWidget):
         if event.double():
             self.plot_widget.enableAutoRange()
             self.manual_mode_until = 0
-            self.set_auto_x_scale(True)  # ← 关键：同步状态
-            self.set_auto_y_scale(True)  # ← 关键：同步状态
+            self.set_auto_x_scale(True) 
+            self.set_auto_y_scale(True)  
     
     def auto_scale_axes(self):
         """自动缩放坐标轴（受manual_mode和auto_x/auto_y控制）"""
@@ -172,12 +175,13 @@ class WaveformWidget(QWidget):
                 self.curves[i].setData(x_data, y_data)
                 
                 # 更新末端值标签
-                last_x, last_y = x_data[-1], y_data[-1]
-                self.value_labels[i].setText(f"Ch{i+1}: {last_y:.3f}")
-                self.value_labels[i].setPos(last_x + 8, last_y)
-                self.value_labels[i].setVisible(True)
-            else:
-                self.value_labels[i].setVisible(False)
+                if self.wave_data[i]:
+                    last_x, last_y = x_data[-1], y_data[-1] 
+                    self.value_labels[i].setText(f"{last_y:.3f}") 
+                    self.value_labels[i].setPos(last_x + 8, last_y)
+                    self.value_labels[i].setVisible(True)
+                else:
+                    self.value_labels[i].setVisible(False)
     
     # ===== 核心接口（带状态同步）=====
     
@@ -212,22 +216,44 @@ class WaveformWidget(QWidget):
 class Wave:
     def __init__(self, main_window):
         self.mw = main_window
-        self.widget = main_window.control_page.wave_area  # self.widget 就是示波区域
-        self.auto_x_but = main_window.control_page.auto_x_switch  # 双态按钮
-        self.auto_y_but = main_window.control_page.auto_y_switch  # 双态按钮
-        
+        self.pw = self.mw.control_page
+        self.wave_area = self.pw.wave_area  # self.wave_area 就是示波区域
+        self.com=self.mw.comport    
+
+
+        self.showindex=[]
+        self.channel_index=[]
+
+        self.combo_boxes = [
+            self.pw.wave_ch1,
+            self.pw.wave_ch2,
+            self.pw.wave_ch3,
+            self.pw.wave_ch4,
+            self.pw.wave_ch5,
+        ]
         # 创建波形控件并嵌入到 wave_area
         self.waveform_widget = WaveformWidget()
-        
+        #按钮
+
+        self.start_wave_but = self.pw.start_wave_button  # 启动按钮
+        self.auto_x_but = self.pw.auto_x_switch  # 双态按钮
+        self.auto_x_but.setChecked(True)
+        self.auto_y_but = self.pw.auto_y_switch  # 双态按钮
+        self.auto_y_but.setChecked(True)
+        self.clear_wave_but = self.pw.clear_wave_button  # 清除按钮
+        self.start_wave_but.toggled.connect(self.handle_start)  # 启动按钮槽函数
+        self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)  # 双态按钮槽函数
+        self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)  # 双态按钮槽函数
+        self.clear_wave_but.clicked.connect(self.clear)  # 清除按钮槽函数        
         # 清理原有布局并嵌入
-        layout = self.widget.layout()
+        layout = self.wave_area.layout()
         if layout:
             while layout.count():
                 child = layout.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
         else:
-            layout = QVBoxLayout(self.widget)
+            layout = QVBoxLayout(self.wave_area)
             layout.setContentsMargins(0, 0, 0, 0)
         
         layout.addWidget(self.waveform_widget)
@@ -260,15 +286,30 @@ class Wave:
         """清除波形按钮槽函数调用此方法"""
         self.waveform_widget.clear_waveforms()
     
-    def start(self):
+    def handle_start(self,enable:bool):
         """启动按钮槽函数调用此方法"""
-        self.waveform_widget.start()
-    
-    def pause(self):
-        """暂停按钮槽函数调用此方法"""
-        self.waveform_widget.pause()
+        if enable:
+            self.waveform_widget.start()
+            self.start_wave_but.setValue("Stop")
+            self.showindex.clear()
+            self.channel_index.clear()
+            for  i,combo in enumerate(self.combo_boxes):
+                current_text = combo.currentText()
+                if current_text != "NONE":
+                    self.showindex.append(combo.currentIndex()) 
+                    self.channel_index.append(i)
+            self.com.send_packet(Cidx.CMD_STREAM_SET, bytes(self.showindex))
+        else:
+            self.waveform_widget.pause()
+            self.start_wave_but.setValue("Start")
+            self.showindex.clear()
+            self.com.send_packet(Cidx.CMD_STREAM_SET, bytes())
     
     # ===== 数据添加接口 =====
     def add_data(self, channel: int, data):
         """添加波形数据（channel: 0-4,  float或数值列表）"""
         self.waveform_widget.add_waveform_data(channel, data)
+
+    def add_data_by_index(self, index: int, data):
+        """添加波形数据（index: 0-4,  float或数值列表）"""
+        self.add_data(self.channel_index[index], data)

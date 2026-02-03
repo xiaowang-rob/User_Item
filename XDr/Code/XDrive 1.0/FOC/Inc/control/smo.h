@@ -68,7 +68,9 @@ typedef enum
     PARAM_TUNE_POLE_PAIRS,   // 极对数
     PARAM_TUNE_PK,           // 磁链\反电动势常数
     PARAM_TUNE_JB,           // 转动惯量，摩擦系数
+    PARAM_TUNE_WRITE_FLASH,  // 写入参数
     PARAM_TUNE_COMPLETE      // 完成
+
 } param_tune_state_t;
 typedef enum
 {
@@ -142,9 +144,7 @@ param_tuning_t *get_tuning_adr();
 void param_tuning_init(float udc);
 // 开始整定
 
-void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
-                         float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q);
-
-param_tune_state_t param_tuning_get_state();
+param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
+                                       float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q);
 
 #endif

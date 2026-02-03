@@ -625,7 +625,7 @@ class SiLongPressButtonRefactor(SiPushButtonRefactor):
     def _drawButtonRect(self, painter: QPainter, rect: QRect) -> None:
         p = min(self._progress, 1)  # prevent progress exceeding caused by using animation.
         gradient = QLinearGradient(rect.left(), rect.top(), rect.right(), rect.top())
-        gradient.setColorAt(p - 0.0001, self.style_data.progress_color)
+        gradient.setColorAt(max(0.0,p - 0.0001), self.style_data.progress_color)
         gradient.setColorAt(p, self.style_data.button_color)
         painter.setBrush(gradient)
         painter.drawPath(self._drawButtonPath(rect))

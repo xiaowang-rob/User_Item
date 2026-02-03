@@ -5,15 +5,14 @@
 人为输入 转速用rpm   角度用°
 时间用ms
 */
-#define Description "XDr-standard"
+#define Description "XDr-power"
 #define VERSION "1.0.0"
 #define AUTHOR "xiaowang"
-#define MAX_CURRENT_string "50A"
-#define MAX_Voltage_string "34V"
-#define MIN_Voltage_string "20V"
-#define MAX_Temperature_string "80度"
+#define MAX_CURRENT_string "100A"
+#define Voltage_string "20-30V"
+#define MAX_Temperature_string "90°C"
 #define SYSTEM_DESC_str \
-    Description "," VERSION "," AUTHOR "," MAX_CURRENT_string "," MAX_Voltage_string "," MIN_Voltage_string "," MAX_Temperature_string
+    Description "," VERSION "," AUTHOR "," MAX_CURRENT_string "," Voltage_string "," MAX_Temperature_string
 
 #define fpwm (unsigned int)20000 // 20kHz
 #define Tpwm 1.0f / fpwm         // 50us

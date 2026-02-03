@@ -352,3 +352,6 @@ class SiCapsuleComboBox(QComboBox):
 
     def setTitleFixedWidth(self, width: int):
         self._line_edit.setTitleFixedWidth(width)
+        
+    def setTitleColor(self, color):
+        self._line_edit.setTitleColor(color)

@@ -54,7 +54,7 @@ class Slots:
         if btn.text() == "连接":
             if self.mw.com_port.connect():
                 btn.setText("断开")
-                self.mw.com_port.send_packet(Cmd.UC_CONNECT, bytes([]))
+                self.mw.com_port.send_packet(Cmd.UC_CONNECT, bytes())
                 self.mw.ui.comboBox.setEnabled(False)
                 print("连接成功")
             else:
@@ -62,7 +62,7 @@ class Slots:
                 print("连接失败")
                 self.mw.ui.comboBox.setEnabled(True)
         else:
-            self.mw.com_port.send_packet(Cmd.UC_DISCONNECT, bytes([]))
+            self.mw.com_port.send_packet(Cmd.UC_DISCONNECT, bytes())
             self.mw.com_port.disconnect()
             btn.setText("连接")
             self.mw.ui.comboBox.setEnabled(True)

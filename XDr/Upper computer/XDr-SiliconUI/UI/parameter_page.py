@@ -1,34 +1,17 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QScrollArea
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import Qt
-from siui.components import (
-    SiPushButton,
-    SiTitledWidgetGroup,
-)
 from siui.components.button import (
-    SiCapsuleButton,
-    SiCheckBox,
-    SiCheckBoxRefactor,
-    SiFlatButton,
-    SiFlatButtonWithIndicator,
     SiLongPressButtonRefactor,
-    SiOptionButton,
-    SiProgressPushButton,
     SiPushButtonRefactor,
-    SiRadioButton,
-    SiRadioButtonR,
-    SiRadioButtonWithAvatar,
-    SiRadioButtonWithDescription,
-    SiSwitchRefactor,
-    SiToggleButtonRefactor,
 )
 from siui.components.editbox import SiCapsuleLineEdit
 from siui.components.widgets.label import SiLabel
-from siui.core import SiGlobal, GlobalFont
+from siui.core import GlobalFont
 from siui.core import Si
 from siui.gui import SiFont
 from siui.components.combobox_ import SiCapsuleComboBox
 
-from .data_map import Midx
+from .data_ui_map import Midx
 
 
 title_W=60
@@ -40,7 +23,6 @@ class ParameterPage():
     def __init__(self, main_window):
         self.mw = main_window
         self.widget=main_window.ui.parameter_page
-
 
         main_layout=QHBoxLayout(self.widget)
         main_layout.setContentsMargins(24,12,24,0)
@@ -88,14 +70,12 @@ class ParameterPage():
         self.all_read_button.setText("一键读取")
         self.all_read_button.adjustSize()
         self.all_read_button.setFixedHeight(30)
-        self.all_read_button.clicked.connect(self.on_all_read_clicked)
         button_layout1.addWidget(self.all_read_button)
 
         self.all_write_button=SiPushButtonRefactor()
         self.all_write_button.setText("一键写入")
         self.all_write_button.adjustSize()
         self.all_write_button.setFixedHeight(30)
-        self.all_write_button.clicked.connect(self.on_all_write_clicked)
         button_layout1.addWidget(self.all_write_button)
 
  
@@ -103,19 +83,17 @@ class ParameterPage():
         button_layout2.setContentsMargins(0,0,0,0)
         button_layout2.setSpacing(12)
 
-        self.save_button=SiPushButtonRefactor()
-        self.save_button.setText("一键保存")
-        self.save_button.adjustSize()
-        self.save_button.setFixedHeight(30)
-        self.save_button.clicked.connect(self.on_save_clicked)
-        button_layout2.addWidget(self.save_button)
+        self.all_save_button=SiPushButtonRefactor()
+        self.all_save_button.setText("一键保存")
+        self.all_save_button.adjustSize()
+        self.all_save_button.setFixedHeight(30)
+        button_layout2.addWidget(self.all_save_button)
 
         self.all_erase_button=SiLongPressButtonRefactor()
         self.all_erase_button.setText("清除参数")
         self.all_erase_button.setToolTip("长按清除所有参数")
         self.all_erase_button.adjustSize()
         self.all_erase_button.setFixedHeight(30)
-        self.all_erase_button.longPressed.connect(self.on_all_erase_long_pressed)
         button_layout2.addWidget(self.all_erase_button)
 
         #输入区域
@@ -601,7 +579,7 @@ class ParameterPage():
         self.change_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.change_loop_speed.setTitleFixedWidth(drive_title_W) 
         self.change_loop_speed.setAlignment(Qt.AlignCenter) 
-        self.change_loop_speed.setTitle("切换速度/rpm")
+        self.change_loop_speed.setTitle("切环速度/rpm")
         self.change_loop_speed.setText("1000")
 
         drive_layout.addWidget(Title_drive)
@@ -636,15 +614,4 @@ class ParameterPage():
         main_layout.addWidget(self.drive_group)
 
 
-    def on_all_read_clicked(self):
-        pass
-
-    def on_all_write_clicked(self):
-        pass
-
-    def on_save_clicked(self):
-        pass
-
-    def on_all_erase_long_pressed(self):
-        pass
 

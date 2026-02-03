@@ -3,33 +3,12 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
 from siui.components.button import (
     SiCapsuleButton,
-    SiCheckBox,
-    SiCheckBoxRefactor,
-    SiFlatButton,
-    SiFlatButtonWithIndicator,
     SiLongPressButtonRefactor,
-    SiOptionButton,
-    SiProgressPushButton,
-    SiPushButtonRefactor,
-    SiRadioButton,
-    SiRadioButtonR,
-    SiRadioButtonWithAvatar,
-    SiRadioButtonWithDescription,
-    SiSwitchRefactor,
-    SiToggleButtonRefactor,
+    SiPushButtonRefactor
 )
-from siui.components.editbox import SiCapsuleLineEdit, SiDoubleSpinBox, SiLabeledLineEdit, SiSpinBox
+from siui.components.editbox import SiCapsuleLineEdit 
 
-from siui.core import SiGlobal
-from functons.message_show import (
-    send_simple_message,
-    send_titled_message,
-    MSG_TYPE_MORMAL ,   
-    MSG_TYPE_SUCCESS ,  
-    MSG_TYPE_INFO ,     
-    MSG_TYPE_WARNING, 
-    MSG_TYPE_ERROR,    
-)
+
 
 
 class TopArea:
@@ -39,6 +18,8 @@ class TopArea:
         self.mode_area=main_window.ui.mode_area
         self.status_area=main_window.ui.status_area
         self.config_area=main_window.ui.config_area
+
+
         # 统一四个角的圆角半径
         self.connect_area.setStyleSheet("""
             background-color: #332E38;
@@ -69,13 +50,11 @@ class TopArea:
         self.system_message.setSvgIcon(self.mw.icon.get("ic_fluent_memory_regular","#DFDFDF"))
         self.system_message.setToolTip("系统信息")
         self.system_message.adjustSize()
-        self.system_message.clicked.connect(self._handleSystemMessage)
+        
 
         self.connect_but=SiCapsuleButton()
         self.connect_but.setText("未连接")
         self.connect_but.setValue("连接")
-        self.connect_but.clicked.connect(self._handleConnectBut)
-
         # 创建主垂直布局
         connect_H_layout = QVBoxLayout(self.connect_area)
         connect_H_layout.setContentsMargins(6, 6, 6, 6)  # 根据需要调整边距
@@ -97,14 +76,13 @@ class TopArea:
         title_W=50
         all_W=150
 
-        self.focmode_show=SiCapsuleLineEdit()
-        self.focmode_show.resize(all_W,40)
-        self.focmode_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.focmode_show.setTitleFixedWidth(title_W) 
-        self.focmode_show.setAlignment(Qt.AlignCenter) 
-        self.focmode_show.setReadOnly(True)
-        self.focmode_show.setTitle("FOC模式")
-        self.focmode_show.setText("有感")
+        self.sensormode_show=SiCapsuleLineEdit()
+        self.sensormode_show.resize(all_W,40)
+        self.sensormode_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.sensormode_show.setTitleFixedWidth(title_W) 
+        self.sensormode_show.setAlignment(Qt.AlignCenter) 
+        self.sensormode_show.setReadOnly(True)
+        self.sensormode_show.setTitle("感应模式")
 
         self.loopmode_show=SiCapsuleLineEdit()
         self.loopmode_show.resize(all_W,40)
@@ -113,7 +91,6 @@ class TopArea:
         self.loopmode_show.setAlignment(Qt.AlignCenter) 
         self.loopmode_show.setReadOnly(True)
         self.loopmode_show.setTitle("环模式")
-        self.loopmode_show.setText("电压环")
 
         self.canid_show=SiCapsuleLineEdit()
         self.canid_show.resize(all_W,40)
@@ -122,7 +99,6 @@ class TopArea:
         self.canid_show.setAlignment(Qt.AlignCenter) 
         self.canid_show.setReadOnly(True)
         self.canid_show.setTitle("CAN ID")
-        self.canid_show.setText("0x00000000")
  
         self.canmode_show=SiCapsuleLineEdit()
         self.canmode_show.resize(all_W,40)
@@ -131,7 +107,6 @@ class TopArea:
         self.canmode_show.setAlignment(Qt.AlignCenter) 
         self.canmode_show.setReadOnly(True)
         self.canmode_show.setTitle("can模式")
-        self.canmode_show.setText("实时处理")
 
         #创建主水平布局
         mode_H_layout = QHBoxLayout(self.mode_area)
@@ -141,7 +116,7 @@ class TopArea:
         mode_V_layout_l = QVBoxLayout()
         mode_V_layout_l.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
         mode_V_layout_l.setSpacing(8)  # 行间距
-        mode_V_layout_l.addWidget(self.focmode_show)
+        mode_V_layout_l.addWidget(self.sensormode_show)
         mode_V_layout_l.addWidget(self.loopmode_show)
 
         mode_V_layout_r = QVBoxLayout()
@@ -246,20 +221,17 @@ class TopArea:
         self.load_config.setText("加载配置")
         self.load_config.setFixedHeight(30)
         self.load_config.adjustSize()
-        self.load_config.clicked.connect(self._handleLoadConfig)
 
         self.save_config=SiPushButtonRefactor()
         self.save_config.setText("保存")
         self.save_config.setFixedHeight(30)
         self.save_config.adjustSize()
-        self.save_config.clicked.connect(self._handleSaveConfig)
 
         self.remove_config=SiLongPressButtonRefactor()
         self.remove_config.setText("删除")
         self.remove_config.setFixedHeight(30)
         self.remove_config.setToolTip("长按删除配置")
         self.remove_config.adjustSize()
-        self.remove_config.longPressed.connect(self._handleRemoveConfig)
 
         #创建主垂直布局
         config_H_layout = QVBoxLayout(self.config_area)
@@ -278,22 +250,9 @@ class TopArea:
 
 
 
-    def _handleSystemMessage(self):
-        send_titled_message(MSG_TYPE_INFO,"设备信息",self.mw.system_message)
 
 
 
-    def _handleConnectBut(self):
-        if(self.connect_but.value()=="连接"):
-            self.mw.comport.connect()
-        else:
-            self.mw.comport.disconnect()
 
-    def _handleLoadConfig(self):
-        pass
 
-    def _handleSaveConfig(self):
-        pass
-
-    def _handleRemoveConfig(self):
-        pass
+    

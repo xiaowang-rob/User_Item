@@ -233,6 +233,8 @@ float smo_get_omega()
 }
 void write_motor_param()
 {
+		u8 wire_S=smo.wire_sequence==-1? 1:0;
+		g_Param.motor_wire_sequence=wire_S;
     g_Param.theta_offset = smo.theta_offset;
     g_Param.motor_rs = smo.Rs;
     g_Param.motor_ls = smo.Ls;
@@ -640,8 +642,8 @@ static bool param_tune_JB(float omega_mech, float iq)
 
 // 有感整定更新
 static float omega_last = 0;
-void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
-                         float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q)
+param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
+                                       float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q)
 {
 
     // 参数整定状态机
@@ -666,7 +668,7 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
         { // 非稳态
             omega_last = omega_mech;
             tun.tune_samples = 0;
-            return;
+            return tun.tune_state;
         }
         // 条件判断
         if (fabsf(omega_mech) < 0.3f)
@@ -706,7 +708,7 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
             {
                 // 前置条件
                 tun.cur_uq_ud[0] = 0;
-                tun.cur_uq_ud[1] = 0.4f;
+                tun.cur_uq_ud[1] = 0.6f;
                 FOC_SET_VER_VALUE(tun.cur_uq_ud);
                 opend_loop_enable();
                 SET_opend_loop_theta(0.0f);
@@ -741,6 +743,13 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
             tun.tune_samples = 0;
             tun.time_tic = 0;
             tun.tune_state = PARAM_TUNE_RS; // 进入下一步
+
+            // todo:先跳过后面的步骤
+            FOC_SET_RUNMODE(ENCODER_CONTROL);
+            tun.cur_uq_ud[0] = 0;
+            tun.cur_uq_ud[1] = 0;
+            FOC_SET_VER_VALUE(tun.cur_uq_ud);
+            tun.tune_state = PARAM_TUNE_WRITE_FLASH;
         }
         break;
     case PARAM_TUNE_RS:
@@ -806,7 +815,7 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
         smo_update(*u_alpha, *u_beta, i_alpha, i_beta);
 
         if (fabsf(theta_mech - tun.omega_mech_prev) > 2.f)
-            return;
+            return tun.tune_state;
         // 稳态点采样
         if (param_tune_pole_pairs(omega_mech, pole_pairs_input))
         { // 完成跳转 磁链整定 前置条件
@@ -823,7 +832,7 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
         smo_update(*u_alpha, *u_beta, i_alpha, i_beta);
         // 等速度稳定
         if (fabsf(theta_mech - tun.omega_mech_prev) > 1.f)
-            return;
+            return tun.tune_state;
         // 超时监测
         tun.time_tic++;
         if (tun.time_tic > PK_timeout)
@@ -850,7 +859,7 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
         {
             if (fabsf(omega_mech) < 0.1f)
                 tun.start_smp_flag = true;
-            return;
+            return tun.tune_state;
         }
         // 施加阶跃速度
         tun.omega_ref = 10;
@@ -865,14 +874,14 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
             FOC_SET_VER_VALUE(&tun.omega_ref);
             tun.tune_samples = 0;
             tun.time_tic = 0;
-            tun.tune_state = PARAM_TUNE_COMPLETE; // 进入下一步
+            tun.tune_state = PARAM_TUNE_WRITE_FLASH; // 进入下一步
         }
         break;
-    case PARAM_TUNE_COMPLETE:
-        if (tun.fault_flag)
-            return;
+    case PARAM_TUNE_WRITE_FLASH:
         FOC_SET_LOOPMODE(VOLTAGE_LOOP);
         write_motor_param();
+        foc_core_init();
+        tun.tune_state = PARAM_TUNE_COMPLETE;
         break;
     default:
         break;
@@ -880,8 +889,5 @@ void param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, flo
     tun.omega_mech_prev = omega_mech;
     if (tun.fault_flag)
         tun.tune_state = PARAM_TUNE_COMPLETE;
-}
-param_tune_state_t param_tuning_get_state()
-{
     return tun.tune_state;
 }

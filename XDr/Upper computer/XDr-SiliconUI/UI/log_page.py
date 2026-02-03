@@ -1,21 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QScrollArea
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout,QListWidget
 from PyQt5.QtCore import Qt
 from siui.components.button import (
-    SiCapsuleButton,
-    SiCheckBox,
-    SiCheckBoxRefactor,
-    SiFlatButton,
-    SiFlatButtonWithIndicator,
     SiLongPressButtonRefactor,
-    SiOptionButton,
-    SiProgressPushButton,
     SiPushButtonRefactor,
-    SiRadioButton,
-    SiRadioButtonR,
-    SiRadioButtonWithAvatar,
-    SiRadioButtonWithDescription,
-    SiSwitchRefactor,
-    SiToggleButtonRefactor,
 )
 from siui.components.editbox import SiCapsuleLineEdit
 
@@ -24,7 +11,6 @@ title_W = 100
 all_W = 300
 class LogPage():
     def __init__(self, main_window):
-        self.mw = main_window
         self.widget =main_window.ui.log_page
 
 
@@ -45,7 +31,6 @@ class LogPage():
         self.read_log_btn.setText("读取日志")
         self.read_log_btn.adjustSize()
         self.read_log_btn.setFixedHeight(30)
-        self.read_log_btn.clicked.connect(self.read_log)
         self.scroll_H_layout.addWidget(self.read_log_btn)
 
         self.clear_log_btn = SiLongPressButtonRefactor()
@@ -53,17 +38,17 @@ class LogPage():
         self.clear_log_btn.setToolTip("长按清空日志")
         self.clear_log_btn.adjustSize()
         self.clear_log_btn.setFixedHeight(30)
-        self.clear_log_btn.longPressed.connect(self.clear_log)
         self.scroll_H_layout.addWidget(self.clear_log_btn)
 
         
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(False)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.log_list = QListWidget()
+        self.log_list.setStyleSheet("""
+            background-color: #332E38;
+            border-radius: 12px;  
+        """)
         
         self.scroll_layout.addLayout(self.scroll_H_layout)
-        self.scroll_layout.addWidget(self.scroll_area)
+        self.scroll_layout.addWidget(self.log_list)
 
         self.log_show_area1 = QWidget()
         self.log_show_area1.setStyleSheet("""
@@ -300,9 +285,3 @@ class LogPage():
         log_show_layout2.addWidget(self.position)
         log_show_layout2.addWidget(self.target_position)
 
-
-    def read_log(self):
-        pass
-
-    def clear_log(self):
-        pass

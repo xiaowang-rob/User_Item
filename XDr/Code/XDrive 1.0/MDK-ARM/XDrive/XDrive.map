@@ -1865,8 +1865,6 @@ Section Cross References
     foc_core.o(.text.auto_calibration_update) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.auto_calibration_update) refers to foc_core.o(.bss.Motor) for Motor
     foc_core.o(.text.auto_calibration_update) refers to smo.o(.text.param_tuning_update) for param_tuning_update
-    foc_core.o(.text.auto_calibration_update) refers to smo.o(.text.param_tuning_get_state) for param_tuning_get_state
-    foc_core.o(.text.auto_calibration_update) refers to foc_core.o(.text.foc_core_init) for foc_core_init
     foc_core.o(.ARM.exidx.text.auto_calibration_update) refers to foc_core.o(.text.auto_calibration_update) for [Anonymous Symbol]
     foc_core.o(.text.SET_Theta_offset) refers to foc_core.o(.bss.Motor) for Motor
     foc_core.o(.ARM.exidx.text.SET_Theta_offset) refers to foc_core.o(.text.SET_Theta_offset) for [Anonymous Symbol]
@@ -2013,11 +2011,10 @@ Section Cross References
     smo.o(.text.param_tuning_update) refers to smo.o(.bss.param_tune_pole_pairs.omega_smo_last) for param_tune_pole_pairs.omega_smo_last
     smo.o(.text.param_tuning_update) refers to smo.o(.bss.param_tune_pole_pairs.pole_pairs) for param_tune_pole_pairs.pole_pairs
     smo.o(.text.param_tuning_update) refers to parameter_manager.o(.bss.g_Param) for g_Param
+    smo.o(.text.param_tuning_update) refers to foc_core.o(.text.foc_core_init) for foc_core_init
     smo.o(.text.param_tuning_update) refers to foc_core.o(.text.opend_loop_enable) for opend_loop_enable
     smo.o(.text.param_tuning_update) refers to foc_core.o(.text.SET_opend_loop_theta) for SET_opend_loop_theta
     smo.o(.ARM.exidx.text.param_tuning_update) refers to smo.o(.text.param_tuning_update) for [Anonymous Symbol]
-    smo.o(.text.param_tuning_get_state) refers to smo.o(.bss.tun) for tun
-    smo.o(.ARM.exidx.text.param_tuning_get_state) refers to smo.o(.text.param_tuning_get_state) for [Anonymous Symbol]
     svpwm.o(.text.get_svpwm_adr) refers to svpwm.o(.bss.svpwm) for svpwm
     svpwm.o(.ARM.exidx.text.get_svpwm_adr) refers to svpwm.o(.text.get_svpwm_adr) for [Anonymous Symbol]
     svpwm.o(.text.svpwm_Init) refers to svpwm.o(.bss.svpwm) for svpwm
@@ -3897,12 +3894,11 @@ Removing Unused input sections from the image.
     Removing smo.o(.ARM.exidx.text.smo_update), (8 bytes).
     Removing smo.o(.ARM.exidx.text.smo_get_theta), (8 bytes).
     Removing smo.o(.ARM.exidx.text.smo_get_omega), (8 bytes).
-    Removing smo.o(.text.write_motor_param), (50 bytes).
+    Removing smo.o(.text.write_motor_param), (66 bytes).
     Removing smo.o(.ARM.exidx.text.write_motor_param), (8 bytes).
     Removing smo.o(.ARM.exidx.text.get_tuning_adr), (8 bytes).
     Removing smo.o(.ARM.exidx.text.param_tuning_init), (8 bytes).
     Removing smo.o(.ARM.exidx.text.param_tuning_update), (8 bytes).
-    Removing smo.o(.ARM.exidx.text.param_tuning_get_state), (8 bytes).
     Removing svpwm.o(.text), (0 bytes).
     Removing svpwm.o(.ARM.exidx.text.get_svpwm_adr), (8 bytes).
     Removing svpwm.o(.ARM.exidx.text.svpwm_Init), (8 bytes).
@@ -4232,7 +4228,7 @@ Removing Unused input sections from the image.
     Removing arm_common_tables.o(.rodata.sinTable_q31), (2052 bytes).
     Removing arm_common_tables.o(.rodata.sinTable_q15), (1026 bytes).
 
-1682 unused section(s) (total 977203 bytes) removed from the image.
+1681 unused section(s) (total 977211 bytes) removed from the image.
 
 ==============================================================================
 
@@ -4769,108 +4765,107 @@ Image Symbol Table
     [Anonymous Symbol]                       0x0800b204   Section        0  arm_cos_f32.o(.text.arm_cos_f32)
     [Anonymous Symbol]                       0x0800b29c   Section        0  arm_sin_f32.o(.text.arm_sin_f32)
     [Anonymous Symbol]                       0x0800b32c   Section        0  foc_core.o(.text.auto_calibration_update)
-    [Anonymous Symbol]                       0x0800b37c   Section        0  port_mapping.o(.text.can_state_change)
-    [Anonymous Symbol]                       0x0800b388   Section        0  math_fast.o(.text.clark_transform)
-    [Anonymous Symbol]                       0x0800b3a4   Section        0  port_mapping.o(.text.com_state_get_adr)
-    [Anonymous Symbol]                       0x0800b3b0   Section        0  port_mapping.o(.text.communication_init)
-    [Anonymous Symbol]                       0x0800b3dc   Section        0  port_mapping.o(.text.communication_run)
-    [Anonymous Symbol]                       0x0800b3ec   Section        0  math_fast.o(.text.deg_to_rad)
-    [Anonymous Symbol]                       0x0800b3fc   Section        0  drive_state.o(.text.drive_state_get_adr)
-    [Anonymous Symbol]                       0x0800b408   Section        0  foc_statemachine.o(.text.fFOC_Init)
-    [Anonymous Symbol]                       0x0800b450   Section        0  svpwm.o(.text.fGetVoltage_u)
-    [Anonymous Symbol]                       0x0800b478   Section        0  svpwm.o(.text.fGetVoltage_v)
-    [Anonymous Symbol]                       0x0800b4a0   Section        0  svpwm.o(.text.fGetVoltage_w)
-    [Anonymous Symbol]                       0x0800b4c8   Section        0  port_mapping.o(.text.fHostComputer_send)
-    [Anonymous Symbol]                       0x0800b500   Section        0  foc_core.o(.text.foc_core_init)
-    [Anonymous Symbol]                       0x0800b668   Section        0  foc_core.o(.text.foc_core_reset)
-    [Anonymous Symbol]                       0x0800b690   Section        0  foc_core.o(.text.foc_encoder_get_vitop)
-    [Anonymous Symbol]                       0x0800b798   Section        0  foc_core.o(.text.foc_senless_get_vito)
-    [Anonymous Symbol]                       0x0800b8dc   Section        0  port_mapping.o(.text.frame_data_deal)
-    [Anonymous Symbol]                       0x0800bbec   Section        0  loop_control.o(.text.get_loop_con_adr)
-    [Anonymous Symbol]                       0x0800bbf8   Section        0  foc_core.o(.text.get_motor_adr)
-    [Anonymous Symbol]                       0x0800bc04   Section        0  smo.o(.text.get_smo_adr)
-    [Anonymous Symbol]                       0x0800bc10   Section        0  svpwm.o(.text.get_svpwm_adr)
-    [Anonymous Symbol]                       0x0800bc1c   Section        0  smo.o(.text.get_tuning_adr)
-    [Anonymous Symbol]                       0x0800bc28   Section        0  math_fast.o(.text.inv_park_transform)
-    [Anonymous Symbol]                       0x0800bc78   Section        0  rgb.o(.text.led_show)
-    [Anonymous Symbol]                       0x0800bcf4   Section        0  log.o(.text.log_data_save)
-    [Anonymous Symbol]                       0x0800bdb8   Section        0  log.o(.text.log_data_write)
-    [Anonymous Symbol]                       0x0800bdec   Section        0  log.o(.text.log_erase)
-    [Anonymous Symbol]                       0x0800be10   Section        0  log.o(.text.log_init)
-    [Anonymous Symbol]                       0x0800be38   Section        0  log.o(.text.log_read_flash)
-    [Anonymous Symbol]                       0x0800bea0   Section        0  loop_control.o(.text.loop_parameter_init)
-    [Anonymous Symbol]                       0x0800bfbc   Section        0  loop_control.o(.text.loop_reset)
-    [Anonymous Symbol]                       0x0800bffc   Section        0  main.o(.text.main)
-    [Anonymous Symbol]                       0x0800c058   Section        0  math_fast.o(.text.normalize_angle_0_2pi)
-    [Anonymous Symbol]                       0x0800c0a4   Section        0  foc_core.o(.text.opend_loop_disable)
-    [Anonymous Symbol]                       0x0800c0b4   Section        0  foc_core.o(.text.opend_loop_enable)
-    [Anonymous Symbol]                       0x0800c0c4   Section        0  smo.o(.text.param_tuning_get_state)
-    [Anonymous Symbol]                       0x0800c0d0   Section        0  smo.o(.text.param_tuning_init)
-    [Anonymous Symbol]                       0x0800c100   Section        0  smo.o(.text.param_tuning_update)
-    __arm_cp.11_15                           0x0800c498   Number         4  smo.o(.text.param_tuning_update)
-    __arm_cp.11_16                           0x0800c49c   Number         4  smo.o(.text.param_tuning_update)
-    __arm_cp.11_17                           0x0800c4a0   Number         4  smo.o(.text.param_tuning_update)
-    __arm_cp.11_21                           0x0800c4b0   Number         4  smo.o(.text.param_tuning_update)
-    __arm_cp.11_22                           0x0800c4b4   Number         4  smo.o(.text.param_tuning_update)
-    [Anonymous Symbol]                       0x0800cc28   Section        0  math_fast.o(.text.park_transform)
-    [Anonymous Symbol]                       0x0800cc78   Section        0  protection_manager.o(.text.protection_manager_init)
-    [Anonymous Symbol]                       0x0800ccdc   Section        0  protection_manager.o(.text.protection_manager_reset)
-    [Anonymous Symbol]                       0x0800ccec   Section        0  protection_manager.o(.text.protection_manager_run)
-    [Anonymous Symbol]                       0x0800cf50   Section        0  filter.o(.text.pulse_interference_filter)
-    [Anonymous Symbol]                       0x0800d184   Section        0  filter.o(.text.pulse_interference_init)
-    [Anonymous Symbol]                       0x0800d19c   Section        0  math_fast.o(.text.rad_to_deg)
-    [Anonymous Symbol]                       0x0800d1ac   Section        0  math_fast.o(.text.rad_to_rpm)
-    [Anonymous Symbol]                       0x0800d1bc   Section        0  rgb.o(.text.rgb_3_alternate)
-    [Anonymous Symbol]                       0x0800d2a8   Section        0  rgb.o(.text.rgb_alternate)
-    [Anonymous Symbol]                       0x0800d378   Section        0  rgb.o(.text.rgb_breathe)
-    [Anonymous Symbol]                       0x0800d480   Section        0  math_fast.o(.text.rpm_to_rad)
-    [Anonymous Symbol]                       0x0800d490   Section        0  svpwm.o(.text.smaple_point_change)
-    [Anonymous Symbol]                       0x0800d524   Section        0  smo.o(.text.smo_get_omega)
-    [Anonymous Symbol]                       0x0800d540   Section        0  smo.o(.text.smo_get_theta)
-    [Anonymous Symbol]                       0x0800d550   Section        0  smo.o(.text.smo_init)
-    [Anonymous Symbol]                       0x0800d5c0   Section        0  smo.o(.text.smo_reset)
-    [Anonymous Symbol]                       0x0800d5e0   Section        0  smo.o(.text.smo_update)
-    __arm_cp.5_18                            0x0800d958   Number         4  smo.o(.text.smo_update)
-    [Anonymous Symbol]                       0x0800daf8   Section        0  queue.o(.text.static_queue_dequeue)
-    [Anonymous Symbol]                       0x0800db38   Section        0  queue.o(.text.static_queue_enqueue)
-    [Anonymous Symbol]                       0x0800db78   Section        0  queue.o(.text.static_queue_init)
-    [Anonymous Symbol]                       0x0800db9c   Section        0  status_feedback.o(.text.status_feedback)
-    [Anonymous Symbol]                       0x0800dc28   Section        0  datamonitoring.o(.text.stream_data_get)
-    [Anonymous Symbol]                       0x0800ddb8   Section        0  port_mapping.o(.text.stream_data_trans)
-    [Anonymous Symbol]                       0x0800df90   Section        0  svpwm.o(.text.svpwm_GetSector)
-    [Anonymous Symbol]                       0x0800df9c   Section        0  svpwm.o(.text.svpwm_Init)
-    [Anonymous Symbol]                       0x0800dfc0   Section        0  svpwm.o(.text.svpwm_run)
-    [Anonymous Symbol]                       0x0800e1b4   Section        0  uart_port.o(.text.usartRecvByte)
-    [Anonymous Symbol]                       0x0800e298   Section        0  port_mapping.o(.text.usart_farmedata_deal)
-    [Anonymous Symbol]                       0x0800e2c4   Section        0  uart_port.o(.text.usart_frame_send)
-    [Anonymous Symbol]                       0x0800e398   Section        0  uart_port.o(.text.usart_port_Init)
-    [Anonymous Symbol]                       0x0800e3e4   Section        0  usb_port.o(.text.usbRecvByte)
-    [Anonymous Symbol]                       0x0800e4c0   Section        0  port_mapping.o(.text.usb_FrameData_deal)
-    [Anonymous Symbol]                       0x0800e4ec   Section        0  usb_port.o(.text.usb_Frame_send)
-    [Anonymous Symbol]                       0x0800e5f8   Section        0  port_mapping.o(.text.usb_connected)
-    [Anonymous Symbol]                       0x0800e608   Section        0  uart_port.o(.text.vofa_send_multi_float)
-    i.__ARM_fpclassifyf                      0x0800e68e   Section        0  fpclassifyf.o(i.__ARM_fpclassifyf)
-    i.__hardfp_atan2f                        0x0800e6b4   Section        0  atan2f.o(i.__hardfp_atan2f)
-    i.__hardfp_expf                          0x0800e960   Section        0  expf.o(i.__hardfp_expf)
-    i.__hardfp_fmod                          0x0800eb4c   Section        0  fmod.o(i.__hardfp_fmod)
-    i.__hardfp_tanhf                         0x0800ec50   Section        0  tanhf.o(i.__hardfp_tanhf)
-    i.__mathlib_dbl_invalid                  0x0800ed38   Section        0  dunder.o(i.__mathlib_dbl_invalid)
-    i.__mathlib_flt_infnan                   0x0800ed58   Section        0  funder.o(i.__mathlib_flt_infnan)
-    i.__mathlib_flt_infnan2                  0x0800ed5e   Section        0  funder.o(i.__mathlib_flt_infnan2)
-    i.__mathlib_flt_overflow                 0x0800ed64   Section        0  funder.o(i.__mathlib_flt_overflow)
-    i.__mathlib_flt_underflow                0x0800ed74   Section        0  funder.o(i.__mathlib_flt_underflow)
-    i.__scatterload_copy                     0x0800ed84   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x0800ed92   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x0800ed94   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i.__set_errno                            0x0800eda4   Section        0  errno.o(i.__set_errno)
-    twotokover4top                           0x0800edb0   Data          16  expf.o(.constdata)
-    .constdata                               0x0800edb0   Section       48  expf.o(.constdata)
-    twotokover4bot                           0x0800edc0   Data          16  expf.o(.constdata)
-    twotokover4all                           0x0800edd0   Data          16  expf.o(.constdata)
-    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x0800ef15   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
-    [Anonymous Symbol]                       0x0800ef15   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
-    sine_table                               0x0800f724   Data         256  rgb.o(.rodata.sine_table)
-    [Anonymous Symbol]                       0x0800f724   Section        0  rgb.o(.rodata.sine_table)
+    [Anonymous Symbol]                       0x0800b36c   Section        0  port_mapping.o(.text.can_state_change)
+    [Anonymous Symbol]                       0x0800b378   Section        0  math_fast.o(.text.clark_transform)
+    [Anonymous Symbol]                       0x0800b394   Section        0  port_mapping.o(.text.com_state_get_adr)
+    [Anonymous Symbol]                       0x0800b3a0   Section        0  port_mapping.o(.text.communication_init)
+    [Anonymous Symbol]                       0x0800b3cc   Section        0  port_mapping.o(.text.communication_run)
+    [Anonymous Symbol]                       0x0800b3dc   Section        0  math_fast.o(.text.deg_to_rad)
+    [Anonymous Symbol]                       0x0800b3ec   Section        0  drive_state.o(.text.drive_state_get_adr)
+    [Anonymous Symbol]                       0x0800b3f8   Section        0  foc_statemachine.o(.text.fFOC_Init)
+    [Anonymous Symbol]                       0x0800b440   Section        0  svpwm.o(.text.fGetVoltage_u)
+    [Anonymous Symbol]                       0x0800b468   Section        0  svpwm.o(.text.fGetVoltage_v)
+    [Anonymous Symbol]                       0x0800b490   Section        0  svpwm.o(.text.fGetVoltage_w)
+    [Anonymous Symbol]                       0x0800b4b8   Section        0  port_mapping.o(.text.fHostComputer_send)
+    [Anonymous Symbol]                       0x0800b4f0   Section        0  foc_core.o(.text.foc_core_init)
+    [Anonymous Symbol]                       0x0800b658   Section        0  foc_core.o(.text.foc_core_reset)
+    [Anonymous Symbol]                       0x0800b680   Section        0  foc_core.o(.text.foc_encoder_get_vitop)
+    [Anonymous Symbol]                       0x0800b788   Section        0  foc_core.o(.text.foc_senless_get_vito)
+    [Anonymous Symbol]                       0x0800b8cc   Section        0  port_mapping.o(.text.frame_data_deal)
+    [Anonymous Symbol]                       0x0800bbdc   Section        0  loop_control.o(.text.get_loop_con_adr)
+    [Anonymous Symbol]                       0x0800bbe8   Section        0  foc_core.o(.text.get_motor_adr)
+    [Anonymous Symbol]                       0x0800bbf4   Section        0  smo.o(.text.get_smo_adr)
+    [Anonymous Symbol]                       0x0800bc00   Section        0  svpwm.o(.text.get_svpwm_adr)
+    [Anonymous Symbol]                       0x0800bc0c   Section        0  smo.o(.text.get_tuning_adr)
+    [Anonymous Symbol]                       0x0800bc18   Section        0  math_fast.o(.text.inv_park_transform)
+    [Anonymous Symbol]                       0x0800bc68   Section        0  rgb.o(.text.led_show)
+    [Anonymous Symbol]                       0x0800bce4   Section        0  log.o(.text.log_data_save)
+    [Anonymous Symbol]                       0x0800bda8   Section        0  log.o(.text.log_data_write)
+    [Anonymous Symbol]                       0x0800bddc   Section        0  log.o(.text.log_erase)
+    [Anonymous Symbol]                       0x0800be00   Section        0  log.o(.text.log_init)
+    [Anonymous Symbol]                       0x0800be28   Section        0  log.o(.text.log_read_flash)
+    [Anonymous Symbol]                       0x0800be90   Section        0  loop_control.o(.text.loop_parameter_init)
+    [Anonymous Symbol]                       0x0800bfac   Section        0  loop_control.o(.text.loop_reset)
+    [Anonymous Symbol]                       0x0800bfec   Section        0  main.o(.text.main)
+    [Anonymous Symbol]                       0x0800c048   Section        0  math_fast.o(.text.normalize_angle_0_2pi)
+    [Anonymous Symbol]                       0x0800c094   Section        0  foc_core.o(.text.opend_loop_disable)
+    [Anonymous Symbol]                       0x0800c0a4   Section        0  foc_core.o(.text.opend_loop_enable)
+    [Anonymous Symbol]                       0x0800c0b4   Section        0  smo.o(.text.param_tuning_init)
+    [Anonymous Symbol]                       0x0800c0e4   Section        0  smo.o(.text.param_tuning_update)
+    __arm_cp.11_15                           0x0800c4a8   Number         4  smo.o(.text.param_tuning_update)
+    __arm_cp.11_16                           0x0800c4ac   Number         4  smo.o(.text.param_tuning_update)
+    __arm_cp.11_17                           0x0800c4b0   Number         4  smo.o(.text.param_tuning_update)
+    __arm_cp.11_21                           0x0800c4c0   Number         4  smo.o(.text.param_tuning_update)
+    __arm_cp.11_22                           0x0800c4c4   Number         4  smo.o(.text.param_tuning_update)
+    [Anonymous Symbol]                       0x0800cc80   Section        0  math_fast.o(.text.park_transform)
+    [Anonymous Symbol]                       0x0800ccd0   Section        0  protection_manager.o(.text.protection_manager_init)
+    [Anonymous Symbol]                       0x0800cd34   Section        0  protection_manager.o(.text.protection_manager_reset)
+    [Anonymous Symbol]                       0x0800cd44   Section        0  protection_manager.o(.text.protection_manager_run)
+    [Anonymous Symbol]                       0x0800cfa8   Section        0  filter.o(.text.pulse_interference_filter)
+    [Anonymous Symbol]                       0x0800d1dc   Section        0  filter.o(.text.pulse_interference_init)
+    [Anonymous Symbol]                       0x0800d1f4   Section        0  math_fast.o(.text.rad_to_deg)
+    [Anonymous Symbol]                       0x0800d204   Section        0  math_fast.o(.text.rad_to_rpm)
+    [Anonymous Symbol]                       0x0800d214   Section        0  rgb.o(.text.rgb_3_alternate)
+    [Anonymous Symbol]                       0x0800d300   Section        0  rgb.o(.text.rgb_alternate)
+    [Anonymous Symbol]                       0x0800d3d0   Section        0  rgb.o(.text.rgb_breathe)
+    [Anonymous Symbol]                       0x0800d4d8   Section        0  math_fast.o(.text.rpm_to_rad)
+    [Anonymous Symbol]                       0x0800d4e8   Section        0  svpwm.o(.text.smaple_point_change)
+    [Anonymous Symbol]                       0x0800d57c   Section        0  smo.o(.text.smo_get_omega)
+    [Anonymous Symbol]                       0x0800d598   Section        0  smo.o(.text.smo_get_theta)
+    [Anonymous Symbol]                       0x0800d5a8   Section        0  smo.o(.text.smo_init)
+    [Anonymous Symbol]                       0x0800d618   Section        0  smo.o(.text.smo_reset)
+    [Anonymous Symbol]                       0x0800d638   Section        0  smo.o(.text.smo_update)
+    __arm_cp.5_18                            0x0800d9b0   Number         4  smo.o(.text.smo_update)
+    [Anonymous Symbol]                       0x0800db50   Section        0  queue.o(.text.static_queue_dequeue)
+    [Anonymous Symbol]                       0x0800db90   Section        0  queue.o(.text.static_queue_enqueue)
+    [Anonymous Symbol]                       0x0800dbd0   Section        0  queue.o(.text.static_queue_init)
+    [Anonymous Symbol]                       0x0800dbf4   Section        0  status_feedback.o(.text.status_feedback)
+    [Anonymous Symbol]                       0x0800dc80   Section        0  datamonitoring.o(.text.stream_data_get)
+    [Anonymous Symbol]                       0x0800de10   Section        0  port_mapping.o(.text.stream_data_trans)
+    [Anonymous Symbol]                       0x0800dfe8   Section        0  svpwm.o(.text.svpwm_GetSector)
+    [Anonymous Symbol]                       0x0800dff4   Section        0  svpwm.o(.text.svpwm_Init)
+    [Anonymous Symbol]                       0x0800e018   Section        0  svpwm.o(.text.svpwm_run)
+    [Anonymous Symbol]                       0x0800e20c   Section        0  uart_port.o(.text.usartRecvByte)
+    [Anonymous Symbol]                       0x0800e2f0   Section        0  port_mapping.o(.text.usart_farmedata_deal)
+    [Anonymous Symbol]                       0x0800e31c   Section        0  uart_port.o(.text.usart_frame_send)
+    [Anonymous Symbol]                       0x0800e3f0   Section        0  uart_port.o(.text.usart_port_Init)
+    [Anonymous Symbol]                       0x0800e43c   Section        0  usb_port.o(.text.usbRecvByte)
+    [Anonymous Symbol]                       0x0800e518   Section        0  port_mapping.o(.text.usb_FrameData_deal)
+    [Anonymous Symbol]                       0x0800e544   Section        0  usb_port.o(.text.usb_Frame_send)
+    [Anonymous Symbol]                       0x0800e650   Section        0  port_mapping.o(.text.usb_connected)
+    [Anonymous Symbol]                       0x0800e660   Section        0  uart_port.o(.text.vofa_send_multi_float)
+    i.__ARM_fpclassifyf                      0x0800e6e6   Section        0  fpclassifyf.o(i.__ARM_fpclassifyf)
+    i.__hardfp_atan2f                        0x0800e70c   Section        0  atan2f.o(i.__hardfp_atan2f)
+    i.__hardfp_expf                          0x0800e9b8   Section        0  expf.o(i.__hardfp_expf)
+    i.__hardfp_fmod                          0x0800eba4   Section        0  fmod.o(i.__hardfp_fmod)
+    i.__hardfp_tanhf                         0x0800eca8   Section        0  tanhf.o(i.__hardfp_tanhf)
+    i.__mathlib_dbl_invalid                  0x0800ed90   Section        0  dunder.o(i.__mathlib_dbl_invalid)
+    i.__mathlib_flt_infnan                   0x0800edb0   Section        0  funder.o(i.__mathlib_flt_infnan)
+    i.__mathlib_flt_infnan2                  0x0800edb6   Section        0  funder.o(i.__mathlib_flt_infnan2)
+    i.__mathlib_flt_overflow                 0x0800edbc   Section        0  funder.o(i.__mathlib_flt_overflow)
+    i.__mathlib_flt_underflow                0x0800edcc   Section        0  funder.o(i.__mathlib_flt_underflow)
+    i.__scatterload_copy                     0x0800eddc   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x0800edea   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x0800edec   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i.__set_errno                            0x0800edfc   Section        0  errno.o(i.__set_errno)
+    twotokover4top                           0x0800ee08   Data          16  expf.o(.constdata)
+    .constdata                               0x0800ee08   Section       48  expf.o(.constdata)
+    twotokover4bot                           0x0800ee18   Data          16  expf.o(.constdata)
+    twotokover4all                           0x0800ee28   Data          16  expf.o(.constdata)
+    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x0800ef6d   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
+    [Anonymous Symbol]                       0x0800ef6d   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
+    sine_table                               0x0800f77c   Data         256  rgb.o(.rodata.sine_table)
+    [Anonymous Symbol]                       0x0800f77c   Section        0  rgb.o(.rodata.sine_table)
     _errno                                   0x20000000   Data           4  errno.o(.data)
     .data                                    0x20000000   Section        4  errno.o(.data)
     USBD_CDC_CfgDesc                         0x2000005c   Data          67  usbd_cdc.o(.data.USBD_CDC_CfgDesc)
@@ -5341,7 +5336,7 @@ Image Symbol Table
     SPI3_IRQHandler                          0x08007e41   Thumb Code    12  stm32f4xx_it.o(.text.SPI3_IRQHandler)
     SVC_Handler                              0x08008131   Thumb Code     2  stm32f4xx_it.o(.text.SVC_Handler)
     Speed_loop                               0x08008135   Thumb Code   150  loop_control.o(.text.Speed_loop)
-    Status_send                              0x080081cd   Thumb Code   172  port_mapping.o(.text.Status_send)
+    Status_send                              0x080081cd   Thumb Code   176  port_mapping.o(.text.Status_send)
     SysTick_Handler                          0x080082a9   Thumb Code     4  stm32f4xx_it.o(.text.SysTick_Handler)
     SystemClock_Config                       0x080082ad   Thumb Code   176  main.o(.text.SystemClock_Config)
     SystemInit                               0x0800835d   Thumb Code    18  system_stm32f4xx.o(.text.SystemInit)
@@ -5444,107 +5439,106 @@ Image Symbol Table
     WeakMag_loop                             0x0800b145   Thumb Code   188  loop_control.o(.text.WeakMag_loop)
     arm_cos_f32                              0x0800b205   Thumb Code   152  arm_cos_f32.o(.text.arm_cos_f32)
     arm_sin_f32                              0x0800b29d   Thumb Code   144  arm_sin_f32.o(.text.arm_sin_f32)
-    auto_calibration_update                  0x0800b32d   Thumb Code    80  foc_core.o(.text.auto_calibration_update)
-    can_state_change                         0x0800b37d   Thumb Code    12  port_mapping.o(.text.can_state_change)
-    clark_transform                          0x0800b389   Thumb Code    24  math_fast.o(.text.clark_transform)
-    com_state_get_adr                        0x0800b3a5   Thumb Code    10  port_mapping.o(.text.com_state_get_adr)
-    communication_init                       0x0800b3b1   Thumb Code    42  port_mapping.o(.text.communication_init)
-    communication_run                        0x0800b3dd   Thumb Code    14  port_mapping.o(.text.communication_run)
-    deg_to_rad                               0x0800b3ed   Thumb Code    12  math_fast.o(.text.deg_to_rad)
-    drive_state_get_adr                      0x0800b3fd   Thumb Code    10  drive_state.o(.text.drive_state_get_adr)
-    fFOC_Init                                0x0800b409   Thumb Code    70  foc_statemachine.o(.text.fFOC_Init)
-    fGetVoltage_u                            0x0800b451   Thumb Code    36  svpwm.o(.text.fGetVoltage_u)
-    fGetVoltage_v                            0x0800b479   Thumb Code    36  svpwm.o(.text.fGetVoltage_v)
-    fGetVoltage_w                            0x0800b4a1   Thumb Code    36  svpwm.o(.text.fGetVoltage_w)
-    fHostComputer_send                       0x0800b4c9   Thumb Code    56  port_mapping.o(.text.fHostComputer_send)
-    foc_core_init                            0x0800b501   Thumb Code   352  foc_core.o(.text.foc_core_init)
-    foc_core_reset                           0x0800b669   Thumb Code    38  foc_core.o(.text.foc_core_reset)
-    foc_encoder_get_vitop                    0x0800b691   Thumb Code   262  foc_core.o(.text.foc_encoder_get_vitop)
-    foc_senless_get_vito                     0x0800b799   Thumb Code   312  foc_core.o(.text.foc_senless_get_vito)
-    frame_data_deal                          0x0800b8dd   Thumb Code   784  port_mapping.o(.text.frame_data_deal)
-    get_loop_con_adr                         0x0800bbed   Thumb Code    10  loop_control.o(.text.get_loop_con_adr)
-    get_motor_adr                            0x0800bbf9   Thumb Code    10  foc_core.o(.text.get_motor_adr)
-    get_smo_adr                              0x0800bc05   Thumb Code    10  smo.o(.text.get_smo_adr)
-    get_svpwm_adr                            0x0800bc11   Thumb Code    10  svpwm.o(.text.get_svpwm_adr)
-    get_tuning_adr                           0x0800bc1d   Thumb Code    10  smo.o(.text.get_tuning_adr)
-    inv_park_transform                       0x0800bc29   Thumb Code    80  math_fast.o(.text.inv_park_transform)
-    led_show                                 0x0800bc79   Thumb Code   122  rgb.o(.text.led_show)
-    log_data_save                            0x0800bcf5   Thumb Code   196  log.o(.text.log_data_save)
-    log_data_write                           0x0800bdb9   Thumb Code    52  log.o(.text.log_data_write)
-    log_erase                                0x0800bded   Thumb Code    34  log.o(.text.log_erase)
-    log_init                                 0x0800be11   Thumb Code    38  log.o(.text.log_init)
-    log_read_flash                           0x0800be39   Thumb Code   102  log.o(.text.log_read_flash)
-    loop_parameter_init                      0x0800bea1   Thumb Code   280  loop_control.o(.text.loop_parameter_init)
-    loop_reset                               0x0800bfbd   Thumb Code    62  loop_control.o(.text.loop_reset)
-    main                                     0x0800bffd   Thumb Code    90  main.o(.text.main)
-    normalize_angle_0_2pi                    0x0800c059   Thumb Code    64  math_fast.o(.text.normalize_angle_0_2pi)
-    opend_loop_disable                       0x0800c0a5   Thumb Code    14  foc_core.o(.text.opend_loop_disable)
-    opend_loop_enable                        0x0800c0b5   Thumb Code    14  foc_core.o(.text.opend_loop_enable)
-    param_tuning_get_state                   0x0800c0c5   Thumb Code    12  smo.o(.text.param_tuning_get_state)
-    param_tuning_init                        0x0800c0d1   Thumb Code    46  smo.o(.text.param_tuning_init)
-    param_tuning_update                      0x0800c101   Thumb Code  2820  smo.o(.text.param_tuning_update)
-    park_transform                           0x0800cc29   Thumb Code    80  math_fast.o(.text.park_transform)
-    protection_manager_init                  0x0800cc79   Thumb Code    96  protection_manager.o(.text.protection_manager_init)
-    protection_manager_reset                 0x0800ccdd   Thumb Code    16  protection_manager.o(.text.protection_manager_reset)
-    protection_manager_run                   0x0800cced   Thumb Code   600  protection_manager.o(.text.protection_manager_run)
-    pulse_interference_filter                0x0800cf51   Thumb Code   562  filter.o(.text.pulse_interference_filter)
-    pulse_interference_init                  0x0800d185   Thumb Code    22  filter.o(.text.pulse_interference_init)
-    rad_to_deg                               0x0800d19d   Thumb Code    12  math_fast.o(.text.rad_to_deg)
-    rad_to_rpm                               0x0800d1ad   Thumb Code    12  math_fast.o(.text.rad_to_rpm)
-    rgb_3_alternate                          0x0800d1bd   Thumb Code   234  rgb.o(.text.rgb_3_alternate)
-    rgb_alternate                            0x0800d2a9   Thumb Code   208  rgb.o(.text.rgb_alternate)
-    rgb_breathe                              0x0800d379   Thumb Code   262  rgb.o(.text.rgb_breathe)
-    rpm_to_rad                               0x0800d481   Thumb Code    12  math_fast.o(.text.rpm_to_rad)
-    smaple_point_change                      0x0800d491   Thumb Code   144  svpwm.o(.text.smaple_point_change)
-    smo_get_omega                            0x0800d525   Thumb Code    28  smo.o(.text.smo_get_omega)
-    smo_get_theta                            0x0800d541   Thumb Code    14  smo.o(.text.smo_get_theta)
-    smo_init                                 0x0800d551   Thumb Code   110  smo.o(.text.smo_init)
-    smo_reset                                0x0800d5c1   Thumb Code    26  smo.o(.text.smo_reset)
-    smo_update                               0x0800d5e1   Thumb Code  1232  smo.o(.text.smo_update)
-    static_queue_dequeue                     0x0800daf9   Thumb Code    62  queue.o(.text.static_queue_dequeue)
-    static_queue_enqueue                     0x0800db39   Thumb Code    64  queue.o(.text.static_queue_enqueue)
-    static_queue_init                        0x0800db79   Thumb Code    34  queue.o(.text.static_queue_init)
-    status_feedback                          0x0800db9d   Thumb Code   140  status_feedback.o(.text.status_feedback)
-    stream_data_get                          0x0800dc29   Thumb Code   398  datamonitoring.o(.text.stream_data_get)
-    stream_data_trans                        0x0800ddb9   Thumb Code   472  port_mapping.o(.text.stream_data_trans)
-    svpwm_GetSector                          0x0800df91   Thumb Code    12  svpwm.o(.text.svpwm_GetSector)
-    svpwm_Init                               0x0800df9d   Thumb Code    28  svpwm.o(.text.svpwm_Init)
-    svpwm_run                                0x0800dfc1   Thumb Code   480  svpwm.o(.text.svpwm_run)
-    usartRecvByte                            0x0800e1b5   Thumb Code   228  uart_port.o(.text.usartRecvByte)
-    usart_farmedata_deal                     0x0800e299   Thumb Code    42  port_mapping.o(.text.usart_farmedata_deal)
-    usart_frame_send                         0x0800e2c5   Thumb Code   212  uart_port.o(.text.usart_frame_send)
-    usart_port_Init                          0x0800e399   Thumb Code    76  uart_port.o(.text.usart_port_Init)
-    usbRecvByte                              0x0800e3e5   Thumb Code   218  usb_port.o(.text.usbRecvByte)
-    usb_FrameData_deal                       0x0800e4c1   Thumb Code    42  port_mapping.o(.text.usb_FrameData_deal)
-    usb_Frame_send                           0x0800e4ed   Thumb Code   266  usb_port.o(.text.usb_Frame_send)
-    usb_connected                            0x0800e5f9   Thumb Code    14  port_mapping.o(.text.usb_connected)
-    vofa_send_multi_float                    0x0800e609   Thumb Code   134  uart_port.o(.text.vofa_send_multi_float)
-    __ARM_fpclassifyf                        0x0800e68f   Thumb Code    38  fpclassifyf.o(i.__ARM_fpclassifyf)
-    __hardfp_atan2f                          0x0800e6b5   Thumb Code   594  atan2f.o(i.__hardfp_atan2f)
-    __hardfp_expf                            0x0800e961   Thumb Code   430  expf.o(i.__hardfp_expf)
-    __mathlib_expf                           0x0800e961   Thumb Code     0  expf.o(i.__hardfp_expf)
-    __hardfp_fmod                            0x0800eb4d   Thumb Code   254  fmod.o(i.__hardfp_fmod)
-    __hardfp_tanhf                           0x0800ec51   Thumb Code   208  tanhf.o(i.__hardfp_tanhf)
-    __mathlib_dbl_invalid                    0x0800ed39   Thumb Code    24  dunder.o(i.__mathlib_dbl_invalid)
-    __mathlib_flt_infnan                     0x0800ed59   Thumb Code     6  funder.o(i.__mathlib_flt_infnan)
-    __mathlib_flt_infnan2                    0x0800ed5f   Thumb Code     6  funder.o(i.__mathlib_flt_infnan2)
-    __mathlib_flt_overflow                   0x0800ed65   Thumb Code    10  funder.o(i.__mathlib_flt_overflow)
-    __mathlib_flt_underflow                  0x0800ed75   Thumb Code    10  funder.o(i.__mathlib_flt_underflow)
-    __scatterload_copy                       0x0800ed85   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x0800ed93   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x0800ed95   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    __set_errno                              0x0800eda5   Thumb Code     6  errno.o(i.__set_errno)
-    AHBPrescTable                            0x0800ede0   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
-    APBPrescTable                            0x0800edf0   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
-    BLUE                                     0x0800edf8   Data           6  rgb.o(.rodata.BLUE)
-    GREEN                                    0x0800edfe   Data           6  rgb.o(.rodata.GREEN)
-    MAGENTA                                  0x0800ee04   Data           6  rgb.o(.rodata.MAGENTA)
-    RED                                      0x0800ee0a   Data           6  rgb.o(.rodata.RED)
-    YELLOW                                   0x0800ee10   Data           6  rgb.o(.rodata.YELLOW)
-    adc_to_temp                              0x0800ee16   Data         255  adcdr.o(.rodata.adc_to_temp)
-    sinTable_f32                             0x0800ef20   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
-    Region$$Table$$Base                      0x0800f824   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0800f844   Number         0  anon$$obj.o(Region$$Table)
+    auto_calibration_update                  0x0800b32d   Thumb Code    64  foc_core.o(.text.auto_calibration_update)
+    can_state_change                         0x0800b36d   Thumb Code    12  port_mapping.o(.text.can_state_change)
+    clark_transform                          0x0800b379   Thumb Code    24  math_fast.o(.text.clark_transform)
+    com_state_get_adr                        0x0800b395   Thumb Code    10  port_mapping.o(.text.com_state_get_adr)
+    communication_init                       0x0800b3a1   Thumb Code    42  port_mapping.o(.text.communication_init)
+    communication_run                        0x0800b3cd   Thumb Code    14  port_mapping.o(.text.communication_run)
+    deg_to_rad                               0x0800b3dd   Thumb Code    12  math_fast.o(.text.deg_to_rad)
+    drive_state_get_adr                      0x0800b3ed   Thumb Code    10  drive_state.o(.text.drive_state_get_adr)
+    fFOC_Init                                0x0800b3f9   Thumb Code    70  foc_statemachine.o(.text.fFOC_Init)
+    fGetVoltage_u                            0x0800b441   Thumb Code    36  svpwm.o(.text.fGetVoltage_u)
+    fGetVoltage_v                            0x0800b469   Thumb Code    36  svpwm.o(.text.fGetVoltage_v)
+    fGetVoltage_w                            0x0800b491   Thumb Code    36  svpwm.o(.text.fGetVoltage_w)
+    fHostComputer_send                       0x0800b4b9   Thumb Code    56  port_mapping.o(.text.fHostComputer_send)
+    foc_core_init                            0x0800b4f1   Thumb Code   352  foc_core.o(.text.foc_core_init)
+    foc_core_reset                           0x0800b659   Thumb Code    38  foc_core.o(.text.foc_core_reset)
+    foc_encoder_get_vitop                    0x0800b681   Thumb Code   262  foc_core.o(.text.foc_encoder_get_vitop)
+    foc_senless_get_vito                     0x0800b789   Thumb Code   312  foc_core.o(.text.foc_senless_get_vito)
+    frame_data_deal                          0x0800b8cd   Thumb Code   784  port_mapping.o(.text.frame_data_deal)
+    get_loop_con_adr                         0x0800bbdd   Thumb Code    10  loop_control.o(.text.get_loop_con_adr)
+    get_motor_adr                            0x0800bbe9   Thumb Code    10  foc_core.o(.text.get_motor_adr)
+    get_smo_adr                              0x0800bbf5   Thumb Code    10  smo.o(.text.get_smo_adr)
+    get_svpwm_adr                            0x0800bc01   Thumb Code    10  svpwm.o(.text.get_svpwm_adr)
+    get_tuning_adr                           0x0800bc0d   Thumb Code    10  smo.o(.text.get_tuning_adr)
+    inv_park_transform                       0x0800bc19   Thumb Code    80  math_fast.o(.text.inv_park_transform)
+    led_show                                 0x0800bc69   Thumb Code   122  rgb.o(.text.led_show)
+    log_data_save                            0x0800bce5   Thumb Code   196  log.o(.text.log_data_save)
+    log_data_write                           0x0800bda9   Thumb Code    52  log.o(.text.log_data_write)
+    log_erase                                0x0800bddd   Thumb Code    34  log.o(.text.log_erase)
+    log_init                                 0x0800be01   Thumb Code    38  log.o(.text.log_init)
+    log_read_flash                           0x0800be29   Thumb Code   102  log.o(.text.log_read_flash)
+    loop_parameter_init                      0x0800be91   Thumb Code   280  loop_control.o(.text.loop_parameter_init)
+    loop_reset                               0x0800bfad   Thumb Code    62  loop_control.o(.text.loop_reset)
+    main                                     0x0800bfed   Thumb Code    90  main.o(.text.main)
+    normalize_angle_0_2pi                    0x0800c049   Thumb Code    64  math_fast.o(.text.normalize_angle_0_2pi)
+    opend_loop_disable                       0x0800c095   Thumb Code    14  foc_core.o(.text.opend_loop_disable)
+    opend_loop_enable                        0x0800c0a5   Thumb Code    14  foc_core.o(.text.opend_loop_enable)
+    param_tuning_init                        0x0800c0b5   Thumb Code    46  smo.o(.text.param_tuning_init)
+    param_tuning_update                      0x0800c0e5   Thumb Code  2932  smo.o(.text.param_tuning_update)
+    park_transform                           0x0800cc81   Thumb Code    80  math_fast.o(.text.park_transform)
+    protection_manager_init                  0x0800ccd1   Thumb Code    96  protection_manager.o(.text.protection_manager_init)
+    protection_manager_reset                 0x0800cd35   Thumb Code    16  protection_manager.o(.text.protection_manager_reset)
+    protection_manager_run                   0x0800cd45   Thumb Code   600  protection_manager.o(.text.protection_manager_run)
+    pulse_interference_filter                0x0800cfa9   Thumb Code   562  filter.o(.text.pulse_interference_filter)
+    pulse_interference_init                  0x0800d1dd   Thumb Code    22  filter.o(.text.pulse_interference_init)
+    rad_to_deg                               0x0800d1f5   Thumb Code    12  math_fast.o(.text.rad_to_deg)
+    rad_to_rpm                               0x0800d205   Thumb Code    12  math_fast.o(.text.rad_to_rpm)
+    rgb_3_alternate                          0x0800d215   Thumb Code   234  rgb.o(.text.rgb_3_alternate)
+    rgb_alternate                            0x0800d301   Thumb Code   208  rgb.o(.text.rgb_alternate)
+    rgb_breathe                              0x0800d3d1   Thumb Code   262  rgb.o(.text.rgb_breathe)
+    rpm_to_rad                               0x0800d4d9   Thumb Code    12  math_fast.o(.text.rpm_to_rad)
+    smaple_point_change                      0x0800d4e9   Thumb Code   144  svpwm.o(.text.smaple_point_change)
+    smo_get_omega                            0x0800d57d   Thumb Code    28  smo.o(.text.smo_get_omega)
+    smo_get_theta                            0x0800d599   Thumb Code    14  smo.o(.text.smo_get_theta)
+    smo_init                                 0x0800d5a9   Thumb Code   110  smo.o(.text.smo_init)
+    smo_reset                                0x0800d619   Thumb Code    26  smo.o(.text.smo_reset)
+    smo_update                               0x0800d639   Thumb Code  1232  smo.o(.text.smo_update)
+    static_queue_dequeue                     0x0800db51   Thumb Code    62  queue.o(.text.static_queue_dequeue)
+    static_queue_enqueue                     0x0800db91   Thumb Code    64  queue.o(.text.static_queue_enqueue)
+    static_queue_init                        0x0800dbd1   Thumb Code    34  queue.o(.text.static_queue_init)
+    status_feedback                          0x0800dbf5   Thumb Code   140  status_feedback.o(.text.status_feedback)
+    stream_data_get                          0x0800dc81   Thumb Code   398  datamonitoring.o(.text.stream_data_get)
+    stream_data_trans                        0x0800de11   Thumb Code   472  port_mapping.o(.text.stream_data_trans)
+    svpwm_GetSector                          0x0800dfe9   Thumb Code    12  svpwm.o(.text.svpwm_GetSector)
+    svpwm_Init                               0x0800dff5   Thumb Code    28  svpwm.o(.text.svpwm_Init)
+    svpwm_run                                0x0800e019   Thumb Code   480  svpwm.o(.text.svpwm_run)
+    usartRecvByte                            0x0800e20d   Thumb Code   228  uart_port.o(.text.usartRecvByte)
+    usart_farmedata_deal                     0x0800e2f1   Thumb Code    42  port_mapping.o(.text.usart_farmedata_deal)
+    usart_frame_send                         0x0800e31d   Thumb Code   212  uart_port.o(.text.usart_frame_send)
+    usart_port_Init                          0x0800e3f1   Thumb Code    76  uart_port.o(.text.usart_port_Init)
+    usbRecvByte                              0x0800e43d   Thumb Code   218  usb_port.o(.text.usbRecvByte)
+    usb_FrameData_deal                       0x0800e519   Thumb Code    42  port_mapping.o(.text.usb_FrameData_deal)
+    usb_Frame_send                           0x0800e545   Thumb Code   266  usb_port.o(.text.usb_Frame_send)
+    usb_connected                            0x0800e651   Thumb Code    14  port_mapping.o(.text.usb_connected)
+    vofa_send_multi_float                    0x0800e661   Thumb Code   134  uart_port.o(.text.vofa_send_multi_float)
+    __ARM_fpclassifyf                        0x0800e6e7   Thumb Code    38  fpclassifyf.o(i.__ARM_fpclassifyf)
+    __hardfp_atan2f                          0x0800e70d   Thumb Code   594  atan2f.o(i.__hardfp_atan2f)
+    __hardfp_expf                            0x0800e9b9   Thumb Code   430  expf.o(i.__hardfp_expf)
+    __mathlib_expf                           0x0800e9b9   Thumb Code     0  expf.o(i.__hardfp_expf)
+    __hardfp_fmod                            0x0800eba5   Thumb Code   254  fmod.o(i.__hardfp_fmod)
+    __hardfp_tanhf                           0x0800eca9   Thumb Code   208  tanhf.o(i.__hardfp_tanhf)
+    __mathlib_dbl_invalid                    0x0800ed91   Thumb Code    24  dunder.o(i.__mathlib_dbl_invalid)
+    __mathlib_flt_infnan                     0x0800edb1   Thumb Code     6  funder.o(i.__mathlib_flt_infnan)
+    __mathlib_flt_infnan2                    0x0800edb7   Thumb Code     6  funder.o(i.__mathlib_flt_infnan2)
+    __mathlib_flt_overflow                   0x0800edbd   Thumb Code    10  funder.o(i.__mathlib_flt_overflow)
+    __mathlib_flt_underflow                  0x0800edcd   Thumb Code    10  funder.o(i.__mathlib_flt_underflow)
+    __scatterload_copy                       0x0800eddd   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x0800edeb   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x0800eded   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    __set_errno                              0x0800edfd   Thumb Code     6  errno.o(i.__set_errno)
+    AHBPrescTable                            0x0800ee38   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
+    APBPrescTable                            0x0800ee48   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
+    BLUE                                     0x0800ee50   Data           6  rgb.o(.rodata.BLUE)
+    GREEN                                    0x0800ee56   Data           6  rgb.o(.rodata.GREEN)
+    MAGENTA                                  0x0800ee5c   Data           6  rgb.o(.rodata.MAGENTA)
+    RED                                      0x0800ee62   Data           6  rgb.o(.rodata.RED)
+    YELLOW                                   0x0800ee68   Data           6  rgb.o(.rodata.YELLOW)
+    adc_to_temp                              0x0800ee6e   Data         255  adcdr.o(.rodata.adc_to_temp)
+    sinTable_f32                             0x0800ef78   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
+    Region$$Table$$Base                      0x0800f87c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0800f89c   Number         0  anon$$obj.o(Region$$Table)
     FS_Desc                                  0x20000004   Data          28  usbd_desc.o(.data.FS_Desc)
     SystemCoreClock                          0x20000020   Data           4  system_stm32f4xx.o(.data.SystemCoreClock)
     USBD_CDC                                 0x20000024   Data          56  usbd_cdc.o(.data.USBD_CDC)
@@ -5627,56 +5621,56 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000fa68, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000f920])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000fac0, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000f978])
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000f844, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000f89c, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000188   Data   RO            3    RESET               startup_stm32f405xx.o
-    0x08000188   0x08000188   0x00000000   Code   RO         2746  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x08000188   0x08000188   0x00000004   Code   RO         2799    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x0800018c   0x0800018c   0x00000004   Code   RO         2802    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2804    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2806    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x08000190   0x08000190   0x00000008   Code   RO         2807    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2809    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2811    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x08000198   0x08000198   0x00000004   Code   RO         2800    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000188   0x08000188   0x00000000   Code   RO         2744  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x08000188   0x08000188   0x00000004   Code   RO         2797    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x0800018c   0x0800018c   0x00000004   Code   RO         2800    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2802    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2804    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x08000190   0x08000190   0x00000008   Code   RO         2805    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2807    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2809    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x08000198   0x08000198   0x00000004   Code   RO         2798    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x0800019c   0x0800019c   0x00000024   Code   RO            4    .text               startup_stm32f405xx.o
-    0x080001c0   0x080001c0   0x00000062   Code   RO         2749    .text               mc_w.l(uldiv.o)
-    0x08000222   0x08000222   0x00000024   Code   RO         2751    .text               mc_w.l(memcpya.o)
-    0x08000246   0x08000246   0x00000024   Code   RO         2753    .text               mc_w.l(memseta.o)
-    0x0800026a   0x0800026a   0x0000000e   Code   RO         2755    .text               mc_w.l(strlen.o)
-    0x08000278   0x08000278   0x0000014e   Code   RO         2759    .text               mf_w.l(dadd.o)
-    0x080003c6   0x080003c6   0x000000e4   Code   RO         2761    .text               mf_w.l(dmul.o)
-    0x080004aa   0x080004aa   0x000000de   Code   RO         2763    .text               mf_w.l(ddiv.o)
-    0x08000588   0x08000588   0x00000026   Code   RO         2765    .text               mf_w.l(f2d.o)
-    0x080005ae   0x080005ae   0x00000038   Code   RO         2767    .text               mf_w.l(d2f.o)
-    0x080005e6   0x080005e6   0x0000001e   Code   RO         2813    .text               mc_w.l(llshl.o)
-    0x08000604   0x08000604   0x00000020   Code   RO         2815    .text               mc_w.l(llushr.o)
-    0x08000624   0x08000624   0x00000024   Code   RO         2817    .text               mc_w.l(llsshr.o)
-    0x08000648   0x08000648   0x00000000   Code   RO         2826    .text               mc_w.l(iusefp.o)
-    0x08000648   0x08000648   0x0000006e   Code   RO         2827    .text               mf_w.l(fepilogue.o)
-    0x080006b6   0x080006b6   0x000000ba   Code   RO         2829    .text               mf_w.l(depilogue.o)
-    0x08000770   0x08000770   0x00000086   Code   RO         2831    .text               mf_w.l(drem.o)
+    0x080001c0   0x080001c0   0x00000062   Code   RO         2747    .text               mc_w.l(uldiv.o)
+    0x08000222   0x08000222   0x00000024   Code   RO         2749    .text               mc_w.l(memcpya.o)
+    0x08000246   0x08000246   0x00000024   Code   RO         2751    .text               mc_w.l(memseta.o)
+    0x0800026a   0x0800026a   0x0000000e   Code   RO         2753    .text               mc_w.l(strlen.o)
+    0x08000278   0x08000278   0x0000014e   Code   RO         2757    .text               mf_w.l(dadd.o)
+    0x080003c6   0x080003c6   0x000000e4   Code   RO         2759    .text               mf_w.l(dmul.o)
+    0x080004aa   0x080004aa   0x000000de   Code   RO         2761    .text               mf_w.l(ddiv.o)
+    0x08000588   0x08000588   0x00000026   Code   RO         2763    .text               mf_w.l(f2d.o)
+    0x080005ae   0x080005ae   0x00000038   Code   RO         2765    .text               mf_w.l(d2f.o)
+    0x080005e6   0x080005e6   0x0000001e   Code   RO         2811    .text               mc_w.l(llshl.o)
+    0x08000604   0x08000604   0x00000020   Code   RO         2813    .text               mc_w.l(llushr.o)
+    0x08000624   0x08000624   0x00000024   Code   RO         2815    .text               mc_w.l(llsshr.o)
+    0x08000648   0x08000648   0x00000000   Code   RO         2824    .text               mc_w.l(iusefp.o)
+    0x08000648   0x08000648   0x0000006e   Code   RO         2825    .text               mf_w.l(fepilogue.o)
+    0x080006b6   0x080006b6   0x000000ba   Code   RO         2827    .text               mf_w.l(depilogue.o)
+    0x08000770   0x08000770   0x00000086   Code   RO         2829    .text               mf_w.l(drem.o)
     0x080007f6   0x080007f6   0x00000002   PAD
-    0x080007f8   0x080007f8   0x00000030   Code   RO         2833    .text               mc_w.l(init.o)
-    0x08000828   0x08000828   0x0000003a   Code   RO         2843    .text               mc_w.l(__dczerorl.o)
+    0x080007f8   0x080007f8   0x00000030   Code   RO         2831    .text               mc_w.l(init.o)
+    0x08000828   0x08000828   0x0000003a   Code   RO         2841    .text               mc_w.l(__dczerorl.o)
     0x08000862   0x08000862   0x00000002   PAD
-    0x08000864   0x08000864   0x00000036   Code   RO         2194    .text.ADC2_sample   adcdr.o
+    0x08000864   0x08000864   0x00000036   Code   RO         2192    .text.ADC2_sample   adcdr.o
     0x0800089a   0x0800089a   0x00000002   PAD
     0x0800089c   0x0800089c   0x0000006c   Code   RO          813    .text.ADC_DMAConvCplt  stm32f4xx_hal_adc.o
     0x08000908   0x08000908   0x00000012   Code   RO          817    .text.ADC_DMAError  stm32f4xx_hal_adc.o
     0x0800091a   0x0800091a   0x00000002   PAD
     0x0800091c   0x0800091c   0x00000006   Code   RO          815    .text.ADC_DMAHalfConvCplt  stm32f4xx_hal_adc.o
     0x08000922   0x08000922   0x00000002   PAD
-    0x08000924   0x08000924   0x00000092   Code   RO         2190    .text.ADC_DR_Init   adcdr.o
+    0x08000924   0x08000924   0x00000092   Code   RO         2188    .text.ADC_DR_Init   adcdr.o
     0x080009b6   0x080009b6   0x00000002   PAD
-    0x080009b8   0x080009b8   0x00000114   Code   RO         2196    .text.ADC_GET_Current  adcdr.o
-    0x08000acc   0x08000acc   0x000000a0   Code   RO         2200    .text.ADC_GET_Temp  adcdr.o
-    0x08000b6c   0x08000b6c   0x00000038   Code   RO         2198    .text.ADC_GET_Voltage  adcdr.o
-    0x08000ba4   0x08000ba4   0x0000000e   Code   RO         2192    .text.ADC_sample_change  adcdr.o
+    0x080009b8   0x080009b8   0x00000114   Code   RO         2194    .text.ADC_GET_Current  adcdr.o
+    0x08000acc   0x08000acc   0x000000a0   Code   RO         2198    .text.ADC_GET_Temp  adcdr.o
+    0x08000b6c   0x08000b6c   0x00000038   Code   RO         2196    .text.ADC_GET_Voltage  adcdr.o
+    0x08000ba4   0x08000ba4   0x0000000e   Code   RO         2190    .text.ADC_sample_change  adcdr.o
     0x08000bb2   0x08000bb2   0x00000002   PAD
     0x08000bb4   0x08000bb4   0x00000002   Code   RO          146    .text.BusFault_Handler  stm32f4xx_it.o
     0x08000bb6   0x08000bb6   0x00000002   PAD
@@ -5699,7 +5693,7 @@ Memory Map of the image
     0x08000f3e   0x08000f3e   0x00000002   PAD
     0x08000f40   0x08000f40   0x00000096   Code   RO         2079    .text.Current_loop  loop_control.o
     0x08000fd6   0x08000fd6   0x00000002   PAD
-    0x08000fd8   0x08000fd8   0x0000005a   Code   RO         2156    .text.DISABLE_PWM   svpwm.o
+    0x08000fd8   0x08000fd8   0x0000005a   Code   RO         2154    .text.DISABLE_PWM   svpwm.o
     0x08001032   0x08001032   0x00000002   PAD
     0x08001034   0x08001034   0x0000000c   Code   RO          158    .text.DMA1_Stream0_IRQHandler  stm32f4xx_it.o
     0x08001040   0x08001040   0x0000000c   Code   RO          160    .text.DMA1_Stream3_IRQHandler  stm32f4xx_it.o
@@ -5711,20 +5705,20 @@ Memory Map of the image
     0x08001088   0x08001088   0x0000000c   Code   RO          182    .text.DMA2_Stream7_IRQHandler  stm32f4xx_it.o
     0x08001094   0x08001094   0x00000002   Code   RO          152    .text.DebugMon_Handler  stm32f4xx_it.o
     0x08001096   0x08001096   0x00000002   PAD
-    0x08001098   0x08001098   0x0000005a   Code   RO         2154    .text.ENABLE_PWM    svpwm.o
+    0x08001098   0x08001098   0x0000005a   Code   RO         2152    .text.ENABLE_PWM    svpwm.o
     0x080010f2   0x080010f2   0x00000002   PAD
-    0x080010f4   0x080010f4   0x0000023c   Code   RO         2256    .text.ENCODER_MainLoopTask  encoder.o
-    0x08001330   0x08001330   0x0000000c   Code   RO         2236    .text.ENCODER_state_get  drive_state.o
-    0x0800133c   0x0800133c   0x0000000c   Code   RO         2232    .text.ENCODER_state_set  drive_state.o
-    0x08001348   0x08001348   0x0000015a   Code   RO         2301    .text.Erase_one_Sector  flashdr.o
+    0x080010f4   0x080010f4   0x0000023c   Code   RO         2254    .text.ENCODER_MainLoopTask  encoder.o
+    0x08001330   0x08001330   0x0000000c   Code   RO         2234    .text.ENCODER_state_get  drive_state.o
+    0x0800133c   0x0800133c   0x0000000c   Code   RO         2230    .text.ENCODER_state_set  drive_state.o
+    0x08001348   0x08001348   0x0000015a   Code   RO         2299    .text.Erase_one_Sector  flashdr.o
     0x080014a2   0x080014a2   0x00000002   PAD
     0x080014a4   0x080014a4   0x00000008   Code   RO           15    .text.Error_Handler  main.o
-    0x080014ac   0x080014ac   0x000000b4   Code   RO         2313    .text.FLASH_Init    flashdr.o
-    0x08001560   0x08001560   0x000000d2   Code   RO         2307    .text.FLASH_Read_data  flashdr.o
+    0x080014ac   0x080014ac   0x000000b4   Code   RO         2311    .text.FLASH_Init    flashdr.o
+    0x08001560   0x08001560   0x000000d2   Code   RO         2305    .text.FLASH_Read_data  flashdr.o
     0x08001632   0x08001632   0x00000002   PAD
-    0x08001634   0x08001634   0x00000158   Code   RO         2309    .text.FLASH_Write_Word  flashdr.o
-    0x0800178c   0x0800178c   0x00000024   Code   RO         2303    .text.FLASH_erase_sector  flashdr.o
-    0x080017b0   0x080017b0   0x0000000c   Code   RO         2234    .text.FLASH_state_set  drive_state.o
+    0x08001634   0x08001634   0x00000158   Code   RO         2307    .text.FLASH_Write_Word  flashdr.o
+    0x0800178c   0x0800178c   0x00000024   Code   RO         2301    .text.FLASH_erase_sector  flashdr.o
+    0x080017b0   0x080017b0   0x0000000c   Code   RO         2232    .text.FLASH_state_set  drive_state.o
     0x080017bc   0x080017bc   0x0000000c   Code   RO         2040    .text.FOC_CHANGE_STATE  foc_statemachine.o
     0x080017c8   0x080017c8   0x0000000a   Code   RO         2012    .text.FOC_GET_MODE_adr  foc_core.o
     0x080017d2   0x080017d2   0x00000002   PAD
@@ -5741,14 +5735,14 @@ Memory Map of the image
     0x08001abe   0x08001abe   0x00000002   PAD
     0x08001ac0   0x08001ac0   0x00000064   Code   RO         1990    .text.FOC_SET_VER_VALUE  foc_core.o
     0x08001b24   0x08001b24   0x00000068   Code   RO         2063    .text.Frequency_division_update  loop_control.o
-    0x08001b8c   0x08001b8c   0x0000000e   Code   RO         2258    .text.GET_ENCODER_ANGLE_ABS  encoder.o
+    0x08001b8c   0x08001b8c   0x0000000e   Code   RO         2256    .text.GET_ENCODER_ANGLE_ABS  encoder.o
     0x08001b9a   0x08001b9a   0x00000002   PAD
-    0x08001b9c   0x08001b9c   0x0000000e   Code   RO         2260    .text.GET_ENCODER_ANGLE_INC  encoder.o
+    0x08001b9c   0x08001b9c   0x0000000e   Code   RO         2258    .text.GET_ENCODER_ANGLE_INC  encoder.o
     0x08001baa   0x08001baa   0x00000002   PAD
-    0x08001bac   0x08001bac   0x0000000e   Code   RO         2262    .text.GET_ENCODER_OMEGA  encoder.o
+    0x08001bac   0x08001bac   0x0000000e   Code   RO         2260    .text.GET_ENCODER_OMEGA  encoder.o
     0x08001bba   0x08001bba   0x00000002   PAD
     0x08001bbc   0x08001bbc   0x00000138   Code   RO          825    .text.HAL_ADC_ConfigChannel  stm32f4xx_hal_adc.o
-    0x08001cf4   0x08001cf4   0x000000e8   Code   RO         2186    .text.HAL_ADC_ConvCpltCallback  adcdr.o
+    0x08001cf4   0x08001cf4   0x000000e8   Code   RO         2184    .text.HAL_ADC_ConvCpltCallback  adcdr.o
     0x08001ddc   0x08001ddc   0x00000002   Code   RO          823    .text.HAL_ADC_ConvHalfCpltCallback  stm32f4xx_hal_adc.o
     0x08001dde   0x08001dde   0x00000002   PAD
     0x08001de0   0x08001de0   0x00000002   Code   RO          809    .text.HAL_ADC_ErrorCallback  stm32f4xx_hal_adc.o
@@ -5810,7 +5804,7 @@ Memory Map of the image
     0x08003098   0x08003098   0x0000000a   Code   RO          513    .text.HAL_GPIO_WritePin  stm32f4xx_hal_gpio.o
     0x080030a2   0x080030a2   0x00000002   PAD
     0x080030a4   0x080030a4   0x0000000c   Code   RO          704    .text.HAL_GetTick   stm32f4xx_hal.o
-    0x080030b0   0x080030b0   0x0000002e   Code   RO         2531    .text.HAL_GetTick_us  math_fast.o
+    0x080030b0   0x080030b0   0x0000002e   Code   RO         2529    .text.HAL_GetTick_us  math_fast.o
     0x080030de   0x080030de   0x00000002   PAD
     0x080030e0   0x080030e0   0x0000001a   Code   RO          702    .text.HAL_IncTick   stm32f4xx_hal.o
     0x080030fa   0x080030fa   0x00000002   PAD
@@ -5884,7 +5878,7 @@ Memory Map of the image
     0x08004ec2   0x08004ec2   0x00000002   PAD
     0x08004ec4   0x08004ec4   0x0000028c   Code   RO          972    .text.HAL_SPI_TransmitReceive  stm32f4xx_hal_spi.o
     0x08005150   0x08005150   0x00000130   Code   RO         1008    .text.HAL_SPI_TransmitReceive_DMA  stm32f4xx_hal_spi.o
-    0x08005280   0x08005280   0x0000007e   Code   RO         2252    .text.HAL_SPI_TxRxCpltCallback  encoder.o
+    0x08005280   0x08005280   0x0000007e   Code   RO         2250    .text.HAL_SPI_TxRxCpltCallback  encoder.o
     0x080052fe   0x080052fe   0x00000002   PAD
     0x08005300   0x08005300   0x00000002   Code   RO         1054    .text.HAL_SPI_TxRxHalfCpltCallback  stm32f4xx_hal_spi.o
     0x08005302   0x08005302   0x00000002   PAD
@@ -5977,18 +5971,18 @@ Memory Map of the image
     0x080072e4   0x080072e4   0x0000000c   Code   RO          178    .text.OTG_FS_IRQHandler  stm32f4xx_it.o
     0x080072f0   0x080072f0   0x0000000e   Code   RO         2091    .text.POS_LOOP_set_omega  loop_control.o
     0x080072fe   0x080072fe   0x00000002   PAD
-    0x08007300   0x08007300   0x00000006   Code   RO         2410    .text.Param_erase   parameter_manager.o
+    0x08007300   0x08007300   0x00000006   Code   RO         2408    .text.Param_erase   parameter_manager.o
     0x08007306   0x08007306   0x00000002   PAD
-    0x08007308   0x08007308   0x00000324   Code   RO         2400    .text.Param_get     parameter_manager.o
-    0x0800762c   0x0800762c   0x00000184   Code   RO         2406    .text.Param_init    parameter_manager.o
-    0x080077b0   0x080077b0   0x0000001e   Code   RO         2408    .text.Param_save    parameter_manager.o
+    0x08007308   0x08007308   0x00000324   Code   RO         2398    .text.Param_get     parameter_manager.o
+    0x0800762c   0x0800762c   0x00000184   Code   RO         2404    .text.Param_init    parameter_manager.o
+    0x080077b0   0x080077b0   0x0000001e   Code   RO         2406    .text.Param_save    parameter_manager.o
     0x080077ce   0x080077ce   0x00000002   PAD
-    0x080077d0   0x080077d0   0x00000384   Code   RO         2398    .text.Param_set     parameter_manager.o
+    0x080077d0   0x080077d0   0x00000384   Code   RO         2396    .text.Param_set     parameter_manager.o
     0x08007b54   0x08007b54   0x00000002   Code   RO          154    .text.PendSV_Handler  stm32f4xx_it.o
     0x08007b56   0x08007b56   0x00000002   PAD
     0x08007b58   0x08007b58   0x000000fe   Code   RO         2087    .text.Position_abs_loop  loop_control.o
     0x08007c56   0x08007c56   0x00000002   PAD
-    0x08007c58   0x08007c58   0x00000150   Code   RO         2325    .text.RGB_SetOne_Color  rgb.o
+    0x08007c58   0x08007c58   0x00000150   Code   RO         2323    .text.RGB_SetOne_Color  rgb.o
     0x08007da8   0x08007da8   0x0000000e   Code   RO         1998    .text.SET_Theta_offset  foc_core.o
     0x08007db6   0x08007db6   0x00000002   PAD
     0x08007db8   0x08007db8   0x0000000c   Code   RO         2000    .text.SET_Wire_sequence  foc_core.o
@@ -6018,11 +6012,11 @@ Memory Map of the image
     0x080082ac   0x080082ac   0x000000b0   Code   RO           13    .text.SystemClock_Config  main.o
     0x0800835c   0x0800835c   0x00000012   Code   RO         1517    .text.SystemInit    system_stm32f4xx.o
     0x0800836e   0x0800836e   0x00000002   PAD
-    0x08008370   0x08008370   0x00000062   Code   RO         2461    .text.SystemStateMachine_run  system_statemachine.o
+    0x08008370   0x08008370   0x00000062   Code   RO         2459    .text.SystemStateMachine_run  system_statemachine.o
     0x080083d2   0x080083d2   0x00000002   PAD
-    0x080083d4   0x080083d4   0x0000000c   Code   RO         2457    .text.SystemState_change  system_statemachine.o
-    0x080083e0   0x080083e0   0x0000000c   Code   RO         2459    .text.SystemState_get  system_statemachine.o
-    0x080083ec   0x080083ec   0x00000038   Code   RO         2446    .text.System_Fault_feedback  status_feedback.o
+    0x080083d4   0x080083d4   0x0000000c   Code   RO         2455    .text.SystemState_change  system_statemachine.o
+    0x080083e0   0x080083e0   0x0000000c   Code   RO         2457    .text.SystemState_get  system_statemachine.o
+    0x080083ec   0x080083ec   0x00000038   Code   RO         2444    .text.System_Fault_feedback  status_feedback.o
     0x08008424   0x08008424   0x0000000c   Code   RO          166    .text.TIM8_UP_TIM13_IRQHandler  stm32f4xx_it.o
     0x08008430   0x08008430   0x0000012c   Code   RO         1080    .text.TIM_Base_SetConfig  stm32f4xx_hal_tim.o
     0x0800855c   0x0800855c   0x00000068   Code   RO         1124    .text.TIM_DMADelayPulseCplt  stm32f4xx_hal_tim.o
@@ -6190,157 +6184,156 @@ Memory Map of the image
     0x0800b140   0x0800b140   0x00000002   Code   RO          148    .text.UsageFault_Handler  stm32f4xx_it.o
     0x0800b142   0x0800b142   0x00000002   PAD
     0x0800b144   0x0800b144   0x000000c0   Code   RO         2083    .text.WeakMag_loop  loop_control.o
-    0x0800b204   0x0800b204   0x00000098   Code   RO         2584    .text.arm_cos_f32   arm_cortexM4lf_math.lib(arm_cos_f32.o)
-    0x0800b29c   0x0800b29c   0x00000090   Code   RO         2593    .text.arm_sin_f32   arm_cortexM4lf_math.lib(arm_sin_f32.o)
-    0x0800b32c   0x0800b32c   0x00000050   Code   RO         1996    .text.auto_calibration_update  foc_core.o
-    0x0800b37c   0x0800b37c   0x0000000c   Code   RO         1870    .text.can_state_change  port_mapping.o
-    0x0800b388   0x0800b388   0x0000001c   Code   RO         2519    .text.clark_transform  math_fast.o
-    0x0800b3a4   0x0800b3a4   0x0000000a   Code   RO         1844    .text.com_state_get_adr  port_mapping.o
-    0x0800b3ae   0x0800b3ae   0x00000002   PAD
-    0x0800b3b0   0x0800b3b0   0x0000002a   Code   RO         1846    .text.communication_init  port_mapping.o
+    0x0800b204   0x0800b204   0x00000098   Code   RO         2582    .text.arm_cos_f32   arm_cortexM4lf_math.lib(arm_cos_f32.o)
+    0x0800b29c   0x0800b29c   0x00000090   Code   RO         2591    .text.arm_sin_f32   arm_cortexM4lf_math.lib(arm_sin_f32.o)
+    0x0800b32c   0x0800b32c   0x00000040   Code   RO         1996    .text.auto_calibration_update  foc_core.o
+    0x0800b36c   0x0800b36c   0x0000000c   Code   RO         1870    .text.can_state_change  port_mapping.o
+    0x0800b378   0x0800b378   0x0000001c   Code   RO         2517    .text.clark_transform  math_fast.o
+    0x0800b394   0x0800b394   0x0000000a   Code   RO         1844    .text.com_state_get_adr  port_mapping.o
+    0x0800b39e   0x0800b39e   0x00000002   PAD
+    0x0800b3a0   0x0800b3a0   0x0000002a   Code   RO         1846    .text.communication_init  port_mapping.o
+    0x0800b3ca   0x0800b3ca   0x00000002   PAD
+    0x0800b3cc   0x0800b3cc   0x0000000e   Code   RO         1872    .text.communication_run  port_mapping.o
     0x0800b3da   0x0800b3da   0x00000002   PAD
-    0x0800b3dc   0x0800b3dc   0x0000000e   Code   RO         1872    .text.communication_run  port_mapping.o
-    0x0800b3ea   0x0800b3ea   0x00000002   PAD
-    0x0800b3ec   0x0800b3ec   0x00000010   Code   RO         2515    .text.deg_to_rad    math_fast.o
-    0x0800b3fc   0x0800b3fc   0x0000000a   Code   RO         2230    .text.drive_state_get_adr  drive_state.o
-    0x0800b406   0x0800b406   0x00000002   PAD
-    0x0800b408   0x0800b408   0x00000046   Code   RO         2036    .text.fFOC_Init     foc_statemachine.o
-    0x0800b44e   0x0800b44e   0x00000002   PAD
-    0x0800b450   0x0800b450   0x00000028   Code   RO         2166    .text.fGetVoltage_u  svpwm.o
-    0x0800b478   0x0800b478   0x00000028   Code   RO         2168    .text.fGetVoltage_v  svpwm.o
-    0x0800b4a0   0x0800b4a0   0x00000028   Code   RO         2170    .text.fGetVoltage_w  svpwm.o
-    0x0800b4c8   0x0800b4c8   0x00000038   Code   RO         1848    .text.fHostComputer_send  port_mapping.o
-    0x0800b500   0x0800b500   0x00000168   Code   RO         1952    .text.foc_core_init  foc_core.o
-    0x0800b668   0x0800b668   0x00000026   Code   RO         1958    .text.foc_core_reset  foc_core.o
-    0x0800b68e   0x0800b68e   0x00000002   PAD
-    0x0800b690   0x0800b690   0x00000106   Code   RO         1966    .text.foc_encoder_get_vitop  foc_core.o
-    0x0800b796   0x0800b796   0x00000002   PAD
-    0x0800b798   0x0800b798   0x00000144   Code   RO         1968    .text.foc_senless_get_vito  foc_core.o
-    0x0800b8dc   0x0800b8dc   0x00000310   Code   RO         1856    .text.frame_data_deal  port_mapping.o
-    0x0800bbec   0x0800bbec   0x0000000a   Code   RO         2093    .text.get_loop_con_adr  loop_control.o
-    0x0800bbf6   0x0800bbf6   0x00000002   PAD
-    0x0800bbf8   0x0800bbf8   0x0000000a   Code   RO         2018    .text.get_motor_adr  foc_core.o
-    0x0800bc02   0x0800bc02   0x00000002   PAD
-    0x0800bc04   0x0800bc04   0x0000000a   Code   RO         2104    .text.get_smo_adr   smo.o
-    0x0800bc0e   0x0800bc0e   0x00000002   PAD
-    0x0800bc10   0x0800bc10   0x0000000a   Code   RO         2148    .text.get_svpwm_adr  svpwm.o
-    0x0800bc1a   0x0800bc1a   0x00000002   PAD
-    0x0800bc1c   0x0800bc1c   0x0000000a   Code   RO         2122    .text.get_tuning_adr  smo.o
-    0x0800bc26   0x0800bc26   0x00000002   PAD
-    0x0800bc28   0x0800bc28   0x00000050   Code   RO         2525    .text.inv_park_transform  math_fast.o
-    0x0800bc78   0x0800bc78   0x0000007a   Code   RO         2343    .text.led_show      rgb.o
-    0x0800bcf2   0x0800bcf2   0x00000002   PAD
-    0x0800bcf4   0x0800bcf4   0x000000c4   Code   RO         2377    .text.log_data_save  log.o
-    0x0800bdb8   0x0800bdb8   0x00000034   Code   RO         2379    .text.log_data_write  log.o
-    0x0800bdec   0x0800bdec   0x00000022   Code   RO         2385    .text.log_erase     log.o
-    0x0800be0e   0x0800be0e   0x00000002   PAD
-    0x0800be10   0x0800be10   0x00000026   Code   RO         2375    .text.log_init      log.o
-    0x0800be36   0x0800be36   0x00000002   PAD
-    0x0800be38   0x0800be38   0x00000066   Code   RO         2381    .text.log_read_flash  log.o
-    0x0800be9e   0x0800be9e   0x00000002   PAD
-    0x0800bea0   0x0800bea0   0x0000011c   Code   RO         2073    .text.loop_parameter_init  loop_control.o
-    0x0800bfbc   0x0800bfbc   0x0000003e   Code   RO         2075    .text.loop_reset    loop_control.o
-    0x0800bffa   0x0800bffa   0x00000002   PAD
-    0x0800bffc   0x0800bffc   0x0000005a   Code   RO           11    .text.main          main.o
-    0x0800c056   0x0800c056   0x00000002   PAD
-    0x0800c058   0x0800c058   0x0000004c   Code   RO         2533    .text.normalize_angle_0_2pi  math_fast.o
-    0x0800c0a4   0x0800c0a4   0x0000000e   Code   RO         2004    .text.opend_loop_disable  foc_core.o
+    0x0800b3dc   0x0800b3dc   0x00000010   Code   RO         2513    .text.deg_to_rad    math_fast.o
+    0x0800b3ec   0x0800b3ec   0x0000000a   Code   RO         2228    .text.drive_state_get_adr  drive_state.o
+    0x0800b3f6   0x0800b3f6   0x00000002   PAD
+    0x0800b3f8   0x0800b3f8   0x00000046   Code   RO         2036    .text.fFOC_Init     foc_statemachine.o
+    0x0800b43e   0x0800b43e   0x00000002   PAD
+    0x0800b440   0x0800b440   0x00000028   Code   RO         2164    .text.fGetVoltage_u  svpwm.o
+    0x0800b468   0x0800b468   0x00000028   Code   RO         2166    .text.fGetVoltage_v  svpwm.o
+    0x0800b490   0x0800b490   0x00000028   Code   RO         2168    .text.fGetVoltage_w  svpwm.o
+    0x0800b4b8   0x0800b4b8   0x00000038   Code   RO         1848    .text.fHostComputer_send  port_mapping.o
+    0x0800b4f0   0x0800b4f0   0x00000168   Code   RO         1952    .text.foc_core_init  foc_core.o
+    0x0800b658   0x0800b658   0x00000026   Code   RO         1958    .text.foc_core_reset  foc_core.o
+    0x0800b67e   0x0800b67e   0x00000002   PAD
+    0x0800b680   0x0800b680   0x00000106   Code   RO         1966    .text.foc_encoder_get_vitop  foc_core.o
+    0x0800b786   0x0800b786   0x00000002   PAD
+    0x0800b788   0x0800b788   0x00000144   Code   RO         1968    .text.foc_senless_get_vito  foc_core.o
+    0x0800b8cc   0x0800b8cc   0x00000310   Code   RO         1856    .text.frame_data_deal  port_mapping.o
+    0x0800bbdc   0x0800bbdc   0x0000000a   Code   RO         2093    .text.get_loop_con_adr  loop_control.o
+    0x0800bbe6   0x0800bbe6   0x00000002   PAD
+    0x0800bbe8   0x0800bbe8   0x0000000a   Code   RO         2018    .text.get_motor_adr  foc_core.o
+    0x0800bbf2   0x0800bbf2   0x00000002   PAD
+    0x0800bbf4   0x0800bbf4   0x0000000a   Code   RO         2104    .text.get_smo_adr   smo.o
+    0x0800bbfe   0x0800bbfe   0x00000002   PAD
+    0x0800bc00   0x0800bc00   0x0000000a   Code   RO         2146    .text.get_svpwm_adr  svpwm.o
+    0x0800bc0a   0x0800bc0a   0x00000002   PAD
+    0x0800bc0c   0x0800bc0c   0x0000000a   Code   RO         2122    .text.get_tuning_adr  smo.o
+    0x0800bc16   0x0800bc16   0x00000002   PAD
+    0x0800bc18   0x0800bc18   0x00000050   Code   RO         2523    .text.inv_park_transform  math_fast.o
+    0x0800bc68   0x0800bc68   0x0000007a   Code   RO         2341    .text.led_show      rgb.o
+    0x0800bce2   0x0800bce2   0x00000002   PAD
+    0x0800bce4   0x0800bce4   0x000000c4   Code   RO         2375    .text.log_data_save  log.o
+    0x0800bda8   0x0800bda8   0x00000034   Code   RO         2377    .text.log_data_write  log.o
+    0x0800bddc   0x0800bddc   0x00000022   Code   RO         2383    .text.log_erase     log.o
+    0x0800bdfe   0x0800bdfe   0x00000002   PAD
+    0x0800be00   0x0800be00   0x00000026   Code   RO         2373    .text.log_init      log.o
+    0x0800be26   0x0800be26   0x00000002   PAD
+    0x0800be28   0x0800be28   0x00000066   Code   RO         2379    .text.log_read_flash  log.o
+    0x0800be8e   0x0800be8e   0x00000002   PAD
+    0x0800be90   0x0800be90   0x0000011c   Code   RO         2073    .text.loop_parameter_init  loop_control.o
+    0x0800bfac   0x0800bfac   0x0000003e   Code   RO         2075    .text.loop_reset    loop_control.o
+    0x0800bfea   0x0800bfea   0x00000002   PAD
+    0x0800bfec   0x0800bfec   0x0000005a   Code   RO           11    .text.main          main.o
+    0x0800c046   0x0800c046   0x00000002   PAD
+    0x0800c048   0x0800c048   0x0000004c   Code   RO         2531    .text.normalize_angle_0_2pi  math_fast.o
+    0x0800c094   0x0800c094   0x0000000e   Code   RO         2004    .text.opend_loop_disable  foc_core.o
+    0x0800c0a2   0x0800c0a2   0x00000002   PAD
+    0x0800c0a4   0x0800c0a4   0x0000000e   Code   RO         2002    .text.opend_loop_enable  foc_core.o
     0x0800c0b2   0x0800c0b2   0x00000002   PAD
-    0x0800c0b4   0x0800c0b4   0x0000000e   Code   RO         2002    .text.opend_loop_enable  foc_core.o
-    0x0800c0c2   0x0800c0c2   0x00000002   PAD
-    0x0800c0c4   0x0800c0c4   0x0000000c   Code   RO         2128    .text.param_tuning_get_state  smo.o
-    0x0800c0d0   0x0800c0d0   0x0000002e   Code   RO         2124    .text.param_tuning_init  smo.o
-    0x0800c0fe   0x0800c0fe   0x00000002   PAD
-    0x0800c100   0x0800c100   0x00000b28   Code   RO         2126    .text.param_tuning_update  smo.o
-    0x0800cc28   0x0800cc28   0x00000050   Code   RO         2523    .text.park_transform  math_fast.o
-    0x0800cc78   0x0800cc78   0x00000064   Code   RO         2425    .text.protection_manager_init  protection_manager.o
-    0x0800ccdc   0x0800ccdc   0x00000010   Code   RO         2427    .text.protection_manager_reset  protection_manager.o
-    0x0800ccec   0x0800ccec   0x00000264   Code   RO         2431    .text.protection_manager_run  protection_manager.o
-    0x0800cf50   0x0800cf50   0x00000232   Code   RO         2499    .text.pulse_interference_filter  filter.o
-    0x0800d182   0x0800d182   0x00000002   PAD
-    0x0800d184   0x0800d184   0x00000016   Code   RO         2497    .text.pulse_interference_init  filter.o
-    0x0800d19a   0x0800d19a   0x00000002   PAD
-    0x0800d19c   0x0800d19c   0x00000010   Code   RO         2517    .text.rad_to_deg    math_fast.o
-    0x0800d1ac   0x0800d1ac   0x00000010   Code   RO         2511    .text.rad_to_rpm    math_fast.o
-    0x0800d1bc   0x0800d1bc   0x000000ea   Code   RO         2333    .text.rgb_3_alternate  rgb.o
-    0x0800d2a6   0x0800d2a6   0x00000002   PAD
-    0x0800d2a8   0x0800d2a8   0x000000d0   Code   RO         2331    .text.rgb_alternate  rgb.o
-    0x0800d378   0x0800d378   0x00000106   Code   RO         2329    .text.rgb_breathe   rgb.o
-    0x0800d47e   0x0800d47e   0x00000002   PAD
-    0x0800d480   0x0800d480   0x00000010   Code   RO         2513    .text.rpm_to_rad    math_fast.o
-    0x0800d490   0x0800d490   0x00000094   Code   RO         2164    .text.smaple_point_change  svpwm.o
-    0x0800d524   0x0800d524   0x0000001c   Code   RO         2118    .text.smo_get_omega  smo.o
-    0x0800d540   0x0800d540   0x0000000e   Code   RO         2116    .text.smo_get_theta  smo.o
-    0x0800d54e   0x0800d54e   0x00000002   PAD
-    0x0800d550   0x0800d550   0x0000006e   Code   RO         2106    .text.smo_init      smo.o
-    0x0800d5be   0x0800d5be   0x00000002   PAD
-    0x0800d5c0   0x0800d5c0   0x0000001a   Code   RO         2108    .text.smo_reset     smo.o
-    0x0800d5da   0x0800d5da   0x00000006   PAD
-    0x0800d5e0   0x0800d5e0   0x00000518   Code   RO         2114    .text.smo_update    smo.o
-    0x0800daf8   0x0800daf8   0x0000003e   Code   RO         2557    .text.static_queue_dequeue  queue.o
-    0x0800db36   0x0800db36   0x00000002   PAD
-    0x0800db38   0x0800db38   0x00000040   Code   RO         2555    .text.static_queue_enqueue  queue.o
-    0x0800db78   0x0800db78   0x00000022   Code   RO         2543    .text.static_queue_init  queue.o
-    0x0800db9a   0x0800db9a   0x00000002   PAD
-    0x0800db9c   0x0800db9c   0x0000008c   Code   RO         2444    .text.status_feedback  status_feedback.o
-    0x0800dc28   0x0800dc28   0x0000018e   Code   RO         1834    .text.stream_data_get  datamonitoring.o
-    0x0800ddb6   0x0800ddb6   0x00000002   PAD
-    0x0800ddb8   0x0800ddb8   0x000001d8   Code   RO         1864    .text.stream_data_trans  port_mapping.o
-    0x0800df90   0x0800df90   0x0000000c   Code   RO         2174    .text.svpwm_GetSector  svpwm.o
-    0x0800df9c   0x0800df9c   0x00000020   Code   RO         2150    .text.svpwm_Init    svpwm.o
-    0x0800dfbc   0x0800dfbc   0x00000004   PAD
-    0x0800dfc0   0x0800dfc0   0x000001f4   Code   RO         2162    .text.svpwm_run     svpwm.o
-    0x0800e1b4   0x0800e1b4   0x000000e4   Code   RO         1895    .text.usartRecvByte  uart_port.o
-    0x0800e298   0x0800e298   0x0000002a   Code   RO         1862    .text.usart_farmedata_deal  port_mapping.o
-    0x0800e2c2   0x0800e2c2   0x00000002   PAD
-    0x0800e2c4   0x0800e2c4   0x000000d4   Code   RO         1903    .text.usart_frame_send  uart_port.o
-    0x0800e398   0x0800e398   0x0000004c   Code   RO         1897    .text.usart_port_Init  uart_port.o
-    0x0800e3e4   0x0800e3e4   0x000000da   Code   RO         1931    .text.usbRecvByte   usb_port.o
-    0x0800e4be   0x0800e4be   0x00000002   PAD
-    0x0800e4c0   0x0800e4c0   0x0000002a   Code   RO         1860    .text.usb_FrameData_deal  port_mapping.o
-    0x0800e4ea   0x0800e4ea   0x00000002   PAD
-    0x0800e4ec   0x0800e4ec   0x0000010a   Code   RO         1927    .text.usb_Frame_send  usb_port.o
-    0x0800e5f6   0x0800e5f6   0x00000002   PAD
-    0x0800e5f8   0x0800e5f8   0x0000000e   Code   RO         1866    .text.usb_connected  port_mapping.o
-    0x0800e606   0x0800e606   0x00000002   PAD
-    0x0800e608   0x0800e608   0x00000086   Code   RO         1907    .text.vofa_send_multi_float  uart_port.o
-    0x0800e68e   0x0800e68e   0x00000026   Code   RO         2783    i.__ARM_fpclassifyf  m_wm.l(fpclassifyf.o)
-    0x0800e6b4   0x0800e6b4   0x000002ac   Code   RO         2721    i.__hardfp_atan2f   m_wm.l(atan2f.o)
-    0x0800e960   0x0800e960   0x000001ec   Code   RO         2727    i.__hardfp_expf     m_wm.l(expf.o)
-    0x0800eb4c   0x0800eb4c   0x00000104   Code   RO         2734    i.__hardfp_fmod     m_wm.l(fmod.o)
-    0x0800ec50   0x0800ec50   0x000000e4   Code   RO         2740    i.__hardfp_tanhf    m_wm.l(tanhf.o)
-    0x0800ed34   0x0800ed34   0x00000004   PAD
-    0x0800ed38   0x0800ed38   0x00000020   Code   RO         2772    i.__mathlib_dbl_invalid  m_wm.l(dunder.o)
-    0x0800ed58   0x0800ed58   0x00000006   Code   RO         2786    i.__mathlib_flt_infnan  m_wm.l(funder.o)
-    0x0800ed5e   0x0800ed5e   0x00000006   Code   RO         2787    i.__mathlib_flt_infnan2  m_wm.l(funder.o)
-    0x0800ed64   0x0800ed64   0x00000010   Code   RO         2789    i.__mathlib_flt_overflow  m_wm.l(funder.o)
-    0x0800ed74   0x0800ed74   0x00000010   Code   RO         2791    i.__mathlib_flt_underflow  m_wm.l(funder.o)
-    0x0800ed84   0x0800ed84   0x0000000e   Code   RO         2837    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0800ed92   0x0800ed92   0x00000002   Code   RO         2838    i.__scatterload_null  mc_w.l(handlers.o)
-    0x0800ed94   0x0800ed94   0x0000000e   Code   RO         2839    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x0800eda2   0x0800eda2   0x00000002   PAD
-    0x0800eda4   0x0800eda4   0x0000000c   Code   RO         2821    i.__set_errno       mc_w.l(errno.o)
-    0x0800edb0   0x0800edb0   0x00000030   Data   RO         2730    .constdata          m_wm.l(expf.o)
-    0x0800ede0   0x0800ede0   0x00000010   Data   RO         1522    .rodata.AHBPrescTable  system_stm32f4xx.o
-    0x0800edf0   0x0800edf0   0x00000008   Data   RO         1523    .rodata.APBPrescTable  system_stm32f4xx.o
-    0x0800edf8   0x0800edf8   0x00000006   Data   RO         2347    .rodata.BLUE        rgb.o
-    0x0800edfe   0x0800edfe   0x00000006   Data   RO         2346    .rodata.GREEN       rgb.o
-    0x0800ee04   0x0800ee04   0x00000006   Data   RO         2349    .rodata.MAGENTA     rgb.o
-    0x0800ee0a   0x0800ee0a   0x00000006   Data   RO         2345    .rodata.RED         rgb.o
-    0x0800ee10   0x0800ee10   0x00000006   Data   RO         2350    .rodata.YELLOW      rgb.o
-    0x0800ee16   0x0800ee16   0x000000ff   Data   RO         2212    .rodata.adc_to_temp  adcdr.o
-    0x0800ef15   0x0800ef15   0x00000008   Data   RO          569    .rodata.cst8        stm32f4xx_hal_dma.o
-    0x0800ef1d   0x0800ef1d   0x00000003   PAD
-    0x0800ef20   0x0800ef20   0x00000804   Data   RO         2714    .rodata.sinTable_f32  arm_cortexM4lf_math.lib(arm_common_tables.o)
-    0x0800f724   0x0800f724   0x00000100   Data   RO         2357    .rodata.sine_table  rgb.o
-    0x0800f824   0x0800f824   0x00000020   Data   RO         2836    Region$$Table       anon$$obj.o
+    0x0800c0b4   0x0800c0b4   0x0000002e   Code   RO         2124    .text.param_tuning_init  smo.o
+    0x0800c0e2   0x0800c0e2   0x00000002   PAD
+    0x0800c0e4   0x0800c0e4   0x00000b9c   Code   RO         2126    .text.param_tuning_update  smo.o
+    0x0800cc80   0x0800cc80   0x00000050   Code   RO         2521    .text.park_transform  math_fast.o
+    0x0800ccd0   0x0800ccd0   0x00000064   Code   RO         2423    .text.protection_manager_init  protection_manager.o
+    0x0800cd34   0x0800cd34   0x00000010   Code   RO         2425    .text.protection_manager_reset  protection_manager.o
+    0x0800cd44   0x0800cd44   0x00000264   Code   RO         2429    .text.protection_manager_run  protection_manager.o
+    0x0800cfa8   0x0800cfa8   0x00000232   Code   RO         2497    .text.pulse_interference_filter  filter.o
+    0x0800d1da   0x0800d1da   0x00000002   PAD
+    0x0800d1dc   0x0800d1dc   0x00000016   Code   RO         2495    .text.pulse_interference_init  filter.o
+    0x0800d1f2   0x0800d1f2   0x00000002   PAD
+    0x0800d1f4   0x0800d1f4   0x00000010   Code   RO         2515    .text.rad_to_deg    math_fast.o
+    0x0800d204   0x0800d204   0x00000010   Code   RO         2509    .text.rad_to_rpm    math_fast.o
+    0x0800d214   0x0800d214   0x000000ea   Code   RO         2331    .text.rgb_3_alternate  rgb.o
+    0x0800d2fe   0x0800d2fe   0x00000002   PAD
+    0x0800d300   0x0800d300   0x000000d0   Code   RO         2329    .text.rgb_alternate  rgb.o
+    0x0800d3d0   0x0800d3d0   0x00000106   Code   RO         2327    .text.rgb_breathe   rgb.o
+    0x0800d4d6   0x0800d4d6   0x00000002   PAD
+    0x0800d4d8   0x0800d4d8   0x00000010   Code   RO         2511    .text.rpm_to_rad    math_fast.o
+    0x0800d4e8   0x0800d4e8   0x00000094   Code   RO         2162    .text.smaple_point_change  svpwm.o
+    0x0800d57c   0x0800d57c   0x0000001c   Code   RO         2118    .text.smo_get_omega  smo.o
+    0x0800d598   0x0800d598   0x0000000e   Code   RO         2116    .text.smo_get_theta  smo.o
+    0x0800d5a6   0x0800d5a6   0x00000002   PAD
+    0x0800d5a8   0x0800d5a8   0x0000006e   Code   RO         2106    .text.smo_init      smo.o
+    0x0800d616   0x0800d616   0x00000002   PAD
+    0x0800d618   0x0800d618   0x0000001a   Code   RO         2108    .text.smo_reset     smo.o
+    0x0800d632   0x0800d632   0x00000006   PAD
+    0x0800d638   0x0800d638   0x00000518   Code   RO         2114    .text.smo_update    smo.o
+    0x0800db50   0x0800db50   0x0000003e   Code   RO         2555    .text.static_queue_dequeue  queue.o
+    0x0800db8e   0x0800db8e   0x00000002   PAD
+    0x0800db90   0x0800db90   0x00000040   Code   RO         2553    .text.static_queue_enqueue  queue.o
+    0x0800dbd0   0x0800dbd0   0x00000022   Code   RO         2541    .text.static_queue_init  queue.o
+    0x0800dbf2   0x0800dbf2   0x00000002   PAD
+    0x0800dbf4   0x0800dbf4   0x0000008c   Code   RO         2442    .text.status_feedback  status_feedback.o
+    0x0800dc80   0x0800dc80   0x0000018e   Code   RO         1834    .text.stream_data_get  datamonitoring.o
+    0x0800de0e   0x0800de0e   0x00000002   PAD
+    0x0800de10   0x0800de10   0x000001d8   Code   RO         1864    .text.stream_data_trans  port_mapping.o
+    0x0800dfe8   0x0800dfe8   0x0000000c   Code   RO         2172    .text.svpwm_GetSector  svpwm.o
+    0x0800dff4   0x0800dff4   0x00000020   Code   RO         2148    .text.svpwm_Init    svpwm.o
+    0x0800e014   0x0800e014   0x00000004   PAD
+    0x0800e018   0x0800e018   0x000001f4   Code   RO         2160    .text.svpwm_run     svpwm.o
+    0x0800e20c   0x0800e20c   0x000000e4   Code   RO         1895    .text.usartRecvByte  uart_port.o
+    0x0800e2f0   0x0800e2f0   0x0000002a   Code   RO         1862    .text.usart_farmedata_deal  port_mapping.o
+    0x0800e31a   0x0800e31a   0x00000002   PAD
+    0x0800e31c   0x0800e31c   0x000000d4   Code   RO         1903    .text.usart_frame_send  uart_port.o
+    0x0800e3f0   0x0800e3f0   0x0000004c   Code   RO         1897    .text.usart_port_Init  uart_port.o
+    0x0800e43c   0x0800e43c   0x000000da   Code   RO         1931    .text.usbRecvByte   usb_port.o
+    0x0800e516   0x0800e516   0x00000002   PAD
+    0x0800e518   0x0800e518   0x0000002a   Code   RO         1860    .text.usb_FrameData_deal  port_mapping.o
+    0x0800e542   0x0800e542   0x00000002   PAD
+    0x0800e544   0x0800e544   0x0000010a   Code   RO         1927    .text.usb_Frame_send  usb_port.o
+    0x0800e64e   0x0800e64e   0x00000002   PAD
+    0x0800e650   0x0800e650   0x0000000e   Code   RO         1866    .text.usb_connected  port_mapping.o
+    0x0800e65e   0x0800e65e   0x00000002   PAD
+    0x0800e660   0x0800e660   0x00000086   Code   RO         1907    .text.vofa_send_multi_float  uart_port.o
+    0x0800e6e6   0x0800e6e6   0x00000026   Code   RO         2781    i.__ARM_fpclassifyf  m_wm.l(fpclassifyf.o)
+    0x0800e70c   0x0800e70c   0x000002ac   Code   RO         2719    i.__hardfp_atan2f   m_wm.l(atan2f.o)
+    0x0800e9b8   0x0800e9b8   0x000001ec   Code   RO         2725    i.__hardfp_expf     m_wm.l(expf.o)
+    0x0800eba4   0x0800eba4   0x00000104   Code   RO         2732    i.__hardfp_fmod     m_wm.l(fmod.o)
+    0x0800eca8   0x0800eca8   0x000000e4   Code   RO         2738    i.__hardfp_tanhf    m_wm.l(tanhf.o)
+    0x0800ed8c   0x0800ed8c   0x00000004   PAD
+    0x0800ed90   0x0800ed90   0x00000020   Code   RO         2770    i.__mathlib_dbl_invalid  m_wm.l(dunder.o)
+    0x0800edb0   0x0800edb0   0x00000006   Code   RO         2784    i.__mathlib_flt_infnan  m_wm.l(funder.o)
+    0x0800edb6   0x0800edb6   0x00000006   Code   RO         2785    i.__mathlib_flt_infnan2  m_wm.l(funder.o)
+    0x0800edbc   0x0800edbc   0x00000010   Code   RO         2787    i.__mathlib_flt_overflow  m_wm.l(funder.o)
+    0x0800edcc   0x0800edcc   0x00000010   Code   RO         2789    i.__mathlib_flt_underflow  m_wm.l(funder.o)
+    0x0800eddc   0x0800eddc   0x0000000e   Code   RO         2835    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0800edea   0x0800edea   0x00000002   Code   RO         2836    i.__scatterload_null  mc_w.l(handlers.o)
+    0x0800edec   0x0800edec   0x0000000e   Code   RO         2837    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x0800edfa   0x0800edfa   0x00000002   PAD
+    0x0800edfc   0x0800edfc   0x0000000c   Code   RO         2819    i.__set_errno       mc_w.l(errno.o)
+    0x0800ee08   0x0800ee08   0x00000030   Data   RO         2728    .constdata          m_wm.l(expf.o)
+    0x0800ee38   0x0800ee38   0x00000010   Data   RO         1522    .rodata.AHBPrescTable  system_stm32f4xx.o
+    0x0800ee48   0x0800ee48   0x00000008   Data   RO         1523    .rodata.APBPrescTable  system_stm32f4xx.o
+    0x0800ee50   0x0800ee50   0x00000006   Data   RO         2345    .rodata.BLUE        rgb.o
+    0x0800ee56   0x0800ee56   0x00000006   Data   RO         2344    .rodata.GREEN       rgb.o
+    0x0800ee5c   0x0800ee5c   0x00000006   Data   RO         2347    .rodata.MAGENTA     rgb.o
+    0x0800ee62   0x0800ee62   0x00000006   Data   RO         2343    .rodata.RED         rgb.o
+    0x0800ee68   0x0800ee68   0x00000006   Data   RO         2348    .rodata.YELLOW      rgb.o
+    0x0800ee6e   0x0800ee6e   0x000000ff   Data   RO         2210    .rodata.adc_to_temp  adcdr.o
+    0x0800ef6d   0x0800ef6d   0x00000008   Data   RO          569    .rodata.cst8        stm32f4xx_hal_dma.o
+    0x0800ef75   0x0800ef75   0x00000003   PAD
+    0x0800ef78   0x0800ef78   0x00000804   Data   RO         2712    .rodata.sinTable_f32  arm_cortexM4lf_math.lib(arm_common_tables.o)
+    0x0800f77c   0x0800f77c   0x00000100   Data   RO         2355    .rodata.sine_table  rgb.o
+    0x0800f87c   0x0800f87c   0x00000020   Data   RO         2834    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800f848, Size: 0x000021d8, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000d8])
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800f8a0, Size: 0x000021d8, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000d8])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   COMPRESSED   0x00000004   Data   RW         2822    .data               mc_w.l(errno.o)
+    0x20000000   COMPRESSED   0x00000004   Data   RW         2820    .data               mc_w.l(errno.o)
     0x20000004   COMPRESSED   0x0000001c   Data   RW         1555    .data.FS_Desc       usbd_desc.o
     0x20000020   COMPRESSED   0x00000004   Data   RW         1521    .data.SystemCoreClock  system_stm32f4xx.o
     0x20000024   COMPRESSED   0x00000038   Data   RW         1792    .data.USBD_CDC      usbd_cdc.o
@@ -6358,27 +6351,27 @@ Memory Map of the image
     0x200001fc   COMPRESSED   0x00000014   Data   RW         1819    .data.can           can_port.o
     0x20000210   COMPRESSED   0x00000001   Data   RW         1820    .data.can_init_ok   can_port.o
     0x20000211   COMPRESSED   0x00000001   PAD
-    0x20000212   COMPRESSED   0x00000002   Data   RW         2276    .data.reg03_cmd     encoder.o
-    0x20000214   COMPRESSED   0x00000002   Data   RW         2272    .data.reg04_cmd     encoder.o
+    0x20000212   COMPRESSED   0x00000002   Data   RW         2274    .data.reg03_cmd     encoder.o
+    0x20000214   COMPRESSED   0x00000002   Data   RW         2270    .data.reg04_cmd     encoder.o
     0x20000216   COMPRESSED   0x00000001   Data   RW          747    .data.uwTickFreq    stm32f4xx_hal.o
     0x20000217   COMPRESSED   0x00000001   PAD
     0x20000218   COMPRESSED   0x00000004   Data   RW          746    .data.uwTickPrio    stm32f4xx_hal.o
     0x2000021c   COMPRESSED   0x00000004   PAD
-    0x20000220        -       0x00000006   Zero   RW         2204    .bss.ADC1_buffer    adcdr.o
-    0x20000226        -       0x00000004   Zero   RW         2213    .bss.ADC2_buffer    adcdr.o
+    0x20000220        -       0x00000006   Zero   RW         2202    .bss.ADC1_buffer    adcdr.o
+    0x20000226        -       0x00000004   Zero   RW         2211    .bss.ADC2_buffer    adcdr.o
     0x2000022a        -       0x00000040   Zero   RW         1821    .bss.CanRxData      can_port.o
     0x2000026a   COMPRESSED   0x00000002   PAD
-    0x2000026c        -       0x00000004   Zero   RW         2209    .bss.Cur_zero_u     adcdr.o
-    0x20000270        -       0x00000004   Zero   RW         2210    .bss.Cur_zero_v     adcdr.o
-    0x20000274        -       0x00000004   Zero   RW         2211    .bss.Cur_zero_w     adcdr.o
+    0x2000026c        -       0x00000004   Zero   RW         2207    .bss.Cur_zero_u     adcdr.o
+    0x20000270        -       0x00000004   Zero   RW         2208    .bss.Cur_zero_v     adcdr.o
+    0x20000274        -       0x00000004   Zero   RW         2209    .bss.Cur_zero_w     adcdr.o
     0x20000278        -       0x00000001   Zero   RW         1914    .bss.DataIndex      uart_port.o
     0x20000279   COMPRESSED   0x00000003   PAD
-    0x2000027c        -       0x00000008   Zero   RW         2387    .bss.Index          log.o
-    0x20000284        -       0x00000040   Zero   RW         2388    .bss.Log            log.o
+    0x2000027c        -       0x00000008   Zero   RW         2385    .bss.Index          log.o
+    0x20000284        -       0x00000040   Zero   RW         2386    .bss.Log            log.o
     0x200002c4        -       0x00000024   Zero   RW         2023    .bss.Motor          foc_core.o
     0x200002e8        -       0x00000001   Zero   RW         1880    .bss.Noresponse_tic  port_mapping.o
     0x200002e9   COMPRESSED   0x00000003   PAD
-    0x200002ec        -       0x000000c0   Zero   RW         2356    .bss.Pixel_Buf      rgb.o
+    0x200002ec        -       0x000000c0   Zero   RW         2354    .bss.Pixel_Buf      rgb.o
     0x200003ac        -       0x00000001   Zero   RW         1731    .bss.USBD_SetConfig.cfgidx  usbd_ctlreq.o
     0x200003ad   COMPRESSED   0x00000003   PAD
     0x200003b0        -       0x00000080   Zero   RW         1559    .bss.USBD_StrDesc   usbd_desc.o
@@ -6387,22 +6380,22 @@ Memory Map of the image
     0x200006d5        -       0x00000085   Zero   RW         1910    .bss.UsartTxFrame_g  uart_port.o
     0x2000075a        -       0x00000200   Zero   RW         1581    .bss.UserRxBufferFS  usbd_cdc_if.o
     0x2000095a        -       0x00000200   Zero   RW         1582    .bss.UserTxBufferFS  usbd_cdc_if.o
-    0x20000b5a        -       0x00000001   Zero   RW         2203    .bss._calibration   adcdr.o
-    0x20000b5b        -       0x00000001   Zero   RW         2364    .bss._color_index   rgb.o
+    0x20000b5a        -       0x00000001   Zero   RW         2201    .bss._calibration   adcdr.o
+    0x20000b5b        -       0x00000001   Zero   RW         2362    .bss._color_index   rgb.o
     0x20000b5c        -       0x00000001   Zero   RW         1822    .bss._get_head      can_port.o
-    0x20000b5d        -       0x00000001   Zero   RW         2316    .bss._init_fault_tic  flashdr.o
-    0x20000b5e        -       0x00000001   Zero   RW         2366    .bss._led_switch    rgb.o
+    0x20000b5d        -       0x00000001   Zero   RW         2314    .bss._init_fault_tic  flashdr.o
+    0x20000b5e        -       0x00000001   Zero   RW         2364    .bss._led_switch    rgb.o
     0x20000b5f   COMPRESSED   0x00000001   PAD
-    0x20000b60        -       0x00000004   Zero   RW         2365    .bss._led_time_zero  rgb.o
-    0x20000b64        -       0x00000001   Zero   RW         2363    .bss._lock          rgb.o
+    0x20000b60        -       0x00000004   Zero   RW         2363    .bss._led_time_zero  rgb.o
+    0x20000b64        -       0x00000001   Zero   RW         2361    .bss._lock          rgb.o
     0x20000b65        -       0x00000001   Zero   RW         1911    .bss._rx            uart_port.o
     0x20000b66   COMPRESSED   0x00000002   PAD
     0x20000b68        -       0x00000004   Zero   RW         1836    .bss._sta           datamonitoring.o
     0x20000b6c        -       0x00000004   Zero   RW         1882    .bss._state_prev_ms  port_mapping.o
-    0x20000b70        -       0x00000001   Zero   RW         2208    .bss._tic           adcdr.o
+    0x20000b70        -       0x00000001   Zero   RW         2206    .bss._tic           adcdr.o
     0x20000b71   COMPRESSED   0x00000001   PAD
-    0x20000b72        -       0x00000002   Zero   RW         2360    .bss._tic           rgb.o
-    0x20000b74        -       0x00000002   Zero   RW         2220    .bss._tic_smp       adcdr.o
+    0x20000b72        -       0x00000002   Zero   RW         2358    .bss._tic           rgb.o
+    0x20000b74        -       0x00000002   Zero   RW         2218    .bss._tic_smp       adcdr.o
     0x20000b76   COMPRESSED   0x00000002   PAD
     0x20000b78        -       0x00000004   Zero   RW         2046    .bss._time_foc_T    foc_statemachine.o
     0x20000b7c        -       0x00000004   Zero   RW         2044    .bss._time_focit_end  foc_statemachine.o
@@ -6410,36 +6403,36 @@ Memory Map of the image
     0x20000b84        -       0x00000004   Zero   RW         2043    .bss._time_focit_start  foc_statemachine.o
     0x20000b88        -       0x00000004   Zero   RW         1883    .bss._time_ms       port_mapping.o
     0x20000b8c        -       0x00000004   Zero   RW         1884    .bss._time_prev_ms  port_mapping.o
-    0x20000b90        -       0x00000004   Zero   RW         2362    .bss._time_zero     rgb.o
+    0x20000b90        -       0x00000004   Zero   RW         2360    .bss._time_zero     rgb.o
     0x20000b94        -       0x00000085   Zero   RW         1912    .bss._tx_data       uart_port.o
     0x20000c19   COMPRESSED   0x00000003   PAD
-    0x20000c1c        -       0x00000004   Zero   RW         2205    .bss._u_sum         adcdr.o
-    0x20000c20        -       0x00000004   Zero   RW         2206    .bss._v_sum         adcdr.o
-    0x20000c24        -       0x00000004   Zero   RW         2207    .bss._w_sum         adcdr.o
-    0x20000c28        -       0x00000001   Zero   RW         2177    .bss.change_Index   svpwm.o
+    0x20000c1c        -       0x00000004   Zero   RW         2203    .bss._u_sum         adcdr.o
+    0x20000c20        -       0x00000004   Zero   RW         2204    .bss._v_sum         adcdr.o
+    0x20000c24        -       0x00000004   Zero   RW         2205    .bss._w_sum         adcdr.o
+    0x20000c28        -       0x00000001   Zero   RW         2175    .bss.change_Index   svpwm.o
     0x20000c29   COMPRESSED   0x00000001   PAD
     0x20000c2a        -       0x00000002   Zero   RW         1915    .bss.check          uart_port.o
-    0x20000c2c        -       0x00000006   Zero   RW         2359    .bss.color_temp     rgb.o
-    0x20000c32        -       0x00000006   Zero   RW         2361    .bss.color_temp_last  rgb.o
+    0x20000c2c        -       0x00000006   Zero   RW         2357    .bss.color_temp     rgb.o
+    0x20000c32        -       0x00000006   Zero   RW         2359    .bss.color_temp_last  rgb.o
     0x20000c38        -       0x00000098   Zero   RW         1875    .bss.com_frame      port_mapping.o
     0x20000cd0        -       0x00000004   Zero   RW         1874    .bss.com_state      port_mapping.o
-    0x20000cd4        -       0x00000002   Zero   RW         2240    .bss.drive_state    drive_state.o
+    0x20000cd4        -       0x00000002   Zero   RW         2238    .bss.drive_state    drive_state.o
     0x20000cd6   COMPRESSED   0x00000002   PAD
-    0x20000cd8        -       0x00000001   Zero   RW         2264    .bss.encoder.0      encoder.o
+    0x20000cd8        -       0x00000001   Zero   RW         2262    .bss.encoder.0      encoder.o
     0x20000cd9   COMPRESSED   0x00000003   PAD
-    0x20000cdc        -       0x00000004   Zero   RW         2265    .bss.encoder.1      encoder.o
-    0x20000ce0        -       0x00000004   Zero   RW         2266    .bss.encoder.2      encoder.o
-    0x20000ce4        -       0x00000004   Zero   RW         2267    .bss.encoder.3      encoder.o
-    0x20000ce8        -       0x00000004   Zero   RW         2268    .bss.encoder.4      encoder.o
-    0x20000cec        -       0x00000004   Zero   RW         2269    .bss.encoder.5      encoder.o
-    0x20000cf0        -       0x00000004   Zero   RW         2270    .bss.encoder.6      encoder.o
-    0x20000cf4        -       0x00000004   Zero   RW         2271    .bss.encoder.7      encoder.o
+    0x20000cdc        -       0x00000004   Zero   RW         2263    .bss.encoder.1      encoder.o
+    0x20000ce0        -       0x00000004   Zero   RW         2264    .bss.encoder.2      encoder.o
+    0x20000ce4        -       0x00000004   Zero   RW         2265    .bss.encoder.3      encoder.o
+    0x20000ce8        -       0x00000004   Zero   RW         2266    .bss.encoder.4      encoder.o
+    0x20000cec        -       0x00000004   Zero   RW         2267    .bss.encoder.5      encoder.o
+    0x20000cf0        -       0x00000004   Zero   RW         2268    .bss.encoder.6      encoder.o
+    0x20000cf4        -       0x00000004   Zero   RW         2269    .bss.encoder.7      encoder.o
     0x20000cf8        -       0x00000004   Zero   RW         2020    .bss.foc_mode       foc_core.o
     0x20000cfc        -       0x0000005c   Zero   RW         2021    .bss.foc_val        foc_core.o
-    0x20000d58        -       0x000000a0   Zero   RW         2414    .bss.g_Param        parameter_manager.o
+    0x20000d58        -       0x000000a0   Zero   RW         2412    .bss.g_Param        parameter_manager.o
     0x20000df8        -       0x00000024   Zero   RW         2042    .bss.g_foc          foc_statemachine.o
     0x20000e1c        -       0x000000c8   Zero   RW         2095    .bss.g_loop_con     loop_control.o
-    0x20000ee4        -       0x0000003c   Zero   RW         2433    .bss.g_pro_manager  protection_manager.o
+    0x20000ee4        -       0x0000003c   Zero   RW         2431    .bss.g_pro_manager  protection_manager.o
     0x20000f20        -       0x00000001   Zero   RW         1913    .bss.get_head       uart_port.o
     0x20000f21   COMPRESSED   0x00000003   PAD
     0x20000f24        -       0x000002dc   Zero   RW         1534    .bss.hUsbDeviceFS   usb_device.o
@@ -6460,58 +6453,58 @@ Memory Map of the image
     0x20001b4c        -       0x00000048   Zero   RW          111    .bss.htim4          tim.o
     0x20001b94        -       0x00000048   Zero   RW          112    .bss.htim8          tim.o
     0x20001bdc        -       0x00000048   Zero   RW          129    .bss.huart1         usart.o
-    0x20001c24        -       0x00000001   Zero   RW         2358    .bss.index          rgb.o
+    0x20001c24        -       0x00000001   Zero   RW         2356    .bss.index          rgb.o
     0x20001c25        -       0x00000001   Zero   RW         1878    .bss.log_send_flag  port_mapping.o
     0x20001c26   COMPRESSED   0x00000002   PAD
-    0x20001c28        -       0x00000004   Zero   RW         2135    .bss.omega_last     smo.o
+    0x20001c28        -       0x00000004   Zero   RW         2133    .bss.omega_last     smo.o
     0x20001c2c        -       0x00000004   Zero   RW         2024    .bss.omega_pre      foc_core.o
     0x20001c30        -       0x00000001   Zero   RW         2025    .bss.opend_loop_flag  foc_core.o
     0x20001c31        -       0x00000001   Zero   RW         1876    .bss.param_index    port_mapping.o
     0x20001c32        -       0x00000001   Zero   RW         1877    .bss.param_send_flag  port_mapping.o
     0x20001c33   COMPRESSED   0x00000001   PAD
-    0x20001c34        -       0x00000004   Zero   RW         2137    .bss.param_tune_Ls.prev_i  smo.o
-    0x20001c38        -       0x00000004   Zero   RW         2136    .bss.param_tune_Rs.prev_i_alpha  smo.o
-    0x20001c3c        -       0x00000004   Zero   RW         2138    .bss.param_tune_pole_pairs.omega_smo_last  smo.o
-    0x20001c40        -       0x00000004   Zero   RW         2139    .bss.param_tune_pole_pairs.pole_pairs  smo.o
-    0x20001c44        -       0x00000001   Zero   RW         2389    .bss.read_index     log.o
+    0x20001c34        -       0x00000004   Zero   RW         2135    .bss.param_tune_Ls.prev_i  smo.o
+    0x20001c38        -       0x00000004   Zero   RW         2134    .bss.param_tune_Rs.prev_i_alpha  smo.o
+    0x20001c3c        -       0x00000004   Zero   RW         2136    .bss.param_tune_pole_pairs.omega_smo_last  smo.o
+    0x20001c40        -       0x00000004   Zero   RW         2137    .bss.param_tune_pole_pairs.pole_pairs  smo.o
+    0x20001c44        -       0x00000001   Zero   RW         2387    .bss.read_index     log.o
     0x20001c45   COMPRESSED   0x00000001   PAD
-    0x20001c46        -       0x00000002   Zero   RW         2274    .bss.reg03_data     encoder.o
-    0x20001c48        -       0x00000002   Zero   RW         2273    .bss.reg04_data     encoder.o
+    0x20001c46        -       0x00000002   Zero   RW         2272    .bss.reg03_data     encoder.o
+    0x20001c48        -       0x00000002   Zero   RW         2271    .bss.reg04_data     encoder.o
     0x20001c4a        -       0x00000008   Zero   RW         1824    .bss.rxbuffer       can_port.o
     0x20001c52        -       0x00000001   Zero   RW         1823    .bss.rxindex        can_port.o
     0x20001c53        -       0x00000001   Zero   RW         1825    .bss.rxtemp         can_port.o
-    0x20001c54        -       0x0000006c   Zero   RW         2130    .bss.smo            smo.o
-    0x20001cc0        -       0x00000004   Zero   RW         2131    .bss.smo_update.integrator_alpha  smo.o
-    0x20001cc4        -       0x00000004   Zero   RW         2132    .bss.smo_update.integrator_beta  smo.o
-    0x20001cc8        -       0x00000004   Zero   RW         2133    .bss.smo_update.open_loop_omega  smo.o
+    0x20001c54        -       0x0000006c   Zero   RW         2128    .bss.smo            smo.o
+    0x20001cc0        -       0x00000004   Zero   RW         2129    .bss.smo_update.integrator_alpha  smo.o
+    0x20001cc4        -       0x00000004   Zero   RW         2130    .bss.smo_update.integrator_beta  smo.o
+    0x20001cc8        -       0x00000004   Zero   RW         2131    .bss.smo_update.open_loop_omega  smo.o
     0x20001ccc        -       0x0000001c   Zero   RW         2022    .bss.startup_machine  foc_core.o
-    0x20001ce8        -       0x0000000c   Zero   RW         2176    .bss.svpwm          svpwm.o
+    0x20001ce8        -       0x0000000c   Zero   RW         2174    .bss.svpwm          svpwm.o
     0x20001cf4        -       0x00000001   Zero   RW         1879    .bss.system_message_send_flag  port_mapping.o
-    0x20001cf5        -       0x00000001   Zero   RW         2463    .bss.system_status  system_statemachine.o
-    0x20001cf6        -       0x00000001   Zero   RW         2221    .bss.tempIndex      adcdr.o
+    0x20001cf5        -       0x00000001   Zero   RW         2461    .bss.system_status  system_statemachine.o
+    0x20001cf6        -       0x00000001   Zero   RW         2219    .bss.tempIndex      adcdr.o
     0x20001cf7   COMPRESSED   0x00000001   PAD
     0x20001cf8        -       0x00000004   Zero   RW           18    .bss.time_while_T   main.o
     0x20001cfc        -       0x00000004   Zero   RW           17    .bss.time_while_zero  main.o
     0x20001d00        -       0x00000001   Zero   RW         1935    .bss.trans_fault_tic  usb_port.o
     0x20001d01   COMPRESSED   0x00000003   PAD
-    0x20001d04        -       0x00000088   Zero   RW         2134    .bss.tun            smo.o
-    0x20001d8c        -       0x0000000a   Zero   RW         2215    .bss.ui_buffer      adcdr.o
+    0x20001d04        -       0x00000088   Zero   RW         2132    .bss.tun            smo.o
+    0x20001d8c        -       0x0000000a   Zero   RW         2213    .bss.ui_buffer      adcdr.o
     0x20001d96   COMPRESSED   0x00000002   PAD
-    0x20001d98        -       0x00000008   Zero   RW         2214    .bss.ui_filter      adcdr.o
+    0x20001d98        -       0x00000008   Zero   RW         2212    .bss.ui_filter      adcdr.o
     0x20001da0        -       0x00000004   Zero   RW          748    .bss.uwTick         stm32f4xx_hal.o
-    0x20001da4        -       0x00000001   Zero   RW         2275    .bss.valid          encoder.o
+    0x20001da4        -       0x00000001   Zero   RW         2273    .bss.valid          encoder.o
     0x20001da5   COMPRESSED   0x00000003   PAD
     0x20001da8        -       0x00000008   Zero   RW         1881    .bss.value_ref      port_mapping.o
-    0x20001db0        -       0x0000000a   Zero   RW         2217    .bss.vi_buffer      adcdr.o
+    0x20001db0        -       0x0000000a   Zero   RW         2215    .bss.vi_buffer      adcdr.o
     0x20001dba   COMPRESSED   0x00000002   PAD
-    0x20001dbc        -       0x00000008   Zero   RW         2216    .bss.vi_filter      adcdr.o
-    0x20001dc4        -       0x0000000a   Zero   RW         2219    .bss.wi_buffer      adcdr.o
+    0x20001dbc        -       0x00000008   Zero   RW         2214    .bss.vi_filter      adcdr.o
+    0x20001dc4        -       0x0000000a   Zero   RW         2217    .bss.wi_buffer      adcdr.o
     0x20001dce   COMPRESSED   0x00000002   PAD
-    0x20001dd0        -       0x00000008   Zero   RW         2218    .bss.wi_filter      adcdr.o
+    0x20001dd0        -       0x00000008   Zero   RW         2216    .bss.wi_filter      adcdr.o
     0x20001dd8        -       0x00000400   Zero   RW            1    STACK               startup_stm32f405xx.o
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x0800f920, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
+    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x0800f978, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
@@ -6533,19 +6526,19 @@ Image component sizes
        740         16          0          4         34       6735   encoder.o
        584          0          0          0          0       9449   filter.o
       1116          0          0          0          1       8699   flashdr.o
-      2100         52          0          0        165      12502   foc_core.o
-       310          8          0          0         52      10023   foc_statemachine.o
+      2084         52          0          0        165      12524   foc_core.o
+       310          8          0          0         52      10052   foc_statemachine.o
        312          0          0          0          0       2249   gpio.o
        422          0          0          0         73       3037   log.o
       1370          8          0          0        200      11002   loop_control.o
        274          0          0          0          8       3320   main.o
        374         32          0          0          0       3852   math_fast.o
       2128        220          0          0        160       9856   parameter_manager.o
-      1796        224          0          0        181       7971   port_mapping.o
+      1796        220          0          0        181       7972   port_mapping.o
        728         16          0          0         60       4601   protection_manager.o
        160          0          0          0          0       3482   queue.o
       1162          0        286          0        218       8401   rgb.o
-      4416        166          0          0        276      18291   smo.o
+      4520        170          0          0        276      18339   smo.o
        556          0          0          0        368       7437   spi.o
         36          8        392          0       1024        836   startup_stm32f405xx.o
        196         10          0          0          0       1075   status_feedback.o
@@ -6582,7 +6575,7 @@ Image component sizes
        134          0          0          0          0       4745   usbd_ioreq.o
 
     ----------------------------------------------------------------------
-     56614        978       1000        536       8124     540810   Object Totals
+     56702        978       1000        536       8124     540910   Object Totals
          0          0         32          0          0          0   (incl. Generated)
        442          4          3          7         50          0   (incl. Padding)
 
@@ -6652,15 +6645,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     60456       1228       3100        540       8124     549900   Grand Totals
-     60456       1228       3100        216       8124     549900   ELF Image Totals (compressed)
-     60456       1228       3100        216          0          0   ROM Totals
+     60544       1228       3100        540       8124     550000   Grand Totals
+     60544       1228       3100        216       8124     550000   ELF Image Totals (compressed)
+     60544       1228       3100        216          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                63556 (  62.07kB)
+    Total RO  Size (Code + RO Data)                63644 (  62.15kB)
     Total RW  Size (RW Data + ZI Data)              8664 (   8.46kB)
-    Total ROM Size (Code + RO Data + RW Data)      63772 (  62.28kB)
+    Total ROM Size (Code + RO Data + RW Data)      63860 (  62.36kB)
 
 ==============================================================================
 

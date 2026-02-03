@@ -5,12 +5,14 @@ from PyQt5.QtCore import QTimer,QObject,pyqtSignal
 from functons.message_show import (
     send_simple_message,
     send_titled_message,
-    MSG_TYPE_MORMAL ,   
+    MSG_TYPE_NORMAL ,   
     MSG_TYPE_SUCCESS ,  
     MSG_TYPE_INFO ,     
     MSG_TYPE_WARNING, 
     MSG_TYPE_ERROR,    
 )
+from UI.data_ui_map import Cidx
+
 
 HEAD=0x3A  # 协议包头 ':'
 FOOT=0x0D  # 协议包尾 '\r'
@@ -22,6 +24,10 @@ class ComPort(QObject):
         super().__init__()  # 必须调用父类构造
 
         self.widget = widget # 主窗口对象
+        self.comport_list = self.widget.com_port  # 串口下拉框
+        self.connect_but = self.widget.connect_but  # 连接按钮
+        self.connect_but.clicked.connect(self._handleConnectBut)
+
         self.serial_port = None  # 串口对象
         self.is_connected = False  # 串口连接状态
         self._current_ports = []  # 记录当前已知端口
@@ -39,12 +45,20 @@ class ComPort(QObject):
         self.refresh_timer.timeout.connect(self._refresh_ports)
         self.refresh_timer.start(2000)
 
+
+    def _handleConnectBut(self):
+        if self.connect_but.isChecked():
+            self.connect()
+        else:
+            self.disconnect()
+
     def _update_ui_state(self):
         """根据当前连接状态更新按钮 UI"""
-        btn = self.widget.connect_but
+        btn = self.connect_but
         if self.is_connected:
             btn.setText("已连接")
             btn.setValue("断开")
+            btn.setChecked(True)
         else:
             port = self.widget.com_port.currentText()
             if port:
@@ -52,7 +66,8 @@ class ComPort(QObject):
                 btn.setValue("连接")
             else:
                 btn.setText("无可用端口")
-                btn.setValue("重试")
+                btn.setValue("连接")
+            btn.setChecked(False)
 
     def _refresh_ports(self):
         """仅当检测到端口列表变化时，才更新下拉框"""
@@ -66,7 +81,7 @@ class ComPort(QObject):
         self._current_ports = ports
         
         # 更新 UI
-        combo = self.widget.com_port
+        combo = self.comport_list
         current = combo.currentText()
         combo.clear()
         combo.addItems(ports)
@@ -83,7 +98,7 @@ class ComPort(QObject):
     def connect(self):
         """建立连接"""
         # 1. 立即更新 UI 为“连接中”
-        btn = self.widget.connect_but
+        btn = self.connect_but
         btn.setText("连接中...")
         
         # 强制刷新 UI（因为后面是阻塞操作）
@@ -91,7 +106,7 @@ class ComPort(QObject):
         QApplication.processEvents()
 
         try:
-            port = self.widget.com_port.currentText()
+            port = self.comport_list.currentText()
             if not port:
                 print("未选择串口")
                 self.is_connected = False
@@ -118,9 +133,10 @@ class ComPort(QObject):
             self._recv_thread.start()
             
             # 2. 连接成功后：禁用 com_port
-            self.widget.com_port.setEnabled(False)
+            self.comport_list.setEnabled(False)
             
             self._update_ui_state()  # 更新为“已连接”
+            self.send_packet(Cidx.UC_CONNECT, bytes())  
             return True
             
         except Exception as e:
@@ -133,6 +149,7 @@ class ComPort(QObject):
         
     def disconnect(self):
         """断开连接"""
+        self.send_packet(Cidx.UC_DISCONNECT, bytes()) 
         self._stop_recv.set()
         if self._recv_thread and self._recv_thread.is_alive():
             self._recv_thread.join(timeout=1.0)
@@ -143,9 +160,10 @@ class ComPort(QObject):
         self.is_connected = False
         
         # 重新启用 com_port
-        self.widget.com_port.setEnabled(True)
+        self.comport_list.setEnabled(True)
         
         self._update_ui_state()
+         
 
     def send_packet(self, cmd_id, data_bytes):
         """

@@ -1,0 +1,194 @@
+{
+    "0": {
+        "type": "uint8",
+        "value": 0
+    },
+    "1": {
+        "type": "uint8",
+        "value": 0
+    },
+    "2": {
+        "type": "uint8",
+        "value": 0
+    },
+    "3": {
+        "type": "uint8",
+        "value": 0
+    },
+    "4": {
+        "type": "uint8",
+        "value": 0
+    },
+    "5": {
+        "type": "uint8",
+        "value": 0
+    },
+    "6": {
+        "type": "uint8",
+        "value": 0
+    },
+    "7": {
+        "type": "uint8",
+        "value": 0
+    },
+    "8": {
+        "type": "uint8",
+        "value": 7
+    },
+    "9": {
+        "type": "uint8",
+        "value": 1
+    },
+    "10": {
+        "type": "uint8",
+        "value": 1
+    },
+    "11": {
+        "type": "uint8",
+        "value": 1
+    },
+    "12": {
+        "type": "int32",
+        "value": 0
+    },
+    "13": {
+        "type": "float32",
+        "value": 20000.0
+    },
+    "14": {
+        "type": "float32",
+        "value": 20000.0
+    },
+    "15": {
+        "type": "float32",
+        "value": 20000.0
+    },
+    "16": {
+        "type": "float32",
+        "value": 20000.0
+    },
+    "17": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "18": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "19": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "20": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "21": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "22": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "23": {
+        "type": "float32",
+        "value": 0.001
+    },
+    "24": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "25": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "26": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "27": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "28": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "29": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "30": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "31": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "32": {
+        "type": "float32",
+        "value": 0.0
+    },
+    "33": {
+        "type": "float32",
+        "value": 50.0
+    },
+    "34": {
+        "type": "float32",
+        "value": 1000.0
+    },
+    "35": {
+        "type": "float32",
+        "value": -10000.0
+    },
+    "36": {
+        "type": "float32",
+        "value": 10000.0
+    },
+    "37": {
+        "type": "float32",
+        "value": 1.0
+    },
+    "38": {
+        "type": "float32",
+        "value": 1.0
+    },
+    "39": {
+        "type": "float32",
+        "value": 1.1
+    },
+    "40": {
+        "type": "float32",
+        "value": 1.1
+    },
+    "41": {
+        "type": "float32",
+        "value": 1.1
+    },
+    "42": {
+        "type": "float32",
+        "value": 1000.0
+    },
+    "43": {
+        "type": "float32",
+        "value": 1.0
+    },
+    "44": {
+        "type": "float32",
+        "value": 100.0
+    },
+    "45": {
+        "type": "float32",
+        "value": 1.0
+    },
+    "46": {
+        "type": "float32",
+        "value": 1000.0
+    },
+    "47": {
+        "type": "float32",
+        "value": 1000.0
+    }
+}
