@@ -2,7 +2,6 @@
 #include "tim.h"
 #include "math_fast.h"
 #include "parameter_manager.h"
-#include "sim_motor.h"
 #include "encoder.h"
 
 FOC_t g_foc = {0};
@@ -55,7 +54,7 @@ void fFOC_Init()
     g_foc.g_loop_con = get_loop_con_adr();
     g_foc.smo = get_smo_adr();
     g_foc.tun = get_tuning_adr();
-    g_foc.svpwm = get_svpwm_adr();
+    g_foc.svpwm = &svpwm;
     g_foc.motor = get_motor_adr();
     foc_core_init();
 }
@@ -115,7 +114,7 @@ void FOC_StateMachine_updata()
     default:
         break;
     }
-    ENCODER_MainLoopTask();
+    fEncoderMainLoopTask();
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {

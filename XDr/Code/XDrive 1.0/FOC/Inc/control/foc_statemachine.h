@@ -29,7 +29,7 @@ typedef struct
     LOOP_CON_t *g_loop_con;
     smo_t *smo;
     param_tuning_t *tun;
-    SVPWM_t *svpwm;
+    tSvpwm *svpwm;
     Motor_t *motor;
 } FOC_t;
 extern FOC_t g_foc;

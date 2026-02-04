@@ -5,7 +5,7 @@
 #include "math_fast.h"
 #include "protection_manager.h"
 #include "can_port.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 
 Parameter_t g_Param;
 
@@ -63,7 +63,7 @@ void Param_set(Parameter_e para, u8 *value)
         // float类型参数
     case THETA_OFFSET:
         memcpy(&temp, value, 4);
-        g_Param.theta_offset = deg_to_rad(temp);
+        g_Param.theta_offset = fDegToRad(temp);
         break;
     case MOTOR_RS:
         g_Param.motor_rs = *(float *)value;
@@ -115,15 +115,15 @@ void Param_set(Parameter_e para, u8 *value)
         break;
     case LIMIT_SPEED:
         memcpy(&temp, value, 4);
-        g_Param.limit_omega = rpm_to_rad(temp);
+        g_Param.limit_omega = fRpmToRad(temp);
         break;
     case LIMIT_POSITION_min:
         memcpy(&temp, value, 4);
-        g_Param.limit_position_min = deg_to_rad(temp);
+        g_Param.limit_position_min = fDegToRad(temp);
         break;
     case LIMIT_POSITION_max:
         memcpy(&temp, value, 4);
-        g_Param.limit_position_max = deg_to_rad(temp);
+        g_Param.limit_position_max = fDegToRad(temp);
         break;
     case TOLERANCE_TIME:
         g_Param.tolerance_time = *(float *)value;
@@ -143,7 +143,7 @@ void Param_set(Parameter_e para, u8 *value)
 
     case STARTUP_ACC:
         memcpy(&temp, value, 4);
-        g_Param.startup_acc = rpm_to_rad(temp);
+        g_Param.startup_acc = fRpmToRad(temp);
         break;
     case ALIGN_CURRENT:
         g_Param.align_current = *(float *)value;
@@ -156,11 +156,11 @@ void Param_set(Parameter_e para, u8 *value)
         break;
     case OPEN_LOOP_SPEED:
         memcpy(&temp, value, 4);
-        g_Param.open_loop_omega = rpm_to_rad(temp);
+        g_Param.open_loop_omega = fRpmToRad(temp);
         break;
     case CHANGE_LOOP_SPEED:
         memcpy(&temp, value, 4);
-        g_Param.change_loop_omega = rpm_to_rad(temp);
+        g_Param.change_loop_omega = fRpmToRad(temp);
     default:
         Param_write_foc();
         break;
@@ -248,7 +248,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case THETA_OFFSET:
-        temp = rad_to_deg(g_Param.theta_offset);
+        temp = fRadToDeg(g_Param.theta_offset);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
@@ -317,17 +317,17 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case LIMIT_SPEED:
-        temp = rad_to_rpm(g_Param.limit_omega);
+        temp = fRadToRpm(g_Param.limit_omega);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_min:
-        temp = rad_to_deg(g_Param.limit_position_min);
+        temp = fRadToDeg(g_Param.limit_position_min);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_max:
-        temp = rad_to_deg(g_Param.limit_position_max);
+        temp = fRadToDeg(g_Param.limit_position_max);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
@@ -353,7 +353,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
 
     case STARTUP_ACC:
-        temp = rad_to_rpm(g_Param.startup_acc);
+        temp = fRadToRpm(g_Param.startup_acc);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
@@ -370,12 +370,12 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case OPEN_LOOP_SPEED:
-        temp = rad_to_rpm(g_Param.open_loop_omega);
+        temp = fRadToRpm(g_Param.open_loop_omega);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
     case CHANGE_LOOP_SPEED:
-        temp = rad_to_rpm(g_Param.change_loop_omega);
+        temp = fRadToRpm(g_Param.change_loop_omega);
         memcpy(value, &temp, 4);
         *len = sizeof(float);
         break;
@@ -387,12 +387,12 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
 }
 bool Param_read_flash()
 {
-    return FLASH_Read_data((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    return fFLASH_ReadData((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
 bool Param_write_flash()
 {
-    FLASH_erase_sector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
-    return FLASH_Write_Word((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    fFLASH_EraseSector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    return fFLASH_WriteWord((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
 bool Param_init()
 {
@@ -445,22 +445,22 @@ bool Param_init()
         g_Param.ki_position = 0.05f;  // 位置环积分系数
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
-        g_Param.limit_current = 30.0f;                       // 电流限幅 50A
-        g_Param.limit_omega = rpm_to_rad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
-        g_Param.limit_position_min = deg_to_rad(-100000.0f); // 最小位置限制 -10000度 (弧度)
-        g_Param.limit_position_max = deg_to_rad(100000.0f);  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;                       // 容忍时间 0.1秒
-        g_Param.tolerance_voltage = 1.2f;                    // 电压容忍度 1.2
-        g_Param.tolerance_current = 1.1f;                    // 电流容忍度 1.1
-        g_Param.tolerance_speed = 1.1f;                      // 速度容忍度 1.1
-        g_Param.tolerance_position = 1.1f;                   // 位置容忍度 1.1
+        g_Param.limit_current = 30.0f;                      // 电流限幅 50A
+        g_Param.limit_omega = fRpmToRad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
+        g_Param.limit_position_min = fDegToRad(-100000.0f); // 最小位置限制 -10000度 (弧度)
+        g_Param.limit_position_max = fDegToRad(100000.0f);  // 最大位置限制 10000度 (弧度)
+        g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1秒
+        g_Param.tolerance_voltage = 1.2f;                   // 电压容忍度 1.2
+        g_Param.tolerance_current = 1.1f;                   // 电流容忍度 1.1
+        g_Param.tolerance_speed = 1.1f;                     // 速度容忍度 1.1
+        g_Param.tolerance_position = 1.1f;                  // 位置容忍度 1.1
 
-        g_Param.startup_acc = rpm_to_rad(1000.0f);      // 启动加速度 1000 RPM/秒
-        g_Param.align_current = 2.0f;                   // 对齐电流 5A
-        g_Param.align_time = 0.5f;                      // 对齐时间 0.5秒
-        g_Param.open_loop_current = 1.0f;               // 开环电流 5A
-        g_Param.open_loop_omega = rpm_to_rad(150.0f);   // 开环速度 150 RPM (弧度/秒)
-        g_Param.change_loop_omega = rpm_to_rad(100.0f); // 切环速度 100 RPM (弧度/秒) (弧度/秒)
+        g_Param.startup_acc = fRpmToRad(1000.0f);      // 启动加速度 1000 RPM/秒
+        g_Param.align_current = 2.0f;                  // 对齐电流 5A
+        g_Param.align_time = 0.5f;                     // 对齐时间 0.5秒
+        g_Param.open_loop_current = 1.0f;              // 开环电流 5A
+        g_Param.open_loop_omega = fRpmToRad(150.0f);   // 开环速度 150 RPM (弧度/秒)
+        g_Param.change_loop_omega = fRpmToRad(100.0f); // 切环速度 100 RPM (弧度/秒) (弧度/秒)
     }
     return true;
 }
@@ -472,7 +472,7 @@ bool Param_save()
 
 void Param_erase()
 {
-    Erase_one_Sector(PARAMETER_LOAD_ADDr);
+    fEraseOneSector(PARAMETER_LOAD_ADDr);
 }
 // 写入FOC
 void Param_write_foc()

@@ -3,9 +3,8 @@
 #include "status_feedback.h"
 #include "log.h"
 #include "protection_manager.h"
-#include "drive_state.h"
 #include "port_mapping.h"
-#include "adcDr.h"
+#include "adc_dr.h"
 #include "flashDr.h"
 
 SYSTEM_STATE_e system_status = SYSTEM_INIT;
@@ -18,13 +17,13 @@ bool system_init_event(void)
     正确的顺序应该是：
     flash-参数-通讯-保护-日志-adc -foc初始化
     */
-    FLASH_Init();
+    fFLASH_Init();
     if (!Param_init())
         return false;
     communication_init();
     protection_manager_init();
     log_init();
-    ADC_DR_Init();
+    fAdcDrInit();
     fFOC_Init();
 
     return true;

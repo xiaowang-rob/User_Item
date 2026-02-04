@@ -1,7 +1,7 @@
 #include "can_port.h"
 #include "protocol.h"
 #include "can.h"
-#include "port_mapping.h"
+#include "device.h"
 
 #define STD_ID_MASK 0x7FF      // 11bit [31：21] 32位模式下 [15:5] 16位模式下
 #define EXT_ID_MASK 0xFFFFFFFF // 29bit [31:3]
@@ -15,9 +15,9 @@ static u8 CanRxData[64];
 
 CAN_Handle_t can = {.queue_head = 0xE5, .queue_tail = 0x5E};
 
-QueueStatus CAN_deQUEUE_data(u8 *data)
+eQueueStatus CAN_deQUEUE_data(u8 *data)
 {
-    return static_queue_dequeue(&can.rx_queue, data);
+    return fStaticQueueDequeue(&can.rx_queue, data);
 }
 
 /**
@@ -60,28 +60,28 @@ void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE)
     // 配置过滤器
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
     else
     {
-        can_state_change(ONLINE);
+        g_device_status.can_state = ONLINE;
     }
 
     /* Start the CAN peripheral - 启动CAN外设 */
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
 
     /* Activate CAN RX notification - 激活CAN接收中断通知 */
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
     // 如果开启了队列模式则初始化队列
     if (can.queue_flag)
-        if (QUEUE_ERROR == static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData)))
-            can_state_change(OFFLINE);
+        if (QUEUE_STATUS_ERROR == fStaticQueueInit(&can.rx_queue, CanRxData, sizeof(CanRxData)))
+            g_device_status.can_state = OFFLINE;
 
     CAN_Send_Msg(&can_init_ok, 1);
 }
@@ -122,28 +122,28 @@ void CAN_SET_ID_QUEUE(u32 CAN_ID, bool canQUEUE)
     // 配置过滤器
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
     else
     {
-        can_state_change(ONLINE);
+        g_device_status.can_state = ONLINE;
     }
 
     // 重新启动CAN2
     if (HAL_CAN_Start(&hcan2) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
 
     // 重新激活接收中断
     if (HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     {
-        can_state_change(OFFLINE);
+        g_device_status.can_state = OFFLINE;
     }
 
     if (can.queue_flag)
-        if (QUEUE_ERROR == static_queue_init(&can.rx_queue, CanRxData, sizeof(CanRxData)))
-            can_state_change(OFFLINE);
+        if (QUEUE_STATUS_ERROR == fStaticQueueInit(&can.rx_queue, CanRxData, sizeof(CanRxData)))
+            g_device_status.can_state = OFFLINE;
 }
 /**
  * @brief  CAN发送消息函数
@@ -177,7 +177,7 @@ bool CAN_Send_Msg(u8 *msg, u8 len)
     // 发送CAN消息 - 将消息添加到发送邮箱
     if (HAL_CAN_AddTxMessage(&hcan2, &CAN_TxHeader, message, &TxMailbox) != HAL_OK)
     {
-        can_state_change(RUN_ERROR);
+        g_device_status.can_state = RUN_ERROR;
     }
 
     // 等待发送完成 - 等待所有发送邮箱都空闲（表示消息已发送）
@@ -214,10 +214,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         {
             if (can.queue_flag)
             {
-                static_queue_enqueue(&can.rx_queue, &can.queue_head);
+                fStaticQueueEnqueue(&can.rx_queue, &can.queue_head);
                 for (int i = 0; i < CAN_RxHeader.DLC; i++)
-                    static_queue_enqueue(&can.rx_queue, RxData);
-                static_queue_enqueue(&can.rx_queue, &can.queue_tail);
+                    fStaticQueueEnqueue(&can.rx_queue, RxData);
+                fStaticQueueEnqueue(&can.rx_queue, &can.queue_tail);
             }
             else
                 CAN_RxData_Deal(RxData, CAN_RxHeader.DLC);
@@ -228,9 +228,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     else
         can.err_count += 5;
     if (can.err_count >= 50)
-        can_state_change(RUN_ERROR);
+        g_device_status.can_state = RUN_ERROR;
     else
-        can_state_change(ONLINE);
+        g_device_status.can_state = RUNNING;
 }
 /*
 控制 4byte和pvt 8byte
@@ -267,7 +267,7 @@ void CAN_data_byte_deal(u8 data)
 }
 void CAN_QUEUE_Deal()
 {
-    while (CAN_deQUEUE_data(&rxtemp) == QUEUE_OK)
+    while (CAN_deQUEUE_data(&rxtemp) == QUEUE_STATUS_OK)
     {
         CAN_data_byte_deal(rxtemp);
     }

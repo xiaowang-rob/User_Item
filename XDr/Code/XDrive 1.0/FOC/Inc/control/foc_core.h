@@ -6,10 +6,11 @@
 #include "parameter_manager.h"
 typedef enum
 {
+    OPEN_LOOP_CONTROL,
     ENCODER_CONTROL,
-    SENSORLESS_CONTROL,
-    SVPWM_CONTROL,
-} RUN_mode_e;
+    SMO_CONTROL,
+    ENCODER_SMO_CONTROL,
+} eSensorMode;
 
 typedef enum
 {
@@ -18,15 +19,17 @@ typedef enum
     SPEED_LOOP,
     POSITION_ABS_LOOP, // 绝对位置控制(0-360°)
     POSITION_REL_LOOP, // 相对/增量位置控制 会以给定角度（+-float的范围）转到位置
-} LOOP_mode_e;
+
+    IDLE,
+} eLoopMode;
 
 typedef struct
 {
-    RUN_mode_e run_mode;
-    LOOP_mode_e loop_mode;
+    eSensorMode sensor_mode;
+    eLoopMode loop_mode;
     bool pvt_mode;
     bool weak_mag;
-} FOC_mode_t;
+} tFOC_Mode;
 
 typedef struct
 {
@@ -45,30 +48,28 @@ typedef struct
     float omega_con;
     float omega_fb;
     float pos_ref;
-    float pos_con;
     float pos_fb;
-} FOC_val_t;
+    eLoopMode loop_state;
+} tFOC_val;
 
+// todo:这个启动得改改
 typedef struct
 {
-    float omega_gradient;
+    float omega_acc;
 
-    float align_ud; // 对齐电压
+    float align_id; // 对齐电流
     u32 current_steps;
     u32 align_steps;
-
-    float openloop_uq; // 开环电压
+    float openloop_iq; // 开环电流
     float openloop_omega;
     bool change_flag;
     bool align_flag;
 
-} startup_mechine_t;
+} tStartupMechine;
 
 typedef struct
 {
     float Udc;            // 直流母线电压
-    int8_t Wire_sequence; // 线序 +1-正线序 -1-反线序
-    u8 pole_pairs;        // 极对数
     float offset_angle;   // 偏移角度
     float Rs;             // 定子电阻
     float Ls;             // 定子电感
@@ -76,31 +77,36 @@ typedef struct
     float Ke;             // 反电动势常数
     float J;              // 转动惯量
     float B;              // 摩擦系数
-} Motor_t;
+    int8_t Wire_sequence; // 线序 +1-正线序 -1-反线序
+    u8 pole_pairs;        // 极对数
+} tMotor;
 
-void foc_core_init();
-void foc_core_reset();
+typedef struct
+{
+    tMotor *motor;
+    tFOC_Mode *foc_mode;
+    tFOC_val *foc_val;
+    tStartupMechine *startup_machine;
+} tFOC_Core;
 
-void FOC_PREPARE();
-void FOC_RUN();
-bool SHUTDOWM();
-bool auto_calibration_update();
-void SET_Theta_offset(float thetaoffset);
-void SET_Wire_sequence(int wire_sequence);
+extern tFOC_Core foc_core;
 
-void opend_loop_enable();
-void opend_loop_disable();
-void SET_opend_loop_theta(float theta_elec);
-void SET_opend_loop_omega(float omega_elec);
+void fFOC_CoreInit();
+void fFOC_CoreReset();
 
-void FOC_SET_OMEGA_con(float value);
-void FOC_SET_VER_VALUE(float *value);
-void FOC_SET_LOOPMODE(LOOP_mode_e mode);
-void FOC_SET_RUNMODE(RUN_mode_e mode);
+void fFOC_MainLoop();
+bool fFOC_Shutdown();
+bool fAutoCalibrationUpdate();
 
-FOC_mode_t *FOC_GET_MODE_adr();
-FOC_val_t *FOC_GET_VAL_adr();
-startup_mechine_t *FOC_GET_STARTUP_adr();
-Motor_t *get_motor_adr();
+void fSetThetaOffset(float thetaoffset);
+void fSetWireSequence(int wire_sequence);
+
+void fSetOpendLoopTheta(float theta_elec);
+void fSetOpendLoopOmega(float omega_elec);
+
+void fFOC_SetOmegaIM(float value);
+void fFOC_SetTargetValue(float *value);
+void fFOC_SetSensorMode(eSensorMode mode);
+void fFOC_SetLoopMode(eLoopMode mode);
 
 #endif // __FOC_CORE_H

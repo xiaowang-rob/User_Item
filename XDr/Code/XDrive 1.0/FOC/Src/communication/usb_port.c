@@ -1,7 +1,6 @@
 #include "usb_port.h"
 #include "string.h"
 #include "usbd_cdc_if.h"
-#include "port_mapping.h"
 
 USB_frame_t UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
 USB_frame_t UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL};
@@ -22,7 +21,7 @@ bool usbSendData(u8 *data, u8 len)
             trans_fault_tic = 0;
             return false;
         }
-				trans_fault_tic++;
+        trans_fault_tic++;
         usbSendData(data, len);
     }
     return false;

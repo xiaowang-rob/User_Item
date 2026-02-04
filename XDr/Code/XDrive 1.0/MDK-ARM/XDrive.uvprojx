@@ -1469,16 +1469,6 @@
           <GroupName>Foc/drives</GroupName>
           <Files>
             <File>
-              <FileName>adcDr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FOC\Src\drivers\adcDr.c</FilePath>
-            </File>
-            <File>
-              <FileName>drive_state.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FOC\Src\drivers\drive_state.c</FilePath>
-            </File>
-            <File>
               <FileName>encoder.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FOC\Src\drivers\encoder.c</FilePath>
@@ -1492,6 +1482,11 @@
               <FileName>rgb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FOC\Src\drivers\rgb.c</FilePath>
+            </File>
+            <File>
+              <FileName>adc_dr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\drivers\adc_dr.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1547,11 +1542,6 @@
               <FileName>ring_buffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\FOC\Src\utils\ring_buffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>sim_motor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\FOC\Src\utils\sim_motor.c</FilePath>
             </File>
           </Files>
         </Group>

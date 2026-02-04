@@ -27,26 +27,26 @@ void log_data_save(void)
     Log.Id = g_foc.val->id_fb;
     Log.Id_ref = g_foc.val->id_ref;
     Log.Iq_ref = g_foc.val->iq_ref;
-    Log.speed = rad_to_rpm(g_foc.val->omega_fb);
-    Log.speed_ref = rad_to_rpm(g_foc.val->omega_ref);
-    Log.position = rad_to_deg(g_foc.val->pos_fb);
-    Log.position_ref = rad_to_deg(g_foc.val->pos_ref);
+    Log.speed = fRadToRpm(g_foc.val->omega_fb);
+    Log.speed_ref = fRadToRpm(g_foc.val->omega_ref);
+    Log.position = fRadToDeg(g_foc.val->pos_fb);
+    Log.position_ref = fRadToDeg(g_foc.val->pos_ref);
     Log.loop_mode = g_foc.mode->loop_mode;
     Log.run_mode = g_foc.mode->run_mode;
     Log.fault = (fault_e)g_pro_manager.fault;
     Log.warning = (Warning_e)g_pro_manager.warning;
 
-    Log.usb_state = g_pro_manager.com_state->usb_state;
-    Log.can_state = g_pro_manager.com_state->can_state;
-    Log.flash_state = g_pro_manager.drive_state->FLASH_state;
-    Log.encoder_state = g_pro_manager.drive_state->ENCODER_state;
+    Log.usb_state = g_pro_manager.drive_state->usb_state;
+    Log.can_state = g_pro_manager.drive_state->can_state;
+    Log.flash_state = g_pro_manager.drive_state->flash_state;
+    Log.encoder_state = g_pro_manager.drive_state->encoder_state;
     Log.num = Index.num;
     u32 time = HAL_GetTick();
     Log.seconds = time / 1000;
 }
 bool log_data_write(void)
 {
-    FLASH_Write_Word((u8 *)&Log, Index.write_addr, sizeof(Log));
+    fFLASH_WriteWord((u8 *)&Log, Index.write_addr, sizeof(Log));
     Index.num++;
     Index.write_addr += sizeof(Log);
     if (Index.num >= MAX_log_NUM)
@@ -60,7 +60,7 @@ bool log_read_flash(u8 *data, u8 *len)
 {
     if (read_index < MAX_log_NUM)
     {
-        FLASH_Read_data((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
+        fFLASH_ReadData((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
         if (Log.num == read_index)
         {
             *len = sizeof(Log);
@@ -89,7 +89,7 @@ void log_read_now(u8 *data, u8 *len)
 
 void log_erase()
 {
-    FLASH_erase_sector(Log_start_addr, MAX_log_NUM * sizeof(Log));
+    fFLASH_EraseSector(Log_start_addr, MAX_log_NUM * sizeof(Log));
     Index.num = 0;
     Index.write_addr = Log_start_addr;
 }

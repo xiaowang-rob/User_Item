@@ -33,4 +33,4 @@ xdrive/drive_state.o: ..\FOC\Src\drivers\drive_state.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\FOC\Inc\drivers\encoder.h ..\FOC\Config\device.h ..\Core\Inc\spi.h \
-  ..\FOC\Inc\drivers\adcDr.h
+  ..\FOC\Inc\drivers\adc_dr.h

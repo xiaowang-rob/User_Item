@@ -37,7 +37,7 @@ xdrive/system_statemachine.o: ..\FOC\Src\services\system_statemachine.c \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\services\status_feedback.h \
   ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Config\device.h ..\Core\Inc\spi.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\drivers\adcDr.h \
+  ..\FOC\Inc\communication\DataMonitoring.h ..\FOC\Inc\drivers\adc_dr.h \
   ..\FOC\Inc\drivers\flashDr.h

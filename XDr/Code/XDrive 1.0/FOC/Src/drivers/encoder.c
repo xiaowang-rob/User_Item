@@ -3,9 +3,15 @@
 #include "stdbool.h"
 #include "spi.h"
 #include "math_fast.h"
-#include "drive_state.h"
 
-static ENCODER_t encoder = {0};
+// 全局变量
+static u16 reg03_cmd = 0x83ff;
+static u16 reg03_data = 0; // 高位寄存器数据
+static u16 reg04_cmd = 0x84ff;
+static u16 reg04_data = 0; // 低位寄存器数据
+static u32 transfer_start_time = 0;
+
+static tEncoder encoder = {0};
 
 void ENCODER_SPI_CS_H()
 {
@@ -53,11 +59,11 @@ static void ENCODER_ProcessAndNextRead(void)
 
     // 增量角度
     float angle_delta = encoder.angle_abs - encoder.angle_last;
-    if (angle_delta < -M_PI || angle_delta > M_PI)
+    if (angle_delta < -MATH_PI || angle_delta > MATH_PI)
     { // 圈数改变
         encoder.num_turns += (angle_delta < 0) ? 1 : -1;
     }
-    encoder.angle_inc = encoder.num_turns * M2_PI + encoder.angle_abs; // 弧度值
+    encoder.angle_inc = encoder.num_turns * MATH_2PI + encoder.angle_abs; // 弧度值
     //  计算角速度 (rad/s)
     if (time_diff > 0)
     {
@@ -72,7 +78,7 @@ static void ENCODER_ProcessAndNextRead(void)
     // 工作状态检查
     if (reg04_data & MT6816_NO_MAG_WARNING)
     {
-        ENCODER_state_set(OFFLINE);
+        g_device_status.encoder_state = OFFLINE;
         encoder.state = ENCODER_STATE_START_READ;
         encoder.angle_abs = 0;
         encoder.angle_last = 0;
@@ -82,9 +88,9 @@ static void ENCODER_ProcessAndNextRead(void)
         encoder.num_turns = 0;
         return;
     }
-    else if (ENCODER_state_get() == OFFLINE)
+    else if (g_device_status.encoder_state == OFFLINE)
     {
-        ENCODER_state_set(ONLINE);
+        g_device_status.encoder_state = RUNNING;
     }
 
     // 奇偶校验验证
@@ -106,9 +112,9 @@ static void ENCODER_ProcessAndNextRead(void)
     else
         valid = valid > 0 ? valid - 1 : 0;
     if (valid > 100)
-        ENCODER_state_set(RUN_ERROR);
-    else if (ENCODER_state_get() == RUN_ERROR)
-        ENCODER_state_set(ONLINE);
+        g_device_status.encoder_state = RUN_ERROR;
+    else if (g_device_status.encoder_state == RUN_ERROR)
+        g_device_status.encoder_state = RUNNING;
     // 立即启动下一次读取
     encoder.state = ENCODER_STATE_WAIT_HIGH;
     ENCODER_Reg3_Read();
@@ -131,10 +137,8 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
         encoder.state = ENCODER_STATE_PROCESS_DATA;
     }
 }
-void ENCODER_Init()
-{
-}
-void ENCODER_MainLoopTask()
+
+void fEncoderMainLoopTask()
 {
     // 检查是否需要处理数据
     if (encoder.state == ENCODER_STATE_PROCESS_DATA)
@@ -147,15 +151,15 @@ void ENCODER_MainLoopTask()
         ENCODER_Reg3_Read();
     }
 }
-float GET_ENCODER_ANGLE_ABS()
+float fGetEncoderAngle_ABS()
 {
     return encoder.angle_abs;
 }
-float GET_ENCODER_ANGLE_INC()
+float fGetEncoderAngle_INC()
 {
     return encoder.angle_inc;
 }
-float GET_ENCODER_OMEGA()
+float fGetEncoderOmega()
 {
     return encoder.omega;
 }

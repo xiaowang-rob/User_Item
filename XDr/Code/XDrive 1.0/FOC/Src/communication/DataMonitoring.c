@@ -3,7 +3,7 @@
 #include "math_fast.h"
 #include "encoder.h"
 #include "loop_control.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 #include "protection_manager.h"
 #include "flashDr.h"
 #include "svpwm.h"
@@ -69,35 +69,35 @@ void stream_data_get(Data_stream_e stream, float *data)
         *data = g_foc.val->id_ref;
         break;
     case SPEED:
-        temp_val = rad_to_rpm(g_foc.val->omega_fb);
+        temp_val = fRadToRpm(g_foc.val->omega_fb);
         memcpy(data, &temp_val, 4);
         break;
     case SPEED_con:
-        temp_val = rad_to_rpm(g_foc.val->omega_con);
+        temp_val = fRadToRpm(g_foc.val->omega_con);
         memcpy(data, &temp_val, 4);
         break;
     case SPEED_ref:
-        temp_val = rad_to_rpm(g_foc.val->omega_ref);
+        temp_val = fRadToRpm(g_foc.val->omega_ref);
         memcpy(data, &temp_val, 4);
         break;
     case THETA_elec:
-        temp_val = rad_to_deg(g_foc.val->theta_elec);
+        temp_val = fRadToDeg(g_foc.val->theta_elec);
         memcpy(data, &temp_val, 4);
         break;
     case THETA_mech:
-        temp_val = rad_to_deg(g_foc.val->theta_mech);
+        temp_val = fRadToDeg(g_foc.val->theta_mech);
         memcpy(data, &temp_val, 4);
         break;
     case POSITION:
-        temp_val = rad_to_deg(g_foc.val->pos_fb);
+        temp_val = fRadToDeg(g_foc.val->pos_fb);
         memcpy(data, &temp_val, 4);
         break;
     case POSITION_con:
-        temp_val = rad_to_deg(g_foc.val->pos_con);
+        temp_val = fRadToDeg(g_foc.val->pos_con);
         memcpy(data, &temp_val, 4);
         break;
     case POSITION_ref:
-        temp_val = rad_to_deg(g_foc.val->pos_ref);
+        temp_val = fRadToDeg(g_foc.val->pos_ref);
         memcpy(data, &temp_val, 4);
         break;
     default:

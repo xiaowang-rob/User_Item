@@ -2,6 +2,7 @@
 #define __PROTECTION_MANAGER_H
 
 #include "main.h"
+#include "device.h"
 #include "port_mapping.h"
 typedef enum
 {
@@ -47,8 +48,8 @@ typedef struct
     float tolerance_speed;
     float tolerance_position;
 
-    communication_state_t *com_state;
-    Drive_state_t *drive_state;
+    tCommunicationState *com_state;
+    tDeviceStatus *drive_state;
 } protection_manager_t;
 extern protection_manager_t g_pro_manager;
 

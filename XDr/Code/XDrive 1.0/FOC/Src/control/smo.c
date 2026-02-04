@@ -1,6 +1,6 @@
 #include "smo.h"
 #include "math_fast.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 #include "foc_core.h"
 #include "encoder.h"
 #include "parameter_manager.h"
@@ -85,10 +85,10 @@ float clampf(float value, float min, float max)
 }
 float normalize_angle_pi_pi(float angle)
 {
-    while (angle > M_PI)
-        angle -= 2.0f * M_PI;
-    while (angle < -M_PI)
-        angle += 2.0f * M_PI;
+    while (angle > MATH_PI)
+        angle -= MATH_2PI;
+    while (angle < -MATH_PI)
+        angle += MATH_2PI;
     return angle;
 }
 void smo_update(float v_alpha, float v_beta,
@@ -185,7 +185,7 @@ void smo_update(float v_alpha, float v_beta,
 
     // ✅ 阶段5：鲁棒滤波器
     float fc = 100.0f * current_gain + 50.0f; // 从50Hz逐渐增加到150Hz
-    float alpha = 1.0f - expf(-2.0f * M_PI * fc * smo.dt);
+    float alpha = 1.0f - expf(-MATH_2PI * fc * smo.dt);
     alpha = clampf(alpha, 0.01f, 0.99f);
 
     smo.e_alpha_filtered = (1.0f - alpha) * smo.e_alpha_filtered + alpha * smo.e_alpha;
@@ -203,14 +203,14 @@ void smo_update(float v_alpha, float v_beta,
     {
         float theta_new = atan2f(smo.e_beta_filtered, smo.e_alpha_filtered);
         float diff = theta_new - smo.theta;
-        if (diff > M_PI)
-            diff -= 2.0f * M_PI;
-        if (diff < -M_PI)
-            diff += 2.0f * M_PI;
+        if (diff > MATH_PI)
+            diff -= MATH_2PI;
+        if (diff < -MATH_PI)
+            diff += MATH_2PI;
         smo.theta += 0.5f * diff; // 50%融合
     }
 
-    smo.theta = normalize_angle_0_2pi(smo.theta);
+    smo.theta = fNormalizeAngle02pi(smo.theta);
 
     float angle_diff = normalize_angle_pi_pi(smo.theta - smo.theta_prev);
     float speed_raw = angle_diff / smo.dt;

@@ -37,8 +37,8 @@ xdrive/parameter_manager.o: ..\FOC\Src\services\parameter_manager.c \
   ..\FOC\Inc\control\smo.h ..\FOC\Inc\control\svpwm.h \
   ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Inc\services\protection_manager.h \
-  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\communication\can_port.h \
-  ..\FOC\Inc\utils\queue.h ..\FOC\Config\system_parameters.h
+  ..\FOC\Inc\services\protection_manager.h ..\FOC\Config\device.h \
+  ..\Core\Inc\spi.h ..\FOC\Inc\communication\port_mapping.h \
+  ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h \
+  ..\FOC\Inc\communication\can_port.h ..\FOC\Inc\utils\queue.h \
+  ..\FOC\Config\drive_parameters.h

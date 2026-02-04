@@ -32,10 +32,9 @@ xdrive/foc_core.o: ..\FOC\Src\control\foc_core.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\drivers\adcDr.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\drivers\adc_dr.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\FOC\Inc\drivers\encoder.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\loop_control.h ..\FOC\Config\system_parameters.h \
-  ..\FOC\Inc\utils\sim_motor.h
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Config\drive_parameters.h

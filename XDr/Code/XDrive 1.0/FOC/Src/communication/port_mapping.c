@@ -4,7 +4,7 @@ USB、串口、CAN 端口映射
 #include "port_mapping.h"
 #include "foc_statemachine.h"
 #include "parameter_manager.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 #include "log.h"
 #include "protection_manager.h"
 #include "can_port.h"
@@ -12,28 +12,25 @@ USB、串口、CAN 端口映射
 #include "uart_port.h"
 #include "string.h"
 
-COM_FRAME_t com_frame;
-communication_state_t com_state;
-communication_state_t *com_state_get_adr()
-{
-    return &com_state;
-}
-static u8 execute = 0xfe;
-static u8 failure = 0xf0;
+tCOM_Frame com_frame;
+
+tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
+
+const u8 execute = 0xfe;
+const u8 failure = 0xf0;
 
 void communication_init()
 {
     CAN_PORT_Init(g_Param.can_id, g_Param.sw_canqueue);
     usart_port_Init();
-    com_state.Host_port = NONE_port;
-    com_state.com_port = NONE_port;
+    g_com_state.Host_port = NONE_port;
 }
 void fHostComputer_send()
 {
     if (com_frame.com_port == UART_port)
         usart_frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
     else if (!usb_Frame_send(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
-        com_state.Host_port = NONE_port;
+        g_com_state.Host_port = NONE_port;
 }
 static bool param_send_flag = false;
 static u8 param_index = 0;
@@ -65,7 +62,7 @@ void Status_send()
     com_frame.cmd_id = UC_connect;
     if (system_message_send_flag == false)
     {
-        strcat((char *)com_frame.txdata, SYSTEM_DESC_str);
+        strcat((char *)com_frame.txdata, DRIVE_DESC_str);
         com_frame.txdatalen = strlen((char *)com_frame.txdata);
         system_message_send_flag = true;
     }
@@ -80,8 +77,8 @@ void Status_send()
     Noresponse_tic++;
     if (Noresponse_tic > 10)
     {
-        com_state.Host_port = NONE_port;
-				system_message_send_flag=false;
+        g_com_state.Host_port = NONE_port;
+        system_message_send_flag = false;
         com_frame.stream_num = 0;
     }
 }
@@ -128,18 +125,18 @@ void frame_data_deal()
             switch (com_frame.cmd_id)
             {
             case UC_connect:
-                if (com_state.Host_port != NONE_port)
+                if (g_com_state.Host_port != NONE_port)
                 {
                     Noresponse_tic = 0;
                 }
                 else
                 {
-                    com_state.Host_port = com_frame.com_port;
+                    g_com_state.Host_port = com_frame.com_port;
                 }
                 break;
             case UC_disconnect:
                 system_message_send_flag = false;
-                com_state.Host_port = NONE_port;
+                g_com_state.Host_port = NONE_port;
                 com_frame.stream_num = 0;
                 break;
             case START_TUNNING:
@@ -243,14 +240,14 @@ void CAN_RxData_Deal(u8 *RxData, u8 len)
         com_frame.cmd_id = CMD_REFVALUE_SET;
         com_frame.rxdatalen = len;
         com_frame.rxdata = RxData;
-				memset(&com_frame.rxdata[4],0,4);
+        memset(&com_frame.rxdata[4], 0, 4);
     }
-		else if(len==8)
-		{
-		com_frame.cmd_id = CMD_REFVALUE_SET;
-		com_frame.rxdatalen = len;
-    com_frame.rxdata = RxData;	
-		}
+    else if (len == 8)
+    {
+        com_frame.cmd_id = CMD_REFVALUE_SET;
+        com_frame.rxdatalen = len;
+        com_frame.rxdata = RxData;
+    }
     else if (len == 1)
     {
         com_frame.cmd_id = *RxData;
@@ -322,7 +319,7 @@ void stream_data_trans()
         return;
     }
 
-    if (com_state.Host_port != NONE_port)
+    if (g_com_state.Host_port != NONE_port)
     { // 上位机连接状态下
         if ((_time_ms - _state_prev_ms > STATE_stream_T))
         { // 状态发送
@@ -357,18 +354,7 @@ void stream_data_trans()
         vofa_send_multi_float((float *)com_frame.txdata, com_frame.stream_num);
     }
 }
-void usb_connected()
-{
-    com_state.usb_state = ONLINE;
-}
-void usb_disconnected()
-{
-    com_state.usb_state = OFFLINE;
-}
-void can_state_change(Drive_state_e state)
-{
-    com_state.can_state = state;
-}
+
 void communication_run()
 {
     stream_data_trans();

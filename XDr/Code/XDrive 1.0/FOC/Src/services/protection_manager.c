@@ -1,12 +1,13 @@
 #include "protection_manager.h"
 #include "foc_core.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 #include "foc_statemachine.h"
 #include "log.h"
-#include "adcDr.h"
+#include "adc_dr.h"
 #include "parameter_manager.h"
 #include "system_statemachine.h"
 
+tDeviceStatus g_device_status;
 protection_manager_t g_pro_manager = {0};
 u32 _time = 0;
 u32 _time_last = 0;
@@ -46,8 +47,8 @@ void protection_manager_init()
     g_pro_manager.tolerance_current = g_Param.tolerance_current;
     g_pro_manager.tolerance_speed = g_Param.tolerance_speed;
     g_pro_manager.tolerance_position = g_Param.tolerance_position;
-    g_pro_manager.com_state = com_state_get_adr();
-    g_pro_manager.drive_state = drive_state_get_adr();
+    g_pro_manager.com_state = &g_com_state;
+    g_pro_manager.drive_state = &g_device_status;
 }
 // 保护程序复位
 void protection_manager_reset()
@@ -69,8 +70,8 @@ void clear_warning_flag(Warning_e warning)
 void protection_manager_run()
 {
     // 采集数据
-    ADC2_sample(); // 采集电压和温度
-    ADC_GET_Temp(&g_pro_manager.temp_u, &g_pro_manager.temp_v, &g_pro_manager.temp_w, &g_pro_manager.temperature);
+    fAdc2Sample(); // 采集电压和温度
+    fAdcGetTemp(&g_pro_manager.temp_u, &g_pro_manager.temp_v, &g_pro_manager.temp_w, &g_pro_manager.temperature);
 
     if (g_pro_manager.fault_flag)
         return;
@@ -79,7 +80,7 @@ void protection_manager_run()
     // A监管保护
     // 错误：
     // 驱动状态--flash一定得是ONLINE
-    if (g_pro_manager.drive_state->FLASH_state != ONLINE)
+    if (g_pro_manager.drive_state->flash_state != ONLINE)
     {
         g_pro_manager.fault = FLASH_OFFLINE;
         g_pro_manager.fault_flag = true;
@@ -119,9 +120,9 @@ void protection_manager_run()
     }
 
     // 4.CAN通讯异常
-    if (g_pro_manager.com_state->can_state != ONLINE)
+    if (g_pro_manager.drive_state->can_state != ONLINE)
     {
-        if (g_pro_manager.com_state->can_state == RUN_ERROR)
+        if (g_pro_manager.drive_state->can_state == RUN_ERROR)
         {
             g_pro_manager.fault = CAN_COMMUNICATION_FAULT;
         }
@@ -163,10 +164,10 @@ void protection_manager_run()
     //  4编码器状态检测
     if (g_foc.mode->run_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
-        if (g_pro_manager.drive_state->ENCODER_state != ONLINE)
+        if (g_pro_manager.drive_state->encoder_state != ONLINE)
         {
             g_pro_manager.warning_flag = true;
-            if (g_pro_manager.drive_state->ENCODER_state == RUN_ERROR)
+            if (g_pro_manager.drive_state->encoder_state == RUN_ERROR)
 
                 g_pro_manager.warning = ENCODER_COM_ERROR;
             else

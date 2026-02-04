@@ -36,7 +36,6 @@ xdrive/status_feedback.o: ..\FOC\Src\services\status_feedback.c \
   ..\FOC\Inc\services\parameter_manager.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\drivers\rgb.h \
-  ..\FOC\Inc\drivers\drive_state.h \
-  ..\FOC\Inc\services\protection_manager.h \
-  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\communication\DataMonitoring.h
+  ..\FOC\Inc\services\protection_manager.h ..\FOC\Config\device.h \
+  ..\Core\Inc\spi.h ..\FOC\Inc\communication\port_mapping.h \
+  ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h

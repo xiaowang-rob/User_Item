@@ -39,8 +39,7 @@ xdrive/datamonitoring.o: ..\FOC\Src\communication\DataMonitoring.c \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\FOC\Inc\drivers\encoder.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h \
-  ..\FOC\Config\system_parameters.h \
+  ..\FOC\Config\drive_parameters.h \
   ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\drivers\flashDr.h \
-  ..\FOC\Inc\services\system_statemachine.h
+  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Inc\services\system_statemachine.h

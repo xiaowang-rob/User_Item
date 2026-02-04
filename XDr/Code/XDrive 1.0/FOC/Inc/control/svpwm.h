@@ -7,24 +7,30 @@ typedef struct
 {
     float k;
     bool power_flag;
-    u8 sector;
-    u16 ticu;
-    u16 ticv;
-    u16 ticw;
-} SVPWM_t;
-SVPWM_t *get_svpwm_adr();
-void ENABLE_PWM();
-void DISABLE_PWM();
-void PWM_POWER_ON();
-void PWM_POWER_OFF();
-void svpwm_Init(float Vbus);
-void svpwm_run(float ualpha, float ubeta);
-void smaple_point_change();
-void svpwm_SetVbus(float Vbus);
-u8 svpwm_GetSector();
+    uint8_t sector;
+    uint16_t ticu;
+    uint16_t ticv;
+    uint16_t ticw;
+} tSvpwm;
 
-float fGetVoltage_u();
-float fGetVoltage_v();
-float fGetVoltage_w();
+extern tSvpwm svpwm;
 
-#endif
+// PWM 硬件控制
+void ENABLE_PWM(void);
+void DISABLE_PWM(void);
+void PWM_POWER_ON(void);
+void PWM_POWER_OFF(void);
+
+// SVPWM 核心接口
+void fSvpwmInit(float Vbus);
+void fSvpwmRun(float ualpha, float ubeta);
+void fSamplePointCalibration(void);
+void fSvpwmSetVbus(float Vbus);
+uint8_t fSvpwmGetSector(void);
+
+// 调试接口（理论电压）
+float fGetVoltage_u(void);
+float fGetVoltage_v(void);
+float fGetVoltage_w(void);
+
+#endif /* __SVPWM_H */

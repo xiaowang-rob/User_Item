@@ -34,5 +34,4 @@ xdrive/encoder.o: ..\FOC\Src\drivers\encoder.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Inc\drivers\drive_state.h
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h

@@ -20,6 +20,8 @@ MT6816---1
 #define RGB_PWM_CHANNEL1 TIM_CHANNEL_2
 #define RGB_PWM_CHANNEL2 TIM_CHANNEL_3
 #define Pixel_NUM 1 // RGB数量宏定义
+#define CODE_1 (70)
+#define CODE_0 (35)
 
 #define LED_ENCODER_GPIOx GPIOD
 #define LED_ENCODER_GPIOx_PIN GPIO_PIN_2
@@ -33,5 +35,23 @@ MT6816---1
 /*12V POWER*/
 #define POWER12V_GPIOx GPIOB
 #define POWER12V_GPIOx_PIN GPIO_PIN_11
+
+typedef enum
+{
+    OFFLINE,
+    ONLINE,
+    RUN_ERROR,
+    RUNNING,
+} eDeviceStatus;
+
+typedef struct
+{
+    eDeviceStatus can_state;
+    eDeviceStatus encoder_state;
+    eDeviceStatus flash_state;
+    eDeviceStatus usb_state;
+} tDeviceStatus;
+
+extern tDeviceStatus g_device_status;
 
 #endif
