@@ -1,50 +1,62 @@
 import serial
-import serial.tools.list_ports  # 修复：必须显式导入 tools 子模块
+import serial.tools.list_ports
 import threading
-from PyQt5.QtCore import QTimer,QObject,pyqtSignal
+import time
+from queue import Queue, Full, Empty
+from PyQt5.QtCore import QTimer, QObject, pyqtSignal, QMutex
+from PyQt5.QtWidgets import QApplication
 from functons.message_show import (
     send_simple_message,
-    send_titled_message,
-    MSG_TYPE_NORMAL ,   
-    MSG_TYPE_SUCCESS ,  
-    MSG_TYPE_INFO ,     
-    MSG_TYPE_WARNING, 
-    MSG_TYPE_ERROR,    
+    MSG_TYPE_ERROR,
+    MSG_TYPE_SUCCESS,
+    MSG_TYPE_WARNING,
 )
 from UI.data_ui_map import Cidx
 
+HEAD = 0x3A  # 协议包头 ':'
+FOOT = 0x0D  # 协议包尾 '\r'
 
-HEAD=0x3A  # 协议包头 ':'
-FOOT=0x0D  # 协议包尾 '\r'
 
 class ComPort(QObject):
-    # 定义信号：参数为 (cmd_id: int, data: bytes)
+    """串口通信模块"""
     packet_valid = pyqtSignal(int, bytes)
+    connection_lost = pyqtSignal(str)
+    
     def __init__(self, widget):
-        super().__init__()  # 必须调用父类构造
-
-        self.widget = widget # 主窗口对象
-        self.comport_list = self.widget.com_port  # 串口下拉框
-        self.connect_but = self.widget.connect_but  # 连接按钮
+        super().__init__()
+        self.widget = widget
+        self.comport_list = self.widget.com_port
+        self.connect_but = self.widget.connect_but
         self.connect_but.clicked.connect(self._handleConnectBut)
 
-        self.serial_port = None  # 串口对象
-        self.is_connected = False  # 串口连接状态
-        self._current_ports = []  # 记录当前已知端口
-
-        # 协议定义
-        self.HEADER = HEAD # 示例包头 ':'
-        self.FOOTER = FOOT # 示例包尾 '\r'
-
-        self._recv_thread = None
+        self.serial_port = None
+        self.is_connected = False
+        self._current_ports = []
+        self.HEADER = HEAD
+        self.FOOTER = FOOT
+        
+        self._lock = QMutex()
         self._stop_recv = threading.Event()
-
-        # 自动刷新串口列表定时器
+        self._stop_sender = threading.Event()
+        self._recv_thread = None
+        self._sender_thread = None
+        
+        self._send_queue = Queue(maxsize=50)
+        
+        self._last_status_time = 0.0
+        self._connect_time = 0.0
+        self._status_timeout = 5.0
+        
         self._refresh_ports()
         self.refresh_timer = QTimer()
         self.refresh_timer.timeout.connect(self._refresh_ports)
         self.refresh_timer.start(2000)
-
+        
+        self.monitor_timer = QTimer()
+        self.monitor_timer.timeout.connect(self._monitor_connection)
+        self.monitor_timer.start(1000)
+        
+        self.connection_lost.connect(self._on_connection_lost_ui)
 
     def _handleConnectBut(self):
         if self.connect_but.isChecked():
@@ -53,14 +65,15 @@ class ComPort(QObject):
             self.disconnect()
 
     def _update_ui_state(self):
-        """根据当前连接状态更新按钮 UI"""
+        """根据连接状态更新UI"""
         btn = self.connect_but
         if self.is_connected:
             btn.setText("已连接")
             btn.setValue("断开")
             btn.setChecked(True)
+            self.comport_list.setEnabled(False)
         else:
-            port = self.widget.com_port.currentText()
+            port = self.comport_list.currentText()
             if port:
                 btn.setText("未连接")
                 btn.setValue("连接")
@@ -68,19 +81,15 @@ class ComPort(QObject):
                 btn.setText("无可用端口")
                 btn.setValue("连接")
             btn.setChecked(False)
+            self.comport_list.setEnabled(True)
 
     def _refresh_ports(self):
-        """仅当检测到端口列表变化时，才更新下拉框"""
+        """刷新可用串口列表"""
         ports = [p.device for p in serial.tools.list_ports.comports()]
-        
-        # 如果端口列表未变化，直接返回（不刷新 UI）
         if ports == self._current_ports:
             return
         
-        # 更新缓存
         self._current_ports = ports
-        
-        # 更新 UI
         combo = self.comport_list
         current = combo.currentText()
         combo.clear()
@@ -91,168 +100,326 @@ class ComPort(QObject):
         elif ports:
             combo.setCurrentIndex(0)
         
-        # 如果未连接，同步更新按钮状态（例如从“无端口”变回“未连接”）
         if not self.is_connected:
             self._update_ui_state()
 
     def connect(self):
-        """建立连接"""
-        # 1. 立即更新 UI 为“连接中”
+        """建立串口连接"""
         btn = self.connect_but
         btn.setText("连接中...")
-        
-        # 强制刷新 UI（因为后面是阻塞操作）
-        from PyQt5.QtWidgets import QApplication
         QApplication.processEvents()
 
         try:
             port = self.comport_list.currentText()
             if not port:
-                print("未选择串口")
-                self.is_connected = False
-                self._update_ui_state()
-                return False
+                raise ValueError("未选择串口")
             
-            baud = 115200
             self.serial_port = serial.Serial(
                 port=port,
-                baudrate=baud,
+                baudrate=115200,
                 bytesize=serial.EIGHTBITS,
                 parity=serial.PARITY_NONE,
                 stopbits=serial.STOPBITS_ONE,
                 timeout=0.1,
+                write_timeout=0.5,
                 xonxoff=False,
                 rtscts=False,
                 dsrdtr=False
             )
+            
             self.is_connected = True
+            self._connect_time = time.time()
+            self._last_status_time = 0.0
             
-            # 启动接收线程
             self._stop_recv.clear()
-            self._recv_thread = threading.Thread(target=self._receive_loop, daemon=True)
+            self._stop_sender.clear()
+            self._recv_thread = threading.Thread(target=self._receive_loop, daemon=True, name="SerialReceiver")
+            self._sender_thread = threading.Thread(target=self._sender_loop, daemon=True, name="SerialSender")
             self._recv_thread.start()
+            self._sender_thread.start()
             
-            # 2. 连接成功后：禁用 com_port
-            self.comport_list.setEnabled(False)
+            self._send_with_retry(Cidx.UC_CONNECT, bytes(), retries=2)
             
-            self._update_ui_state()  # 更新为“已连接”
-            self.send_packet(Cidx.UC_CONNECT, bytes())  
+            self._update_ui_state()
+            send_simple_message(MSG_TYPE_SUCCESS, f"已连接 {port}", True, 1500)
             return True
             
         except Exception as e:
-            print(f"连接异常: {e}")
-            self.is_connected = False
-            self.serial_port = None
-            self._update_ui_state()  # 恢复为“未连接”等
-            send_simple_message(MSG_TYPE_ERROR, f"连接异常: {e}",True,2000)
+            error_msg = str(e)
+            print(f"连接异常: {error_msg}")
+            
+            disconnect_keywords = [
+                'PermissionError', '拒绝访问', 'Access is denied',
+                'WriteFile failed', '串口已断开', 'port is closed',
+                '设备未就绪', 'could not open port'
+            ]
+            if any(kw in error_msg for kw in disconnect_keywords):
+                send_simple_message(MSG_TYPE_ERROR, f"串口被占用或不存在: {port}", True, 3000)
+            else:
+                send_simple_message(MSG_TYPE_WARNING, f"连接失败: {error_msg}", True, 2000)
+            
+            self.disconnect()
             return False
-        
+
     def disconnect(self):
-        """断开连接"""
-        self.send_packet(Cidx.UC_DISCONNECT, bytes()) 
+        """断开串口连接"""
+        if not self.is_connected:
+            return
+        
         self._stop_recv.set()
+        self._stop_sender.set()
+        
         if self._recv_thread and self._recv_thread.is_alive():
             self._recv_thread.join(timeout=1.0)
+        if self._sender_thread and self._sender_thread.is_alive():
+            self._sender_thread.join(timeout=1.0)
         
-        if self.serial_port and self.serial_port.is_open:
-            self.serial_port.close()
+        try:
+            if self.serial_port and self.serial_port.is_open:
+                self.serial_port.close()
+        except:
+            pass
+        
         self.serial_port = None
         self.is_connected = False
-        
-        # 重新启用 com_port
-        self.comport_list.setEnabled(True)
-        
+        self._last_status_time = 0.0
+        self._connect_time = 0.0
         self._update_ui_state()
-         
+        send_simple_message(MSG_TYPE_SUCCESS, "已断开连接", True, 1000)
+
+    def _sender_loop(self):
+        """发送线程主循环"""
+        from queue import Empty  # 显式导入Empty异常
+        
+        while not self._stop_sender.is_set():
+            try:
+                # 尝试从队列获取数据包，超时返回继续循环（正常空闲状态）
+                try:
+                    packet = self._send_queue.get(timeout=0.1)
+                except Empty:
+                    # 队列为空是正常状态，不视为异常
+                    continue
+                
+                if packet is None:
+                    break
+                
+                self._lock.lock()
+                try:
+                    # 检查串口有效性（防御性编程）
+                    if not self._is_port_valid():
+                        self._handle_connection_lost("串口已关闭")
+                        continue
+                    
+                    # 流量控制：检查输出缓冲区是否积压
+                    if hasattr(self.serial_port, 'out_waiting'):
+                        if self.serial_port.out_waiting > 2048:
+                            time.sleep(0.05)
+                            self._send_queue.put(packet)  # 重新入队稍后重试
+                            continue
+                    
+                    # 执行发送
+                    self.serial_port.write(packet)
+                    self.serial_port.flush()
+                except (serial.SerialTimeoutException, OSError) as e:
+                    error_str = str(e)
+                    # 识别物理断开错误
+                    if "timed out" in error_str or "PermissionError" in error_str or "Access is denied" in error_str:
+                        self._handle_connection_lost(f"发送失败: {error_str}")
+                    else:
+                        print(f"[串口] 发送OS错误: {error_str}")
+                finally:
+                    self._lock.unlock()
+            
+            except KeyboardInterrupt:
+                break
+            except Exception as e:
+                if not self._stop_sender.is_set():
+                    print(f"[串口] 发送线程未知异常: {type(e).__name__}: {e}")
+
+    def _is_port_valid(self):
+        """检查串口是否有效"""
+        return self.serial_port and self.serial_port.is_open
+
+    def _handle_connection_lost(self, reason):
+        """处理连接丢失事件"""
+        if not self.is_connected:
+            return
+        
+        self._lock.lock()
+        try:
+            if self.is_connected:
+                self.is_connected = False
+                print(f"[串口] 连接断开: {reason}")
+                self.connection_lost.emit(reason)
+        finally:
+            self._lock.unlock()
+    
+    def _on_connection_lost_ui(self, reason):
+        """在主线程处理连接丢失的UI更新"""
+        self.disconnect()
+        send_simple_message(MSG_TYPE_ERROR, f"串口断开: {reason}", True, 3000)
+
+    def _monitor_connection(self):
+        """监控连接状态"""
+        if not self.is_connected:
+            return
+        
+        if not self._is_port_valid():
+            self._handle_connection_lost("物理连接断开")
+            return
+        
+        current_time = time.time()
+        
+        if self._last_status_time > 0:
+            if current_time - self._last_status_time > self._status_timeout:
+                self._handle_connection_lost(
+                    f"状态包超时（{self._status_timeout}秒内未收到下位机状态包）"
+                )
+        else:
+            if current_time - self._connect_time > self._status_timeout * 2:
+                self._handle_connection_lost(
+                    f"连接后{self._status_timeout * 2}秒内未收到首个状态包"
+                )
+
+    def update_status_time(self):
+        """更新最后收到状态包的时间戳"""
+        self._last_status_time = time.time()
 
     def send_packet(self, cmd_id, data_bytes):
         """
-        协议封装：包头(1b) | ID(1b) | Len(1b) | Data(nb) | Checksum(1b) | 包尾(1b)
+        发送数据包
+        协议格式：包头(1b) | ID(1b) | Len(1b) | Data(nb) | Checksum(1b) | 包尾(1b)
         """
-        if not self.is_connected: return
+        if not self.is_connected:
+            return False
         
+        if not isinstance(cmd_id, int) or not (0 <= cmd_id <= 255):
+            raise ValueError("cmd_id 必须是0-255的整数")
+        
+        if not isinstance(data_bytes, (bytes, bytearray, list)):
+            raise TypeError("data_bytes 必须是bytes/bytearray/list")
+        
+        data_bytes = bytes(data_bytes)
         length = len(data_bytes)
+        if length > 255:
+            raise ValueError("数据长度超过255字节限制")
+        
         packet = bytearray()
         packet.append(self.HEADER)
         packet.append(cmd_id)
         packet.append(length)
         packet.extend(data_bytes)
         
-        # 校验和：ID + Len + Data所有字节的累加
         checksum = sum(data_bytes) & 0x01
         packet.append(checksum)
         packet.append(self.FOOTER)
+        
         try:
-            self.serial_port.write(packet)
-            self.serial_port.flush()
-        except Exception as e:
-            print(f"发送异常: {e}")
+            self._send_queue.put_nowait(packet)
+            return True
+        except Full:
+            print(f"[串口警告] 发送队列满，丢弃cmd={cmd_id}的数据包")
+            send_simple_message(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
+            return False
+
+    def _send_nowait(self, cmd_id, data_bytes):
+        """立即发送数据包（不入队）"""
+        if not self.is_connected:
+            return False
+        
+        packet = bytearray()
+        packet.append(self.HEADER)
+        packet.append(cmd_id)
+        packet.append(len(data_bytes))
+        packet.extend(data_bytes)
+        packet.append(sum(data_bytes) & 0x01)
+        packet.append(self.FOOTER)
+        
+        try:
+            self._lock.lock()
+            try:
+                if self._is_port_valid():
+                    self.serial_port.write(packet)
+                    self.serial_port.flush()
+                    return True
+            finally:
+                self._lock.unlock()
+        except:
+            pass
+        return False
+
+    def _send_with_retry(self, cmd_id, data_bytes, retries=2):
+        """带重试机制的发送"""
+        for i in range(retries + 1):
+            if self._send_nowait(cmd_id, data_bytes):
+                return True
+            if i < retries:
+                time.sleep(0.1 * (i + 1))
+        return False
+
     def _receive_loop(self):
         """接收线程主循环"""
         buffer = bytearray()
         while not self._stop_recv.is_set() and self.is_connected:
             try:
                 if self.serial_port.in_waiting > 0:
-                    data = self.serial_port.read(self.serial_port.in_waiting)
-                    buffer.extend(data)
-                    self._parse_buffer(buffer)
+                    data = self.serial_port.read(min(self.serial_port.in_waiting, 4096))
+                    if data:
+                        buffer.extend(data)
+                        self._parse_buffer(buffer)
                 else:
-                    # 避免 CPU 占用过高
                     self._stop_recv.wait(timeout=0.01)
+            except (serial.SerialException, OSError) as e:
+                if not self._stop_recv.is_set():
+                    error_str = str(e)
+                    if "read failed" in error_str or "PermissionError" in error_str or "Access is denied" in error_str:
+                        self._handle_connection_lost(f"接收失败: {error_str}")
+                    else:
+                        print(f"[串口警告] 非致命接收错误: {e}")
+                break
             except Exception as e:
                 if not self._stop_recv.is_set():
-                    print(f"接收线程异常: {e}")
+                    print(f"接收线程未知异常: {e}")
                 break
-        # 清理
+        
         buffer.clear()
 
     def _parse_buffer(self, buffer):
-        """从缓冲区中解析完整数据包"""
-        while len(buffer) >= 5:  # 最小包长度：HEAD(1) + ID(1) + LEN(1) + CHECK(1) + FOOT(1)
-            # 查找包头
+        """从缓冲区解析数据包"""
+        while len(buffer) >= 5:
             header_idx = buffer.find(self.HEADER)
             if header_idx == -1:
-                buffer.clear()  # 没有包头，清空
+                buffer.clear()
                 return
             
             if header_idx > 0:
-                # 丢弃包头前的垃圾数据
                 del buffer[:header_idx]
             
             if len(buffer) < 5:
-                return  # 数据不足
+                return
             
             cmd_id = buffer[1]
             length = buffer[2]
-            min_packet_len = 5 + length  # HEAD + ID + LEN + DATA + CHECK + FOOT
+            min_packet_len = 5 + length
             
             if len(buffer) < min_packet_len:
-                return  # 数据不完整，等待更多
+                return
             
-            # 检查包尾
             if buffer[min_packet_len - 1] != self.FOOTER:
-                # 包尾不对，可能是错包，跳过当前字节
                 del buffer[0]
                 continue
             
-            # 提取数据和校验和
             data_bytes = buffer[3:3 + length]
             received_checksum = buffer[3 + length]
-            
             calculated_checksum = sum(data_bytes) & 0x01
             
             if received_checksum == calculated_checksum:
-                # 校验成功！交给上层处理
-                self._on_packet_received(cmd_id, bytes(data_bytes))
+                cmd_id_int = int(cmd_id)
+                self.packet_valid.emit(cmd_id_int, bytes(data_bytes))
             else:
-                print(f"校验失败: expected {calculated_checksum:02X}, got {received_checksum:02X}")
+                print(f"[串口] 校验失败: cmd={cmd_id}, exp={calculated_checksum:02X}, got={received_checksum:02X}")
             
-            # 移除已处理的包
             del buffer[:min_packet_len]
         
-        # 如果 buffer 很大但无法解析，防止内存泄漏
-        if len(buffer) > 1024:
+        if len(buffer) > 2048:
             buffer.clear()
-    def _on_packet_received(self, cmd_id, data):
-        """校验成功后，发出信号（线程安全）"""
-        self.packet_valid.emit(cmd_id, data)

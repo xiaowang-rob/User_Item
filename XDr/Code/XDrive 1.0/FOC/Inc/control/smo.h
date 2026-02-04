@@ -61,8 +61,8 @@ float smo_get_omega();
 typedef enum
 {
     PARAM_TUNE_IDLE = 0,
-    PARAM_TUNE_WireS,        // 线序整定
     PARAM_TUNE_THETA_OFFSET, // 角度偏移
+    PARAM_TUNE_WireS,        // 线序整定
     PARAM_TUNE_RS,           // 电阻
     PARAM_TUNE_LS,           // 电感
     PARAM_TUNE_POLE_PAIRS,   // 极对数

@@ -20,17 +20,18 @@ class DataProcess:
                 case Cidx.UC_CONNECT:  # UC连接成功 返回系统参数
                     byte_len=int(len(data)/4)+3
                     if byte_len == 6:#已经连接 则接收状态并反馈
+                        self.mw.comport.update_status_time()
+                        
                         for i in range(byte_len):
-                            if i<4:
-                                self.mw.data_show.set_status(i,data[i])
+                            if i < 4:
+                                self.mw.data_show.set_status(i, data[i])
                             else:
-                                self.mw.data_show.set_status(i,struct.unpack('<f',data[(i-3)*4:(i-2)*4])[0])
+                                self.mw.data_show.set_status(i, struct.unpack('<f', data[(i-3)*4:(i-2)*4])[0])
                         self.mw.data_show.show_status()
-                        self.mw.comport.send_packet(Cidx.UC_CONNECT,bytes())
+                        self.mw.comport.send_packet(Cidx.UC_CONNECT, bytes()) 
                     else:
                         # 解析 system_message 字符串，按逗号分隔
                         sys_msg=data.decode()
-                        print(f"系统消息: {sys_msg}")
                         parts = sys_msg.split(',')
                         # 定义字段标签（项目名称）
                         labels = ["设备名称", "版本", "作者", "最大电流", "电压范围", "最大温度"]
@@ -42,7 +43,6 @@ class DataProcess:
 
                         # 用换行符连接所有行
                         self.mw.system_message = "\n".join(formatted_lines)
-                        print(f"系统消息: {self.mw.system_message}")
                     return
                 case Cidx.LOG_GET:  # 日志读取返回
                     self.mw.log.add_log(data)

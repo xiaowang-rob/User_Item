@@ -119,5 +119,7 @@ void FOC_StateMachine_updata()
 }
 void FOC_CHANGE_STATE(FOC_STATE_e state)
 {
+    if ((g_foc.state == FOC_FAULT || g_foc.state == FOC_WARNING) && state != FOC_IDLE)
+        return;
     g_foc.state = state;
 }

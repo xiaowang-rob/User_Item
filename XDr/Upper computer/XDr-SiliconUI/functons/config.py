@@ -151,10 +151,8 @@ class Pconfig:
         new_name = new_config_name.strip() if new_config_name else ""
         self.delete_selected_config()
         if (not new_name) or (display_name == "default"):
-            print("命名不改变")
             self.save_current_config(display_name)
         else:
-            print("命名改变")
             self.save_current_config(new_name)
 
 

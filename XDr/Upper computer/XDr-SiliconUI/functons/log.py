@@ -71,8 +71,8 @@ class LogManager:
         self.log_map[Lidx.flash_status].setText(Midx.drive_state[int(self.logs[index][Lidx.flash_status])])
         self.log_map[Lidx.encode_status].setText(Midx.drive_state[int(self.logs[index][Lidx.encode_status])])
         for i in range(10, 23):
-            print(i)
-            self.log_map[i].setText(str(self.logs[index][i]))
+            val=str(f"{self.logs[index][i]:.3f}")
+            self.log_map[i].setText(val)
 
 
     def read_log_clicked(self):

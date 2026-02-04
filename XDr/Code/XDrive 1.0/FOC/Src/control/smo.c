@@ -233,8 +233,8 @@ float smo_get_omega()
 }
 void write_motor_param()
 {
-		u8 wire_S=smo.wire_sequence==-1? 1:0;
-		g_Param.motor_wire_sequence=wire_S;
+    u8 wire_S = smo.wire_sequence == -1 ? 1 : 0;
+    g_Param.motor_wire_sequence = wire_S;
     g_Param.theta_offset = smo.theta_offset;
     g_Param.motor_rs = smo.Rs;
     g_Param.motor_ls = smo.Ls;
@@ -287,7 +287,6 @@ void param_tuning_init(float udc)
 }
 
 // 1.角度偏移整定
-
 static bool param_tune_theta_offset(float theta_elec)
 {
     // 稳态点采样
@@ -311,7 +310,6 @@ static bool param_tune_theta_offset(float theta_elec)
     // 完成
     if (tun.tune_samples >= THETA_OFFSET_samples)
     {
-        SET_Theta_offset(smo.wire_sequence * smo.theta_offset);
         return true;
     }
     return false;
@@ -650,20 +648,61 @@ param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float
     switch (tun.tune_state)
     {
     case PARAM_TUNE_IDLE:
-        // 线序整定的前置条件
+        // 偏移角度的前置条件
         FOC_SET_RUNMODE(ENCODER_CONTROL);
         FOC_SET_LOOPMODE(VOLTAGE_LOOP);
-        SET_Wire_sequence(1); // 设为正线序
-        smo.wire_sequence = 1;
-        tun.cur_uq_ud[0] = WS_delta_uq;
-        tun.cur_uq_ud[1] = 0.0f;
+        // 施加uq
+        tun.cur_uq_ud[0] = 0;
+        tun.cur_uq_ud[1] = 0.6f;
         FOC_SET_VER_VALUE(tun.cur_uq_ud);
-        tun.tune_state = PARAM_TUNE_WireS;
+        // 设为正线序
+        smo.wire_sequence = 1;
+        SET_Wire_sequence(1);
+        // 打开开环 电角度设为0
+        opend_loop_enable();
+        SET_opend_loop_theta(0.0f);
+        // 角度偏移设为0
+        SET_Theta_offset(0.0f);
+        smo.theta_offset = 0.0f;
+
+        tun.tune_samples = 0;
+        tun.steady_samples = 0;
+        tun.time_tic = 0;
+        tun.tune_state = PARAM_TUNE_THETA_OFFSET;
+
+        break;
+    case PARAM_TUNE_THETA_OFFSET:
+        // 控制-无动态-电角速度=0
+        // 观测
+
+        // 超时监测
+        tun.time_tic++;
+        if (tun.time_tic > THETA_OFFSET_timeout)
+        {
+            tun.fault_flag = true;
+            tun.fault_type = PARAM_FAULT_TIMEOUT;
+            tun.fault_state = PARAM_TUNE_THETA_OFFSET;
+        }
+        // 稳态点采样
+        if (param_tune_theta_offset(theta_elec))
+        { // 完成跳转
+            SET_Theta_offset(smo.theta_offset);
+            // 线序整定的前置条件
+            // 关闭开环
+            opend_loop_disable();
+            tun.cur_uq_ud[0] = WS_delta_uq;
+            tun.cur_uq_ud[1] = 0.0f;
+            FOC_SET_VER_VALUE(tun.cur_uq_ud);
+            tun.tune_state = PARAM_TUNE_WireS;
+        }
         break;
     case PARAM_TUNE_WireS:
-        // 控制 先设置为正线序 施加uq=0.5 监测转动情况 如果可以转动 则为正线序 不能转动再设置为反线序号 施加uq=-0.5 监测转动情况 如果可以转动 则为反线序号 不能转动则为线序失效 然后再次设置为正线序 施加uq=0.5 监测转动情况 如果可以转动 则为正线序 不能转动则为线序失效 然后再次设置为反线序号 施加uq=-0.5 监测转动情况 如果可以转动 则为反线序号 不能转动则为线序失效 然后再次设置为正线序 施加uq=0.5 监测转动情况 如果可以转动 则为正线序 不能转动则为线序失效 然后再次设置为反线序号
-        //  施加uq=0.5 监测转动情况 如果可以转动 则为反线序号
-        // 不能转动 增加uq 知道转动 或者过电流
+        /*
+        开始施加正线序 uq 观测旋转情况
+        1. 能转 则为正线序 完成进入下一步
+        2. 不能转 线序不对 尝试反线序
+        3. 反转 线序不对 尝试增大uq
+        */
         if (fabsf(omega_mech - omega_last) > 0.5f)
         { // 非稳态
             omega_last = omega_mech;
@@ -671,7 +710,7 @@ param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float
             return tun.tune_state;
         }
         // 条件判断
-        if (fabsf(omega_mech) < 0.3f)
+        if (fabsf(omega_mech) < 0.5f)
         {
             tun.steady_samples = 0;
             tun.tune_samples++;
@@ -692,7 +731,7 @@ param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float
                 else
                 { // 反线序也不转 改为正线序 增大uq
                     smo.wire_sequence = 1;
-                    SET_Wire_sequence(1); // 设为正线序
+                    SET_Wire_sequence(1);
                     tun.num_test_wire++;
                     tun.cur_uq_ud[0] = WS_delta_uq * (tun.num_test_wire + 1);
                     tun.cur_uq_ud[1] = 0;
@@ -707,51 +746,23 @@ param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float
             if (tun.steady_samples > WS_samples / 2)
             {
                 // 前置条件
-                tun.cur_uq_ud[0] = 0;
-                tun.cur_uq_ud[1] = 0.6f;
-                FOC_SET_VER_VALUE(tun.cur_uq_ud);
-                opend_loop_enable();
-                SET_opend_loop_theta(0.0f);
+
+                FOC_SET_RUNMODE(SVPWM_CONTROL);
+                *u_alpha = RS_delta_v;
+                *u_beta = 0;
                 tun.tune_samples = 0;
-                tun.steady_samples = 0;
                 tun.time_tic = 0;
-                SET_Theta_offset(0.0f);
-                tun.tune_state = PARAM_TUNE_THETA_OFFSET;
+                tun.tune_state = PARAM_TUNE_RS; // 进入下一步
+                // todo:先跳过后面的步骤
+                FOC_SET_RUNMODE(ENCODER_CONTROL);
+                tun.cur_uq_ud[0] = 0;
+                tun.cur_uq_ud[1] = 0;
+                FOC_SET_VER_VALUE(tun.cur_uq_ud);
+                tun.tune_state = PARAM_TUNE_WRITE_FLASH;
             }
         }
         break;
-    case PARAM_TUNE_THETA_OFFSET:
-        // 控制-无动态-电角速度=0
-        // 观测
 
-        // 超时监测
-        tun.time_tic++;
-        if (tun.time_tic > THETA_OFFSET_timeout)
-        {
-            tun.fault_flag = true;
-            tun.fault_type = PARAM_FAULT_TIMEOUT;
-            tun.fault_state = PARAM_TUNE_THETA_OFFSET;
-        }
-        // 稳态点采样
-        if (param_tune_theta_offset(theta_elec))
-        { // 完成跳转
-          // 前置条件
-            opend_loop_disable();
-            FOC_SET_RUNMODE(SVPWM_CONTROL);
-            *u_alpha = RS_delta_v;
-            *u_beta = 0;
-            tun.tune_samples = 0;
-            tun.time_tic = 0;
-            tun.tune_state = PARAM_TUNE_RS; // 进入下一步
-
-            // todo:先跳过后面的步骤
-            FOC_SET_RUNMODE(ENCODER_CONTROL);
-            tun.cur_uq_ud[0] = 0;
-            tun.cur_uq_ud[1] = 0;
-            FOC_SET_VER_VALUE(tun.cur_uq_ud);
-            tun.tune_state = PARAM_TUNE_WRITE_FLASH;
-        }
-        break;
     case PARAM_TUNE_RS:
         // 控制-无动态
         // 观测-超时监测

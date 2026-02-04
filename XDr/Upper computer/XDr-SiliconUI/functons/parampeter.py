@@ -27,7 +27,6 @@ class ParameterManager:
         """遍历映射表发送参数包"""
         def task():
             for idx, widget in self.param_map.items():
-                print(f"正在处理参数 idx={idx}, widget={widget}")  
                 try:
                     if idx < Pidx.CAN_ID:
                         match idx:
@@ -39,7 +38,6 @@ class ParameterManager:
                             case Pidx.MOTOR_POLEPAIRS|Pidx.FREQ_CURRENT_LOOP|Pidx.FREQ_SPEED_LOOP|Pidx.FREQ_POSITION_LOOP:
                                 val = int(widget.text())
                                 
-                        print(f"{idx}")
                         raw_val = struct.pack('<B', val)
                     elif idx < Pidx.F_PWM:
                         val = int(widget.text())
@@ -55,13 +53,9 @@ class ParameterManager:
                     payload = bytes([idx]) + raw_val
                     self.com.send_packet(Cidx.PARAM_WRITE, payload)
                     time.sleep(0.002)
-                    print(f"参数{idx}写入成功,{payload}")
                 except Exception as e: 
                     print(f"参数{idx}写入失败: {e}")
                     continue
-                
-            
-            print("参数批量发送完成")
             self.read_all()
         
         threading.Thread(target=task, daemon=True).start()

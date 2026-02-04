@@ -5,7 +5,7 @@
     },
     "1": {
         "type": "uint8",
-        "value": 0
+        "value": 2
     },
     "2": {
         "type": "uint8",
@@ -29,7 +29,7 @@
     },
     "7": {
         "type": "uint8",
-        "value": 0
+        "value": 1
     },
     "8": {
         "type": "uint8",
@@ -41,15 +41,15 @@
     },
     "10": {
         "type": "uint8",
-        "value": 1
+        "value": 4
     },
     "11": {
         "type": "uint8",
-        "value": 1
+        "value": 5
     },
     "12": {
         "type": "int32",
-        "value": 0
+        "value": 1
     },
     "13": {
         "type": "float32",
@@ -61,31 +61,31 @@
     },
     "15": {
         "type": "float32",
-        "value": 20000.0
+        "value": 5000.0
     },
     "16": {
         "type": "float32",
-        "value": 20000.0
+        "value": 1000.0
     },
     "17": {
         "type": "float32",
-        "value": 0.0
+        "value": 315.681
     },
     "18": {
         "type": "float32",
-        "value": 0.001
+        "value": 0.0218206
     },
     "19": {
         "type": "float32",
-        "value": 0.001
+        "value": 3e-05
     },
     "20": {
         "type": "float32",
-        "value": 0.001
+        "value": 0.01
     },
     "21": {
         "type": "float32",
-        "value": 0.001
+        "value": 0.01
     },
     "22": {
         "type": "float32",
@@ -93,67 +93,67 @@
     },
     "23": {
         "type": "float32",
-        "value": 0.001
+        "value": 0.0005
     },
     "24": {
         "type": "float32",
-        "value": 0.0
+        "value": 0.2
     },
     "25": {
         "type": "float32",
-        "value": 0.0
+        "value": 40.0
     },
     "26": {
         "type": "float32",
-        "value": 0.0
+        "value": 0.05
     },
     "27": {
         "type": "float32",
-        "value": 0.0
+        "value": 40.0
     },
     "28": {
         "type": "float32",
-        "value": 0.0
+        "value": 3.0
     },
     "29": {
         "type": "float32",
-        "value": 0.0
+        "value": 20.0
     },
     "30": {
         "type": "float32",
-        "value": 0.0
+        "value": 0.5
     },
     "31": {
         "type": "float32",
-        "value": 0.0
+        "value": 0.05
     },
     "32": {
         "type": "float32",
-        "value": 0.0
+        "value": 0.005
     },
     "33": {
         "type": "float32",
-        "value": 50.0
+        "value": 40.0
     },
     "34": {
         "type": "float32",
-        "value": 1000.0
+        "value": 500.0
     },
     "35": {
         "type": "float32",
-        "value": -10000.0
+        "value": -100000.0
     },
     "36": {
         "type": "float32",
-        "value": 10000.0
+        "value": 100000.0
     },
     "37": {
         "type": "float32",
-        "value": 1.0
+        "value": 0.1
     },
     "38": {
         "type": "float32",
-        "value": 1.0
+        "value": 1.2
     },
     "39": {
         "type": "float32",
@@ -173,11 +173,11 @@
     },
     "43": {
         "type": "float32",
-        "value": 1.0
+        "value": 2.0
     },
     "44": {
         "type": "float32",
-        "value": 100.0
+        "value": 0.5
     },
     "45": {
         "type": "float32",
@@ -185,10 +185,10 @@
     },
     "46": {
         "type": "float32",
-        "value": 1000.0
+        "value": 150.0
     },
     "47": {
         "type": "float32",
-        "value": 1000.0
+        "value": 100.0
     }
 }

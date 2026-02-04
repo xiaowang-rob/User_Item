@@ -1,130 +1,156 @@
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QEvent
 from PyQt5.QtGui import QFont
 import numpy as np
-import time
 from UI.data_ui_map import Cidx
 
 
 class WaveformWidget(QWidget):
-    # 新增信号：当自动缩放状态变化时发出
+    """波形显示控件 - 支持5通道实时波形绘制"""
+    
+    # 自动缩放状态变化信号
     auto_x_state_changed = pyqtSignal(bool)
     auto_y_state_changed = pyqtSignal(bool)
     
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        # 核心属性
-        self.max_points = 1000
-        self.colors = [
-            (88, 230, 217),   # #58E6D9
-            (255, 170, 51),   # #FFAA33
-            (255, 107, 157),  # #FF6B9D
-            (136, 204, 102),  # #88CC66
-            (184, 134, 255),  # #B886FF
+        # ========== 核心配置参数 ==========
+        self.max_points = 1000                      # 每通道最大数据点数
+        self.colors = [                             # 5通道颜色配置
+            (88, 230, 217),   # 青色
+            (255, 170, 51),   # 橙色
+            (255, 107, 157),  # 粉色
+            (136, 204, 102),  # 绿色
+            (184, 134, 255),  # 紫色
         ]
-        self.wave_data = [[] for _ in range(5)]
-        self.is_running = True
-        self.auto_x = True   # X轴自动缩放标志
-        self.auto_y = True   # Y轴自动缩放标志
-        self.manual_mode_until = 0  # 手动模式截止时间戳(毫秒)
+        self.wave_data = [[] for _ in range(5)]     # 5通道波形数据缓存
+        self.is_running = True                      # 波形更新运行标志
+        self.auto_x = True                          # X轴自动缩放标志
+        self.auto_y = True                          # Y轴自动缩放标志
         
-        # 初始化UI（仅绘图区域）
+        # ========== UI初始化 ==========
         self.init_ui()
         
-        # 创建曲线
+        # ========== 曲线对象创建 ==========
         self.curves = []
         for i in range(5):
             curve = self.plot_widget.plot(pen=pg.mkPen(color=self.colors[i], width=2))
             self.curves.append(curve)
         
-        # 创建值标签
+        # ========== 末端值标签创建 ==========
         self.value_labels = []
         font = QFont()
-        font.setPointSize(11)  # 字号稍大
-
+        font.setPointSize(11)  # 设置标签字体大小
+        
         for i in range(5):
             label = pg.TextItem(
                 text="N/A",
-                color=self.colors[i],  # ← 关键：使用对应曲线颜色
-                border=pg.mkPen(80, 80, 80, 200),
-                fill=pg.mkBrush(35, 35, 38, 220),
-                anchor=(0.5, 0.5)
+                color=self.colors[i],               # 使用对应通道颜色
+                border=pg.mkPen(80, 80, 80, 200),   # 边框颜色
+                fill=pg.mkBrush(35, 35, 38, 220),   # 背景填充
+                anchor=(0.5, 0.5)                   # 锚点居中
             )
             label.setFont(font)
-            label.setZValue(10)
+            label.setZValue(10)                     # 置于顶层
             self.plot_widget.addItem(label)
             self.value_labels.append(label)
         
-        # 定时器（自动缩放）
+        # ========== 定时器配置 ==========
         self.auto_scale_timer = QTimer()
         self.auto_scale_timer.timeout.connect(self.auto_scale_axes)
-        self.auto_scale_timer.start(100)
+        self.auto_scale_timer.start(100)  # 100ms自动缩放检查
         
-        # 启用鼠标交互
-        self.plot_widget.setMouseEnabled(x=True, y=True)
-        self.plot_widget.getViewBox().setMouseMode(pg.ViewBox.PanMode)
-        self.plot_widget.scene().sigMouseClicked.connect(self._on_mouse_clicked)
+        # ========== 交互配置 ==========
+        self.plot_widget.setMouseEnabled(x=True, y=True)  # 启用鼠标交互
+        self.plot_widget.getViewBox().setMouseMode(pg.ViewBox.PanMode)  # 平移模式
+        self.plot_widget.scene().sigMouseClicked.connect(self._on_mouse_clicked)  # 双击事件
+        
+        # ========== 关键修复：为PlotWidget的viewport安装事件过滤器 ==========
+        # PyQtGraph中滚轮事件实际由PlotWidget.viewport()接收，需在此层级拦截
+        self.plot_widget.viewport().installEventFilter(self)
     
     def init_ui(self):
+        """初始化UI布局和样式"""
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         
-        # 深色背景绘图区域
+        # 创建深色背景的绘图区域
         self.plot_widget = pg.PlotWidget(background='#39373F')
         self.plot_widget.setLabel('left', 'Y轴', color='#ffffff', size='10pt')
         self.plot_widget.setLabel('bottom', 'X轴', color='#ffffff', size='10pt')
         
-        # 坐标轴样式
+        # 配置坐标轴样式
         self.plot_widget.getAxis('left').setTextPen('#aaaaaa')
         self.plot_widget.getAxis('bottom').setTextPen('#aaaaaa')
         self.plot_widget.getAxis('left').setPen('#777777')
         self.plot_widget.getAxis('bottom').setPen('#777777')
-        self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
+        self.plot_widget.showGrid(x=True, y=True, alpha=0.3)  # 显示网格
         
         layout.addWidget(self.plot_widget)
         self.setLayout(layout)
     
-    def wheelEvent(self, event):
-        """鼠标滚轮控制：Y轴缩放 / Shift+滚轮X轴缩放"""
+    def eventFilter(self, obj, event):
+        """
+        事件过滤器 - 拦截PlotWidget viewport的滚轮事件
+        
+        注意：PyQtGraph中滚轮事件实际由PlotWidget.viewport()接收，而非ViewBox。
+        必须为PlotWidget的viewport安装事件过滤器才能可靠捕获滚轮事件。
+        """
+        if event.type() == QEvent.Wheel:
+            # 检查事件来源是否为PlotWidget的viewport
+            if obj is self.plot_widget.viewport():
+                self.handle_wheel_event(event)
+                return True  # 标记事件已处理，阻止默认缩放行为
+        return super().eventFilter(obj, event)
+    
+    def handle_wheel_event(self, event):
+        """
+        处理滚轮事件逻辑
+        
+        - 普通滚轮：Y轴缩放，关闭Y轴自动缩放
+        - Shift+滚轮：X轴缩放，关闭X轴自动缩放
+        - 不再设置手动模式计时器，保持手动状态直到用户主动恢复
+        """
+
         if event.modifiers() & Qt.ShiftModifier:
-            # X轴缩放 → 关闭X轴自动缩放
+            # X轴缩放
             scale = 0.9 if event.angleDelta().y() > 0 else 1.1
             self.plot_widget.getViewBox().scaleBy(x=scale)
             self.set_auto_x_scale(False)
-            print(f"X轴缩放：{scale}")
         else:
-            # Y轴缩放 → 关闭Y轴自动缩放
+            # Y轴缩放
             scale = 0.9 if event.angleDelta().y() > 0 else 1.1
             self.plot_widget.getViewBox().scaleBy(y=scale)
             self.set_auto_y_scale(False)
-            print(f"Y轴缩放：{scale}")
         
-        # 进入手动模式（3秒内禁用自动缩放）
-        self.manual_mode_until = time.time() * 1000 + 3000
         event.accept()
     
+    def wheelEvent(self, event):
+        """
+        父控件滚轮事件（备用处理）
+        
+        虽然主要通过事件过滤器处理，但保留此方法以兼容可能传递到父控件的事件。
+        """
+        self.handle_wheel_event(event)
+    
     def _on_mouse_clicked(self, event):
-        """双击恢复自动范围 → 同时开启X/Y轴自动缩放"""
+        """鼠标点击事件处理 - 双击恢复自动范围并重新启用自动缩放"""
         if event.double():
-            self.plot_widget.enableAutoRange()
-            self.manual_mode_until = 0
-            self.set_auto_x_scale(True) 
-            self.set_auto_y_scale(True)  
+            self.plot_widget.enableAutoRange()  # 恢复自动范围
+            self.set_auto_x_scale(True)         # 重新启用X轴自动缩放
+            self.set_auto_y_scale(True)         # 重新启用Y轴自动缩放
     
     def auto_scale_axes(self):
-        """自动缩放坐标轴（受manual_mode和auto_x/auto_y控制）"""
-        current_time = time.time() * 1000
-        if current_time < self.manual_mode_until:
-            return  # 手动模式期间跳过自动缩放
-        
+        """自动缩放坐标轴（仅当auto_x/auto_y为True时执行）"""
         if self.auto_y:
             self.auto_scale_y_axis()
         if self.auto_x:
             self.auto_scale_x_axis()
     
     def auto_scale_y_axis(self):
+        """Y轴自动缩放 - 根据所有通道数据计算范围"""
         all_data = []
         for wave in self.wave_data:
             if len(wave) > 0:
@@ -140,11 +166,11 @@ class WaveformWidget(QWidget):
         self.plot_widget.setYRange(min_val - margin, max_val + margin)
     
     def auto_scale_x_axis(self):
+        """X轴自动缩放 - 保持最近200个点可见"""
         max_length = max((len(wave) for wave in self.wave_data), default=0)
         if max_length == 0:
             return
         
-        # 保持最近200个点可见
         view_width = 200
         x_max = max_length + 10
         x_min = max(0, x_max - view_width)
@@ -152,18 +178,27 @@ class WaveformWidget(QWidget):
         self.plot_widget.setXRange(x_min, x_max)
     
     def add_waveform_data(self, channel, data):
+        """
+        添加波形数据
+        
+        Args:
+            channel: 通道索引(0-4)
+            data: 单个数值或数值列表
+        """
         if 0 <= channel < 5 and self.is_running:
             if isinstance(data, (list, tuple, np.ndarray)):
                 self.wave_data[channel].extend(data)
             else:
                 self.wave_data[channel].append(data)
             
+            # 限制最大数据点数
             if len(self.wave_data[channel]) > self.max_points:
                 self.wave_data[channel] = self.wave_data[channel][-self.max_points:]
             
             self.update_plot()
     
     def update_plot(self):
+        """更新波形显示"""
         if not self.is_running:
             return
             
@@ -178,52 +213,52 @@ class WaveformWidget(QWidget):
                 if self.wave_data[i]:
                     last_x, last_y = x_data[-1], y_data[-1] 
                     self.value_labels[i].setText(f"{last_y:.3f}") 
-                    self.value_labels[i].setPos(last_x + 8, last_y)
+                    self.value_labels[i].setPos(last_x + 8, last_y)  # 标签偏移避免遮挡曲线
                     self.value_labels[i].setVisible(True)
                 else:
                     self.value_labels[i].setVisible(False)
     
-    # ===== 核心接口（带状态同步）=====
-    
     def clear_waveforms(self):
-        """清除波形数据接口"""
+        """清除所有波形数据"""
         self.wave_data = [[] for _ in range(5)]
         for i in range(5):
             self.curves[i].setData([], [])
             self.value_labels[i].setVisible(False)
     
     def set_auto_x_scale(self, enable: bool):
-        """X轴自动缩放开关接口（带信号发射）"""
+        """设置X轴自动缩放状态"""
         if self.auto_x != enable:
             self.auto_x = enable
-            self.auto_x_state_changed.emit(enable)  # ← 关键：发出状态变化信号
+            self.auto_x_state_changed.emit(enable)
     
     def set_auto_y_scale(self, enable: bool):
-        """Y轴自动缩放开关接口（带信号发射）"""
+        """设置Y轴自动缩放状态"""
         if self.auto_y != enable:
             self.auto_y = enable
-            self.auto_y_state_changed.emit(enable)  # ← 关键：发出状态变化信号
+            self.auto_y_state_changed.emit(enable)
     
     def start(self):
-        """启动波形更新接口"""
+        """启动波形更新"""
         self.is_running = True
     
     def pause(self):
-        """暂停波形更新接口"""
+        """暂停波形更新"""
         self.is_running = False
 
 
 class Wave:
+    """波形控制模块 - 连接UI与波形控件"""
+    
     def __init__(self, main_window):
         self.mw = main_window
         self.pw = self.mw.control_page
-        self.wave_area = self.pw.wave_area  # self.wave_area 就是示波区域
-        self.com=self.mw.comport    
-
-
-        self.showindex=[]
-        self.channel_index=[]
-
+        self.wave_area = self.pw.wave_area  # 波形显示区域
+        self.com = self.mw.comport          # 串口通信对象
+        
+        self.showindex = []                 # 当前显示的数据索引
+        self.channel_index = []             # 通道映射关系
+        
+        # 5个通道选择下拉框
         self.combo_boxes = [
             self.pw.wave_ch1,
             self.pw.wave_ch2,
@@ -231,21 +266,25 @@ class Wave:
             self.pw.wave_ch4,
             self.pw.wave_ch5,
         ]
-        # 创建波形控件并嵌入到 wave_area
+        
+        # 创建波形控件
         self.waveform_widget = WaveformWidget()
-        #按钮
-
-        self.start_wave_but = self.pw.start_wave_button  # 启动按钮
-        self.auto_x_but = self.pw.auto_x_switch  # 双态按钮
+        
+        # ========== 按钮初始化 ==========
+        self.start_wave_but = self.pw.start_wave_button  # 启动/停止按钮
+        self.auto_x_but = self.pw.auto_x_switch          # X轴自动缩放开关
         self.auto_x_but.setChecked(True)
-        self.auto_y_but = self.pw.auto_y_switch  # 双态按钮
+        self.auto_y_but = self.pw.auto_y_switch          # Y轴自动缩放开关
         self.auto_y_but.setChecked(True)
         self.clear_wave_but = self.pw.clear_wave_button  # 清除按钮
-        self.start_wave_but.toggled.connect(self.handle_start)  # 启动按钮槽函数
-        self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)  # 双态按钮槽函数
-        self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)  # 双态按钮槽函数
-        self.clear_wave_but.clicked.connect(self.clear)  # 清除按钮槽函数        
-        # 清理原有布局并嵌入
+        
+        # ========== 信号连接 ==========
+        self.start_wave_but.toggled.connect(self.handle_start)
+        self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)
+        self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)
+        self.clear_wave_but.clicked.connect(self.clear)
+        
+        # ========== 嵌入波形控件到UI区域 ==========
         layout = self.wave_area.layout()
         if layout:
             while layout.count():
@@ -258,46 +297,57 @@ class Wave:
         
         layout.addWidget(self.waveform_widget)
         
-        # ===== 直接操作双态按钮（双向同步）=====
-        # 1. 按钮状态变化 → 更新波形控件
+        # ========== 双向状态同步 ==========
+        # 按钮状态变化 → 波形控件
         self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)
         self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)
         
-        # 2. 波形控件状态变化 → 更新按钮（关键：避免循环）
+        # 波形控件状态变化 → 按钮（避免信号循环）
         self.waveform_widget.auto_x_state_changed.connect(self._sync_auto_x_button)
         self.waveform_widget.auto_y_state_changed.connect(self._sync_auto_y_button)
-        # ===== 按钮操作结束 =====
     
     def _sync_auto_x_button(self, state: bool):
-        """同步X轴自动缩放按钮状态（避免信号循环）"""
+        """同步X轴自动缩放按钮状态"""
+        # 关键修复：直接调用按钮的_toggled处理方法，而非仅设置checked状态
         self.auto_x_but.blockSignals(True)
         self.auto_x_but.setChecked(state)
+        self.auto_x_but._onButtonToggled(state)  # ← 强制触发颜色动画
         self.auto_x_but.blockSignals(False)
-    
+        self.auto_x_but.update()  # ← 确保立即重绘
+
     def _sync_auto_y_button(self, state: bool):
-        """同步Y轴自动缩放按钮状态（避免信号循环）"""
+        """同步Y轴自动缩放按钮状态"""
         self.auto_y_but.blockSignals(True)
         self.auto_y_but.setChecked(state)
+        self.auto_y_but._onButtonToggled(state)  # ← 强制触发颜色动画
         self.auto_y_but.blockSignals(False)
-    
-    # ===== 以下3个方法是其他按钮的槽函数接口 =====
+        self.auto_y_but.update()  # ← 确保立即重绘
     
     def clear(self):
-        """清除波形按钮槽函数调用此方法"""
+        """清除波形"""
         self.waveform_widget.clear_waveforms()
     
-    def handle_start(self,enable:bool):
-        """启动按钮槽函数调用此方法"""
+    def handle_start(self, enable: bool):
+        """
+        启动/停止波形流
+        
+        Args:
+            enable: True=启动, False=停止
+        """
         if enable:
             self.waveform_widget.start()
             self.start_wave_but.setValue("Stop")
             self.showindex.clear()
             self.channel_index.clear()
-            for  i,combo in enumerate(self.combo_boxes):
+            
+            # 收集需要显示的通道
+            for i, combo in enumerate(self.combo_boxes):
                 current_text = combo.currentText()
                 if current_text != "NONE":
                     self.showindex.append(combo.currentIndex()) 
                     self.channel_index.append(i)
+            
+            # 发送流配置命令
             self.com.send_packet(Cidx.CMD_STREAM_SET, bytes(self.showindex))
         else:
             self.waveform_widget.pause()
@@ -305,11 +355,23 @@ class Wave:
             self.showindex.clear()
             self.com.send_packet(Cidx.CMD_STREAM_SET, bytes())
     
-    # ===== 数据添加接口 =====
     def add_data(self, channel: int, data):
-        """添加波形数据（channel: 0-4,  float或数值列表）"""
+        """
+        添加波形数据到指定通道
+        
+        Args:
+            channel: 通道索引(0-4)
+            data: 数值或数值列表
+        """
         self.waveform_widget.add_waveform_data(channel, data)
 
     def add_data_by_index(self, index: int, data):
-        """添加波形数据（index: 0-4,  float或数值列表）"""
-        self.add_data(self.channel_index[index], data)
+        """
+        通过显示索引添加数据（映射到实际通道）
+        
+        Args:
+            index: 显示索引(0-4)
+            data: 数值或数值列表
+        """
+        if index < len(self.channel_index):
+            self.add_data(self.channel_index[index], data)
