@@ -2,13 +2,14 @@
 #define __SMO_H
 
 #include "main.h"
+#include "foc_core.h"
 /*****************************************无感SMO观测*********************************** */
 // 无感 SMO 结构体
 typedef struct
 {
+    u8 pole_pairs;       // 极对数
     float theta_offset;  // 角度偏移
     short wire_sequence; // 线序
-    u8 pole_pairs;       // 极对数
     float Rs;            // 定子电阻
     float Ls;            // 定子电感
     float Psi_f;         // 永磁体磁链
@@ -16,8 +17,8 @@ typedef struct
     float J;             // 转动惯量
     float B;             // 摩擦系数
 
-    float dt; // 控制周期
-
+    float dt;  // 控制周期
+    float Udc; // 电压
     // 状态变量
     float i_alpha_hat;
     float i_beta_hat;
@@ -29,12 +30,10 @@ typedef struct
     float theta_prev;
     float omega;
 
-    // 新增：启动控制
     bool is_aligned;         // 是否完成初始对齐
     uint32_t alignment_time; // 对齐时间计数
     float startup_gain;      // 启动增益（从0逐渐增加）
 
-    // 新增：积分器保护
     float integrator_alpha; // 电流观测器积分增益
     float integrator_limit; // 积分器限幅
 
@@ -43,19 +42,18 @@ typedef struct
     float delta;
     float k_f;
     float max_omega;
-} smo_t;
-smo_t *get_smo_adr();
+} tSMO;
+extern tSMO smo;
 // 初始化
-void smo_init(float Rs, float Ls, float Psi_f, float max_speed, short WireS, float pole_pairs,
-              float Ke, float J, float B);
-void smo_reset();
+void fSMO_Init(tMotor motor);
+void fSMO_Reset();
 // 更新（输入：电压、电流）
-void smo_update(float v_alpha, float v_beta,
-                float i_alpha, float i_beta);
+void fSMO_MainLoop(float v_alpha, float v_beta,
+                   float i_alpha, float i_beta);
 
 // 获取结果
-float smo_get_theta();
-float smo_get_omega();
+float fSMO_GetTheta();
+float fSMO_GetOmega();
 
 // 参数整定状态
 typedef enum
@@ -71,7 +69,7 @@ typedef enum
     PARAM_TUNE_WRITE_FLASH,  // 写入参数
     PARAM_TUNE_COMPLETE      // 完成
 
-} param_tune_state_t;
+} eParameterTuneStatus;
 typedef enum
 {
     PARAM_FAULT_NONE = 0, // 无故障
@@ -85,27 +83,26 @@ typedef enum
     PARAM_FAULT_WS_LOCKED,           // 电机堵转
     PARAM_FAULT_POLE_PAIRS_INVALID,  // 极对数无效
     PARAM_FAULT_POLE_PAIRS_MISMATCH, // 极对数不匹配
-} param_fault_t;
+} eParamterTuneFault;
 
 /*****************************************参数整定*********************************** */
 
 // 参数整定结构体
 typedef struct
 {
-    float dt;
     // 参数整定状态
-    param_tune_state_t tune_state;
+    eParameterTuneStatus tune_state;
+
+    u8 num_test_wire;
 
     u32 time_tic;
     u32 tune_samples;
     u32 steady_samples;
 
-    float Udc; // 电压
     float theta_elec_prev;
     float cur_iq_id[2];
     float cur_uq_ud[2];
-
-    u8 num_test_wire;
+    float ualpha, ubeta;
 
     float omega_ref;
     float steady_i;
@@ -136,15 +133,14 @@ typedef struct
 
     // 故障标志
     bool fault_flag;
-    param_fault_t fault_type;
-    param_tune_state_t fault_state;
-} param_tuning_t;
-param_tuning_t *get_tuning_adr();
+    eParamterTuneFault fault_type;
+    eParameterTuneStatus fault_state;
+} tParameterTune;
+extern tParameterTune tun;
 
-void param_tuning_init(float udc);
+void fParamTuneReset();
 // 开始整定
 
-param_tune_state_t param_tuning_update(float theta_elec, float theta_mech, float *u_alpha, float *u_beta,
-                                       float i_alpha, float i_beta, float omega_mech, u8 pole_pairs_input, float i_q);
+eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value);
 
 #endif

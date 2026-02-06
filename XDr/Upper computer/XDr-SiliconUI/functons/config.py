@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 from siui.components.editbox import SiLabeledLineEdit
 from siui.components.button import SiPushButtonRefactor
-from UI.data_ui_map import Pidx, Midx
 from functons.message_show import (
     send_custom_message,
     send_simple_message,
@@ -30,10 +29,6 @@ class Pconfig:
         self.save_config_but.clicked.connect(self.opend_config_input)
         self.remove_config_but=self.mw.top_area.remove_config
         self.remove_config_but.longPressed.connect(self.delete_selected_config)
-
-        self.param_map = self.mw.ui_map.param_map
-        self.param_show_map = self.mw.ui_map.param_show_map
-        self.target_val_show = self.mw.control_page.control_target_show
 
         # 刷新配置列表（显示不含 .json 的名称）
         self.refresh_config_list()
@@ -77,6 +72,7 @@ class Pconfig:
         cover_but = SiPushButtonRefactor()
         cover_but.setText("覆盖")
         cover_but.setFixedWidth(100)
+        # 修复：覆盖操作不再删除文件，直接写入
         cover_but.clicked.connect(lambda: self.cover_current_config(name_input.text()))
 
         button_layout.addWidget(save_but)
@@ -88,7 +84,7 @@ class Pconfig:
         send_custom_message(input_widget, MSG_TYPE_INFO)
 
     # ======================
-    # 保存当前参数到配置文件
+    # 保存当前参数到配置文件（直接保存 param_list，不关心类型）
     # ======================
     def save_current_config(self, config_name=None):
         config_name = config_name.strip() if config_name else ""
@@ -101,34 +97,10 @@ class Pconfig:
 
         filepath = os.path.join(self.config_dir, config_name)
 
-        # 收集当前所有参数值
-        config_data = {}
-        for idx, widget in self.param_map.items():
-            try:
-                if idx < Pidx.CAN_ID:
-                    match idx:
-                        case (Pidx.SENSOR_MODE | Pidx.LOOP_MODE | Pidx.CAN_MODE |
-                              Pidx.MOTOR_WIRE_SEQUENCE | Pidx.FAN_MODE |
-                              Pidx.VAGUE_PID_MODE | Pidx.PVT_MODE | Pidx.WEAKMAG_MODE):
-                            val = widget.currentIndex()
-                        case (Pidx.MOTOR_POLEPAIRS | Pidx.FREQ_CURRENT_LOOP |
-                              Pidx.FREQ_SPEED_LOOP | Pidx.FREQ_POSITION_LOOP):
-                            val = int(widget.text())
-                    config_data[idx] = {"type": "uint8", "value": val}
-
-                elif idx < Pidx.F_PWM:
-                    val = int(widget.text())
-                    config_data[idx] = {"type": "int32", "value": val}
-                else:
-                    val = float(widget.text())
-                    config_data[idx] = {"type": "float32", "value": val}
-            except Exception as e:
-                print(f"读取参数 {idx} 失败: {e}")
-                continue
-
         try:
+            # 直接保存整个 param_list，不区分类型
             with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(config_data, f, indent=4, ensure_ascii=False)
+                json.dump({"params": self.mw.param_manager.param_list}, f, indent=4)
             
             self.refresh_config_list()
             display_name = config_name[:-5]
@@ -141,20 +113,57 @@ class Pconfig:
             send_simple_message(MSG_TYPE_ERROR, f"保存失败：{str(e)}", True, 1000 )
 
     # ======================
-    # 覆盖当前配置（直接用当前名称原地覆盖，无确认框）
+    # 覆盖指定名称的配置（直接写入，不删除重建）
     # ======================
-    def cover_current_config(self,new_config_name=None):
+    def cover_current_config(self, new_config_name=None):
+        """覆盖配置：直接写入文件，不先删除"""
         display_name = self.combo_config.currentText()
         if not display_name:
-            send_simple_message( MSG_TYPE_WARNING,"请先选择一个配置", True,800)
+            send_simple_message(MSG_TYPE_WARNING,"请先选择一个配置", True,800)
             return
-        new_name = new_config_name.strip() if new_config_name else ""
-        self.delete_selected_config()
-        if (not new_name) or (display_name == "default"):
-            self.save_current_config(display_name)
-        else:
-            self.save_current_config(new_name)
+        
+        # 如果输入了新名称，用新名称覆盖；否则用当前选中名称覆盖
+        target_name = new_config_name.strip() if new_config_name and new_config_name.strip() else display_name
+        
+        if not target_name.endswith(".json"):
+            target_name += ".json"
+        
+        filepath = os.path.join(self.config_dir, target_name)
+        
+        try:
+            # 直接写入，不删除
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump({"params": self.mw.param_manager.param_list}, f, indent=4)
+            
+            self.refresh_config_list()
+            display_name_clean = target_name[:-5]
+            index = self.combo_config.findText(display_name_clean)
+            if index >= 0:
+                self.combo_config.setCurrentIndex(index)
+                
+            send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name_clean}”覆盖成功", True, 800)
+        except Exception as e:
+            send_simple_message(MSG_TYPE_ERROR, f"覆盖失败：{str(e)}", True, 1000)
 
+    # ======================
+    # 【新增】严格覆盖当前选中的配置（不改名，直接替换内容）
+    # ======================
+    def cover_selected_config(self):
+        """覆盖当前 ComboBox 选中的配置文件（不改名，不删除，直接写入）"""
+        display_name = self.combo_config.currentText()
+        if not display_name:
+            send_simple_message(MSG_TYPE_WARNING, "请先选择一个配置", True, 800)
+            return
+        
+        config_name = display_name + ".json"
+        filepath = os.path.join(self.config_dir, config_name)
+        
+        try:
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump({"params": self.mw.param_manager.param_list}, f, indent=4)
+            send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name}”已覆盖", True, 800)
+        except Exception as e:
+            send_simple_message(MSG_TYPE_ERROR, f"覆盖失败：{str(e)}", True, 1000)
 
     # ======================
     # 加载选中的配置（通过 ComboBox）
@@ -205,47 +214,50 @@ class Pconfig:
         self.combo_config.blockSignals(False)
 
     # ======================
-    # 内部方法：根据显示名称加载配置
+    # 内部方法：根据显示名称加载配置到 param_list（三重防护）
     # ======================
     def _load_config_by_name(self, display_name: str):
         config_name = display_name + ".json"
         filepath = os.path.join(self.config_dir, config_name)
         if not os.path.exists(filepath):
-            send_simple_message( MSG_TYPE_WARNING,f"配置文件不存在",True,1000 )
+            send_simple_message(MSG_TYPE_WARNING, f"配置文件不存在", True, 1000)
             return
 
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
-                config_data = json.load(f)
-
-            for idx_str, item in config_data.items():
-                idx = int(idx_str)
-                if idx not in self.param_map:
-                    continue
-                widget = self.param_map[idx]
-                val = item["value"]
+                raw_data = json.load(f)
+            
+            # 防护1：处理直接列表格式（旧版保存）
+            if isinstance(raw_data, list):
+                params = raw_data
+            # 防护2：处理标准字典格式 {"params": [...]}
+            elif isinstance(raw_data, dict) and "params" in raw_data:
+                params = raw_data["params"]
+            # 防护3：处理错误格式（单个数字/字符串）
+            else:
+                # 尝试将任何值转为列表
                 try:
-                    if item["type"] == "uint8":
-                        match idx:
-                            case (Pidx.SENSOR_MODE | Pidx.LOOP_MODE | Pidx.CAN_MODE |
-                                  Pidx.MOTOR_WIRE_SEQUENCE | Pidx.FAN_MODE |
-                                  Pidx.VAGUE_PID_MODE | Pidx.PVT_MODE | Pidx.WEAKMAG_MODE):
-                                widget.setCurrentIndex(val)
-                                if idx in self.param_show_map:
-                                    self.param_show_map[idx].setText(widget.currentText())
-                                if idx == Pidx.LOOP_MODE:
-                                    self.target_val_show.setText(Midx.target_value[val])
-                            case (Pidx.MOTOR_POLEPAIRS | Pidx.FREQ_CURRENT_LOOP |
-                                  Pidx.FREQ_SPEED_LOOP | Pidx.FREQ_POSITION_LOOP):
-                                widget.setText(str(val))
-                    elif item["type"] == "int32":
-                        widget.setText(str(val))
-                        if idx in self.param_show_map:
-                            self.param_show_map[idx].setText(str(val))
-                    elif item["type"] == "float32":
-                        widget.setText(f"{val:.6g}")
-                except Exception as e:
-                    print(f"加载参数 {idx} 失败: {e}")
-                    continue
-        except Exception as e: 
-            send_simple_message( MSG_TYPE_ERROR,f"加载配置失败：{str(e)}",True,2000 )
+                    params = [float(raw_data)] if isinstance(raw_data, (int, float)) else []
+                except:
+                    params = []
+            
+            # 关键修复：确保 params 是列表（防止后续操作崩溃）
+            if not isinstance(params, list):
+                params = []
+            
+            # 安全复制到 param_list（逐元素转换，避免类型错误）
+            param_list = self.mw.param_manager.param_list
+            for i in range(min(len(params), len(param_list))):
+                try:
+                    param_list[i] = float(params[i])
+                except (TypeError, ValueError, IndexError):
+                    param_list[i] = 0.0  # 无效值设为0
+            
+            # 统一刷新UI
+            self.mw.param_manager.param_all_show()
+            
+            send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name}”加载成功", True, 800)
+        except Exception as e:
+            # 增强错误诊断：显示具体类型
+            error_msg = f"加载失败: {type(e).__name__} - {str(e)[:100]}"
+            send_simple_message(MSG_TYPE_ERROR, error_msg, True, 2000)   # 长时间显示           

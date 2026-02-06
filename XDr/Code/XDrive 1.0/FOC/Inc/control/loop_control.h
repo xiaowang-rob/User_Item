@@ -50,7 +50,7 @@ typedef struct
     float position_min, position_max;
 } tLoopControl;
 
-extern tLoopControl g_loop_con;
+extern tLoopControl loop_con;
 
 void fFrequencyDivisionUpdate(void);                  // 更新分频计数器和各环更新标志
 void fLoopControlInit(Parameter_t param, float Vmax); // 环路参数初始化

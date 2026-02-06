@@ -36,10 +36,7 @@ typedef struct
 } tCommunicationState;
 extern tCommunicationState g_com_state;
 
-void communication_init();
-void communication_run();
-
-void usb_connected();
-void usb_disconnected();
+void fCommunicateInit();
+void fCommunicateMainLoop();
 
 #endif

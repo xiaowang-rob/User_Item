@@ -18,21 +18,21 @@ void log_init(void)
 }
 void log_data_save(void)
 {
-    Log.Vbus = g_foc.motor->Udc;
+    Log.Vbus = g_foc.core->motor->Udc;
     Log.TEMP = g_pro_manager.temperature;
-    Log.Iu = g_foc.val->Iu;
-    Log.Iv = g_foc.val->Iv;
-    Log.Iw = g_foc.val->Iw;
-    Log.Iq = g_foc.val->iq_fb;
-    Log.Id = g_foc.val->id_fb;
-    Log.Id_ref = g_foc.val->id_ref;
-    Log.Iq_ref = g_foc.val->iq_ref;
-    Log.speed = fRadToRpm(g_foc.val->omega_fb);
-    Log.speed_ref = fRadToRpm(g_foc.val->omega_ref);
-    Log.position = fRadToDeg(g_foc.val->pos_fb);
-    Log.position_ref = fRadToDeg(g_foc.val->pos_ref);
-    Log.loop_mode = g_foc.mode->loop_mode;
-    Log.run_mode = g_foc.mode->run_mode;
+    Log.Iu = g_foc.core->foc_val->Iu;
+    Log.Iv = g_foc.core->foc_val->Iv;
+    Log.Iw = g_foc.core->foc_val->Iw;
+    Log.Iq = g_foc.core->foc_val->iq_fb;
+    Log.Id = g_foc.core->foc_val->id_fb;
+    Log.Id_ref = g_foc.core->foc_val->id_ref;
+    Log.Iq_ref = g_foc.core->foc_val->iq_ref;
+    Log.speed = fRadToRpm(g_foc.core->foc_val->omega_fb);
+    Log.speed_ref = fRadToRpm(g_foc.core->foc_val->omega_ref);
+    Log.position = fRadToDeg(g_foc.core->foc_val->pos_fb);
+    Log.position_ref = fRadToDeg(g_foc.core->foc_val->pos_ref);
+    Log.loop_mode = g_foc.core->foc_mode->loop_mode;
+    Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
     Log.fault = (fault_e)g_pro_manager.fault;
     Log.warning = (Warning_e)g_pro_manager.warning;
 

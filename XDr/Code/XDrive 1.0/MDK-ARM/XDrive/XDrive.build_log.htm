@@ -30,30 +30,30 @@ Rebuild target 'XDrive'
 assembling startup_stm32f405xx.s...
 compiling stm32f4xx_hal_msp.c...
 compiling dma.c...
-compiling can.c...
-compiling gpio.c...
-compiling usart.c...
 compiling stm32f4xx_it.c...
+compiling usart.c...
+compiling gpio.c...
+compiling can.c...
 compiling adc.c...
-compiling spi.c...
 compiling tim.c...
+compiling spi.c...
 compiling main.c...
 compiling stm32f4xx_hal_pcd_ex.c...
 compiling stm32f4xx_hal_flash_ramfunc.c...
 compiling stm32f4xx_hal_pcd.c...
-compiling stm32f4xx_hal_gpio.c...
-compiling stm32f4xx_hal_flash.c...
 compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_flash.c...
 compiling stm32f4xx_hal_flash_ex.c...
-compiling stm32f4xx_hal_dma_ex.c...
+compiling stm32f4xx_hal_gpio.c...
 compiling stm32f4xx_hal_rcc.c...
-compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_dma_ex.c...
 compiling stm32f4xx_hal_dma.c...
-compiling stm32f4xx_ll_adc.c...
+compiling stm32f4xx_hal_pwr.c...
 compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_ll_adc.c...
+compiling stm32f4xx_hal_cortex.c...
 compiling stm32f4xx_hal.c...
 compiling stm32f4xx_hal_exti.c...
-compiling stm32f4xx_hal_cortex.c...
 compiling stm32f4xx_ll_usb.c...
 compiling stm32f4xx_hal_adc_ex.c...
 compiling stm32f4xx_hal_adc.c...
@@ -64,310 +64,40 @@ compiling usbd_desc.c...
 compiling usbd_cdc_if.c...
 compiling stm32f4xx_hal_tim_ex.c...
 compiling usbd_conf.c...
+compiling usbd_ioreq.c...
 compiling stm32f4xx_hal_spi.c...
 compiling usbd_core.c...
-compiling usbd_ioreq.c...
 compiling usbd_ctlreq.c...
 compiling usbd_cdc.c...
 compiling can_port.c...
-../FOC/Src/communication/DataMonitoring.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/communication/DataMonitoring.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-../FOC/Src/communication/DataMonitoring.c(96): error: no member named 'pos_con' in 'tFOC_val'
-   96 |         temp_val = fRadToDeg(g_foc.val->pos_con);
-      |                              ~~~~~~~~~  ^
-6 errors generated.
 compiling DataMonitoring.c...
 compiling stm32f4xx_hal_uart.c...
-../FOC/Src/communication/port_mapping.c(5): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/communication/port_mapping.c(5): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-../FOC/Src/communication/port_mapping.c(96): error: call to undeclared function 'FOC_SET_VER_VALUE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   96 |             FOC_SET_VER_VALUE((float *)com_frame.rxdata);
-      |             ^
-../FOC/Src/communication/port_mapping.c(105): error: call to undeclared function 'FOC_SET_LOOPMODE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  105 |             FOC_SET_LOOPMODE(com_frame.rxdata[0]);
-      |             ^
-../FOC/Src/communication/port_mapping.c(210): error: call to undeclared function 'FOC_SET_VER_VALUE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  210 |                 FOC_SET_VER_VALUE(value_ref);
-      |                 ^
-../FOC/Src/communication/port_mapping.c(213): error: call to undeclared function 'FOC_SET_LOOPMODE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  213 |                 FOC_SET_LOOPMODE(com_frame.rxdata[0]);
-      |                 ^
-9 errors generated.
-compiling port_mapping.c...
 compiling uart_port.c...
+compiling port_mapping.c...
 compiling usb_port.c...
-compiling stm32f4xx_hal_tim.c...
-compiling foc_core.c...
-../FOC/Src/control/foc_statemachine.c(1): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/control/foc_statemachine.c(1): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-../FOC/Src/control/foc_statemachine.c(51): error: call to undeclared function 'FOC_GET_MODE_adr'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   51 |     g_foc.mode = FOC_GET_MODE_adr();
-      |                  ^
-../FOC/Src/control/foc_statemachine.c(52): error: call to undeclared function 'FOC_GET_VAL_adr'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   52 |     g_foc.val = FOC_GET_VAL_adr();
-      |                 ^
-../FOC/Src/control/foc_statemachine.c(52): error: incompatible integer to pointer conversion assigning to 'tFOC_val *' from 'int' [-Wint-conversion]
-   52 |     g_foc.val = FOC_GET_VAL_adr();
-      |               ^ ~~~~~~~~~~~~~~~~~
-../FOC/Src/control/foc_statemachine.c(53): error: call to undeclared function 'FOC_GET_STARTUP_adr'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   53 |     g_foc.startup_mechine = FOC_GET_STARTUP_adr();
-      |                             ^
-../FOC/Src/control/foc_statemachine.c(54): error: call to undeclared function 'get_loop_con_adr'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   54 |     g_foc.g_loop_con = get_loop_con_adr();
-      |                        ^
-../FOC/Src/control/foc_statemachine.c(58): error: call to undeclared function 'get_motor_adr'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   58 |     g_foc.motor = get_motor_adr();
-      |                   ^
-../FOC/Src/control/foc_statemachine.c(58): note: did you mean 'get_smo_adr'?
-../FOC/Inc/control\smo.h(47): note: 'get_smo_adr' declared here
-   47 | smo_t *get_smo_adr();
-      |        ^
-../FOC/Src/control/foc_statemachine.c(59): error: call to undeclared function 'foc_core_init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   59 |     foc_core_init();
-      |     ^
-../FOC/Src/control/foc_statemachine.c(64): error: call to undeclared function 'FOC_PREPARE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   64 |     FOC_PREPARE();
-      |     ^
-../FOC/Src/control/foc_statemachine.c(75): error: call to undeclared function 'auto_calibration_update'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   75 |         if (auto_calibration_update())
-      |             ^
-../FOC/Src/control/foc_statemachine.c(75): note: did you mean 'fAutoCalibrationUpdate'?
-../FOC/Inc/control\foc_core.h(99): note: 'fAutoCalibrationUpdate' declared here
-   99 | bool fAutoCalibrationUpdate();
-      |      ^
-../FOC/Src/control/foc_statemachine.c(77): error: call to undeclared function 'FOC_RUN'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   77 |         FOC_RUN();
-      |         ^
-../FOC/Src/control/foc_statemachine.c(80): error: call to undeclared function 'foc_core_reset'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   80 |         foc_core_reset();
-      |         ^
-../FOC/Src/control/foc_statemachine.c(97): error: call to undeclared function 'SHUTDOWM'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   97 |         if (SHUTDOWM())
-      |             ^
-17 errors generated.
 compiling foc_statemachine.c...
-compiling loop_control.c...
+compiling stm32f4xx_hal_tim.c...
 compiling svpwm.c...
-../FOC/Src/control/smo.c(652): error: call to undeclared function 'FOC_SET_RUNMODE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  652 |         FOC_SET_RUNMODE(ENCODER_CONTROL);
-      |         ^
-../FOC/Src/control/smo.c(653): error: call to undeclared function 'FOC_SET_LOOPMODE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  653 |         FOC_SET_LOOPMODE(VOLTAGE_LOOP);
-      |         ^
-../FOC/Src/control/smo.c(657): error: call to undeclared function 'FOC_SET_VER_VALUE'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  657 |         FOC_SET_VER_VALUE(tun.cur_uq_ud);
-      |         ^
-../FOC/Src/control/smo.c(660): error: call to undeclared function 'SET_Wire_sequence'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  660 |         SET_Wire_sequence(1);
-      |         ^
-../FOC/Src/control/smo.c(662): error: call to undeclared function 'opend_loop_enable'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  662 |         opend_loop_enable();
-      |         ^
-../FOC/Src/control/smo.c(663): error: call to undeclared function 'SET_opend_loop_theta'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  663 |         SET_opend_loop_theta(0.0f);
-      |         ^
-../FOC/Src/control/smo.c(665): error: call to undeclared function 'SET_Theta_offset'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  665 |         SET_Theta_offset(0.0f);
-      |         ^
-../FOC/Src/control/smo.c(692): error: call to undeclared function 'opend_loop_disable'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  692 |             opend_loop_disable();
-      |             ^
-../FOC/Src/control/smo.c(750): error: use of undeclared identifier 'SVPWM_CONTROL'; did you mean 'SMO_CONTROL'?
-  750 |                 FOC_SET_RUNMODE(SVPWM_CONTROL);
-      |                                 ^~~~~~~~~~~~~
-      |                                 SMO_CONTROL
-../FOC/Inc/control\foc_core.h(11): note: 'SMO_CONTROL' declared here
-   11 |     SMO_CONTROL,
-      |     ^
-../FOC/Src/control/smo.c(878): error: call to undeclared function 'FOC_SET_OMEGA_con'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  878 |         FOC_SET_OMEGA_con(tun.omega_ref);
-      |         ^
-../FOC/Src/control/smo.c(894): error: call to undeclared function 'foc_core_init'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-  894 |         foc_core_init();
-      |         ^
-11 errors generated.
-compiling smo.c...
 compiling encoder.c...
+compiling foc_core.c...
+compiling loop_control.c...
 compiling flashDr.c...
+compiling smo.c...
 compiling adc_dr.c...
-../FOC/Src/services/log.c(6): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/services/log.c(6): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-5 errors generated.
-compiling log.c...
-../FOC/Src/services/protection_manager.c(4): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/services/protection_manager.c(4): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-5 errors generated.
-compiling protection_manager.c...
 compiling rgb.c...
-../FOC/Src/services/parameter_manager.c(4): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/services/parameter_manager.c(4): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-5 errors generated.
-compiling parameter_manager.c...
-../FOC/Src/services/status_feedback.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/services/status_feedback.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-5 errors generated.
+compiling log.c...
+compiling protection_manager.c...
 compiling status_feedback.c...
-../FOC/Src/services/system_statemachine.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(26): error: unknown type name 'FOC_mode_t'
-   26 |     FOC_mode_t *mode;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(27): error: unknown type name 'FOC_val_t'; did you mean 'tFOC_val'?
-   27 |     FOC_val_t *val;
-      |     ^~~~~~~~~
-      |     tFOC_val
-../FOC/Inc/control\foc_core.h(53): note: 'tFOC_val' declared here
-   53 | } tFOC_val;
-      |   ^
-../FOC/Src/services/system_statemachine.c(2): warning: In file included from...
-../FOC/Inc/control\foc_statemachine.h(28): error: unknown type name 'startup_mechine_t'
-   28 |     startup_mechine_t *startup_mechine;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(29): error: unknown type name 'LOOP_CON_t'
-   29 |     LOOP_CON_t *g_loop_con;
-      |     ^
-../FOC/Inc/control\foc_statemachine.h(33): error: unknown type name 'Motor_t'
-   33 |     Motor_t *motor;
-      |     ^
-5 errors generated.
-compiling system_statemachine.c...
-compiling filter.c...
+compiling parameter_manager.c...
 compiling ring_buffer.c...
-compiling math_fast.c...
+compiling system_statemachine.c...
 compiling queue.c...
-"XDrive\XDrive.axf" - 68 Error(s), 0 Warning(s).
+compiling math_fast.c...
+compiling filter.c...
+linking...
+Program Size: Code=59432 RO-data=3100 RW-data=568 ZI-data=8112  
+FromELF: creating hex file...
+"XDrive\XDrive.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -390,7 +120,6 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.1
       Include file:  CMSIS/Core/Include/tz_context.h
-Target not created.
 Build Time Elapsed:  00:00:03
 </pre>
 </body>

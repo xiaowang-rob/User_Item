@@ -317,7 +317,7 @@ class ParameterPage():
         self.offsetangle_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.offsetangle_input.setTitleFixedWidth(title_W) 
         self.offsetangle_input.setAlignment(Qt.AlignCenter) 
-        self.offsetangle_input.setTitle("偏转角度")
+        self.offsetangle_input.setTitle("偏转角度/rad")
         self.offsetangle_input.setText("0")
 
         self.motor_polepairs_input=SiCapsuleLineEdit()
@@ -475,7 +475,7 @@ class ParameterPage():
         self.limit_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.limit_speed.setTitleFixedWidth(drive_title_W) 
         self.limit_speed.setAlignment(Qt.AlignCenter) 
-        self.limit_speed.setTitle("速度限幅/rpm")
+        self.limit_speed.setTitle("速度限幅/rad/s")
         self.limit_speed.setText("1000")
 
         self.min_position=SiCapsuleLineEdit()
@@ -483,7 +483,7 @@ class ParameterPage():
         self.min_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.min_position.setTitleFixedWidth(drive_title_W) 
         self.min_position.setAlignment(Qt.AlignCenter) 
-        self.min_position.setTitle("最小位置/°")
+        self.min_position.setTitle("最小位置/rad")
         self.min_position.setText("-10000")
 
         self.max_position=SiCapsuleLineEdit()
@@ -491,7 +491,7 @@ class ParameterPage():
         self.max_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.max_position.setTitleFixedWidth(drive_title_W) 
         self.max_position.setAlignment(Qt.AlignCenter) 
-        self.max_position.setTitle("最大位置/°")
+        self.max_position.setTitle("最大位置/rad")
         self.max_position.setText("10000")
 
         self.tolerance_time=SiCapsuleLineEdit()
@@ -539,7 +539,7 @@ class ParameterPage():
         self.start_accel.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.start_accel.setTitleFixedWidth(drive_title_W) 
         self.start_accel.setAlignment(Qt.AlignCenter) 
-        self.start_accel.setTitle("启动加速度/rpm/s")
+        self.start_accel.setTitle("启动加速度/rad/ss")
         self.start_accel.setText("1000")
 
         self.algin_current=SiCapsuleLineEdit()
@@ -571,7 +571,7 @@ class ParameterPage():
         self.open_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.open_loop_speed.setTitleFixedWidth(drive_title_W) 
         self.open_loop_speed.setAlignment(Qt.AlignCenter) 
-        self.open_loop_speed.setTitle("开环速度/rpm")
+        self.open_loop_speed.setTitle("开环速度/rad/s")
         self.open_loop_speed.setText("1000")
 
         self.change_loop_speed=SiCapsuleLineEdit()
@@ -579,7 +579,7 @@ class ParameterPage():
         self.change_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.change_loop_speed.setTitleFixedWidth(drive_title_W) 
         self.change_loop_speed.setAlignment(Qt.AlignCenter) 
-        self.change_loop_speed.setTitle("切环速度/rpm")
+        self.change_loop_speed.setTitle("切环速度/rad/s")
         self.change_loop_speed.setText("1000")
 
         drive_layout.addWidget(Title_drive)

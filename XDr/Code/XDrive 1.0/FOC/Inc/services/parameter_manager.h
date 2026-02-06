@@ -9,7 +9,7 @@
 
 typedef enum
 {
-    FOC_MODE,     // 运行模式
+    SENSOR_MODE,  // 感应模式
     LOOP_MODE,    // 环路模式
     SW_CANQUEUE,  // CAN队列开关
     SW_WEAKMAG,   // 弱磁开关
@@ -80,7 +80,7 @@ typedef struct
     u8 sw_fan;
     u8 sw_vague_pid;
     u8 sw_pvt;
-    u8 foc_mode;
+    u8 sensor_mode;
     u8 loop_mode;
     u8 motor_wire_sequence; // 电机线圈顺序 0-正线 1-反线
     u8 motor_polepairs;

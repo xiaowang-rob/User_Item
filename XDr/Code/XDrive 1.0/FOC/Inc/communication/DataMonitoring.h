@@ -2,13 +2,6 @@
 #define __DATA_MONITORING_H
 
 #include "main.h"
-#define PARAMETER_LOAD_block 0
-#define PARAMETER_LOAD_sector 0
-#define PARAMETER_LOAD_ADDr PARAMETER_LOAD_block * 0x00010000 + PARAMETER_LOAD_sector * 0x00001000
-
-#define MODE_LOAD_block 0
-#define MODE_LOAD_sector 1
-#define MODE_LOAD_ADDr PARAMETER_LOAD_block * 0x00010000 + PARAMETER_LOAD_sector * 0x00001000
 // 反馈参数--流式数据
 typedef enum
 {
@@ -36,14 +29,10 @@ typedef enum
     THETA_elec,
     THETA_mech,
     POSITION,
-    POSITION_con,
     POSITION_ref,
 } Data_stream_e;
 
 // 读取数据流
-void stream_data_get(Data_stream_e stream, float *data);
+void fStreamDataGet(Data_stream_e stream, float *data);
 
-// 初始化
-bool parameter_mode_init();
-void STATUS_get(u8 *foc_status, u8 *fault);
 #endif

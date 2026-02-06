@@ -56,6 +56,8 @@ class Pidx:
     OPEN_LOOP_SPEED      = 46
     CHANGE_LOOP_SPEED    = 47
 
+    NUM_OF_PARAM         = 48
+
 
 # ============================
 # 日志映射表 - 对应下位机日志索引
@@ -114,8 +116,7 @@ class Didx:
     THETA_elec         = 21
     THETA_mech         = 22
     POSITION           = 23
-    POSITION_con       = 24
-    POSITION_ref       = 25
+    POSITION_ref       = 24
 
 
 # ============================
@@ -310,3 +311,13 @@ class Data_UI_Map:
             Lidx.position:             log_page.position,
             Lidx.target_position:      log_page.target_position,
         }
+
+def rad_to_deg(rad):
+    return rad * 180 / 3.141592653589793
+def deg_to_rad(deg):
+    return deg * 3.141592653589793 / 180
+
+def rpm_to_rad_per_sec(rpm):
+    return rpm * 2 * 3.141592653589793 / 60
+def rad_per_sec_to_rpm(rad_per_sec):
+    return rad_per_sec * 60 / (2 * 3.141592653589793)

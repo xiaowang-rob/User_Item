@@ -6,7 +6,6 @@
 #include "parameter_manager.h"
 typedef enum
 {
-    OPEN_LOOP_CONTROL,
     ENCODER_CONTROL,
     SMO_CONTROL,
     ENCODER_SMO_CONTROL,
@@ -20,7 +19,7 @@ typedef enum
     POSITION_ABS_LOOP, // 绝对位置控制(0-360°)
     POSITION_REL_LOOP, // 相对/增量位置控制 会以给定角度（+-float的范围）转到位置
 
-    IDLE,
+    IDLE_LOOP,
 } eLoopMode;
 
 typedef struct
@@ -29,6 +28,9 @@ typedef struct
     eLoopMode loop_mode;
     bool pvt_mode;
     bool weak_mag;
+    bool Encoder_enable;
+    bool SMO_enable;
+    bool OPEN_LOOP_enable;
 } tFOC_Mode;
 
 typedef struct
@@ -49,7 +51,6 @@ typedef struct
     float omega_fb;
     float pos_ref;
     float pos_fb;
-    eLoopMode loop_state;
 } tFOC_val;
 
 // todo:这个启动得改改
@@ -94,16 +95,20 @@ extern tFOC_Core foc_core;
 void fFOC_CoreInit();
 void fFOC_CoreReset();
 
-void fFOC_MainLoop();
+void fFOC_ValueUpdate();
+void fFOC_MainLoopTask();
 bool fFOC_Shutdown();
 bool fAutoCalibrationUpdate();
 
+// 辅助整定 函数
+void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fSetThetaOffset(float thetaoffset);
 void fSetWireSequence(int wire_sequence);
-
+void fOpenLoopEnable(bool enable);
 void fSetOpendLoopTheta(float theta_elec);
 void fSetOpendLoopOmega(float omega_elec);
 
+// 主要函数
 void fFOC_SetOmegaIM(float value);
 void fFOC_SetTargetValue(float *value);
 void fFOC_SetSensorMode(eSensorMode mode);

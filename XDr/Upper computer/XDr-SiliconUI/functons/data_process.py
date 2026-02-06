@@ -66,7 +66,7 @@ class DataProcess:
                     return
                 case Cidx.PARAM_READ:
                     idx=data[0]
-                    self.mw.param_manager.show_param(idx, data[1:])
+                    self.mw.param_manager.add_param(idx, data[1:])
                 case Cidx.CMD_STREAM_SET:  # 监控值返回
                     byte_len=int(len(data)/4)
                     for i in range(byte_len):

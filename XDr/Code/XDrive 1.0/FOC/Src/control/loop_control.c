@@ -3,44 +3,44 @@
 #include "drive_parameters.h"
 #include "math_fast.h"
 
-tLoopControl g_loop_con = {0};
+tLoopControl loop_con = {0};
 
 // 初始化分频系数并计算各环周期
 void fFrequencyDivisionInit(u8 fd_cur, u8 fd_speed, u8 fd_pos)
 {
-    memset(&g_loop_con.fd, 0, sizeof(tFrequencyDivision));
-    g_loop_con.fd.current_update_steps = fd_cur;
-    g_loop_con.fd.speed_update_steps = fd_speed;
-    g_loop_con.fd.position_update_steps = fd_pos;
-    g_loop_con.fd.Tcur = Tpwm * g_loop_con.fd.current_update_steps;
-    g_loop_con.fd.Tspd = g_loop_con.fd.Tcur * g_loop_con.fd.speed_update_steps;
-    g_loop_con.fd.Tpos = g_loop_con.fd.Tspd * g_loop_con.fd.position_update_steps;
+    memset(&loop_con.fd, 0, sizeof(tFrequencyDivision));
+    loop_con.fd.current_update_steps = fd_cur;
+    loop_con.fd.speed_update_steps = fd_speed;
+    loop_con.fd.position_update_steps = fd_pos;
+    loop_con.fd.Tcur = Tpwm * loop_con.fd.current_update_steps;
+    loop_con.fd.Tspd = loop_con.fd.Tcur * loop_con.fd.speed_update_steps;
+    loop_con.fd.Tpos = loop_con.fd.Tspd * loop_con.fd.position_update_steps;
 }
 
 // 每PWM周期调用：更新分频计数器，置位各环更新标志
 void fFrequencyDivisionUpdate(void)
 {
-    g_loop_con.fd.current_update = false;
-    g_loop_con.fd.speed_update = false;
-    g_loop_con.fd.position_update = false;
-    g_loop_con.fd.tic++;
+    loop_con.fd.current_update = false;
+    loop_con.fd.speed_update = false;
+    loop_con.fd.position_update = false;
+    loop_con.fd.tic++;
 
-    if (g_loop_con.fd.tic >= g_loop_con.fd.current_update_steps)
+    if (loop_con.fd.tic >= loop_con.fd.current_update_steps)
     {
-        g_loop_con.fd.tic = 0;
-        g_loop_con.fd.current_update = true;
-        g_loop_con.fd.current_steps++;
+        loop_con.fd.tic = 0;
+        loop_con.fd.current_update = true;
+        loop_con.fd.current_steps++;
 
-        if (g_loop_con.fd.current_steps >= g_loop_con.fd.speed_update_steps)
+        if (loop_con.fd.current_steps >= loop_con.fd.speed_update_steps)
         {
-            g_loop_con.fd.current_steps = 0;
-            g_loop_con.fd.speed_update = true;
-            g_loop_con.fd.speed_steps++;
+            loop_con.fd.current_steps = 0;
+            loop_con.fd.speed_update = true;
+            loop_con.fd.speed_steps++;
 
-            if (g_loop_con.fd.speed_steps >= g_loop_con.fd.position_update_steps)
+            if (loop_con.fd.speed_steps >= loop_con.fd.position_update_steps)
             {
-                g_loop_con.fd.speed_steps = 0;
-                g_loop_con.fd.position_update = true;
+                loop_con.fd.speed_steps = 0;
+                loop_con.fd.position_update = true;
             }
         }
     }
@@ -170,36 +170,36 @@ void PID_reset(tPID *pid)
 void fLoopControlInit(Parameter_t param, float Vmax)
 {
     fFrequencyDivisionInit(param.freq_current_loop, param.freq_speed_loop, param.freq_position_loop);
-    g_loop_con.max_Vs = Vmax;
-    PI_init(&g_loop_con.PI_iq, param.kp_current, param.ki_current, Vmax);
-    PI_init(&g_loop_con.PI_id, param.kp_current, param.ki_current, Vmax);
-    PI_init(&g_loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current);
-    PI_init(&g_loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current);
-    PID_init(&g_loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega);
-    g_loop_con.position_min = param.limit_position_min;
-    g_loop_con.position_max = param.limit_position_max;
+    loop_con.max_Vs = Vmax;
+    PI_init(&loop_con.PI_iq, param.kp_current, param.ki_current, Vmax);
+    PI_init(&loop_con.PI_id, param.kp_current, param.ki_current, Vmax);
+    PI_init(&loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current);
+    PI_init(&loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current);
+    PID_init(&loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega);
+    loop_con.position_min = param.limit_position_min;
+    loop_con.position_max = param.limit_position_max;
 }
 
 // 重置所有控制器状态
 void fLoopReset(void)
 {
-    PI_reset(&g_loop_con.PI_id);
-    PI_reset(&g_loop_con.PI_iq);
-    PI_reset(&g_loop_con.PI_speed);
-    PI_reset(&g_loop_con.PI_weakmag);
-    PID_reset(&g_loop_con.PID_pos);
+    PI_reset(&loop_con.PI_id);
+    PI_reset(&loop_con.PI_iq);
+    PI_reset(&loop_con.PI_speed);
+    PI_reset(&loop_con.PI_weakmag);
+    PID_reset(&loop_con.PID_pos);
 }
 
 // q轴电流环
 float fCurrentLoopUpdate(float current_ref, float current_fb)
 {
-    return PI_update(&g_loop_con.PI_iq, current_ref, current_fb, g_loop_con.fd.Tcur);
+    return PI_update(&loop_con.PI_iq, current_ref, current_fb, loop_con.fd.Tcur);
 }
 
 // d轴磁链环
 float fMagLoopUpdate(float id_ref, float id_fb)
 {
-    return PI_update(&g_loop_con.PI_id, id_ref, id_fb, g_loop_con.fd.Tcur);
+    return PI_update(&loop_con.PI_id, id_ref, id_fb, loop_con.fd.Tcur);
 }
 
 // 弱磁控制：电压超限时通过负Id削弱磁链
@@ -207,36 +207,36 @@ float fWeakMagLoopUpdate(float ud, float uq)
 {
     float vout;
     arm_sqrt_f32((ud * ud + uq * uq), &vout);
-    float error = g_loop_con.max_Vs - vout;
+    float error = loop_con.max_Vs - vout;
     if (error > 0)
         return 0; // 未超限，无需弱磁
-    return PI_update(&g_loop_con.PI_weakmag, g_loop_con.max_Vs, vout, g_loop_con.fd.Tspd);
+    return PI_update(&loop_con.PI_weakmag, loop_con.max_Vs, vout, loop_con.fd.Tspd);
 }
 
 // 速度环
 float fSpeedLoopUpdate(float omega_ref, float omega_fb)
 {
-    return PI_update(&g_loop_con.PI_speed, omega_ref, omega_fb, g_loop_con.fd.Tspd);
+    return PI_update(&loop_con.PI_speed, omega_ref, omega_fb, loop_con.fd.Tspd);
 }
 
 // 绝对位置环（无指令限幅）
 float fPositionAbsLoopUpdate(float position_ref, float position_fb)
 {
-    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
+    return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
 }
 
 // 相对位置环（带指令限幅）
 float fPositionRelLoopUpdate(float position_ref, float position_fb)
 {
-    if (position_ref > g_loop_con.position_max)
-        position_ref = g_loop_con.position_max;
-    if (position_ref < g_loop_con.position_min)
-        position_ref = g_loop_con.position_min;
-    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb, g_loop_con.fd.Tpos);
+    if (position_ref > loop_con.position_max)
+        position_ref = loop_con.position_max;
+    if (position_ref < loop_con.position_min)
+        position_ref = loop_con.position_min;
+    return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
 }
 
 // PVT模式：动态设置位置环输出限幅（即最大速度）
 void fPVT_SetOmega(float omega)
 {
-    g_loop_con.PID_pos.output_limit = omega;
+    loop_con.PID_pos.output_limit = omega;
 }

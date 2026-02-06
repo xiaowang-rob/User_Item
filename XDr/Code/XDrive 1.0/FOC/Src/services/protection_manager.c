@@ -11,6 +11,8 @@ tDeviceStatus g_device_status;
 protection_manager_t g_pro_manager = {0};
 u32 _time = 0;
 u32 _time_last = 0;
+
+// todo:待完善
 bool Tolerance_check(float value, float max_value, float min_value, float tolerance)
 {
     // if (value > max_value * tolerance || value < min_value * tolerance)
@@ -103,24 +105,24 @@ void protection_manager_run()
         g_pro_manager.fault_flag = true;
     }
     // 2.电压异常
-    if (Tolerance_check(g_foc.motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
+    if (Tolerance_check(g_foc.core->motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
     {
-        if (g_foc.motor->Udc > MAX_Voltage)
+        if (g_foc.core->motor->Udc > MAX_Voltage)
             g_pro_manager.fault = OVER_VOLTAGE;
         else
             g_pro_manager.fault = LOW_VOLTAGE;
         g_pro_manager.fault_flag = true;
     }
     // 3.电流过大
-    if (g_foc.val->Iu > MAX_Current || g_foc.val->Iv > MAX_Current || g_foc.val->Iw > MAX_Current ||
-        Tolerance_check(g_foc.val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
+    if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
+        Tolerance_check(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
     {
         g_pro_manager.fault = OVER_CURRENT;
         g_pro_manager.fault_flag = true;
     }
 
     // 4.CAN通讯异常
-    if (g_pro_manager.drive_state->can_state != ONLINE)
+    if (g_pro_manager.drive_state->can_state != ONLINE&&g_pro_manager.drive_state->can_state != RUNNING)
     {
         if (g_pro_manager.drive_state->can_state == RUN_ERROR)
         {
@@ -143,7 +145,7 @@ void protection_manager_run()
     else
         clear_warning_flag(OVER_TEMPERATURE);
     // 2 速度检测
-    if (Tolerance_check(g_foc.val->omega_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
+    if (Tolerance_check(g_foc.core->foc_val->omega_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
     {
         g_pro_manager.warning = OVER_SPEED;
         g_pro_manager.warning_flag = true;
@@ -151,9 +153,9 @@ void protection_manager_run()
     else
         clear_warning_flag(OVER_SPEED);
     // 3位置检测 位置模式下监测
-    if (g_foc.mode->loop_mode == POSITION_ABS_LOOP || g_foc.mode->loop_mode == POSITION_REL_LOOP)
+    if (g_foc.core->foc_mode->loop_mode == POSITION_ABS_LOOP || g_foc.core->foc_mode->loop_mode == POSITION_REL_LOOP)
     {
-        if (Tolerance_check(g_foc.val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+        if (Tolerance_check(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
         {
             g_pro_manager.warning = OVER_POSITION;
             g_pro_manager.warning_flag = true;
@@ -162,9 +164,9 @@ void protection_manager_run()
             clear_warning_flag(OVER_POSITION);
     }
     //  4编码器状态检测
-    if (g_foc.mode->run_mode == ENCODER_CONTROL)
+    if (g_foc.core->foc_mode->sensor_mode == ENCODER_CONTROL)
     { // 有感模式启动编码器判断
-        if (g_pro_manager.drive_state->encoder_state != ONLINE)
+        if (g_pro_manager.drive_state->encoder_state != ONLINE&&g_pro_manager.drive_state->encoder_state != RUNNING)
         {
             g_pro_manager.warning_flag = true;
             if (g_pro_manager.drive_state->encoder_state == RUN_ERROR)
@@ -179,21 +181,12 @@ void protection_manager_run()
             clear_warning_flag(ENCODER_COM_ERROR);
         }
     }
-    //   B错误处理
-    if (g_pro_manager.fault_flag)
+    //   B错误处理--日志模块还得优化
+    if (g_pro_manager.fault_flag || g_pro_manager.warning_flag)
     {
         log_data_save();
-        FOC_CHANGE_STATE(FOC_FAULT);
+        fFOC_StateUpdate(FOC_FAULT);
         log_data_write();
-        g_pro_manager.log_done = true;
-    }
-    // 警告处理
-    if (g_pro_manager.warning_flag && !g_pro_manager.log_done)
-    {
-        log_data_save();
-        FOC_CHANGE_STATE(FOC_WARNING);
-        if (!log_data_write()) // 警告超过9个，强制进入错误状态
-            SystemState_change(SYSTEM_ERROR);
         g_pro_manager.log_done = true;
     }
 }

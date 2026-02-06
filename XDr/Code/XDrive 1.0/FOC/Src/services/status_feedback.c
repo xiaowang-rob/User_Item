@@ -20,9 +20,6 @@ void status_feedback()
     case FOC_FAULT:
         fRGB_Breathe(RED); // 红色
         break;
-    case FOC_WARNING:
-        fRGB_Breathe(YELLOW); // 黄色
-        break;
     default:
         break;
     }

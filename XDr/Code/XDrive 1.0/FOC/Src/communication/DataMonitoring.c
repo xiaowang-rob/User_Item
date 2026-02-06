@@ -1,17 +1,12 @@
 #include "DataMonitoring.h"
 #include "foc_statemachine.h"
-#include "math_fast.h"
-#include "encoder.h"
-#include "loop_control.h"
-#include "drive_parameters.h"
 #include "protection_manager.h"
-#include "flashDr.h"
 #include "svpwm.h"
 #include "system_statemachine.h"
 #include "string.h"
 u8 _sta[4];
 static float temp_val = 0;
-void stream_data_get(Data_stream_e stream, float *data)
+void fStreamDataGet(Data_stream_e stream, float *data)
 {
 
     switch (stream)
@@ -27,7 +22,7 @@ void stream_data_get(Data_stream_e stream, float *data)
         *data = g_pro_manager.temperature;
         break;
     case VBUS:
-        *data = g_foc.motor->Udc;
+        *data = g_foc.core->motor->Udc;
         break;
     case VOLTAGE_U:
         temp_val = fGetVoltage_u();
@@ -42,63 +37,52 @@ void stream_data_get(Data_stream_e stream, float *data)
         memcpy(data, &temp_val, 4);
         break;
     case VOLTAGE_q:
-        *data = g_foc.val->uq;
+        *data = g_foc.core->foc_val->uq;
         break;
     case VOLTAGE_d:
-        *data = g_foc.val->ud;
+        *data = g_foc.core->foc_val->ud;
         break;
     case CURRENT_U:
-        *data = g_foc.val->Iu;
+        *data = g_foc.core->foc_val->Iu;
         break;
     case CURRENT_V:
-        *data = g_foc.val->Iv;
+        *data = g_foc.core->foc_val->Iv;
         break;
     case CURRENT_W:
-        *data = g_foc.val->Iw;
+        *data = g_foc.core->foc_val->Iw;
         break;
     case CURRENT_q:
-        *data = g_foc.val->iq_fb;
+        *data = g_foc.core->foc_val->iq_fb;
         break;
     case CURRENT_d:
-        *data = g_foc.val->id_fb;
+        *data = g_foc.core->foc_val->id_fb;
         break;
     case CURRENT_q_ref:
-        *data = g_foc.val->iq_ref;
+        *data = g_foc.core->foc_val->iq_ref;
         break;
     case CURRENT_d_ref:
-        *data = g_foc.val->id_ref;
+        *data = g_foc.core->foc_val->id_ref;
         break;
     case SPEED:
-        temp_val = fRadToRpm(g_foc.val->omega_fb);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->omega_fb;
         break;
     case SPEED_con:
-        temp_val = fRadToRpm(g_foc.val->omega_con);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->omega_con;
         break;
     case SPEED_ref:
-        temp_val = fRadToRpm(g_foc.val->omega_ref);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->omega_ref;
         break;
     case THETA_elec:
-        temp_val = fRadToDeg(g_foc.val->theta_elec);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->theta_elec;
         break;
     case THETA_mech:
-        temp_val = fRadToDeg(g_foc.val->theta_mech);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->theta_mech;
         break;
     case POSITION:
-        temp_val = fRadToDeg(g_foc.val->pos_fb);
-        memcpy(data, &temp_val, 4);
-        break;
-    case POSITION_con:
-        temp_val = fRadToDeg(g_foc.val->pos_con);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->pos_fb;
         break;
     case POSITION_ref:
-        temp_val = fRadToDeg(g_foc.val->pos_ref);
-        memcpy(data, &temp_val, 4);
+        *data = g_foc.core->foc_val->pos_ref;
         break;
     default:
         break;

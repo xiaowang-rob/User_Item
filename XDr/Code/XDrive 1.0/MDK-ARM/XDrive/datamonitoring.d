@@ -35,11 +35,7 @@ xdrive/datamonitoring.o: ..\FOC\Src\communication\DataMonitoring.c \
   ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
   ..\FOC\Inc\services\parameter_manager.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\utils\math_fast.h \
-  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\FOC\Inc\drivers\encoder.h \
+  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h \
-  ..\FOC\Config\drive_parameters.h \
-  ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Inc\services\system_statemachine.h
+  ..\FOC\Inc\services\system_statemachine.h

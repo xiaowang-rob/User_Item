@@ -15,8 +15,8 @@ void Param_set(Parameter_e para, u8 *value)
     switch (para)
     {
     // u8类型参数
-    case FOC_MODE:
-        g_Param.foc_mode = *(u8 *)value;
+    case SENSOR_MODE:
+        g_Param.sensor_mode = *(u8 *)value;
         break;
     case LOOP_MODE:
         g_Param.loop_mode = *(u8 *)value;
@@ -62,8 +62,7 @@ void Param_set(Parameter_e para, u8 *value)
 
         // float类型参数
     case THETA_OFFSET:
-        memcpy(&temp, value, 4);
-        g_Param.theta_offset = fDegToRad(temp);
+        g_Param.theta_offset = *(float *)value;
         break;
     case MOTOR_RS:
         g_Param.motor_rs = *(float *)value;
@@ -114,16 +113,13 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.limit_current = *(float *)value;
         break;
     case LIMIT_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.limit_omega = fRpmToRad(temp);
+        g_Param.limit_omega = *(float *)value;
         break;
     case LIMIT_POSITION_min:
-        memcpy(&temp, value, 4);
-        g_Param.limit_position_min = fDegToRad(temp);
+        g_Param.limit_position_min = *(float *)value;
         break;
     case LIMIT_POSITION_max:
-        memcpy(&temp, value, 4);
-        g_Param.limit_position_max = fDegToRad(temp);
+        g_Param.limit_position_max = *(float *)value;
         break;
     case TOLERANCE_TIME:
         g_Param.tolerance_time = *(float *)value;
@@ -140,10 +136,8 @@ void Param_set(Parameter_e para, u8 *value)
     case TOLERANCE_POSITION:
         g_Param.tolerance_position = *(float *)value;
         break;
-
     case STARTUP_ACC:
-        memcpy(&temp, value, 4);
-        g_Param.startup_acc = fRpmToRad(temp);
+        g_Param.startup_acc = *(float *)value;
         break;
     case ALIGN_CURRENT:
         g_Param.align_current = *(float *)value;
@@ -155,16 +149,14 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.open_loop_current = *(float *)value;
         break;
     case OPEN_LOOP_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.open_loop_omega = fRpmToRad(temp);
+        g_Param.open_loop_omega = *(float *)value;
         break;
     case CHANGE_LOOP_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.change_loop_omega = fRpmToRad(temp);
+        g_Param.change_loop_omega = *(float *)value;
     default:
-        Param_write_foc();
         break;
     }
+    Param_write_foc();
 }
 
 void Param_get(Parameter_e para, u8 *value, u8 *len)
@@ -173,8 +165,8 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
     switch (para)
     {
     // u8类型参数
-    case FOC_MODE:
-        *(u8 *)value = g_Param.foc_mode;
+    case SENSOR_MODE:
+        *(u8 *)value = g_Param.sensor_mode;
         *len = sizeof(u8);
         break;
     case LOOP_MODE:
@@ -248,8 +240,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case THETA_OFFSET:
-        temp = fRadToDeg(g_Param.theta_offset);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.theta_offset;
         *len = sizeof(float);
         break;
     case MOTOR_RS:
@@ -317,18 +308,15 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case LIMIT_SPEED:
-        temp = fRadToRpm(g_Param.limit_omega);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_omega;
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_min:
-        temp = fRadToDeg(g_Param.limit_position_min);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_position_min;
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_max:
-        temp = fRadToDeg(g_Param.limit_position_max);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_position_max;
         *len = sizeof(float);
         break;
     case TOLERANCE_TIME:
@@ -353,8 +341,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
 
     case STARTUP_ACC:
-        temp = fRadToRpm(g_Param.startup_acc);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.startup_acc;
         *len = sizeof(float);
         break;
     case ALIGN_CURRENT:
@@ -370,13 +357,11 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case OPEN_LOOP_SPEED:
-        temp = fRadToRpm(g_Param.open_loop_omega);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.open_loop_omega;
         *len = sizeof(float);
         break;
     case CHANGE_LOOP_SPEED:
-        temp = fRadToRpm(g_Param.change_loop_omega);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.change_loop_omega;
         *len = sizeof(float);
         break;
 
@@ -408,7 +393,7 @@ bool Param_init()
         g_Param.sw_fan = 0;       // 风扇
         g_Param.sw_vague_pid = 0; // 模糊PID
         g_Param.sw_pvt = 0;       // PVT模式
-        g_Param.foc_mode = 0;     // 运行模式
+        g_Param.sensor_mode = 0;  // 运行模式
         g_Param.loop_mode = 0;    // 环模式
 
         g_Param.motor_wire_sequence = 0; // 电机线圈顺序
@@ -479,6 +464,6 @@ void Param_write_foc()
 {
     // 带参数写入的全部初始化
     protection_manager_init();
-    CAN_SET_ID_QUEUE(g_Param.can_id, g_Param.sw_canqueue);
+    fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
     fFOC_Init();
 }

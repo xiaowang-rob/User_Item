@@ -11,8 +11,8 @@ typedef struct
     u8 data[MAX_frame_length];
     u8 check;
     u8 tail;
-} USB_frame_t;
-bool usb_Frame_send(u8 id, u8 *data, u8 len);
-void usb_FrameData_deal(u8 id, u8 *data, u8 len);
+} tUSB_Frame;
+bool fUSB_SendFrame(u8 id, u8 *data, u8 len);
+void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len);
 
 #endif /* __USB_INTERFACE_H */

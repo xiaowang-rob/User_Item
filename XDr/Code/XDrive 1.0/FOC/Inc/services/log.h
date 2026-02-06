@@ -23,7 +23,7 @@ typedef struct
     u8 fault;
     u8 warning;
 
-    u8 run_mode;
+    u8 sensor_mode;
     u8 loop_mode;
 
     u8 usb_state;

@@ -20,7 +20,7 @@ bool system_init_event(void)
     fFLASH_Init();
     if (!Param_init())
         return false;
-    communication_init();
+    fCommunicateInit();
     protection_manager_init();
     log_init();
     fAdcDrInit();
@@ -49,14 +49,14 @@ void SystemStateMachine_run(void)
         break;
     case SYSTEM_RUNNING:
         // 通讯层运行
-        communication_run();
+        fCommunicateMainLoop();
         // 控制层由定时器驱动
         // 服务层运行
         protection_manager_run();
         status_feedback();
         break;
     case SYSTEM_ERROR:
-        FOC_CHANGE_STATE(FOC_FAULT);
+        fFOC_StateUpdate(FOC_FAULT);
         System_Fault_feedback();
         break;
     }

@@ -3,8 +3,13 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QEvent
 from PyQt5.QtGui import QFont
 import numpy as np
-from UI.data_ui_map import Cidx
-
+from UI.data_ui_map import (
+    Cidx,Didx,
+    rad_per_sec_to_rpm,
+    rpm_to_rad_per_sec,
+    rad_to_deg,
+    deg_to_rad,
+    )
 
 class WaveformWidget(QWidget):
     """波形显示控件 - 支持5通道实时波形绘制"""
@@ -70,6 +75,28 @@ class WaveformWidget(QWidget):
         # ========== 关键修复：为PlotWidget的viewport安装事件过滤器 ==========
         # PyQtGraph中滚轮事件实际由PlotWidget.viewport()接收，需在此层级拦截
         self.plot_widget.viewport().installEventFilter(self)
+
+        # ========== 悬停显示功能初始化 ==========
+        self.hover_label = pg.TextItem(
+            text="",
+            color='#ffffff',
+            border=pg.mkPen(80, 80, 80, 200),
+            fill=pg.mkBrush(35, 35, 38, 220),
+            anchor=(0.5, 1.5)  # 标签位于点正上方
+        )
+        self.hover_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.plot_widget.addItem(self.hover_label)
+        self.hover_label.hide()
+
+        # 限流鼠标事件（60Hz）
+        self._mouse_proxy = pg.SignalProxy(
+            self.plot_widget.scene().sigMouseMoved,
+            rateLimit=60,
+            slot=self._on_mouse_hover
+        )
+    
+    def set_auto_x_scale(self, state):
+        """设置X轴自动缩放状态"""                                                                                   
     
     def init_ui(self):
         """初始化UI布局和样式"""
@@ -150,11 +177,14 @@ class WaveformWidget(QWidget):
             self.auto_scale_x_axis()
     
     def auto_scale_y_axis(self):
-        """Y轴自动缩放 - 根据所有通道数据计算范围"""
+        """Y轴自动缩放 - 过滤NaN/Inf避免ViewBox崩溃"""
         all_data = []
         for wave in self.wave_data:
-            if len(wave) > 0:
-                all_data.extend(wave)
+            if wave:
+                # 关键修复：过滤非有限值
+                valid_data = [y for y in wave if np.isfinite(y)]
+                if valid_data:
+                    all_data.extend(valid_data)
         
         if not all_data:
             return
@@ -162,7 +192,6 @@ class WaveformWidget(QWidget):
         min_val = min(all_data)
         max_val = max(all_data)
         margin = (max_val - min_val) * 0.1 if max_val != min_val else 1
-        
         self.plot_widget.setYRange(min_val - margin, max_val + margin)
     
     def auto_scale_x_axis(self):
@@ -237,6 +266,60 @@ class WaveformWidget(QWidget):
             self.auto_y = enable
             self.auto_y_state_changed.emit(enable)
     
+    def _on_mouse_hover(self, evt):
+        """鼠标悬停显示最近点的Y值"""
+        pos = evt[0] if isinstance(evt, tuple) else evt
+        view_box = self.plot_widget.getViewBox()
+        
+        # 检查鼠标是否在绘图区域内
+        if not self.plot_widget.sceneBoundingRect().contains(pos):
+            self.hover_label.hide()
+            return
+        
+        mouse_view = view_box.mapSceneToView(pos)
+        view_range = view_box.viewRange()
+        x_visible = (view_range[0][0], view_range[0][1])
+        y_visible = (view_range[1][0], view_range[1][1])
+        
+        # 查找最近的有效数据点
+        min_dist = float('inf')
+        best_y = None
+        
+        for wave in self.wave_data:
+            if not wave:
+                continue
+                
+            # 仅处理可视区域内的数据（性能优化）
+            x_data = np.arange(len(wave))
+            mask = (x_data >= x_visible[0]) & (x_data <= x_visible[1])
+            if not np.any(mask):
+                continue
+                
+            y_data = np.array(wave)[mask]
+            x_sub = x_data[mask]
+            
+            # 计算归一化距离（避免坐标轴比例影响）
+            dx = (x_sub - mouse_view.x()) / (x_visible[1] - x_visible[0] + 1e-6)
+            dy = (y_data - mouse_view.y()) / (y_visible[1] - y_visible[0] + 1e-6)
+            dist = np.sqrt(dx*dx + dy*dy)
+            
+            idx = np.argmin(dist)
+            if dist[idx] < min_dist:
+                min_dist = dist[idx]
+                best_y = y_data[idx]
+        
+        # 距离阈值：归一化距离 < 0.05 时显示（约15像素内）
+        if min_dist < 0.05 and best_y is not None and np.isfinite(best_y):
+            self.hover_label.setHtml(f'<span style="color:#ffffff; font-weight:bold;">{best_y:.3f}</span>')
+            self.hover_label.setPos(mouse_view.x(), best_y)  # 标签定位在Y值位置
+            self.hover_label.show()
+        else:
+            self.hover_label.hide()
+    
+    def leaveEvent(self, event):
+        super().leaveEvent(event)
+        self.hover_label.hide()
+
     def start(self):
         """启动波形更新"""
         self.is_running = True
@@ -373,5 +456,12 @@ class Wave:
             index: 显示索引(0-4)
             data: 数值或数值列表
         """
+        match (self.showindex[index]+3):
+            case Didx.SPEED|Didx.SPEED_con|Didx.SPEED_ref:
+                val=rad_per_sec_to_rpm(data)
+            case Didx.THETA_elec|Didx.THETA_mech|Didx.POSITION|Didx.POSITION_ref:
+                val=rad_to_deg(data)
+            case _:
+                val=data
         if index < len(self.channel_index):
             self.add_data(self.channel_index[index], data)

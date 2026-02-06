@@ -12,16 +12,15 @@ typedef struct
     u8 data[MAX_frame_length];
     u8 check;
     u8 tail;
-} Usart_Farme_t;
+} tUartFrame;
 
-void usart_port_Init();
-void usartSendByte(u8 *data);
-void usartSendData(u8 *data, u8 len);
-void usartRecvByte(u8 *data);
-void usart_frame_send(u8 id, u8 *data, u8 len);
-void usart_farmedata_deal(u8 id, u8 *data, u8 len);
+// 函数声明
+void fUartPortInit();
+void fUartPortSendData(u8 *data, u8 len);
+void fUartPortSendFrame(u8 id, u8 *data, u8 len);
+void fUartRxFrameCallback(u8 id, u8 *data, u8 len);
 
 // 发送多个浮点数（VOFA+ Float 格式）
-void vofa_send_multi_float(const float *data, u8 count);
+void fVOFA_FloatDataSend(const float *data, u8 count);
 
 #endif
