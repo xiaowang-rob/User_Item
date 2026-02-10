@@ -8,16 +8,23 @@
 /*
 只记录每次上电之后所有的报错和警告
 */
-Index_t Index;
-LOG_t Log;
-void log_init(void)
+tLogindex Index;
+tLog Log;
+
+void fLogInit(void)
 {
     Index.num = 0;
-    Index.write_addr = Log_start_addr;
-    log_erase();
+    for (Index.num = 0; Index.num < MAX_log_NUM; Index.num++)
+    {
+        fFLASH_ReadData((u8 *)&Log, Log_start_addr + Index.num * sizeof(Log), sizeof(Log));
+        if (Log.num != Index.num)
+            break;
+    }
+    Index.log_addr = Log_start_addr + Index.num * sizeof(Log);
 }
-void log_data_save(void)
+void fLogDataSave(void)
 {
+    Log.num = Index.num;
     Log.Vbus = g_foc.core->motor->Udc;
     Log.TEMP = g_pro_manager.temperature;
     Log.Iu = g_foc.core->foc_val->Iu;
@@ -33,30 +40,24 @@ void log_data_save(void)
     Log.position_ref = fRadToDeg(g_foc.core->foc_val->pos_ref);
     Log.loop_mode = g_foc.core->foc_mode->loop_mode;
     Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
-    Log.fault = (fault_e)g_pro_manager.fault;
-    Log.warning = (Warning_e)g_pro_manager.warning;
+    Log.fault = (eFault)g_pro_manager.fault;
+    Log.warning = (eWarning)g_pro_manager.warning;
 
-    Log.usb_state = g_pro_manager.drive_state->usb_state;
     Log.can_state = g_pro_manager.drive_state->can_state;
-    Log.flash_state = g_pro_manager.drive_state->flash_state;
     Log.encoder_state = g_pro_manager.drive_state->encoder_state;
-    Log.num = Index.num;
-    u32 time = HAL_GetTick();
-    Log.seconds = time / 1000;
 }
-bool log_data_write(void)
+bool fLogDataWrite(void)
 {
-    fFLASH_WriteWord((u8 *)&Log, Index.write_addr, sizeof(Log));
+    fFLASH_WriteWord((u8 *)&Log, Index.log_addr, sizeof(Log));
     Index.num++;
-    Index.write_addr += sizeof(Log);
+    Index.log_addr += sizeof(Log);
     if (Index.num >= MAX_log_NUM)
         return false; // 日志已满 强制检查日志手动清除
-
     return true;
 }
 
 static u8 read_index = 0;
-bool log_read_flash(u8 *data, u8 *len)
+bool fLogReadFlash(u8 *data, u8 *len)
 {
     if (read_index < MAX_log_NUM)
     {
@@ -81,15 +82,10 @@ bool log_read_flash(u8 *data, u8 *len)
         return true;
     }
 }
-void log_read_now(u8 *data, u8 *len)
-{
-    memcpy(data, &Log, sizeof(Log));
-    *len = sizeof(Log);
-}
 
-void log_erase()
+void fLogErase()
 {
     fFLASH_EraseSector(Log_start_addr, MAX_log_NUM * sizeof(Log));
     Index.num = 0;
-    Index.write_addr = Log_start_addr;
+    Index.log_addr = Log_start_addr;
 }

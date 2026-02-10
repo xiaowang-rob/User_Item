@@ -8,9 +8,10 @@ typedef enum
     SYSTEM_INIT,
     SYSTEM_RUNNING,
     SYSTEM_ERROR,
-} SYSTEM_STATE_e;
+} eSystemStatus;
 
-void SystemState_change(SYSTEM_STATE_e new_state);
-SYSTEM_STATE_e SystemState_get(void);
-void SystemStateMachine_run(void);
+void fSystemStateUpdata(eSystemStatus new_state);
+eSystemStatus fSystemStateGet(void);
+void SystemStateMachine_MainLoop(void);
+
 #endif

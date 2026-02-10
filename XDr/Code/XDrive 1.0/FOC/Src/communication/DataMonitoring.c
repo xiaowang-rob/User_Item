@@ -12,7 +12,7 @@ void fStreamDataGet(Data_stream_e stream, float *data)
     switch (stream)
     {
     case STATUS:
-        _sta[0] = SystemState_get();
+        _sta[0] = fSystemStateGet();
         _sta[1] = g_foc.state;
         _sta[2] = g_pro_manager.fault;
         _sta[3] = g_pro_manager.warning;

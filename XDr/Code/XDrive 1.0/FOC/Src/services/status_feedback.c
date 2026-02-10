@@ -3,8 +3,7 @@
 #include "rgb.h"
 #include "protection_manager.h"
 
-
-void status_feedback()
+void fStatusFeedbackMainLoop()
 {
     switch (g_foc.state)
     {
@@ -61,7 +60,7 @@ void status_feedback()
     }
     fLED_Show(can_state, encoder_state);
 }
-void System_Fault_feedback()
+void fSystemFaultFeedback()
 {
     fRGB_Breathe(WHITE); // 白色
 }

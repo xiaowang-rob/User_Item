@@ -36,7 +36,7 @@ static bool param_send_flag = false;
 static u8 param_index = 0;
 void _all_params_send()
 {
-    Param_get((Parameter_e)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
+    fParamGet((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
     com_frame.txdatalen += 1;
     fHostComputer_send();
@@ -50,7 +50,7 @@ void _all_params_send()
 static bool log_send_flag = false;
 void _all_log_send()
 {
-    if (log_read_flash(com_frame.txdata, &com_frame.txdatalen))
+    if (fLogReadFlash(com_frame.txdata, &com_frame.txdatalen))
         log_send_flag = false;
     else
         fHostComputer_send();
@@ -150,25 +150,25 @@ void _frame_data_deal()
                 fFOC_StateUpdate(FOC_DISABLE);
                 break;
             case PROTECT_RESET:
-                protection_manager_reset();
+                fProManagerReset();
                 break;
             case LOG_GET:
                 log_send_flag = true;
                 break;
             case LOG_ERASE:
-                log_erase();
+                fLogErase();
                 com_frame.txdata[0] = execute;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
             case PARAM_ERASE:
-                Param_erase();
+                fParamErase();
                 com_frame.txdata[0] = execute;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
             case PARAM_SAVE: // 一键保存
-                if (Param_save())
+                if (fParamSave())
                     com_frame.txdata[0] = execute;
                 else
                     com_frame.txdata[0] = failure;
@@ -188,7 +188,7 @@ void _frame_data_deal()
             switch (com_frame.cmd_id)
             {
             case PARAM_WRITE: // 指定写入
-                Param_set(com_frame.rxdata[0], &com_frame.rxdata[1]);
+                fParamSet(com_frame.rxdata[0], &com_frame.rxdata[1]);
                 break;
             case PARAM_READ:
                 if (com_frame.rxdata[0] == 0xff)
@@ -196,7 +196,7 @@ void _frame_data_deal()
                     param_send_flag = true;
                     break;
                 } // 指定读取
-                Param_get(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
+                fParamGet(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
                 fHostComputer_send();
                 break;
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte

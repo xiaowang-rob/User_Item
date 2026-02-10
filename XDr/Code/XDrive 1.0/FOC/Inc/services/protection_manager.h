@@ -17,7 +17,7 @@ typedef enum
     CAN_INIT_FAULT,          // CAN初始化失败
     CAN_COMMUNICATION_FAULT, // CAN通信失败
 
-} fault_e;
+} eFault;
 typedef enum
 {
     NO_WARNING,
@@ -26,15 +26,15 @@ typedef enum
     OVER_POSITION,
     ENCODER_OFFLINE,   // 无编码器 或者 磁场弱
     ENCODER_COM_ERROR, // 编码器通信错误
-} Warning_e;
+} eWarning;
 typedef struct
 {
     u8 temp_u;
     u8 temp_v;
     u8 temp_w;
     float temperature;
-    fault_e fault;
-    Warning_e warning;
+    eFault fault;
+    eWarning warning;
     bool fault_flag;
     bool warning_flag;
     bool log_done;
@@ -50,12 +50,12 @@ typedef struct
 
     tCommunicationState *com_state;
     tDeviceStatus *drive_state;
-} protection_manager_t;
-extern protection_manager_t g_pro_manager;
+} tProtectionManager;
+extern tProtectionManager g_pro_manager;
 
-void protection_manager_init();
-
-void protection_manager_reset();
-void protection_manager_run();
+// functions
+void fProManagerInit();
+void fProManagerReset();
+void fProManagerMainLoop();
 
 #endif /* __PROTECTION_MANAGER_H */

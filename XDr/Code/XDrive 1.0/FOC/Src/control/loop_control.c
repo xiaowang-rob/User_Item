@@ -167,7 +167,7 @@ void PID_reset(tPID *pid)
 }
 
 // 环路控制器整体初始化
-void fLoopControlInit(Parameter_t param, float Vmax)
+void fLoopControlInit(tParameter param, float Vmax)
 {
     fFrequencyDivisionInit(param.freq_current_loop, param.freq_speed_loop, param.freq_position_loop);
     loop_con.max_Vs = Vmax;

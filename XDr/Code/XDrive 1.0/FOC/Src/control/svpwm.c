@@ -66,7 +66,7 @@ void fSvpwmRun(float ualpha, float ubeta)
     u8 B = U2 > 0;
     u8 C = U3 > 0;
     u8 vN = 4 * C + 2 * B + A;
-    float Tx, Ty, Tzero;
+    float Tx, Ty, Tzero; // Tx:第一相作用时间 Ty:第二相作用时间 Tzero:零向量作用时间
     switch (vN)
     {
     case 0:               // Zero vector (all negative)

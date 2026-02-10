@@ -7,9 +7,9 @@
 #include "adc_dr.h"
 #include "flashDr.h"
 
-SYSTEM_STATE_e system_status = SYSTEM_INIT;
+eSystemStatus system_status = SYSTEM_INIT;
 
-bool system_init_event(void)
+bool _SystemInitEvent(void)
 {
     /*
     这里的顺序不能乱，因为里面有一些初始化函数，如果顺序不对，会导致一些变量没有初始化，导致程序出错
@@ -18,46 +18,48 @@ bool system_init_event(void)
     flash-参数-通讯-保护-日志-adc -foc初始化
     */
     fFLASH_Init();
-    if (!Param_init())
+    if (!fParamInit())
         return false;
     fCommunicateInit();
-    protection_manager_init();
-    log_init();
+    fProManagerInit();
+    fLogInit();
     fAdcDrInit();
     fFOC_Init();
 
     return true;
 }
 
-void SystemState_change(SYSTEM_STATE_e new_state)
+void fSystemStateUpdata(eSystemStatus new_state)
 {
     system_status = new_state;
 }
-SYSTEM_STATE_e SystemState_get(void)
+
+eSystemStatus fSystemStateGet(void)
 {
     return system_status;
 }
-void SystemStateMachine_run(void)
+// 整个驱动的主循环
+void SystemStateMachine_MainLoop(void)
 {
     switch (system_status)
     {
     case SYSTEM_INIT:
-        if (system_init_event())
-            SystemState_change(SYSTEM_RUNNING);
+        if (_SystemInitEvent())
+            fSystemStateUpdata(SYSTEM_RUNNING);
         else
-            SystemState_change(SYSTEM_ERROR);
+            fSystemStateUpdata(SYSTEM_ERROR);
         break;
     case SYSTEM_RUNNING:
         // 通讯层运行
         fCommunicateMainLoop();
         // 控制层由定时器驱动
         // 服务层运行
-        protection_manager_run();
-        status_feedback();
+        fProManagerMainLoop();
+        fStatusFeedbackMainLoop();
         break;
     case SYSTEM_ERROR:
         fFOC_StateUpdate(FOC_FAULT);
-        System_Fault_feedback();
+        fSystemFaultFeedback();
         break;
     }
 }

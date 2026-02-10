@@ -69,7 +69,7 @@ typedef enum
     CHANGE_LOOP_SPEED, // 切环速度
 
     COUNT_PARAM
-} Parameter_e;
+} eParameter;
 
 typedef struct
 {
@@ -128,15 +128,15 @@ typedef struct
     float open_loop_current;
     float open_loop_omega;
     float change_loop_omega;
-} Parameter_t;
+} tParameter;
 
-extern Parameter_t g_Param;
+extern tParameter g_Param;
 
-void Param_set(Parameter_e para, u8 *value);
-void Param_get(Parameter_e para, u8 *value, u8 *len);
-bool Param_save();      // 一键保存
-void Param_erase();     // 一键擦除
-void Param_write_foc(); // 一键写入
-bool Param_init();
+void fParamSet(eParameter para, u8 *value);
+void fParamGet(eParameter para, u8 *value, u8 *len);
+bool fParamSave();     // 一键保存
+void fParamErase();    // 一键擦除
+void fParamWriteFOC(); // 一键写入
+bool fParamInit();
 
 #endif // __PARAMETER_MANAGER_H__

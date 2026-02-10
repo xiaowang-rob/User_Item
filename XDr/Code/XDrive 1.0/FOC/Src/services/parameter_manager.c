@@ -7,9 +7,9 @@
 #include "can_port.h"
 #include "drive_parameters.h"
 
-Parameter_t g_Param;
+tParameter g_Param;
 
-void Param_set(Parameter_e para, u8 *value)
+void fParamSet(eParameter para, u8 *value)
 {
     float temp = 0;
     switch (para)
@@ -156,10 +156,10 @@ void Param_set(Parameter_e para, u8 *value)
     default:
         break;
     }
-    Param_write_foc();
+    fParamWriteFOC();
 }
 
-void Param_get(Parameter_e para, u8 *value, u8 *len)
+void fParamGet(eParameter para, u8 *value, u8 *len)
 {
     float temp = 0;
     switch (para)
@@ -370,18 +370,18 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     }
 }
-bool Param_read_flash()
+bool _ParamReadFlash()
 {
     return fFLASH_ReadData((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
-bool Param_write_flash()
+bool fParamSave()
 {
     fFLASH_EraseSector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
     return fFLASH_WriteWord((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
-bool Param_init()
+bool fParamInit()
 {
-    if (Param_read_flash() == false)
+    if (_ParamReadFlash() == false)
         return false;
     if (g_Param.none_flag != 0x01)
     { // flash中没有参数，初始化参数
@@ -450,20 +450,15 @@ bool Param_init()
     return true;
 }
 
-bool Param_save()
-{
-    return Param_write_flash();
-}
-
-void Param_erase()
+void fParamErase()
 {
     fEraseOneSector(PARAMETER_LOAD_ADDr);
 }
 // 写入FOC
-void Param_write_foc()
+void fParamWriteFOC()
 {
     // 带参数写入的全部初始化
-    protection_manager_init();
+    fProManagerInit();
     fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
     fFOC_Init();
 }

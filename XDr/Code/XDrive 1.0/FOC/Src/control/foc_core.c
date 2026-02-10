@@ -16,7 +16,7 @@ tMotor Motor = {0};
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .startup_machine = &startup_machine, .motor = &Motor};
 
 // 启动器初始化
-void startup_machine_init(Parameter_t param)
+void startup_machine_init(tParameter param)
 {
     memset(&startup_machine, 0, sizeof(tStartupMechine));
     startup_machine.omega_acc = param.startup_acc * loop_con.fd.Tspd;
@@ -27,7 +27,7 @@ void startup_machine_init(Parameter_t param)
 }
 
 // 模式初始化
-void mode_init(Parameter_t param)
+void mode_init(tParameter param)
 {
     fFOC_SetSensorMode(param.sensor_mode);
     foc_mode.loop_mode = param.loop_mode;
@@ -36,7 +36,7 @@ void mode_init(Parameter_t param)
 }
 
 // 电机参数初始化
-void motor_init(Parameter_t param)
+void motor_init(tParameter param)
 {
     Motor.Wire_sequence = param.motor_wire_sequence == 0 ? 1 : -1;
     Motor.offset_angle = param.theta_offset;

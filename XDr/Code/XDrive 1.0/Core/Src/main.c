@@ -123,7 +123,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    SystemStateMachine_run();
+    SystemStateMachine_MainLoop();
 
 #ifdef __DEBUG__ //***********调试************
 
@@ -193,7 +193,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  SystemState_change(SYSTEM_ERROR);
+  fSystemStateUpdata(SYSTEM_ERROR);
   // while (1)
   // {
 
