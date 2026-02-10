@@ -104,11 +104,6 @@ void _frame_data_deal()
         case CMD_MODE_SET:
             fFOC_SetLoopMode(com_frame.rxdata[0]);
             break;
-        case PARAM_READ:
-            data_id = com_frame.rxdata[0];
-            Param_get((Parameter_e)data_id, com_frame.txdata, &com_frame.txdatalen);
-            fCAN_SendData(com_frame.txdata, com_frame.txdatalen);
-            break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
             fStreamDataGet((Data_stream_e)data_id, (float *)com_frame.txdata);

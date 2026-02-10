@@ -157,7 +157,7 @@ class ComPort(QObject):
                 send_simple_message(MSG_TYPE_ERROR, f"串口被占用或不存在: {port}", True, 3000)
             else:
                 send_simple_message(MSG_TYPE_WARNING, f"连接失败: {error_msg}", True, 2000)
-            
+            self._update_ui_state()
             self.disconnect()
             return False
 

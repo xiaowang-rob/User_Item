@@ -11,11 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1400, 900)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_XDr(object):
+    def setupUi(self, XDr):
+        XDr.setObjectName("XDr")
+        XDr.resize(1400, 900)
+        self.centralwidget = QtWidgets.QWidget(XDr)
         self.centralwidget.setStyleSheet("background-color: #1E2227;")
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -72,13 +72,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setStretch(0, 2)
         self.verticalLayout_3.setStretch(1, 1)
         self.verticalLayout_3.setStretch(2, 13)
-        MainWindow.setCentralWidget(self.centralwidget)
+        XDr.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(XDr)
+        QtCore.QMetaObject.connectSlotsByName(XDr)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, XDr):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p><img src=\":/images/UI/images/x .svg\"/></p></body></html>"))
+        XDr.setWindowTitle(_translate("XDr", "XDr"))
+        self.label.setText(_translate("XDr", "<html><head/><body><p><img src=\":/images/UI/images/x .svg\"/></p></body></html>"))
 import resources_rc

@@ -214,7 +214,7 @@ class Pconfig:
         self.combo_config.blockSignals(False)
 
     # ======================
-    # 内部方法：根据显示名称加载配置到 param_list（三重防护）
+    # 内部方法：根据显示名称加载配置到 param_list
     # ======================
     def _load_config_by_name(self, display_name: str):
         config_name = display_name + ".json"
@@ -233,31 +233,39 @@ class Pconfig:
             # 防护2：处理标准字典格式 {"params": [...]}
             elif isinstance(raw_data, dict) and "params" in raw_data:
                 params = raw_data["params"]
-            # 防护3：处理错误格式（单个数字/字符串）
+            # 防护3：处理错误格式
             else:
-                # 尝试将任何值转为列表
-                try:
-                    params = [float(raw_data)] if isinstance(raw_data, (int, float)) else []
-                except:
-                    params = []
-            
-            # 关键修复：确保 params 是列表（防止后续操作崩溃）
-            if not isinstance(params, list):
                 params = []
             
-            # 安全复制到 param_list（逐元素转换，避免类型错误）
-            param_list = self.mw.param_manager.param_list
-            for i in range(min(len(params), len(param_list))):
-                try:
-                    param_list[i] = float(params[i])
-                except (TypeError, ValueError, IndexError):
-                    param_list[i] = 0.0  # 无效值设为0
+            # ====== 关键修复1：确保 params 是列表（在 len() 调用前） ======
+            if not isinstance(params, list):
+                params = []
+            # ==========================================================
             
-            # 统一刷新UI
-            self.mw.param_manager.param_all_show()
+            # 使用 load_param 逐个加载参数，保留原始类型
+            param_manager = self.mw.param_manager
+            total_params = len(param_manager.param_list)
+            loaded_count = 0
+            
+            for i in range(min(len(params), total_params)):
+                try:
+                    value = params[i]
+                    # 关键修复2：仅做必要类型转换（字符串数字 → 数字），其他保留原类型
+                    if isinstance(value, str):
+                        # 尝试转为数字，失败则跳过
+                        try:
+                            value = float(value) if '.' in value or 'e' in value.lower() else int(value)
+                        except ValueError:
+                            continue  # 非数字字符串跳过
+                    elif not isinstance(value, (int, float, bool)):
+                        continue  # 非法类型跳过
+                    
+                    param_manager.load_param(i, value)  # 保留原始类型
+                    loaded_count += 1
+                except (IndexError, TypeError):
+                    continue  # 安全跳过异常项
             
             send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name}”加载成功", True, 800)
         except Exception as e:
-            # 增强错误诊断：显示具体类型
             error_msg = f"加载失败: {type(e).__name__} - {str(e)[:100]}"
-            send_simple_message(MSG_TYPE_ERROR, error_msg, True, 2000)   # 长时间显示           
+            send_simple_message(MSG_TYPE_ERROR, error_msg, True, 2000)  

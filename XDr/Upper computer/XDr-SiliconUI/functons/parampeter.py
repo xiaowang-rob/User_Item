@@ -82,6 +82,10 @@ class ParameterManager:
         self.param_list[index]=val     
         self.show_param(index,val)
 
+    def load_param(self,index,data):
+        self.param_list[index]=data
+        self.show_param(index,data)
+
     def show_param(self,index,data):
         if index < Pidx.CAN_ID:
             match index:

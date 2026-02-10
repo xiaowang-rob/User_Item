@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow
-from UI.Ui_mainwindow import Ui_MainWindow
+from UI.Ui_mainwindow import Ui_XDr
 from siui.gui.icons.parser import GlobalIconPack
 from .top_area import TopArea
 
@@ -43,7 +43,7 @@ class MainWindow(QMainWindow):
 
 
         #主要布局
-        self.ui=Ui_MainWindow()
+        self.ui=Ui_XDr()
         self.ui.setupUi(self)
 
         #区域UI初始化
