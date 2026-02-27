@@ -25,6 +25,7 @@ void fLogInit(void)
 void fLogDataSave(void)
 {
     Log.num = Index.num;
+    Log.minutes = HAL_GetTick() / 1000 / 60;
     Log.Vbus = g_foc.core->motor->Udc;
     Log.TEMP = g_pro_manager.temperature;
     Log.Iu = g_foc.core->foc_val->Iu;

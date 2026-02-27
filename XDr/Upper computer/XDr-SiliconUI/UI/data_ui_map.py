@@ -4,12 +4,12 @@
 class Pidx:
     # u8 类型参数
     SENSOR_MODE          = 0
-    RUN_MODE            = 1
+    RUN_MODE             = 1
     CAN_MODE             = 2
     WEAKMAG_MODE         = 3
-    FAN_MODE             = 4
-    VAGUE_PID_MODE       = 5
-    PVT_MODE             = 6
+    VAGUE_PID_MODE       = 4
+    PVT_MODE             = 5
+    TRAJ_TYPE            = 6
     MOTOR_WIRE_SEQUENCE  = 7
     MOTOR_POLEPAIRS      = 8
     FREQ_CURRENT_LOOP    = 9
@@ -49,14 +49,13 @@ class Pidx:
     TOLERANCE_CURRENT    = 39
     TOLERANCE_SPEED      = 40
     TOLERANCE_POSITION   = 41
-    STARTUP_ACC          = 42
-    ALIGN_CURRENT        = 43
-    ALIGN_TIME           = 44
-    OPEN_LOOP_CURRENT    = 45
-    OPEN_LOOP_SPEED      = 46
-    CHANGE_LOOP_SPEED    = 47
 
-    NUM_OF_PARAM         = 48
+    TRAJ_MAX_RATE        = 42
+    TRAJ_MAX_ACC         = 43
+    TRAJ_MAX_JERK        = 44
+    TRAJ_TOLERANCE       = 45
+
+    NUM_OF_PARAM         = 46
 
 
 # ============================
@@ -160,13 +159,13 @@ class Sidx:
 # ====================================
 class Midx:
     sensor_mode        = ["开环", "有感（编码反馈）", "无感（HFI+SMO）","融合（编码+SMO）"]
-    run_mode          = [ "电流模式", "速度模式", "绝对位置模式", "相对位置模式"]
-    target_value       = ["q轴电压/V","q轴电流/A","速度/rpm","绝对位置/°","相对位置/°"]
+    run_mode           = [ "电流模式", "速度模式", "位置模式"]
+    target_value       = ["q轴电压/V","q轴电流/A","速度/rpm","位置/°"]
     can_mode           = ["实时处理", "队列处理"]
     weakmag_mode       = ["禁用", "启动"]
     vague_PID_mode     = ["禁用", "启动"]
     pvt_mode           = ["禁用", "启动"]
-    fan_mode           = ["禁用", "启动"]
+    traj_type          = ["禁用","梯形", "S形"]
 
     sys_state          = ["INIT", "RUN", "ERROR"]
     foc_state          = ["IDLE", "TUNE", "RESET", "ENABLE", "DISABLE", "RUNNING", "SHUTDOWN", "FAULT", "WARNING"]
@@ -217,9 +216,11 @@ class Data_UI_Map:
             Pidx.RUN_MODE:            parameter_page.runmode_input,
             Pidx.CAN_MODE:             parameter_page.can_mode_input,
             Pidx.WEAKMAG_MODE:         parameter_page.weakmag_mode_input,
-            Pidx.FAN_MODE:             parameter_page.FAN_mode_input,
+
             Pidx.VAGUE_PID_MODE:       parameter_page.vaguePID_input,
             Pidx.PVT_MODE:             parameter_page.PVT_mode_input,
+            Pidx.TRAJ_TYPE:             parameter_page.TRAJ_mode_input,
+
             Pidx.MOTOR_WIRE_SEQUENCE:  parameter_page.motor_WireSequence_input,
             Pidx.MOTOR_POLEPAIRS:      parameter_page.motor_polepairs_input,
             Pidx.FREQ_CURRENT_LOOP:    parameter_page.freq_current_loop,
@@ -259,12 +260,10 @@ class Data_UI_Map:
             Pidx.TOLERANCE_CURRENT:    parameter_page.tolerance_current,
             Pidx.TOLERANCE_SPEED:      parameter_page.tolerance_speed,
             Pidx.TOLERANCE_POSITION:   parameter_page.tolerance_position,
-            Pidx.STARTUP_ACC:          parameter_page.start_accel,
-            Pidx.ALIGN_CURRENT:        parameter_page.algin_current,
-            Pidx.ALIGN_TIME:           parameter_page.algin_time,
-            Pidx.OPEN_LOOP_CURRENT:    parameter_page.open_loop_current,
-            Pidx.OPEN_LOOP_SPEED:      parameter_page.open_loop_speed,
-            Pidx.CHANGE_LOOP_SPEED:    parameter_page.change_loop_speed,
+            Pidx.TRAJ_MAX_RATE:        parameter_page.traj_max_rate,
+            Pidx.TRAJ_MAX_ACC:         parameter_page.traj_max_acc,
+            Pidx.TRAJ_MAX_JERK:        parameter_page.traj_max_jerk,
+            Pidx.TRAJ_TOLERANCE:       parameter_page.traj_tolerance,
         }
 
         # 参数显示控件映射（顶部状态栏）

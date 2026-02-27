@@ -23,18 +23,17 @@ class LogManager:
 
 
     def add_log(self, log_bytes):
-        if len(log_bytes) < 10:
-            raise ValueError("log_bytes too short, need at least 10 bytes")
+        if len(log_bytes) < 8:
+            raise ValueError("log_bytes too short, need at least 8 bytes")
 
         new_log = []
 
-        # 前10个字节：作为整数（或保持为 bytes，根据需求）
-        for i in range(10):
+        # 前8个字节： bytes
+        for i in range(8):
             new_log.append(log_bytes[i])  # 这是 int 类型（Python 3 中 bytes[i] 是 int）
 
-        #由于结构体的对齐方式，这里需要空两个字节
         # 剩余部分：每4字节解析为一个 float
-        remaining = log_bytes[12:]
+        remaining = log_bytes[8:]
         if len(remaining) % 4 != 0:
             raise ValueError("Remaining bytes after 10 must be multiple of 4 for float32")
 
@@ -57,15 +56,11 @@ class LogManager:
         
         index=item.data(Qt.UserRole)
         self.log_map[Lidx.num].setText(str(self.logs[index][Lidx.num]))
-        hour=int(self.logs[index][Lidx.time]/3600)
-        minute=int(self.logs[index][Lidx.time]%3600/60)
-        second=int(self.logs[index][Lidx.time]%60)
-        time=str(hour)+':'+str(minute)+':'+str(second)
-        self.log_map[Lidx.time].setText(time)
+        self.log_map[Lidx.time].setText(str(self.logs[index][Lidx.time]))
         self.log_map[Lidx.fault].setText(Midx.fault_state[int(self.logs[index][Lidx.fault])])
         self.log_map[Lidx.warning].setText(Midx.warning_state[int(self.logs[index][Lidx.warning])])
         self.log_map[Lidx.sensor_mode].setText(Midx.sensor_mode[int(self.logs[index][Lidx.sensor_mode])])
-        self.log_map[Lidx.loop_mode].setText(Midx.run_mode[int(self.logs[index][Lidx.loop_mode])])
+        self.log_map[Lidx.run_mode].setText(Midx.run_mode[int(self.logs[index][Lidx.run_mode])])
         self.log_map[Lidx.usb_status].setText(Midx.drive_state[int(self.logs[index][Lidx.usb_status])])
         self.log_map[Lidx.can_status].setText(Midx.drive_state[int(self.logs[index][Lidx.can_status])])
         self.log_map[Lidx.flash_status].setText(Midx.drive_state[int(self.logs[index][Lidx.flash_status])])

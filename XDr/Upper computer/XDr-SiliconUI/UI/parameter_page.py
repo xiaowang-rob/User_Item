@@ -14,9 +14,9 @@ from siui.components.combobox_ import SiCapsuleComboBox
 from .data_ui_map import Midx
 
 
-title_W=60
+title_W=80
 drive_title_W=100
-all_W=180
+all_W=240
 
 
 class ParameterPage():
@@ -225,7 +225,7 @@ class ParameterPage():
             self.sensormode_input.addItem(i)
 
         self.runmode_input=SiCapsuleComboBox()
-        self.runmode_input.setTitle("控制环")
+        self.runmode_input.setTitle("运行模式")
         self.runmode_input.setEditable(False)
         self.runmode_input.setFixedHeight(36)
         self.runmode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
@@ -269,14 +269,14 @@ class ParameterPage():
         for i in Midx.pvt_mode:
             self.PVT_mode_input.addItem(i)
 
-        self.FAN_mode_input=SiCapsuleComboBox()
-        self.FAN_mode_input.setTitle("风扇模式")
-        self.FAN_mode_input.setEditable(False)
-        self.FAN_mode_input.setFixedHeight(36)
-        self.FAN_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.FAN_mode_input.setTitleFixedWidth(title_W)
-        for i in Midx.fan_mode:
-            self.FAN_mode_input.addItem(i)
+        self.TRAJ_mode_input=SiCapsuleComboBox()
+        self.TRAJ_mode_input.setTitle("轨迹模式")
+        self.TRAJ_mode_input.setEditable(False)
+        self.TRAJ_mode_input.setFixedHeight(36)
+        self.TRAJ_mode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.TRAJ_mode_input.setTitleFixedWidth(title_W)
+        for i in Midx.traj_type:
+            self.TRAJ_mode_input.addItem(i)
 
 
 
@@ -287,7 +287,7 @@ class ParameterPage():
         mode_layout.addWidget(self.weakmag_mode_input)
         mode_layout.addWidget(self.vaguePID_input)
         mode_layout.addWidget(self.PVT_mode_input)
-        mode_layout.addWidget(self.FAN_mode_input)
+        mode_layout.addWidget(self.TRAJ_mode_input)
         mode_layout.setAlignment(Qt.AlignTop)
 
         #电机参数#########################################################
@@ -534,53 +534,37 @@ class ParameterPage():
         self.tolerance_position.setTitle("位置容忍度")
         self.tolerance_position.setText("1.1")
 
-        self.start_accel=SiCapsuleLineEdit()
-        self.start_accel.resize(all_W,40)
-        self.start_accel.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.start_accel.setTitleFixedWidth(drive_title_W) 
-        self.start_accel.setAlignment(Qt.AlignCenter) 
-        self.start_accel.setTitle("启动加速度/rad/ss")
-        self.start_accel.setText("1000")
+        self.traj_max_rate=SiCapsuleLineEdit()
+        self.traj_max_rate.resize(all_W,40)
+        self.traj_max_rate.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.traj_max_rate.setTitleFixedWidth(drive_title_W) 
+        self.traj_max_rate.setAlignment(Qt.AlignCenter) 
+        self.traj_max_rate.setTitle("最大变化率")
+        self.traj_max_rate.setText("100")
 
-        self.algin_current=SiCapsuleLineEdit()
-        self.algin_current.resize(all_W,40)
-        self.algin_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.algin_current.setTitleFixedWidth(drive_title_W) 
-        self.algin_current.setAlignment(Qt.AlignCenter) 
-        self.algin_current.setTitle("对齐电流/A")
-        self.algin_current.setText("1")
+        self.traj_max_acc=SiCapsuleLineEdit()
+        self.traj_max_acc.resize(all_W,40)
+        self.traj_max_acc.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.traj_max_acc.setTitleFixedWidth(drive_title_W) 
+        self.traj_max_acc.setAlignment(Qt.AlignCenter) 
+        self.traj_max_acc.setTitle("最大加速度")
+        self.traj_max_acc.setText("50")
 
-        self.algin_time=SiCapsuleLineEdit()
-        self.algin_time.resize(all_W,40)
-        self.algin_time.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.algin_time.setTitleFixedWidth(drive_title_W) 
-        self.algin_time.setAlignment(Qt.AlignCenter) 
-        self.algin_time.setTitle("对齐时间/ms")
-        self.algin_time.setText("100")
+        self.traj_max_jerk=SiCapsuleLineEdit()
+        self.traj_max_jerk.resize(all_W,40)
+        self.traj_max_jerk.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.traj_max_jerk.setTitleFixedWidth(drive_title_W) 
+        self.traj_max_jerk.setAlignment(Qt.AlignCenter) 
+        self.traj_max_jerk.setTitle("最大加加速度")
+        self.traj_max_jerk.setText("200")
 
-        self.open_loop_current=SiCapsuleLineEdit()
-        self.open_loop_current.resize(all_W,40)
-        self.open_loop_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.open_loop_current.setTitleFixedWidth(drive_title_W) 
-        self.open_loop_current.setAlignment(Qt.AlignCenter) 
-        self.open_loop_current.setTitle("开环电流/A")
-        self.open_loop_current.setText("1")
-
-        self.open_loop_speed=SiCapsuleLineEdit()
-        self.open_loop_speed.resize(all_W,40)
-        self.open_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.open_loop_speed.setTitleFixedWidth(drive_title_W) 
-        self.open_loop_speed.setAlignment(Qt.AlignCenter) 
-        self.open_loop_speed.setTitle("开环速度/rad/s")
-        self.open_loop_speed.setText("1000")
-
-        self.change_loop_speed=SiCapsuleLineEdit()
-        self.change_loop_speed.resize(all_W,40)
-        self.change_loop_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.change_loop_speed.setTitleFixedWidth(drive_title_W) 
-        self.change_loop_speed.setAlignment(Qt.AlignCenter) 
-        self.change_loop_speed.setTitle("切环速度/rad/s")
-        self.change_loop_speed.setText("1000")
+        self.traj_tolerance=SiCapsuleLineEdit()
+        self.traj_tolerance.resize(all_W,40)
+        self.traj_tolerance.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.traj_tolerance.setTitleFixedWidth(drive_title_W) 
+        self.traj_tolerance.setAlignment(Qt.AlignCenter) 
+        self.traj_tolerance.setTitle("容差")
+        self.traj_tolerance.setText("0.01")
 
         drive_layout.addWidget(Title_drive)
         drive_layout.addWidget(self.f_pwm)
@@ -599,12 +583,11 @@ class ParameterPage():
         drive_layout.addWidget(self.tolerance_current)
         drive_layout.addWidget(self.tolerance_speed)
         drive_layout.addWidget(self.tolerance_position)
-        drive_layout.addWidget(self.start_accel)
-        drive_layout.addWidget(self.algin_current)
-        drive_layout.addWidget(self.algin_time)
-        drive_layout.addWidget(self.open_loop_current)
-        drive_layout.addWidget(self.open_loop_speed)
-        drive_layout.addWidget(self.change_loop_speed)
+        drive_layout.addWidget(self.traj_max_rate)
+        drive_layout.addWidget(self.traj_max_acc)
+        drive_layout.addWidget(self.traj_max_jerk)
+        drive_layout.addWidget(self.traj_tolerance)
+        
         drive_layout.setAlignment(Qt.AlignTop)
 
 ##########################################################

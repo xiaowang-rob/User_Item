@@ -3732,9 +3732,9 @@
       </Doc>
       <Doc>
         <Name>..\FOC\Src\services\protection_manager.c</Name>
-        <ColumnNumber>31</ColumnNumber>
-        <TopLine>108</TopLine>
-        <CurrentLine>131</CurrentLine>
+        <ColumnNumber>60</ColumnNumber>
+        <TopLine>1</TopLine>
+        <CurrentLine>34</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>

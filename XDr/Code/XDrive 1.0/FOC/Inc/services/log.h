@@ -18,6 +18,7 @@ typedef struct
 typedef struct
 {
     u8 num;
+    u8 minutes;
     u8 fault;
     u8 warning;
 

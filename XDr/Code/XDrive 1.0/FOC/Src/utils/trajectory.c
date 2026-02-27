@@ -41,6 +41,14 @@ tTraj_Out fTraj_Update(float dt)
 {
     tTraj_Out out = {0};
 
+    if (traj_cfg.type == TRAJ_TYPE_DISABLE)
+    {
+        out.value = traj_state.target;
+        out.rate = 0.0f;
+        out.done = true;
+        return out;
+    }
+
     /* === 1. 误差计算 === */
     float error = traj_state.target - traj_state.current;
     float dist = traj_abs(error);

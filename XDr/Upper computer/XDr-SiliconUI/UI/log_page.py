@@ -80,7 +80,7 @@ class LogPage():
         self.time.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.time.setTitleFixedWidth(title_W)
         self.time.setAlignment(Qt.AlignCenter)
-        self.time.setTitle("发生时间")
+        self.time.setTitle("发生时间/分")
 
         self.fault = SiCapsuleLineEdit()
         self.fault.setReadOnly(True)
