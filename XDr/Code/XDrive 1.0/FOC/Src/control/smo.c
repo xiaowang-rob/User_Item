@@ -235,12 +235,12 @@ void fParamTuneWrite()
 }
 /*SMO整定器*/
 // 一个周期50us 20 1ms 20000 1s
-#define WS_delta_uq 0.5f      // uq 电压增量
-#define WS_samples (u32)40000 // 3s 每个电压作用时间
-#define WS_MAX_uq 5.0f        // 最大电压
-
 #define THETA_OFFSET_samples (u32)40000 // 2s
 #define THETA_OFFSET_timeout THETA_OFFSET_samples * 10
+
+#define WS_delta_iq 2.0f      // 电流增量增量
+#define WS_samples (u32)40000 // 3s 每个电流作用时间
+#define WS_MAX_iq 20.0f       // 最大电流
 
 #define RS_delta_v 0.5f // 电压增量
 #define RS_samples (u32)20000
@@ -631,11 +631,11 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
     case PARAM_TUNE_IDLE:
         // 偏移角度的前置条件
         fFOC_SetSensorMode(ENCODER_CONTROL);
-        fFOC_SetLoopMode(VOLTAGE_LOOP);
+        fFOC_SetRunMode(CURRENT_MODE);
         // 施加uq
-        tun.cur_uq_ud[0] = 0;
-        tun.cur_uq_ud[1] = 0.6f;
-        fFOC_SetTargetValue(tun.cur_uq_ud);
+        tun.cur_iq_id[0] = 0;
+        tun.cur_iq_id[1] = 2.0f;
+        fFOC_SetTargetValue(tun.cur_iq_id);
         fOpenLoopEnable(true); // 打开开环 电角度设为0
         fSetOpendLoopTheta(0.0f);
         // 设为正线序
@@ -669,9 +669,9 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
             fSetThetaOffset(smo.theta_offset);
             // 线序整定的前置条件
             fOpenLoopEnable(false); // 关闭开环
-            tun.cur_uq_ud[0] = WS_delta_uq;
-            tun.cur_uq_ud[1] = 0.0f;
-            fFOC_SetTargetValue(tun.cur_uq_ud);
+            tun.cur_iq_id[0] = WS_delta_iq;
+            tun.cur_iq_id[1] = 0.0f;
+            fFOC_SetTargetValue(tun.cur_iq_id);
             tun.tune_state = PARAM_TUNE_WireS;
         }
         break;
@@ -696,7 +696,7 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
 
             if (tun.tune_samples > WS_samples)
             {
-                if (WS_delta_uq * (tun.num_test_wire + 1) > WS_MAX_uq)
+                if (WS_delta_iq * (tun.num_test_wire + 1) > WS_MAX_iq)
                 {
                     tun.fault_flag = true;
                     tun.fault_type = PARAM_FAULT_WS_LOCKED;
@@ -712,9 +712,9 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
                     smo.wire_sequence = 1;
                     fSetWireSequence(1);
                     tun.num_test_wire++;
-                    tun.cur_uq_ud[0] = WS_delta_uq * (tun.num_test_wire + 1);
-                    tun.cur_uq_ud[1] = 0;
-                    fFOC_SetTargetValue(tun.cur_uq_ud);
+                    tun.cur_iq_id[0] = WS_delta_iq * (tun.num_test_wire + 1);
+                    tun.cur_iq_id[1] = 0;
+                    fFOC_SetTargetValue(tun.cur_iq_id);
                 }
                 tun.tune_samples = 0;
             }
@@ -725,16 +725,17 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
             if (tun.steady_samples > WS_samples / 2)
             {
                 // 前置条件
-                fFOC_SetLoopMode(IDLE_LOOP);
+                fFOC_SetRunMode(IDLE_LOOP);
                 fFOC_SetUalphaBeta(RS_delta_v, 0);
                 tun.tune_samples = 0;
                 tun.time_tic = 0;
                 tun.tune_state = PARAM_TUNE_RS; // 进入下一步
+
                 // todo:先跳过后面的步骤
-                fFOC_SetLoopMode(VOLTAGE_LOOP);
-                tun.cur_uq_ud[0] = 0;
-                tun.cur_uq_ud[1] = 0;
-                fFOC_SetTargetValue(tun.cur_uq_ud);
+                fFOC_SetRunMode(CURRENT_MODE);
+                tun.cur_iq_id[0] = 0;
+                tun.cur_iq_id[1] = 0;
+                fFOC_SetTargetValue(tun.cur_iq_id);
                 tun.tune_state = PARAM_TUNE_WRITE_FLASH;
             }
         }
@@ -753,7 +754,6 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         // 稳态点采样
         if (param_tune_Rs(foc_value.Ualpha, foc_value.Ialpha))
         { // 完成跳转
-            fFOC_SetLoopMode(VOLTAGE_LOOP);
             tun.tune_samples = 0;
             tun.time_tic = 0;
             tun.tune_state = PARAM_TUNE_LS; // 进入下一步
@@ -780,8 +780,8 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         if (param_tune_Ls(foc_value.Ualpha, foc_value.Ubeta, foc_value.Ialpha, foc_value.Ibeta))
         { // 完成跳转
           // 启动 融合模式 电流环开环
-            fFOC_SetSensorMode(ENCODER_SMO_CONTROL);
-            fFOC_SetLoopMode(CURRENT_LOOP);
+            fFOC_SetSensorMode(MERGE_CONTROL);
+            fFOC_SetRunMode(CURRENT_MODE);
             tun.cur_iq_id[0] = POLE_PAIRS_iq;
             tun.cur_iq_id[1] = 0;
             fFOC_SetTargetValue(tun.cur_iq_id);
@@ -801,7 +801,7 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         // 稳态点采样
         if (param_tune_pole_pairs(foc_value.omega_fb))
         { // 完成跳转 磁链整定 前置条件
-            fFOC_SetLoopMode(SPEED_LOOP);
+            fFOC_SetRunMode(SPEED_MODE);
             fOpenLoopEnable(false);
             tun.omega_ref = 10;
             fFOC_SetTargetValue(&tun.omega_ref);
@@ -843,8 +843,8 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
                 tun.start_smp_flag = true;
             return tun.tune_state;
         }
-        // 施加阶跃速度
-        fFOC_SetOmegaIM(10);
+        // todo:施加阶跃速度
+
         // 直接开始采样
         if (param_tune_JB(foc_value.omega_fb, foc_value.iq_fb))
         {
@@ -858,9 +858,9 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         break;
     case PARAM_TUNE_WRITE_FLASH:
         fFOC_SetSensorMode(g_Param.sensor_mode);
-        fFOC_SetLoopMode(g_Param.loop_mode);
+        fFOC_SetRunMode(g_Param.run_mode);
         fParamTuneWrite();
-				tun.tune_state = PARAM_TUNE_COMPLETE;
+        tun.tune_state = PARAM_TUNE_COMPLETE;
         break;
     default:
         break;

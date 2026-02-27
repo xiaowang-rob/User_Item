@@ -52,15 +52,13 @@ typedef struct
 
 extern tLoopControl loop_con;
 
-void fFrequencyDivisionUpdate(void);                  // 更新分频计数器和各环更新标志
+void fFrequencyDivisionUpdate(void);                 // 更新分频计数器和各环更新标志
 void fLoopControlInit(tParameter param, float Vmax); // 环路参数初始化
-void fLoopReset(void);                                // 重置所有控制器状态
-float fCurrentLoopUpdate(float ref, float fb);        // q轴电流环
-float fMagLoopUpdate(float ref, float fb);            // d轴磁链环
-float fWeakMagLoopUpdate(float ud, float uq);         // 弱磁控制
-float fSpeedLoopUpdate(float ref, float fb);          // 速度环
-float fPositionAbsLoopUpdate(float ref, float fb);    // 绝对位置环
-float fPositionRelLoopUpdate(float ref, float fb);    // 相对位置环（带限幅）
-void fPVT_SetOmega(float omega);                      // PVT模式下设置位置环速度限幅
+void fLoopReset(void);                               // 重置所有控制器状态
+float fCurrentLoopUpdate(float ref, float fb);       // q轴电流环
+float fMagLoopUpdate(float ref, float fb);           // d轴磁链环
+float fWeakMagLoopUpdate(float ud, float uq);        // 弱磁控制
+float fSpeedLoopUpdate(float ref, float fb);         // 速度环
+float fPositionRelLoopUpdate(float ref, float fb);   // 相对位置环（带限幅）
 
 #endif

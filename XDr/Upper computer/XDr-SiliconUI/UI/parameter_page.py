@@ -224,14 +224,14 @@ class ParameterPage():
         for i in Midx.sensor_mode:
             self.sensormode_input.addItem(i)
 
-        self.loopmode_input=SiCapsuleComboBox()
-        self.loopmode_input.setTitle("控制环")
-        self.loopmode_input.setEditable(False)
-        self.loopmode_input.setFixedHeight(36)
-        self.loopmode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.loopmode_input.setTitleFixedWidth(title_W)
-        for i in Midx.loop_mode:
-            self.loopmode_input.addItem(i)
+        self.runmode_input=SiCapsuleComboBox()
+        self.runmode_input.setTitle("控制环")
+        self.runmode_input.setEditable(False)
+        self.runmode_input.setFixedHeight(36)
+        self.runmode_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.runmode_input.setTitleFixedWidth(title_W)
+        for i in Midx.run_mode:
+            self.runmode_input.addItem(i)
 
         self.can_mode_input=SiCapsuleComboBox()
         self.can_mode_input.setTitle("CAN模式")
@@ -282,7 +282,7 @@ class ParameterPage():
 
         mode_layout.addWidget(Title_mode)
         mode_layout.addWidget(self.sensormode_input)
-        mode_layout.addWidget(self.loopmode_input)
+        mode_layout.addWidget(self.runmode_input)
         mode_layout.addWidget(self.can_mode_input)
         mode_layout.addWidget(self.weakmag_mode_input)
         mode_layout.addWidget(self.vaguePID_input)

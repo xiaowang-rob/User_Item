@@ -102,7 +102,7 @@ void _frame_data_deal()
             fFOC_StateUpdate(FOC_DISABLE);
             break;
         case CMD_MODE_SET:
-            fFOC_SetLoopMode(com_frame.rxdata[0]);
+            fFOC_SetRunMode(com_frame.rxdata[0]);
             break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
@@ -205,7 +205,7 @@ void _frame_data_deal()
                 fFOC_SetTargetValue(value_ref);
                 break;
             case CMD_MODE_SET: // 模式设置 1byte
-                fFOC_SetLoopMode(com_frame.rxdata[0]);
+                fFOC_SetRunMode(com_frame.rxdata[0]);
                 break;
             case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
                 fStreamDataGet(com_frame.rxdata[1], (float *)com_frame.txdata);

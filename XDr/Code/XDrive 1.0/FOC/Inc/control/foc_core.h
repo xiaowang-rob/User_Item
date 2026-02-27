@@ -4,30 +4,29 @@
 #include "main.h"
 #include "stdbool.h"
 #include "parameter_manager.h"
+#include "trajectory.h"
 typedef enum
 {
-    ENCODER_CONTROL,
-    SMO_CONTROL,
-    ENCODER_SMO_CONTROL,
+    ENCODER_CONTROL,    // 有感控制
+    SENSORLESS_CONTROL, // 无感控制 HFI+SMO
+    MERGE_CONTROL,      // 混合控制
 } eSensorMode;
 
 typedef enum
 {
-    VOLTAGE_LOOP,
-    CURRENT_LOOP,
-    SPEED_LOOP,
-    POSITION_ABS_LOOP, // 绝对位置控制(0-360°)
-    POSITION_REL_LOOP, // 相对/增量位置控制 会以给定角度（+-float的范围）转到位置
-
+    CURRENT_MODE,
+    SPEED_MODE,
+    POSITION_MODE, // 增量式控制
     IDLE_LOOP,
-} eLoopMode;
+} eRunMode;
 
 typedef struct
 {
     eSensorMode sensor_mode;
-    eLoopMode loop_mode;
-    bool pvt_mode;
-    bool weak_mag;
+    eRunMode runmode;
+    u8 pvt_mode;
+    u8 weak_mag;
+    eTrajType trajectory_mode;
     bool Encoder_enable;
     bool SMO_enable;
     bool OPEN_LOOP_enable;
@@ -47,26 +46,10 @@ typedef struct
     float ud, uq;
     float Ualpha, Ubeta;
     float omega_ref;
-    float omega_con;
     float omega_fb;
     float pos_ref;
     float pos_fb;
 } tFOC_val;
-
-// todo:这个启动得改改
-typedef struct
-{
-    float omega_acc;
-
-    float align_id; // 对齐电流
-    u32 current_steps;
-    u32 align_steps;
-    float openloop_iq; // 开环电流
-    float openloop_omega;
-    bool change_flag;
-    bool align_flag;
-
-} tStartupMechine;
 
 typedef struct
 {
@@ -87,7 +70,6 @@ typedef struct
     tMotor *motor;
     tFOC_Mode *foc_mode;
     tFOC_val *foc_val;
-    tStartupMechine *startup_machine;
 } tFOC_Core;
 
 extern tFOC_Core foc_core;
@@ -109,9 +91,9 @@ void fSetOpendLoopTheta(float theta_elec);
 void fSetOpendLoopOmega(float omega_elec);
 
 // 主要函数
-void fFOC_SetOmegaIM(float value);
+
 void fFOC_SetTargetValue(float *value);
 void fFOC_SetSensorMode(eSensorMode mode);
-void fFOC_SetLoopMode(eLoopMode mode);
+void fFOC_SetRunMode(eRunMode mode);
 
 #endif // __FOC_CORE_H

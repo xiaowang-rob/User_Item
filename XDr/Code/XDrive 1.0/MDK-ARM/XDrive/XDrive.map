@@ -1601,7 +1601,7 @@ Section Cross References
     port_mapping.o(.ARM.exidx.text._status_send) refers to port_mapping.o(.text._status_send) for [Anonymous Symbol]
     port_mapping.o(.text._frame_data_deal) refers to port_mapping.o(.bss.com_frame) for com_frame
     port_mapping.o(.text._frame_data_deal) refers to parameter_manager.o(.text.fParamSet) for fParamSet
-    port_mapping.o(.text._frame_data_deal) refers to foc_core.o(.text.fFOC_SetLoopMode) for fFOC_SetLoopMode
+    port_mapping.o(.text._frame_data_deal) refers to foc_core.o(.text.fFOC_SetRunMode) for fFOC_SetRunMode
     port_mapping.o(.text._frame_data_deal) refers to foc_statemachine.o(.text.fFOC_StateUpdate) for fFOC_StateUpdate
     port_mapping.o(.text._frame_data_deal) refers to port_mapping.o(.data.g_com_state) for g_com_state
     port_mapping.o(.text._frame_data_deal) refers to port_mapping.o(.bss.Noresponse_tic) for Noresponse_tic
@@ -1701,27 +1701,25 @@ Section Cross References
     usb_port.o(.text.usbRecvByte) refers to memcpya.o(.text) for __aeabi_memcpy
     usb_port.o(.text.usbRecvByte) refers to port_mapping.o(.text.fUSB_RxFrameCallback) for fUSB_RxFrameCallback
     usb_port.o(.ARM.exidx.text.usbRecvByte) refers to usb_port.o(.text.usbRecvByte) for [Anonymous Symbol]
-    foc_core.o(.text.startup_machine_init) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.startup_machine_init) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.ARM.exidx.text.startup_machine_init) refers to foc_core.o(.text.startup_machine_init) for [Anonymous Symbol]
-    foc_core.o(.text.mode_init) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.mode_init) refers to memseta.o(.text) for __aeabi_memclr4
-    foc_core.o(.text.mode_init) refers to loop_control.o(.text.fLoopReset) for fLoopReset
-    foc_core.o(.text.mode_init) refers to smo.o(.text.fSMO_Reset) for fSMO_Reset
-    foc_core.o(.text.mode_init) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.text.mode_init) refers to foc_core.o(.bss.foc_mode) for foc_mode
-    foc_core.o(.ARM.exidx.text.mode_init) refers to foc_core.o(.text.mode_init) for [Anonymous Symbol]
+    foc_core.o(.ARM.exidx.text._trajectory_init) refers to foc_core.o(.text._trajectory_init) for [Anonymous Symbol]
+    foc_core.o(.text._mode_init) refers to foc_core.o(.bss.foc_val) for foc_val
+    foc_core.o(.text._mode_init) refers to memseta.o(.text) for __aeabi_memclr4
+    foc_core.o(.text._mode_init) refers to loop_control.o(.text.fLoopReset) for fLoopReset
+    foc_core.o(.text._mode_init) refers to smo.o(.text.fSMO_Reset) for fSMO_Reset
+    foc_core.o(.text._mode_init) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.text._mode_init) refers to trajectory.o(.text.fTraj_Reset) for fTraj_Reset
+    foc_core.o(.ARM.exidx.text._mode_init) refers to foc_core.o(.text._mode_init) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_SetSensorMode) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fFOC_SetSensorMode) refers to memseta.o(.text) for __aeabi_memclr4
     foc_core.o(.text.fFOC_SetSensorMode) refers to loop_control.o(.text.fLoopReset) for fLoopReset
     foc_core.o(.text.fFOC_SetSensorMode) refers to smo.o(.text.fSMO_Reset) for fSMO_Reset
-    foc_core.o(.text.fFOC_SetSensorMode) refers to foc_core.o(.bss.startup_machine) for startup_machine
     foc_core.o(.text.fFOC_SetSensorMode) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.text.fFOC_SetSensorMode) refers to trajectory.o(.text.fTraj_Reset) for fTraj_Reset
     foc_core.o(.ARM.exidx.text.fFOC_SetSensorMode) refers to foc_core.o(.text.fFOC_SetSensorMode) for [Anonymous Symbol]
-    foc_core.o(.text.motor_init) refers to foc_core.o(.bss.Motor) for Motor
-    foc_core.o(.text.motor_init) refers to smo.o(.text.fSMO_Init) for fSMO_Init
-    foc_core.o(.text.motor_init) refers to smo.o(.text.fParamTuneReset) for fParamTuneReset
-    foc_core.o(.ARM.exidx.text.motor_init) refers to foc_core.o(.text.motor_init) for [Anonymous Symbol]
+    foc_core.o(.text._motor_init) refers to foc_core.o(.bss.Motor) for Motor
+    foc_core.o(.text._motor_init) refers to smo.o(.text.fSMO_Init) for fSMO_Init
+    foc_core.o(.text._motor_init) refers to smo.o(.text.fParamTuneReset) for fParamTuneReset
+    foc_core.o(.ARM.exidx.text._motor_init) refers to foc_core.o(.text._motor_init) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_CoreInit) refers to foc_core.o(.bss.Motor) for Motor
     foc_core.o(.text.fFOC_CoreInit) refers to adc_dr.o(.text.fAdcGetVoltage) for fAdcGetVoltage
     foc_core.o(.text.fFOC_CoreInit) refers to parameter_manager.o(.bss.g_Param) for g_Param
@@ -1729,40 +1727,28 @@ Section Cross References
     foc_core.o(.text.fFOC_CoreInit) refers to smo.o(.text.fParamTuneReset) for fParamTuneReset
     foc_core.o(.text.fFOC_CoreInit) refers to loop_control.o(.text.fLoopControlInit) for fLoopControlInit
     foc_core.o(.text.fFOC_CoreInit) refers to svpwm.o(.text.fSvpwmInit) for fSvpwmInit
-    foc_core.o(.text.fFOC_CoreInit) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.fFOC_CoreInit) refers to foc_core.o(.bss.startup_machine) for startup_machine
     foc_core.o(.text.fFOC_CoreInit) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fFOC_CoreInit) refers to memseta.o(.text) for __aeabi_memclr4
     foc_core.o(.text.fFOC_CoreInit) refers to loop_control.o(.text.fLoopReset) for fLoopReset
     foc_core.o(.text.fFOC_CoreInit) refers to smo.o(.text.fSMO_Reset) for fSMO_Reset
     foc_core.o(.text.fFOC_CoreInit) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.text.fFOC_CoreInit) refers to trajectory.o(.text.fTraj_Reset) for fTraj_Reset
     foc_core.o(.ARM.exidx.text.fFOC_CoreInit) refers to foc_core.o(.text.fFOC_CoreInit) for [Anonymous Symbol]
-    foc_core.o(.text.startup_machine_reset) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.ARM.exidx.text.startup_machine_reset) refers to foc_core.o(.text.startup_machine_reset) for [Anonymous Symbol]
-    foc_core.o(.text.foc_val_reset) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.foc_val_reset) refers to memseta.o(.text) for __aeabi_memclr4
-    foc_core.o(.ARM.exidx.text.foc_val_reset) refers to foc_core.o(.text.foc_val_reset) for [Anonymous Symbol]
+    foc_core.o(.text._FocValReset) refers to foc_core.o(.bss.foc_val) for foc_val
+    foc_core.o(.text._FocValReset) refers to memseta.o(.text) for __aeabi_memclr4
+    foc_core.o(.ARM.exidx.text._FocValReset) refers to foc_core.o(.text._FocValReset) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_CoreReset) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fFOC_CoreReset) refers to memseta.o(.text) for __aeabi_memclr4
     foc_core.o(.text.fFOC_CoreReset) refers to loop_control.o(.text.fLoopReset) for fLoopReset
     foc_core.o(.text.fFOC_CoreReset) refers to smo.o(.text.fSMO_Reset) for fSMO_Reset
-    foc_core.o(.text.fFOC_CoreReset) refers to foc_core.o(.bss.startup_machine) for startup_machine
+    foc_core.o(.text.fFOC_CoreReset) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.text.fFOC_CoreReset) refers to trajectory.o(.text.fTraj_Reset) for fTraj_Reset
     foc_core.o(.ARM.exidx.text.fFOC_CoreReset) refers to foc_core.o(.text.fFOC_CoreReset) for [Anonymous Symbol]
     foc_core.o(.text.Current_reconstruction) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.Current_reconstruction) refers to adc_dr.o(.text.fAdcGetCurrent) for fAdcGetCurrent
     foc_core.o(.text.Current_reconstruction) refers to svpwm.o(.text.fSvpwmGetSector) for fSvpwmGetSector
     foc_core.o(.text.Current_reconstruction) refers to math_fast.o(.text.fClarkTransform) for fClarkTransform
     foc_core.o(.ARM.exidx.text.Current_reconstruction) refers to foc_core.o(.text.Current_reconstruction) for [Anonymous Symbol]
-    foc_core.o(.text.theta_align_curloop) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.text.theta_align_curloop) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.ARM.exidx.text.theta_align_curloop) refers to foc_core.o(.text.theta_align_curloop) for [Anonymous Symbol]
-    foc_core.o(.text.oloop_to_cloop) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.text.oloop_to_cloop) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.oloop_to_cloop) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.oloop_to_cloop) refers to math_fast.o(.text.fNormalizeAngle02pi) for fNormalizeAngle02pi
-    foc_core.o(.text.oloop_to_cloop) refers to smo.o(.text.fSMO_GetOmega) for fSMO_GetOmega
-    foc_core.o(.text.oloop_to_cloop) refers to foc_core.o(.bss.omega_pre) for omega_pre
-    foc_core.o(.ARM.exidx.text.oloop_to_cloop) refers to foc_core.o(.text.oloop_to_cloop) for [Anonymous Symbol]
     foc_core.o(.ARM.exidx.text.foc_senless_get_vito) refers to foc_core.o(.text.foc_senless_get_vito) for [Anonymous Symbol]
     foc_core.o(.text.voltage_control) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.voltage_control) refers to math_fast.o(.text.fInvParkTransform) for fInvParkTransform
@@ -1773,23 +1759,21 @@ Section Cross References
     foc_core.o(.text.current_loop_run) refers to loop_control.o(.text.fMagLoopUpdate) for fMagLoopUpdate
     foc_core.o(.ARM.exidx.text.current_loop_run) refers to foc_core.o(.text.current_loop_run) for [Anonymous Symbol]
     foc_core.o(.text.speed_loop_run) refers to loop_control.o(.bss.loop_con) for loop_con
+    foc_core.o(.text.speed_loop_run) refers to foc_core.o(.bss.foc_mode) for foc_mode
     foc_core.o(.text.speed_loop_run) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.speed_loop_run) refers to foc_core.o(.bss.startup_machine) for startup_machine
+    foc_core.o(.text.speed_loop_run) refers to trajectory.o(.text.fTraj_Update) for fTraj_Update
     foc_core.o(.text.speed_loop_run) refers to loop_control.o(.text.fSpeedLoopUpdate) for fSpeedLoopUpdate
     foc_core.o(.ARM.exidx.text.speed_loop_run) refers to foc_core.o(.text.speed_loop_run) for [Anonymous Symbol]
     foc_core.o(.text.weak_mag_loop_run) refers to loop_control.o(.bss.loop_con) for loop_con
     foc_core.o(.text.weak_mag_loop_run) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.weak_mag_loop_run) refers to loop_control.o(.text.fWeakMagLoopUpdate) for fWeakMagLoopUpdate
     foc_core.o(.ARM.exidx.text.weak_mag_loop_run) refers to foc_core.o(.text.weak_mag_loop_run) for [Anonymous Symbol]
-    foc_core.o(.text.position_abs_loop_run) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.position_abs_loop_run) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.position_abs_loop_run) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    foc_core.o(.text.position_abs_loop_run) refers to loop_control.o(.text.fPositionAbsLoopUpdate) for fPositionAbsLoopUpdate
-    foc_core.o(.ARM.exidx.text.position_abs_loop_run) refers to foc_core.o(.text.position_abs_loop_run) for [Anonymous Symbol]
-    foc_core.o(.text.position_rel_loop_run) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.position_rel_loop_run) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.position_rel_loop_run) refers to loop_control.o(.text.fPositionRelLoopUpdate) for fPositionRelLoopUpdate
-    foc_core.o(.ARM.exidx.text.position_rel_loop_run) refers to foc_core.o(.text.position_rel_loop_run) for [Anonymous Symbol]
+    foc_core.o(.text.position_loop_run) refers to loop_control.o(.bss.loop_con) for loop_con
+    foc_core.o(.text.position_loop_run) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.text.position_loop_run) refers to foc_core.o(.bss.foc_val) for foc_val
+    foc_core.o(.text.position_loop_run) refers to trajectory.o(.text.fTraj_Update) for fTraj_Update
+    foc_core.o(.text.position_loop_run) refers to loop_control.o(.text.fPositionRelLoopUpdate) for fPositionRelLoopUpdate
+    foc_core.o(.ARM.exidx.text.position_loop_run) refers to foc_core.o(.text.position_loop_run) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_ValueUpdate) refers to loop_control.o(.text.fFrequencyDivisionUpdate) for fFrequencyDivisionUpdate
     foc_core.o(.text.fFOC_ValueUpdate) refers to foc_core.o(.bss.Motor) for Motor
     foc_core.o(.text.fFOC_ValueUpdate) refers to adc_dr.o(.text.fAdcGetVoltage) for fAdcGetVoltage
@@ -1806,29 +1790,25 @@ Section Cross References
     foc_core.o(.text.fFOC_ValueUpdate) refers to encoder.o(.text.fGetEncoderOmega) for fGetEncoderOmega
     foc_core.o(.text.fFOC_ValueUpdate) refers to smo.o(.text.fSMO_MainLoop) for fSMO_MainLoop
     foc_core.o(.text.fFOC_ValueUpdate) refers to smo.o(.text.fSMO_GetOmega) for fSMO_GetOmega
-    foc_core.o(.text.fFOC_ValueUpdate) refers to foc_core.o(.bss.omega_pre) for omega_pre
     foc_core.o(.ARM.exidx.text.fFOC_ValueUpdate) refers to foc_core.o(.text.fFOC_ValueUpdate) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_MainLoopTask) refers to foc_core.o(.bss.foc_mode) for foc_mode
     foc_core.o(.text.fFOC_MainLoopTask) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fFOC_MainLoopTask) refers to math_fast.o(.text.fNormalizeAngle02pi) for fNormalizeAngle02pi
     foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.bss.loop_con) for loop_con
-    foc_core.o(.text.fFOC_MainLoopTask) refers to foc_core.o(.bss.startup_machine) for startup_machine
-    foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fPositionRelLoopUpdate) for fPositionRelLoopUpdate
-    foc_core.o(.text.fFOC_MainLoopTask) refers to fmodf.o(i.__hardfp_fmodf) for __hardfp_fmodf
-    foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fPositionAbsLoopUpdate) for fPositionAbsLoopUpdate
+    foc_core.o(.text.fFOC_MainLoopTask) refers to trajectory.o(.text.fTraj_Update) for fTraj_Update
     foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fSpeedLoopUpdate) for fSpeedLoopUpdate
+    foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fWeakMagLoopUpdate) for fWeakMagLoopUpdate
     foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fCurrentLoopUpdate) for fCurrentLoopUpdate
     foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fMagLoopUpdate) for fMagLoopUpdate
-    foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fWeakMagLoopUpdate) for fWeakMagLoopUpdate
+    foc_core.o(.text.fFOC_MainLoopTask) refers to loop_control.o(.text.fPositionRelLoopUpdate) for fPositionRelLoopUpdate
     foc_core.o(.text.fFOC_MainLoopTask) refers to math_fast.o(.text.fInvParkTransform) for fInvParkTransform
     foc_core.o(.text.fFOC_MainLoopTask) refers to svpwm.o(.text.fSvpwmRun) for fSvpwmRun
     foc_core.o(.text.fFOC_MainLoopTask) refers to svpwm.o(.text.fSamplePointCalibration) for fSamplePointCalibration
     foc_core.o(.ARM.exidx.text.fFOC_MainLoopTask) refers to foc_core.o(.text.fFOC_MainLoopTask) for [Anonymous Symbol]
-    foc_core.o(.text.fFOC_SetOmegaIM) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.ARM.exidx.text.fFOC_SetOmegaIM) refers to foc_core.o(.text.fFOC_SetOmegaIM) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_SetTargetValue) refers to foc_core.o(.bss.foc_mode) for foc_mode
     foc_core.o(.text.fFOC_SetTargetValue) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.fFOC_SetTargetValue) refers to loop_control.o(.text.fPVT_SetOmega) for fPVT_SetOmega
+    foc_core.o(.text.fFOC_SetTargetValue) refers to trajectory.o(.text.fTraj_SetTarget) for fTraj_SetTarget
+    foc_core.o(.text.fFOC_SetTargetValue) refers to trajectory.o(.text.fTraj_SetRate) for fTraj_SetRate
     foc_core.o(.ARM.exidx.text.fFOC_SetTargetValue) refers to foc_core.o(.text.fFOC_SetTargetValue) for [Anonymous Symbol]
     foc_core.o(.text.fAutoCalibrationUpdate) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fAutoCalibrationUpdate) refers to smo.o(.text.fParamTuneUpdate) for fParamTuneUpdate
@@ -1846,18 +1826,18 @@ Section Cross References
     foc_core.o(.ARM.exidx.text.fSetOpendLoopTheta) refers to foc_core.o(.text.fSetOpendLoopTheta) for [Anonymous Symbol]
     foc_core.o(.text.fSetOpendLoopOmega) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.ARM.exidx.text.fSetOpendLoopOmega) refers to foc_core.o(.text.fSetOpendLoopOmega) for [Anonymous Symbol]
-    foc_core.o(.text.fFOC_SetLoopMode) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.text.fFOC_SetLoopMode) refers to memseta.o(.text) for __aeabi_memclr4
-    foc_core.o(.text.fFOC_SetLoopMode) refers to foc_core.o(.bss.foc_mode) for foc_mode
-    foc_core.o(.ARM.exidx.text.fFOC_SetLoopMode) refers to foc_core.o(.text.fFOC_SetLoopMode) for [Anonymous Symbol]
+    foc_core.o(.text.fFOC_SetRunMode) refers to foc_core.o(.bss.foc_val) for foc_val
+    foc_core.o(.text.fFOC_SetRunMode) refers to memseta.o(.text) for __aeabi_memclr4
+    foc_core.o(.text.fFOC_SetRunMode) refers to foc_core.o(.bss.foc_mode) for foc_mode
+    foc_core.o(.ARM.exidx.text.fFOC_SetRunMode) refers to foc_core.o(.text.fFOC_SetRunMode) for [Anonymous Symbol]
     foc_core.o(.text.fFOC_Shutdown) refers to foc_core.o(.bss.foc_val) for foc_val
     foc_core.o(.text.fFOC_Shutdown) refers to foc_core.o(.bss.foc_mode) for foc_mode
     foc_core.o(.text.fFOC_Shutdown) refers to memseta.o(.text) for __aeabi_memclr4
+    foc_core.o(.text.fFOC_Shutdown) refers to trajectory.o(.text.fTraj_SetTarget) for fTraj_SetTarget
     foc_core.o(.ARM.exidx.text.fFOC_Shutdown) refers to foc_core.o(.text.fFOC_Shutdown) for [Anonymous Symbol]
     foc_core.o(.data.foc_core) refers to foc_core.o(.bss.Motor) for Motor
     foc_core.o(.data.foc_core) refers to foc_core.o(.bss.foc_mode) for foc_mode
     foc_core.o(.data.foc_core) refers to foc_core.o(.bss.foc_val) for foc_val
-    foc_core.o(.data.foc_core) refers to foc_core.o(.bss.startup_machine) for startup_machine
     foc_statemachine.o(.text.HAL_TIM_PeriodElapsedCallback) refers to math_fast.o(.text.HAL_GetTick_us) for HAL_GetTick_us
     foc_statemachine.o(.text.HAL_TIM_PeriodElapsedCallback) refers to foc_statemachine.o(.bss._time_focit_start) for _time_focit_start
     foc_statemachine.o(.text.HAL_TIM_PeriodElapsedCallback) refers to foc_statemachine.o(.text.fFOC_StateMachineMainLoop) for fFOC_StateMachineMainLoop
@@ -1878,8 +1858,8 @@ Section Cross References
     foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to svpwm.o(.text.ENABLE_PWM) for ENABLE_PWM
     foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to foc_core.o(.text.fAutoCalibrationUpdate) for fAutoCalibrationUpdate
     foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to foc_core.o(.text.fFOC_MainLoopTask) for fFOC_MainLoopTask
-    foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to svpwm.o(.text.DISABLE_PWM) for DISABLE_PWM
     foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to foc_core.o(.text.fFOC_CoreReset) for fFOC_CoreReset
+    foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to svpwm.o(.text.DISABLE_PWM) for DISABLE_PWM
     foc_statemachine.o(.text.fFOC_StateMachineMainLoop) refers to foc_core.o(.text.fFOC_Shutdown) for fFOC_Shutdown
     foc_statemachine.o(.ARM.exidx.text.fFOC_StateMachineMainLoop) refers to foc_statemachine.o(.text.fFOC_StateMachineMainLoop) for [Anonymous Symbol]
     foc_statemachine.o(.text.fFOC_StateUpdate) refers to foc_statemachine.o(.bss.g_foc) for g_foc
@@ -1908,12 +1888,8 @@ Section Cross References
     loop_control.o(.ARM.exidx.text.fWeakMagLoopUpdate) refers to loop_control.o(.text.fWeakMagLoopUpdate) for [Anonymous Symbol]
     loop_control.o(.text.fSpeedLoopUpdate) refers to loop_control.o(.bss.loop_con) for loop_con
     loop_control.o(.ARM.exidx.text.fSpeedLoopUpdate) refers to loop_control.o(.text.fSpeedLoopUpdate) for [Anonymous Symbol]
-    loop_control.o(.text.fPositionAbsLoopUpdate) refers to loop_control.o(.bss.loop_con) for loop_con
-    loop_control.o(.ARM.exidx.text.fPositionAbsLoopUpdate) refers to loop_control.o(.text.fPositionAbsLoopUpdate) for [Anonymous Symbol]
     loop_control.o(.text.fPositionRelLoopUpdate) refers to loop_control.o(.bss.loop_con) for loop_con
     loop_control.o(.ARM.exidx.text.fPositionRelLoopUpdate) refers to loop_control.o(.text.fPositionRelLoopUpdate) for [Anonymous Symbol]
-    loop_control.o(.text.fPVT_SetOmega) refers to loop_control.o(.bss.loop_con) for loop_con
-    loop_control.o(.ARM.exidx.text.fPVT_SetOmega) refers to loop_control.o(.text.fPVT_SetOmega) for [Anonymous Symbol]
     smo.o(.text.fSMO_Init) refers to smo.o(.bss.smo) for smo
     smo.o(.text.fSMO_Init) refers to memseta.o(.text) for __aeabi_memclr4
     smo.o(.ARM.exidx.text.fSMO_Init) refers to smo.o(.text.fSMO_Init) for [Anonymous Symbol]
@@ -1946,7 +1922,7 @@ Section Cross References
     smo.o(.ARM.exidx.text.fParamTuneReset) refers to smo.o(.text.fParamTuneReset) for [Anonymous Symbol]
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.tun) for tun
     smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fFOC_SetSensorMode) for fFOC_SetSensorMode
-    smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fFOC_SetLoopMode) for fFOC_SetLoopMode
+    smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fFOC_SetRunMode) for fFOC_SetRunMode
     smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fFOC_SetTargetValue) for fFOC_SetTargetValue
     smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fOpenLoopEnable) for fOpenLoopEnable
     smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fSetOpendLoopTheta) for fSetOpendLoopTheta
@@ -1957,7 +1933,6 @@ Section Cross References
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.param_tune_Ls.prev_i) for param_tune_Ls.prev_i
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.omega_last) for omega_last
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.param_tune_Rs.prev_i_alpha) for param_tune_Rs.prev_i_alpha
-    smo.o(.text.fParamTuneUpdate) refers to foc_core.o(.text.fFOC_SetOmegaIM) for fFOC_SetOmegaIM
     smo.o(.text.fParamTuneUpdate) refers to parameter_manager.o(.bss.g_Param) for g_Param
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.param_tune_pole_pairs.omega_smo_last) for param_tune_pole_pairs.omega_smo_last
     smo.o(.text.fParamTuneUpdate) refers to smo.o(.bss.param_tune_pole_pairs.pole_pairs) for param_tune_pole_pairs.pole_pairs
@@ -2301,6 +2276,23 @@ Section Cross References
     queue.o(.ARM.exidx.text.fStaticQueueDequeue) refers to queue.o(.text.fStaticQueueDequeue) for [Anonymous Symbol]
     queue.o(.ARM.exidx.text.fStaticQueuePeek) refers to queue.o(.text.fStaticQueuePeek) for [Anonymous Symbol]
     queue.o(.ARM.exidx.text.fStaticQueuePeekAt) refers to queue.o(.text.fStaticQueuePeekAt) for [Anonymous Symbol]
+    trajectory.o(.text.fTraj_Init) refers to trajectory.o(.bss.traj_cfg) for traj_cfg
+    trajectory.o(.ARM.exidx.text.fTraj_Init) refers to trajectory.o(.text.fTraj_Init) for [Anonymous Symbol]
+    trajectory.o(.text.fTraj_Reset) refers to trajectory.o(.bss.traj_state.0) for traj_state.0
+    trajectory.o(.text.fTraj_Reset) refers to trajectory.o(.bss.traj_state.1) for traj_state.1
+    trajectory.o(.text.fTraj_Reset) refers to trajectory.o(.bss.traj_state.2) for traj_state.2
+    trajectory.o(.text.fTraj_Reset) refers to trajectory.o(.bss.traj_state.3) for traj_state.3
+    trajectory.o(.ARM.exidx.text.fTraj_Reset) refers to trajectory.o(.text.fTraj_Reset) for [Anonymous Symbol]
+    trajectory.o(.text.fTraj_SetTarget) refers to trajectory.o(.bss.traj_state.0) for traj_state.0
+    trajectory.o(.ARM.exidx.text.fTraj_SetTarget) refers to trajectory.o(.text.fTraj_SetTarget) for [Anonymous Symbol]
+    trajectory.o(.text.fTraj_SetRate) refers to trajectory.o(.bss.traj_state.2) for traj_state.2
+    trajectory.o(.ARM.exidx.text.fTraj_SetRate) refers to trajectory.o(.text.fTraj_SetRate) for [Anonymous Symbol]
+    trajectory.o(.text.fTraj_Update) refers to trajectory.o(.bss.traj_state.2) for traj_state.2
+    trajectory.o(.text.fTraj_Update) refers to trajectory.o(.bss.traj_cfg) for traj_cfg
+    trajectory.o(.text.fTraj_Update) refers to trajectory.o(.bss.traj_state.0) for traj_state.0
+    trajectory.o(.text.fTraj_Update) refers to trajectory.o(.bss.traj_state.1) for traj_state.1
+    trajectory.o(.text.fTraj_Update) refers to trajectory.o(.bss.traj_state.3) for traj_state.3
+    trajectory.o(.ARM.exidx.text.fTraj_Update) refers to trajectory.o(.text.fTraj_Update) for [Anonymous Symbol]
     arm_cos_f32.o(.text.arm_cos_f32) refers to arm_common_tables.o(.rodata.sinTable_f32) for sinTable_f32
     arm_cos_f32.o(.ARM.exidx.text.arm_cos_f32) refers to arm_cos_f32.o(.text.arm_cos_f32) for [Anonymous Symbol]
     arm_sin_f32.o(.text.arm_sin_f32) refers to arm_common_tables.o(.rodata.sinTable_f32) for sinTable_f32
@@ -3625,42 +3617,33 @@ Removing Unused input sections from the image.
     Removing usb_port.o(.ARM.exidx.text.fUSB_RxFrameCallback), (8 bytes).
     Removing usb_port.o(.ARM.exidx.text.usbRecvByte), (8 bytes).
     Removing foc_core.o(.text), (0 bytes).
-    Removing foc_core.o(.text.startup_machine_init), (92 bytes).
-    Removing foc_core.o(.ARM.exidx.text.startup_machine_init), (8 bytes).
-    Removing foc_core.o(.text.mode_init), (118 bytes).
-    Removing foc_core.o(.ARM.exidx.text.mode_init), (8 bytes).
+    Removing foc_core.o(.text._trajectory_init), (8 bytes).
+    Removing foc_core.o(.ARM.exidx.text._trajectory_init), (8 bytes).
+    Removing foc_core.o(.text._mode_init), (132 bytes).
+    Removing foc_core.o(.ARM.exidx.text._mode_init), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_SetSensorMode), (8 bytes).
-    Removing foc_core.o(.text.motor_init), (156 bytes).
-    Removing foc_core.o(.ARM.exidx.text.motor_init), (8 bytes).
+    Removing foc_core.o(.text._motor_init), (156 bytes).
+    Removing foc_core.o(.ARM.exidx.text._motor_init), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_CoreInit), (8 bytes).
-    Removing foc_core.o(.text.startup_machine_reset), (14 bytes).
-    Removing foc_core.o(.ARM.exidx.text.startup_machine_reset), (8 bytes).
-    Removing foc_core.o(.text.foc_val_reset), (18 bytes).
-    Removing foc_core.o(.ARM.exidx.text.foc_val_reset), (8 bytes).
+    Removing foc_core.o(.text._FocValReset), (18 bytes).
+    Removing foc_core.o(.ARM.exidx.text._FocValReset), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_CoreReset), (8 bytes).
     Removing foc_core.o(.text.Current_reconstruction), (144 bytes).
     Removing foc_core.o(.ARM.exidx.text.Current_reconstruction), (8 bytes).
-    Removing foc_core.o(.text.theta_align_curloop), (76 bytes).
-    Removing foc_core.o(.ARM.exidx.text.theta_align_curloop), (8 bytes).
-    Removing foc_core.o(.text.oloop_to_cloop), (140 bytes).
-    Removing foc_core.o(.ARM.exidx.text.oloop_to_cloop), (8 bytes).
     Removing foc_core.o(.text.foc_senless_get_vito), (2 bytes).
     Removing foc_core.o(.ARM.exidx.text.foc_senless_get_vito), (8 bytes).
     Removing foc_core.o(.text.voltage_control), (30 bytes).
     Removing foc_core.o(.ARM.exidx.text.voltage_control), (8 bytes).
     Removing foc_core.o(.text.current_loop_run), (68 bytes).
     Removing foc_core.o(.ARM.exidx.text.current_loop_run), (8 bytes).
-    Removing foc_core.o(.text.speed_loop_run), (114 bytes).
+    Removing foc_core.o(.text.speed_loop_run), (86 bytes).
     Removing foc_core.o(.ARM.exidx.text.speed_loop_run), (8 bytes).
     Removing foc_core.o(.text.weak_mag_loop_run), (76 bytes).
     Removing foc_core.o(.ARM.exidx.text.weak_mag_loop_run), (8 bytes).
-    Removing foc_core.o(.text.position_abs_loop_run), (64 bytes).
-    Removing foc_core.o(.ARM.exidx.text.position_abs_loop_run), (8 bytes).
-    Removing foc_core.o(.text.position_rel_loop_run), (48 bytes).
-    Removing foc_core.o(.ARM.exidx.text.position_rel_loop_run), (8 bytes).
+    Removing foc_core.o(.text.position_loop_run), (86 bytes).
+    Removing foc_core.o(.ARM.exidx.text.position_loop_run), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_ValueUpdate), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_MainLoopTask), (8 bytes).
-    Removing foc_core.o(.ARM.exidx.text.fFOC_SetOmegaIM), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_SetTargetValue), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fAutoCalibrationUpdate), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_SetUalphaBeta), (8 bytes).
@@ -3669,7 +3652,7 @@ Removing Unused input sections from the image.
     Removing foc_core.o(.ARM.exidx.text.fOpenLoopEnable), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fSetOpendLoopTheta), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fSetOpendLoopOmega), (8 bytes).
-    Removing foc_core.o(.ARM.exidx.text.fFOC_SetLoopMode), (8 bytes).
+    Removing foc_core.o(.ARM.exidx.text.fFOC_SetRunMode), (8 bytes).
     Removing foc_core.o(.ARM.exidx.text.fFOC_Shutdown), (8 bytes).
     Removing foc_statemachine.o(.text), (0 bytes).
     Removing foc_statemachine.o(.ARM.exidx.text.HAL_TIM_PeriodElapsedCallback), (8 bytes).
@@ -3698,9 +3681,7 @@ Removing Unused input sections from the image.
     Removing loop_control.o(.ARM.exidx.text.fMagLoopUpdate), (8 bytes).
     Removing loop_control.o(.ARM.exidx.text.fWeakMagLoopUpdate), (8 bytes).
     Removing loop_control.o(.ARM.exidx.text.fSpeedLoopUpdate), (8 bytes).
-    Removing loop_control.o(.ARM.exidx.text.fPositionAbsLoopUpdate), (8 bytes).
     Removing loop_control.o(.ARM.exidx.text.fPositionRelLoopUpdate), (8 bytes).
-    Removing loop_control.o(.ARM.exidx.text.fPVT_SetOmega), (8 bytes).
     Removing smo.o(.text), (0 bytes).
     Removing smo.o(.ARM.exidx.text.fSMO_Init), (8 bytes).
     Removing smo.o(.ARM.exidx.text.fSMO_Reset), (8 bytes).
@@ -3873,6 +3854,13 @@ Removing Unused input sections from the image.
     Removing queue.o(.text.fStaticQueuePeekAt), (70 bytes).
     Removing queue.o(.ARM.exidx.text.fStaticQueuePeekAt), (8 bytes).
     Removing ring_buffer.o(.text), (0 bytes).
+    Removing trajectory.o(.text), (0 bytes).
+    Removing trajectory.o(.text.fTraj_Init), (20 bytes).
+    Removing trajectory.o(.ARM.exidx.text.fTraj_Init), (8 bytes).
+    Removing trajectory.o(.ARM.exidx.text.fTraj_Reset), (8 bytes).
+    Removing trajectory.o(.ARM.exidx.text.fTraj_SetTarget), (8 bytes).
+    Removing trajectory.o(.ARM.exidx.text.fTraj_SetRate), (8 bytes).
+    Removing trajectory.o(.ARM.exidx.text.fTraj_Update), (8 bytes).
     Removing arm_cos_f32.o(.text), (0 bytes).
     Removing arm_cos_f32.o(.ARM.exidx.text.arm_cos_f32), (8 bytes).
     Removing arm_sin_f32.o(.text), (0 bytes).
@@ -3993,7 +3981,7 @@ Removing Unused input sections from the image.
     Removing arm_common_tables.o(.rodata.sinTable_q31), (2052 bytes).
     Removing arm_common_tables.o(.rodata.sinTable_q15), (1026 bytes).
 
-1605 unused section(s) (total 974627 bytes) removed from the image.
+1601 unused section(s) (total 974277 bytes) removed from the image.
 
 ==============================================================================
 
@@ -4103,6 +4091,7 @@ Image Symbol Table
     system_statemachine.c                    0x00000000   Number         0  system_statemachine.o ABSOLUTE
     system_stm32f4xx.c                       0x00000000   Number         0  system_stm32f4xx.o ABSOLUTE
     tim.c                                    0x00000000   Number         0  tim.o ABSOLUTE
+    trajectory.c                             0x00000000   Number         0  trajectory.o ABSOLUTE
     uart_port.c                              0x00000000   Number         0  uart_port.o ABSOLUTE
     usart.c                                  0x00000000   Number         0  usart.o ABSOLUTE
     usb_device.c                             0x00000000   Number         0  usb_device.o ABSOLUTE
@@ -4500,131 +4489,132 @@ Image Symbol Table
     [Anonymous Symbol]                       0x0800a3a4   Section        0  flashdr.o(.text.fFLASH_ReadData)
     [Anonymous Symbol]                       0x0800a480   Section        0  flashdr.o(.text.fFLASH_WriteWord)
     [Anonymous Symbol]                       0x0800a5e8   Section        0  foc_core.o(.text.fFOC_CoreInit)
-    [Anonymous Symbol]                       0x0800a774   Section        0  foc_core.o(.text.fFOC_CoreReset)
-    [Anonymous Symbol]                       0x0800a79c   Section        0  foc_statemachine.o(.text.fFOC_Init)
-    [Anonymous Symbol]                       0x0800a7e0   Section        0  foc_core.o(.text.fFOC_MainLoopTask)
-    [Anonymous Symbol]                       0x0800aa3c   Section        0  foc_core.o(.text.fFOC_SetLoopMode)
-    [Anonymous Symbol]                       0x0800aa5c   Section        0  foc_core.o(.text.fFOC_SetOmegaIM)
-    [Anonymous Symbol]                       0x0800aa70   Section        0  foc_core.o(.text.fFOC_SetSensorMode)
-    [Anonymous Symbol]                       0x0800aabc   Section        0  foc_core.o(.text.fFOC_SetTargetValue)
-    [Anonymous Symbol]                       0x0800ab24   Section        0  foc_core.o(.text.fFOC_SetUalphaBeta)
-    [Anonymous Symbol]                       0x0800ab38   Section        0  foc_core.o(.text.fFOC_Shutdown)
-    [Anonymous Symbol]                       0x0800aba8   Section        0  foc_statemachine.o(.text.fFOC_StateMachineMainLoop)
-    [Anonymous Symbol]                       0x0800ac40   Section        0  foc_statemachine.o(.text.fFOC_StateUpdate)
-    [Anonymous Symbol]                       0x0800ac58   Section        0  foc_core.o(.text.fFOC_ValueUpdate)
-    [Anonymous Symbol]                       0x0800ada0   Section        0  loop_control.o(.text.fFrequencyDivisionUpdate)
-    [Anonymous Symbol]                       0x0800ae08   Section        0  encoder.o(.text.fGetEncoderAngle_ABS)
-    [Anonymous Symbol]                       0x0800ae18   Section        0  encoder.o(.text.fGetEncoderAngle_INC)
-    [Anonymous Symbol]                       0x0800ae28   Section        0  encoder.o(.text.fGetEncoderOmega)
-    [Anonymous Symbol]                       0x0800ae38   Section        0  svpwm.o(.text.fGetVoltage_u)
-    [Anonymous Symbol]                       0x0800ae60   Section        0  svpwm.o(.text.fGetVoltage_v)
-    [Anonymous Symbol]                       0x0800ae88   Section        0  svpwm.o(.text.fGetVoltage_w)
-    [Anonymous Symbol]                       0x0800aeb0   Section        0  port_mapping.o(.text.fHostComputer_send)
-    [Anonymous Symbol]                       0x0800aee8   Section        0  math_fast.o(.text.fInvParkTransform)
-    [Anonymous Symbol]                       0x0800af38   Section        0  rgb.o(.text.fLED_Show)
-    [Anonymous Symbol]                       0x0800b014   Section        0  log.o(.text.fLogDataSave)
-    [Anonymous Symbol]                       0x0800b0c8   Section        0  log.o(.text.fLogDataWrite)
-    [Anonymous Symbol]                       0x0800b0fc   Section        0  log.o(.text.fLogErase)
-    [Anonymous Symbol]                       0x0800b120   Section        0  log.o(.text.fLogInit)
-    [Anonymous Symbol]                       0x0800b174   Section        0  log.o(.text.fLogReadFlash)
-    [Anonymous Symbol]                       0x0800b1e0   Section        0  loop_control.o(.text.fLoopControlInit)
-    [Anonymous Symbol]                       0x0800b314   Section        0  loop_control.o(.text.fLoopReset)
-    [Anonymous Symbol]                       0x0800b354   Section        0  loop_control.o(.text.fMagLoopUpdate)
-    [Anonymous Symbol]                       0x0800b3ec   Section        0  math_fast.o(.text.fNormalizeAngle02pi)
-    [Anonymous Symbol]                       0x0800b41c   Section        0  foc_core.o(.text.fOpenLoopEnable)
-    [Anonymous Symbol]                       0x0800b428   Section        0  loop_control.o(.text.fPVT_SetOmega)
+    [Anonymous Symbol]                       0x0800a750   Section        0  foc_core.o(.text.fFOC_CoreReset)
+    [Anonymous Symbol]                       0x0800a794   Section        0  foc_statemachine.o(.text.fFOC_Init)
+    [Anonymous Symbol]                       0x0800a7d8   Section        0  foc_core.o(.text.fFOC_MainLoopTask)
+    [Anonymous Symbol]                       0x0800aa64   Section        0  foc_core.o(.text.fFOC_SetRunMode)
+    [Anonymous Symbol]                       0x0800aa84   Section        0  foc_core.o(.text.fFOC_SetSensorMode)
+    [Anonymous Symbol]                       0x0800aae8   Section        0  foc_core.o(.text.fFOC_SetTargetValue)
+    [Anonymous Symbol]                       0x0800ab3c   Section        0  foc_core.o(.text.fFOC_SetUalphaBeta)
+    [Anonymous Symbol]                       0x0800ab50   Section        0  foc_core.o(.text.fFOC_Shutdown)
+    [Anonymous Symbol]                       0x0800abc0   Section        0  foc_statemachine.o(.text.fFOC_StateMachineMainLoop)
+    [Anonymous Symbol]                       0x0800ac5c   Section        0  foc_statemachine.o(.text.fFOC_StateUpdate)
+    [Anonymous Symbol]                       0x0800ac74   Section        0  foc_core.o(.text.fFOC_ValueUpdate)
+    [Anonymous Symbol]                       0x0800adb0   Section        0  loop_control.o(.text.fFrequencyDivisionUpdate)
+    [Anonymous Symbol]                       0x0800ae18   Section        0  encoder.o(.text.fGetEncoderAngle_ABS)
+    [Anonymous Symbol]                       0x0800ae28   Section        0  encoder.o(.text.fGetEncoderAngle_INC)
+    [Anonymous Symbol]                       0x0800ae38   Section        0  encoder.o(.text.fGetEncoderOmega)
+    [Anonymous Symbol]                       0x0800ae48   Section        0  svpwm.o(.text.fGetVoltage_u)
+    [Anonymous Symbol]                       0x0800ae70   Section        0  svpwm.o(.text.fGetVoltage_v)
+    [Anonymous Symbol]                       0x0800ae98   Section        0  svpwm.o(.text.fGetVoltage_w)
+    [Anonymous Symbol]                       0x0800aec0   Section        0  port_mapping.o(.text.fHostComputer_send)
+    [Anonymous Symbol]                       0x0800aef8   Section        0  math_fast.o(.text.fInvParkTransform)
+    [Anonymous Symbol]                       0x0800af48   Section        0  rgb.o(.text.fLED_Show)
+    [Anonymous Symbol]                       0x0800b024   Section        0  log.o(.text.fLogDataSave)
+    [Anonymous Symbol]                       0x0800b0d8   Section        0  log.o(.text.fLogDataWrite)
+    [Anonymous Symbol]                       0x0800b10c   Section        0  log.o(.text.fLogErase)
+    [Anonymous Symbol]                       0x0800b130   Section        0  log.o(.text.fLogInit)
+    [Anonymous Symbol]                       0x0800b184   Section        0  log.o(.text.fLogReadFlash)
+    [Anonymous Symbol]                       0x0800b1f0   Section        0  loop_control.o(.text.fLoopControlInit)
+    [Anonymous Symbol]                       0x0800b324   Section        0  loop_control.o(.text.fLoopReset)
+    [Anonymous Symbol]                       0x0800b364   Section        0  loop_control.o(.text.fMagLoopUpdate)
+    [Anonymous Symbol]                       0x0800b3fc   Section        0  math_fast.o(.text.fNormalizeAngle02pi)
+    [Anonymous Symbol]                       0x0800b42c   Section        0  foc_core.o(.text.fOpenLoopEnable)
     [Anonymous Symbol]                       0x0800b438   Section        0  parameter_manager.o(.text.fParamErase)
     [Anonymous Symbol]                       0x0800b440   Section        0  parameter_manager.o(.text.fParamGet)
-    [Anonymous Symbol]                       0x0800b70c   Section        0  parameter_manager.o(.text.fParamInit)
-    [Anonymous Symbol]                       0x0800b890   Section        0  parameter_manager.o(.text.fParamSave)
-    [Anonymous Symbol]                       0x0800b8b0   Section        0  parameter_manager.o(.text.fParamSet)
-    [Anonymous Symbol]                       0x0800ba94   Section        0  smo.o(.text.fParamTuneReset)
-    [Anonymous Symbol]                       0x0800baa8   Section        0  smo.o(.text.fParamTuneUpdate)
-    __arm_cp.9_17                            0x0800bef4   Number         4  smo.o(.text.fParamTuneUpdate)
-    __arm_cp.9_18                            0x0800bef8   Number         4  smo.o(.text.fParamTuneUpdate)
-    __arm_cp.9_22                            0x0800bf08   Number         4  smo.o(.text.fParamTuneUpdate)
-    __arm_cp.9_23                            0x0800bf0c   Number         4  smo.o(.text.fParamTuneUpdate)
-    __arm_cp.9_24                            0x0800bf10   Number         4  smo.o(.text.fParamTuneUpdate)
-    [Anonymous Symbol]                       0x0800c688   Section        0  math_fast.o(.text.fParkTransform)
-    [Anonymous Symbol]                       0x0800c6d8   Section        0  loop_control.o(.text.fPositionAbsLoopUpdate)
-    [Anonymous Symbol]                       0x0800c7d8   Section        0  loop_control.o(.text.fPositionRelLoopUpdate)
-    [Anonymous Symbol]                       0x0800c8fc   Section        0  protection_manager.o(.text.fProManagerInit)
-    [Anonymous Symbol]                       0x0800c968   Section        0  protection_manager.o(.text.fProManagerMainLoop)
-    [Anonymous Symbol]                       0x0800cb68   Section        0  protection_manager.o(.text.fProManagerReset)
-    [Anonymous Symbol]                       0x0800cb78   Section        0  filter.o(.text.fPulseInterferenceFilter)
-    [Anonymous Symbol]                       0x0800cdac   Section        0  filter.o(.text.fPulseInterferenceInit)
-    [Anonymous Symbol]                       0x0800cdc4   Section        0  rgb.o(.text.fRGB_Breathe)
-    fRGB_SetOneColor                         0x0800cea1   Thumb Code   336  rgb.o(.text.fRGB_SetOneColor)
-    [Anonymous Symbol]                       0x0800cea0   Section        0  rgb.o(.text.fRGB_SetOneColor)
-    [Anonymous Symbol]                       0x0800cff0   Section        0  math_fast.o(.text.fRadToDeg)
-    [Anonymous Symbol]                       0x0800d000   Section        0  math_fast.o(.text.fRadToRpm)
-    [Anonymous Symbol]                       0x0800d010   Section        0  math_fast.o(.text.fRpmToRad)
-    [Anonymous Symbol]                       0x0800d020   Section        0  smo.o(.text.fSMO_GetOmega)
-    [Anonymous Symbol]                       0x0800d03c   Section        0  smo.o(.text.fSMO_Init)
-    [Anonymous Symbol]                       0x0800d0b0   Section        0  smo.o(.text.fSMO_MainLoop)
-    __arm_cp.4_18                            0x0800d428   Number         4  smo.o(.text.fSMO_MainLoop)
-    [Anonymous Symbol]                       0x0800d5c8   Section        0  smo.o(.text.fSMO_Reset)
-    [Anonymous Symbol]                       0x0800d5e4   Section        0  svpwm.o(.text.fSamplePointCalibration)
-    [Anonymous Symbol]                       0x0800d660   Section        0  foc_core.o(.text.fSetOpendLoopOmega)
-    [Anonymous Symbol]                       0x0800d670   Section        0  foc_core.o(.text.fSetOpendLoopTheta)
-    [Anonymous Symbol]                       0x0800d684   Section        0  foc_core.o(.text.fSetThetaOffset)
-    [Anonymous Symbol]                       0x0800d694   Section        0  foc_core.o(.text.fSetWireSequence)
-    [Anonymous Symbol]                       0x0800d6a4   Section        0  loop_control.o(.text.fSpeedLoopUpdate)
-    [Anonymous Symbol]                       0x0800d73c   Section        0  queue.o(.text.fStaticQueueDequeue)
-    [Anonymous Symbol]                       0x0800d77c   Section        0  queue.o(.text.fStaticQueueEnqueue)
-    [Anonymous Symbol]                       0x0800d7bc   Section        0  queue.o(.text.fStaticQueueInit)
-    [Anonymous Symbol]                       0x0800d7e0   Section        0  status_feedback.o(.text.fStatusFeedbackMainLoop)
-    [Anonymous Symbol]                       0x0800d890   Section        0  datamonitoring.o(.text.fStreamDataGet)
-    [Anonymous Symbol]                       0x0800da3c   Section        0  svpwm.o(.text.fSvpwmGetSector)
-    [Anonymous Symbol]                       0x0800da48   Section        0  svpwm.o(.text.fSvpwmInit)
-    [Anonymous Symbol]                       0x0800da68   Section        0  svpwm.o(.text.fSvpwmRun)
-    [Anonymous Symbol]                       0x0800dc5c   Section        0  status_feedback.o(.text.fSystemFaultFeedback)
-    [Anonymous Symbol]                       0x0800dc6c   Section        0  system_statemachine.o(.text.fSystemStateGet)
-    [Anonymous Symbol]                       0x0800dc78   Section        0  system_statemachine.o(.text.fSystemStateUpdata)
-    [Anonymous Symbol]                       0x0800dc84   Section        0  port_mapping.o(.text.fUSB_RxFrameCallback)
-    [Anonymous Symbol]                       0x0800dcb0   Section        0  usb_port.o(.text.fUSB_SendFrame)
-    [Anonymous Symbol]                       0x0800ddcc   Section        0  uart_port.o(.text.fUartPortInit)
-    [Anonymous Symbol]                       0x0800de18   Section        0  uart_port.o(.text.fUartPortSendFrame)
-    [Anonymous Symbol]                       0x0800def0   Section        0  uart_port.o(.text.fUartReviceByte)
-    [Anonymous Symbol]                       0x0800dfc8   Section        0  port_mapping.o(.text.fUartRxFrameCallback)
-    [Anonymous Symbol]                       0x0800dff4   Section        0  uart_port.o(.text.fVOFA_FloatDataSend)
-    [Anonymous Symbol]                       0x0800e07c   Section        0  loop_control.o(.text.fWeakMagLoopUpdate)
-    [Anonymous Symbol]                       0x0800e13c   Section        0  main.o(.text.main)
-    [Anonymous Symbol]                       0x0800e198   Section        0  usb_port.o(.text.usbRecvByte)
-    i.__ARM_fpclassifyf                      0x0800e272   Section        0  fpclassifyf.o(i.__ARM_fpclassifyf)
-    i.__hardfp_atan2f                        0x0800e298   Section        0  atan2f.o(i.__hardfp_atan2f)
-    i.__hardfp_expf                          0x0800e544   Section        0  expf.o(i.__hardfp_expf)
-    i.__hardfp_fmodf                         0x0800e730   Section        0  fmodf.o(i.__hardfp_fmodf)
-    i.__hardfp_tanhf                         0x0800e7e0   Section        0  tanhf.o(i.__hardfp_tanhf)
-    i.__mathlib_flt_infnan                   0x0800e8c4   Section        0  funder.o(i.__mathlib_flt_infnan)
-    i.__mathlib_flt_infnan2                  0x0800e8ca   Section        0  funder.o(i.__mathlib_flt_infnan2)
-    i.__mathlib_flt_invalid                  0x0800e8d0   Section        0  funder.o(i.__mathlib_flt_invalid)
-    i.__mathlib_flt_overflow                 0x0800e8e0   Section        0  funder.o(i.__mathlib_flt_overflow)
-    i.__mathlib_flt_underflow                0x0800e8f0   Section        0  funder.o(i.__mathlib_flt_underflow)
-    i.__scatterload_copy                     0x0800e900   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x0800e90e   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x0800e910   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i.__set_errno                            0x0800e920   Section        0  errno.o(i.__set_errno)
-    twotokover4top                           0x0800e92c   Data          16  expf.o(.constdata)
-    .constdata                               0x0800e92c   Section       48  expf.o(.constdata)
-    twotokover4bot                           0x0800e93c   Data          16  expf.o(.constdata)
-    twotokover4all                           0x0800e94c   Data          16  expf.o(.constdata)
-    SINE_TABLE                               0x0800e98c   Data         256  rgb.o(.rodata.SINE_TABLE)
-    [Anonymous Symbol]                       0x0800e98c   Section        0  rgb.o(.rodata.SINE_TABLE)
-    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x0800ea92   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
-    [Anonymous Symbol]                       0x0800ea92   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
-    g_adc_to_temp                            0x0800f2a0   Data         255  adc_dr.o(.rodata.str1.1)
-    [Anonymous Symbol]                       0x0800f2a0   Section        0  adc_dr.o(.rodata.str1.1)
+    [Anonymous Symbol]                       0x0800b6ec   Section        0  parameter_manager.o(.text.fParamInit)
+    [Anonymous Symbol]                       0x0800b848   Section        0  parameter_manager.o(.text.fParamSave)
+    [Anonymous Symbol]                       0x0800b868   Section        0  parameter_manager.o(.text.fParamSet)
+    [Anonymous Symbol]                       0x0800ba0c   Section        0  smo.o(.text.fParamTuneReset)
+    [Anonymous Symbol]                       0x0800ba20   Section        0  smo.o(.text.fParamTuneUpdate)
+    __arm_cp.9_17                            0x0800be58   Number         4  smo.o(.text.fParamTuneUpdate)
+    __arm_cp.9_18                            0x0800be5c   Number         4  smo.o(.text.fParamTuneUpdate)
+    __arm_cp.9_22                            0x0800be6c   Number         4  smo.o(.text.fParamTuneUpdate)
+    __arm_cp.9_23                            0x0800be70   Number         4  smo.o(.text.fParamTuneUpdate)
+    __arm_cp.9_24                            0x0800be74   Number         4  smo.o(.text.fParamTuneUpdate)
+    [Anonymous Symbol]                       0x0800c5e8   Section        0  math_fast.o(.text.fParkTransform)
+    [Anonymous Symbol]                       0x0800c638   Section        0  loop_control.o(.text.fPositionRelLoopUpdate)
+    [Anonymous Symbol]                       0x0800c75c   Section        0  protection_manager.o(.text.fProManagerInit)
+    [Anonymous Symbol]                       0x0800c7c8   Section        0  protection_manager.o(.text.fProManagerMainLoop)
+    [Anonymous Symbol]                       0x0800c9c4   Section        0  protection_manager.o(.text.fProManagerReset)
+    [Anonymous Symbol]                       0x0800c9d4   Section        0  filter.o(.text.fPulseInterferenceFilter)
+    [Anonymous Symbol]                       0x0800cc08   Section        0  filter.o(.text.fPulseInterferenceInit)
+    [Anonymous Symbol]                       0x0800cc20   Section        0  rgb.o(.text.fRGB_Breathe)
+    fRGB_SetOneColor                         0x0800ccfd   Thumb Code   336  rgb.o(.text.fRGB_SetOneColor)
+    [Anonymous Symbol]                       0x0800ccfc   Section        0  rgb.o(.text.fRGB_SetOneColor)
+    [Anonymous Symbol]                       0x0800ce4c   Section        0  math_fast.o(.text.fRadToDeg)
+    [Anonymous Symbol]                       0x0800ce5c   Section        0  math_fast.o(.text.fRadToRpm)
+    [Anonymous Symbol]                       0x0800ce6c   Section        0  math_fast.o(.text.fRpmToRad)
+    [Anonymous Symbol]                       0x0800ce7c   Section        0  smo.o(.text.fSMO_GetOmega)
+    [Anonymous Symbol]                       0x0800ce98   Section        0  smo.o(.text.fSMO_Init)
+    [Anonymous Symbol]                       0x0800cf10   Section        0  smo.o(.text.fSMO_MainLoop)
+    __arm_cp.4_18                            0x0800d288   Number         4  smo.o(.text.fSMO_MainLoop)
+    [Anonymous Symbol]                       0x0800d428   Section        0  smo.o(.text.fSMO_Reset)
+    [Anonymous Symbol]                       0x0800d444   Section        0  svpwm.o(.text.fSamplePointCalibration)
+    [Anonymous Symbol]                       0x0800d4c0   Section        0  foc_core.o(.text.fSetOpendLoopOmega)
+    [Anonymous Symbol]                       0x0800d4d0   Section        0  foc_core.o(.text.fSetOpendLoopTheta)
+    [Anonymous Symbol]                       0x0800d4e4   Section        0  foc_core.o(.text.fSetThetaOffset)
+    [Anonymous Symbol]                       0x0800d4f4   Section        0  foc_core.o(.text.fSetWireSequence)
+    [Anonymous Symbol]                       0x0800d504   Section        0  loop_control.o(.text.fSpeedLoopUpdate)
+    [Anonymous Symbol]                       0x0800d59c   Section        0  queue.o(.text.fStaticQueueDequeue)
+    [Anonymous Symbol]                       0x0800d5dc   Section        0  queue.o(.text.fStaticQueueEnqueue)
+    [Anonymous Symbol]                       0x0800d61c   Section        0  queue.o(.text.fStaticQueueInit)
+    [Anonymous Symbol]                       0x0800d640   Section        0  status_feedback.o(.text.fStatusFeedbackMainLoop)
+    [Anonymous Symbol]                       0x0800d6f0   Section        0  datamonitoring.o(.text.fStreamDataGet)
+    [Anonymous Symbol]                       0x0800d88c   Section        0  svpwm.o(.text.fSvpwmGetSector)
+    [Anonymous Symbol]                       0x0800d898   Section        0  svpwm.o(.text.fSvpwmInit)
+    [Anonymous Symbol]                       0x0800d8b8   Section        0  svpwm.o(.text.fSvpwmRun)
+    [Anonymous Symbol]                       0x0800daac   Section        0  status_feedback.o(.text.fSystemFaultFeedback)
+    [Anonymous Symbol]                       0x0800dabc   Section        0  system_statemachine.o(.text.fSystemStateGet)
+    [Anonymous Symbol]                       0x0800dac8   Section        0  system_statemachine.o(.text.fSystemStateUpdata)
+    [Anonymous Symbol]                       0x0800dad4   Section        0  trajectory.o(.text.fTraj_Reset)
+    [Anonymous Symbol]                       0x0800db04   Section        0  trajectory.o(.text.fTraj_SetRate)
+    [Anonymous Symbol]                       0x0800db14   Section        0  trajectory.o(.text.fTraj_SetTarget)
+    [Anonymous Symbol]                       0x0800db24   Section        0  trajectory.o(.text.fTraj_Update)
+    [Anonymous Symbol]                       0x0800dd00   Section        0  port_mapping.o(.text.fUSB_RxFrameCallback)
+    [Anonymous Symbol]                       0x0800dd2c   Section        0  usb_port.o(.text.fUSB_SendFrame)
+    [Anonymous Symbol]                       0x0800de48   Section        0  uart_port.o(.text.fUartPortInit)
+    [Anonymous Symbol]                       0x0800de94   Section        0  uart_port.o(.text.fUartPortSendFrame)
+    [Anonymous Symbol]                       0x0800df6c   Section        0  uart_port.o(.text.fUartReviceByte)
+    [Anonymous Symbol]                       0x0800e044   Section        0  port_mapping.o(.text.fUartRxFrameCallback)
+    [Anonymous Symbol]                       0x0800e070   Section        0  uart_port.o(.text.fVOFA_FloatDataSend)
+    [Anonymous Symbol]                       0x0800e0f8   Section        0  loop_control.o(.text.fWeakMagLoopUpdate)
+    [Anonymous Symbol]                       0x0800e1b8   Section        0  main.o(.text.main)
+    [Anonymous Symbol]                       0x0800e214   Section        0  usb_port.o(.text.usbRecvByte)
+    i.__ARM_fpclassifyf                      0x0800e2ee   Section        0  fpclassifyf.o(i.__ARM_fpclassifyf)
+    i.__hardfp_atan2f                        0x0800e314   Section        0  atan2f.o(i.__hardfp_atan2f)
+    i.__hardfp_expf                          0x0800e5c0   Section        0  expf.o(i.__hardfp_expf)
+    i.__hardfp_fmodf                         0x0800e7ac   Section        0  fmodf.o(i.__hardfp_fmodf)
+    i.__hardfp_tanhf                         0x0800e85c   Section        0  tanhf.o(i.__hardfp_tanhf)
+    i.__mathlib_flt_infnan                   0x0800e940   Section        0  funder.o(i.__mathlib_flt_infnan)
+    i.__mathlib_flt_infnan2                  0x0800e946   Section        0  funder.o(i.__mathlib_flt_infnan2)
+    i.__mathlib_flt_invalid                  0x0800e94c   Section        0  funder.o(i.__mathlib_flt_invalid)
+    i.__mathlib_flt_overflow                 0x0800e95c   Section        0  funder.o(i.__mathlib_flt_overflow)
+    i.__mathlib_flt_underflow                0x0800e96c   Section        0  funder.o(i.__mathlib_flt_underflow)
+    i.__scatterload_copy                     0x0800e97c   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x0800e98a   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x0800e98c   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i.__set_errno                            0x0800e99c   Section        0  errno.o(i.__set_errno)
+    twotokover4top                           0x0800e9a8   Data          16  expf.o(.constdata)
+    .constdata                               0x0800e9a8   Section       48  expf.o(.constdata)
+    twotokover4bot                           0x0800e9b8   Data          16  expf.o(.constdata)
+    twotokover4all                           0x0800e9c8   Data          16  expf.o(.constdata)
+    SINE_TABLE                               0x0800ea08   Data         256  rgb.o(.rodata.SINE_TABLE)
+    [Anonymous Symbol]                       0x0800ea08   Section        0  rgb.o(.rodata.SINE_TABLE)
+    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x0800eb0e   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
+    [Anonymous Symbol]                       0x0800eb0e   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
+    g_adc_to_temp                            0x0800f31c   Data         255  adc_dr.o(.rodata.str1.1)
+    [Anonymous Symbol]                       0x0800f31c   Section        0  adc_dr.o(.rodata.str1.1)
     _errno                                   0x20000000   Data           4  errno.o(.data)
     .data                                    0x20000000   Section        4  errno.o(.data)
     USBD_CDC_CfgDesc                         0x2000005c   Data          67  usbd_cdc.o(.data.USBD_CDC_CfgDesc)
     [Anonymous Symbol]                       0x2000005c   Section        0  usbd_cdc.o(.data.USBD_CDC_CfgDesc)
     USBD_CDC_DeviceQualifierDesc             0x200000a0   Data          10  usbd_cdc.o(.data.USBD_CDC_DeviceQualifierDesc)
     [Anonymous Symbol]                       0x200000a0   Section        0  usbd_cdc.o(.data.USBD_CDC_DeviceQualifierDesc)
-    reg03_cmd                                0x2000022c   Data           2  encoder.o(.data.reg03_cmd)
-    [Anonymous Symbol]                       0x2000022c   Section        0  encoder.o(.data.reg03_cmd)
-    reg04_cmd                                0x2000022e   Data           2  encoder.o(.data.reg04_cmd)
-    [Anonymous Symbol]                       0x2000022e   Section        0  encoder.o(.data.reg04_cmd)
+    reg03_cmd                                0x20000228   Data           2  encoder.o(.data.reg03_cmd)
+    [Anonymous Symbol]                       0x20000228   Section        0  encoder.o(.data.reg03_cmd)
+    reg04_cmd                                0x2000022a   Data           2  encoder.o(.data.reg04_cmd)
+    [Anonymous Symbol]                       0x2000022a   Section        0  encoder.o(.data.reg04_cmd)
     CanRxData                                0x20000238   Data          64  can_port.o(.bss.CanRxData)
     [Anonymous Symbol]                       0x20000238   Section        0  can_port.o(.bss.CanRxData)
     DataIndex                                0x20000278   Data           1  uart_port.o(.bss.DataIndex)
@@ -4671,87 +4661,95 @@ Image Symbol Table
     [Anonymous Symbol]                       0x20000c00   Section        0  smo.o(.bss.fSMO_MainLoop.integrator_beta)
     fSMO_MainLoop.open_loop_omega            0x20000c04   Data           4  smo.o(.bss.fSMO_MainLoop.open_loop_omega)
     [Anonymous Symbol]                       0x20000c04   Section        0  smo.o(.bss.fSMO_MainLoop.open_loop_omega)
-    g_adc1_buffer                            0x20000d08   Data           6  adc_dr.o(.bss.g_adc1_buffer)
-    [Anonymous Symbol]                       0x20000d08   Section        0  adc_dr.o(.bss.g_adc1_buffer)
-    g_adc2_buffer                            0x20000d0e   Data           4  adc_dr.o(.bss.g_adc2_buffer)
-    [Anonymous Symbol]                       0x20000d0e   Section        0  adc_dr.o(.bss.g_adc2_buffer)
-    g_calibration_flag                       0x20000d12   Data           1  adc_dr.o(.bss.g_calibration_flag)
-    [Anonymous Symbol]                       0x20000d12   Section        0  adc_dr.o(.bss.g_calibration_flag)
-    g_cur_zero_u                             0x20000d14   Data           4  adc_dr.o(.bss.g_cur_zero_u)
-    [Anonymous Symbol]                       0x20000d14   Section        0  adc_dr.o(.bss.g_cur_zero_u)
-    g_cur_zero_v                             0x20000d18   Data           4  adc_dr.o(.bss.g_cur_zero_v)
-    [Anonymous Symbol]                       0x20000d18   Section        0  adc_dr.o(.bss.g_cur_zero_v)
-    g_cur_zero_w                             0x20000d1c   Data           4  adc_dr.o(.bss.g_cur_zero_w)
-    [Anonymous Symbol]                       0x20000d1c   Section        0  adc_dr.o(.bss.g_cur_zero_w)
-    g_sample_counter                         0x20000d78   Data           1  adc_dr.o(.bss.g_sample_counter)
-    [Anonymous Symbol]                       0x20000d78   Section        0  adc_dr.o(.bss.g_sample_counter)
-    g_temp_index                             0x20000d79   Data           1  adc_dr.o(.bss.g_temp_index)
-    [Anonymous Symbol]                       0x20000d79   Section        0  adc_dr.o(.bss.g_temp_index)
-    g_u_sum                                  0x20000d7c   Data           4  adc_dr.o(.bss.g_u_sum)
-    [Anonymous Symbol]                       0x20000d7c   Section        0  adc_dr.o(.bss.g_u_sum)
-    g_ui_buffer                              0x20000d80   Data          10  adc_dr.o(.bss.g_ui_buffer)
-    [Anonymous Symbol]                       0x20000d80   Section        0  adc_dr.o(.bss.g_ui_buffer)
-    g_ui_filter                              0x20000d8c   Data           8  adc_dr.o(.bss.g_ui_filter)
-    [Anonymous Symbol]                       0x20000d8c   Section        0  adc_dr.o(.bss.g_ui_filter)
-    g_v_sum                                  0x20000d94   Data           4  adc_dr.o(.bss.g_v_sum)
-    [Anonymous Symbol]                       0x20000d94   Section        0  adc_dr.o(.bss.g_v_sum)
-    g_vi_buffer                              0x20000d98   Data          10  adc_dr.o(.bss.g_vi_buffer)
-    [Anonymous Symbol]                       0x20000d98   Section        0  adc_dr.o(.bss.g_vi_buffer)
-    g_vi_filter                              0x20000da4   Data           8  adc_dr.o(.bss.g_vi_filter)
-    [Anonymous Symbol]                       0x20000da4   Section        0  adc_dr.o(.bss.g_vi_filter)
-    g_w_sum                                  0x20000dac   Data           4  adc_dr.o(.bss.g_w_sum)
-    [Anonymous Symbol]                       0x20000dac   Section        0  adc_dr.o(.bss.g_w_sum)
-    g_wi_buffer                              0x20000db0   Data          10  adc_dr.o(.bss.g_wi_buffer)
-    [Anonymous Symbol]                       0x20000db0   Section        0  adc_dr.o(.bss.g_wi_buffer)
-    g_wi_filter                              0x20000dbc   Data           8  adc_dr.o(.bss.g_wi_filter)
-    [Anonymous Symbol]                       0x20000dbc   Section        0  adc_dr.o(.bss.g_wi_filter)
-    get_head                                 0x20000dc4   Data           1  uart_port.o(.bss.get_head)
-    [Anonymous Symbol]                       0x20000dc4   Section        0  uart_port.o(.bss.get_head)
-    half_time_flag                           0x20001134   Data           1  rgb.o(.bss.half_time_flag)
-    [Anonymous Symbol]                       0x20001134   Section        0  rgb.o(.bss.half_time_flag)
-    log_send_flag                            0x20001acc   Data           1  port_mapping.o(.bss.log_send_flag)
-    [Anonymous Symbol]                       0x20001acc   Section        0  port_mapping.o(.bss.log_send_flag)
-    omega_last                               0x20001b98   Data           4  smo.o(.bss.omega_last)
-    [Anonymous Symbol]                       0x20001b98   Section        0  smo.o(.bss.omega_last)
-    omega_pre                                0x20001b9c   Data           4  foc_core.o(.bss.omega_pre)
-    [Anonymous Symbol]                       0x20001b9c   Section        0  foc_core.o(.bss.omega_pre)
-    param_index                              0x20001ba0   Data           1  port_mapping.o(.bss.param_index)
-    [Anonymous Symbol]                       0x20001ba0   Section        0  port_mapping.o(.bss.param_index)
-    param_send_flag                          0x20001ba1   Data           1  port_mapping.o(.bss.param_send_flag)
-    [Anonymous Symbol]                       0x20001ba1   Section        0  port_mapping.o(.bss.param_send_flag)
-    param_tune_Ls.prev_i                     0x20001ba4   Data           4  smo.o(.bss.param_tune_Ls.prev_i)
-    [Anonymous Symbol]                       0x20001ba4   Section        0  smo.o(.bss.param_tune_Ls.prev_i)
-    param_tune_Rs.prev_i_alpha               0x20001ba8   Data           4  smo.o(.bss.param_tune_Rs.prev_i_alpha)
-    [Anonymous Symbol]                       0x20001ba8   Section        0  smo.o(.bss.param_tune_Rs.prev_i_alpha)
-    param_tune_pole_pairs.omega_smo_last     0x20001bac   Data           4  smo.o(.bss.param_tune_pole_pairs.omega_smo_last)
-    [Anonymous Symbol]                       0x20001bac   Section        0  smo.o(.bss.param_tune_pole_pairs.omega_smo_last)
-    param_tune_pole_pairs.pole_pairs         0x20001bb0   Data           4  smo.o(.bss.param_tune_pole_pairs.pole_pairs)
-    [Anonymous Symbol]                       0x20001bb0   Section        0  smo.o(.bss.param_tune_pole_pairs.pole_pairs)
-    read_index                               0x20001bb4   Data           1  log.o(.bss.read_index)
-    [Anonymous Symbol]                       0x20001bb4   Section        0  log.o(.bss.read_index)
-    reg03_data                               0x20001bb6   Data           2  encoder.o(.bss.reg03_data)
-    [Anonymous Symbol]                       0x20001bb6   Section        0  encoder.o(.bss.reg03_data)
-    reg04_data                               0x20001bb8   Data           2  encoder.o(.bss.reg04_data)
-    [Anonymous Symbol]                       0x20001bb8   Section        0  encoder.o(.bss.reg04_data)
-    rgb_breathe_t                            0x20001bbc   Data          20  rgb.o(.bss.rgb_breathe_t)
-    [Anonymous Symbol]                       0x20001bbc   Section        0  rgb.o(.bss.rgb_breathe_t)
-    rxbuffer                                 0x20001c90   Data           8  can_port.o(.bss.rxbuffer)
-    [Anonymous Symbol]                       0x20001c90   Section        0  can_port.o(.bss.rxbuffer)
-    rxindex                                  0x20001c98   Data           1  can_port.o(.bss.rxindex)
-    [Anonymous Symbol]                       0x20001c98   Section        0  can_port.o(.bss.rxindex)
-    rxtemp                                   0x20001c99   Data           1  can_port.o(.bss.rxtemp)
-    [Anonymous Symbol]                       0x20001c99   Section        0  can_port.o(.bss.rxtemp)
-    sample_time_prev_ms                      0x20001c9c   Data           4  adc_dr.o(.bss.sample_time_prev_ms)
-    [Anonymous Symbol]                       0x20001c9c   Section        0  adc_dr.o(.bss.sample_time_prev_ms)
-    system_message_send_flag                 0x20001d3c   Data           1  port_mapping.o(.bss.system_message_send_flag)
-    [Anonymous Symbol]                       0x20001d3c   Section        0  port_mapping.o(.bss.system_message_send_flag)
-    trans_fault_tic                          0x20001d48   Data           1  usb_port.o(.bss.trans_fault_tic)
-    [Anonymous Symbol]                       0x20001d48   Section        0  usb_port.o(.bss.trans_fault_tic)
-    valid                                    0x20001dd4   Data           1  encoder.o(.bss.valid)
-    [Anonymous Symbol]                       0x20001dd4   Section        0  encoder.o(.bss.valid)
-    value_ref                                0x20001dd8   Data           8  port_mapping.o(.bss.value_ref)
-    [Anonymous Symbol]                       0x20001dd8   Section        0  port_mapping.o(.bss.value_ref)
-    STACK                                    0x20001de0   Section     1024  startup_stm32f405xx.o(STACK)
+    g_adc1_buffer                            0x20000cfc   Data           6  adc_dr.o(.bss.g_adc1_buffer)
+    [Anonymous Symbol]                       0x20000cfc   Section        0  adc_dr.o(.bss.g_adc1_buffer)
+    g_adc2_buffer                            0x20000d02   Data           4  adc_dr.o(.bss.g_adc2_buffer)
+    [Anonymous Symbol]                       0x20000d02   Section        0  adc_dr.o(.bss.g_adc2_buffer)
+    g_calibration_flag                       0x20000d06   Data           1  adc_dr.o(.bss.g_calibration_flag)
+    [Anonymous Symbol]                       0x20000d06   Section        0  adc_dr.o(.bss.g_calibration_flag)
+    g_cur_zero_u                             0x20000d08   Data           4  adc_dr.o(.bss.g_cur_zero_u)
+    [Anonymous Symbol]                       0x20000d08   Section        0  adc_dr.o(.bss.g_cur_zero_u)
+    g_cur_zero_v                             0x20000d0c   Data           4  adc_dr.o(.bss.g_cur_zero_v)
+    [Anonymous Symbol]                       0x20000d0c   Section        0  adc_dr.o(.bss.g_cur_zero_v)
+    g_cur_zero_w                             0x20000d10   Data           4  adc_dr.o(.bss.g_cur_zero_w)
+    [Anonymous Symbol]                       0x20000d10   Section        0  adc_dr.o(.bss.g_cur_zero_w)
+    g_sample_counter                         0x20000d6c   Data           1  adc_dr.o(.bss.g_sample_counter)
+    [Anonymous Symbol]                       0x20000d6c   Section        0  adc_dr.o(.bss.g_sample_counter)
+    g_temp_index                             0x20000d6d   Data           1  adc_dr.o(.bss.g_temp_index)
+    [Anonymous Symbol]                       0x20000d6d   Section        0  adc_dr.o(.bss.g_temp_index)
+    g_u_sum                                  0x20000d70   Data           4  adc_dr.o(.bss.g_u_sum)
+    [Anonymous Symbol]                       0x20000d70   Section        0  adc_dr.o(.bss.g_u_sum)
+    g_ui_buffer                              0x20000d74   Data          10  adc_dr.o(.bss.g_ui_buffer)
+    [Anonymous Symbol]                       0x20000d74   Section        0  adc_dr.o(.bss.g_ui_buffer)
+    g_ui_filter                              0x20000d80   Data           8  adc_dr.o(.bss.g_ui_filter)
+    [Anonymous Symbol]                       0x20000d80   Section        0  adc_dr.o(.bss.g_ui_filter)
+    g_v_sum                                  0x20000d88   Data           4  adc_dr.o(.bss.g_v_sum)
+    [Anonymous Symbol]                       0x20000d88   Section        0  adc_dr.o(.bss.g_v_sum)
+    g_vi_buffer                              0x20000d8c   Data          10  adc_dr.o(.bss.g_vi_buffer)
+    [Anonymous Symbol]                       0x20000d8c   Section        0  adc_dr.o(.bss.g_vi_buffer)
+    g_vi_filter                              0x20000d98   Data           8  adc_dr.o(.bss.g_vi_filter)
+    [Anonymous Symbol]                       0x20000d98   Section        0  adc_dr.o(.bss.g_vi_filter)
+    g_w_sum                                  0x20000da0   Data           4  adc_dr.o(.bss.g_w_sum)
+    [Anonymous Symbol]                       0x20000da0   Section        0  adc_dr.o(.bss.g_w_sum)
+    g_wi_buffer                              0x20000da4   Data          10  adc_dr.o(.bss.g_wi_buffer)
+    [Anonymous Symbol]                       0x20000da4   Section        0  adc_dr.o(.bss.g_wi_buffer)
+    g_wi_filter                              0x20000db0   Data           8  adc_dr.o(.bss.g_wi_filter)
+    [Anonymous Symbol]                       0x20000db0   Section        0  adc_dr.o(.bss.g_wi_filter)
+    get_head                                 0x20000db8   Data           1  uart_port.o(.bss.get_head)
+    [Anonymous Symbol]                       0x20000db8   Section        0  uart_port.o(.bss.get_head)
+    half_time_flag                           0x20001128   Data           1  rgb.o(.bss.half_time_flag)
+    [Anonymous Symbol]                       0x20001128   Section        0  rgb.o(.bss.half_time_flag)
+    log_send_flag                            0x20001ac0   Data           1  port_mapping.o(.bss.log_send_flag)
+    [Anonymous Symbol]                       0x20001ac0   Section        0  port_mapping.o(.bss.log_send_flag)
+    omega_last                               0x20001b8c   Data           4  smo.o(.bss.omega_last)
+    [Anonymous Symbol]                       0x20001b8c   Section        0  smo.o(.bss.omega_last)
+    param_index                              0x20001b90   Data           1  port_mapping.o(.bss.param_index)
+    [Anonymous Symbol]                       0x20001b90   Section        0  port_mapping.o(.bss.param_index)
+    param_send_flag                          0x20001b91   Data           1  port_mapping.o(.bss.param_send_flag)
+    [Anonymous Symbol]                       0x20001b91   Section        0  port_mapping.o(.bss.param_send_flag)
+    param_tune_Ls.prev_i                     0x20001b94   Data           4  smo.o(.bss.param_tune_Ls.prev_i)
+    [Anonymous Symbol]                       0x20001b94   Section        0  smo.o(.bss.param_tune_Ls.prev_i)
+    param_tune_Rs.prev_i_alpha               0x20001b98   Data           4  smo.o(.bss.param_tune_Rs.prev_i_alpha)
+    [Anonymous Symbol]                       0x20001b98   Section        0  smo.o(.bss.param_tune_Rs.prev_i_alpha)
+    param_tune_pole_pairs.omega_smo_last     0x20001b9c   Data           4  smo.o(.bss.param_tune_pole_pairs.omega_smo_last)
+    [Anonymous Symbol]                       0x20001b9c   Section        0  smo.o(.bss.param_tune_pole_pairs.omega_smo_last)
+    param_tune_pole_pairs.pole_pairs         0x20001ba0   Data           4  smo.o(.bss.param_tune_pole_pairs.pole_pairs)
+    [Anonymous Symbol]                       0x20001ba0   Section        0  smo.o(.bss.param_tune_pole_pairs.pole_pairs)
+    read_index                               0x20001ba4   Data           1  log.o(.bss.read_index)
+    [Anonymous Symbol]                       0x20001ba4   Section        0  log.o(.bss.read_index)
+    reg03_data                               0x20001ba6   Data           2  encoder.o(.bss.reg03_data)
+    [Anonymous Symbol]                       0x20001ba6   Section        0  encoder.o(.bss.reg03_data)
+    reg04_data                               0x20001ba8   Data           2  encoder.o(.bss.reg04_data)
+    [Anonymous Symbol]                       0x20001ba8   Section        0  encoder.o(.bss.reg04_data)
+    rgb_breathe_t                            0x20001bac   Data          20  rgb.o(.bss.rgb_breathe_t)
+    [Anonymous Symbol]                       0x20001bac   Section        0  rgb.o(.bss.rgb_breathe_t)
+    rxbuffer                                 0x20001c80   Data           8  can_port.o(.bss.rxbuffer)
+    [Anonymous Symbol]                       0x20001c80   Section        0  can_port.o(.bss.rxbuffer)
+    rxindex                                  0x20001c88   Data           1  can_port.o(.bss.rxindex)
+    [Anonymous Symbol]                       0x20001c88   Section        0  can_port.o(.bss.rxindex)
+    rxtemp                                   0x20001c89   Data           1  can_port.o(.bss.rxtemp)
+    [Anonymous Symbol]                       0x20001c89   Section        0  can_port.o(.bss.rxtemp)
+    sample_time_prev_ms                      0x20001c8c   Data           4  adc_dr.o(.bss.sample_time_prev_ms)
+    [Anonymous Symbol]                       0x20001c8c   Section        0  adc_dr.o(.bss.sample_time_prev_ms)
+    system_message_send_flag                 0x20001d10   Data           1  port_mapping.o(.bss.system_message_send_flag)
+    [Anonymous Symbol]                       0x20001d10   Section        0  port_mapping.o(.bss.system_message_send_flag)
+    traj_cfg                                 0x20001d1c   Data          20  trajectory.o(.bss.traj_cfg)
+    [Anonymous Symbol]                       0x20001d1c   Section        0  trajectory.o(.bss.traj_cfg)
+    traj_state.0                             0x20001d30   Data           4  trajectory.o(.bss.traj_state.0)
+    [Anonymous Symbol]                       0x20001d30   Section        0  trajectory.o(.bss.traj_state.0)
+    traj_state.1                             0x20001d34   Data           4  trajectory.o(.bss.traj_state.1)
+    [Anonymous Symbol]                       0x20001d34   Section        0  trajectory.o(.bss.traj_state.1)
+    traj_state.2                             0x20001d38   Data           4  trajectory.o(.bss.traj_state.2)
+    [Anonymous Symbol]                       0x20001d38   Section        0  trajectory.o(.bss.traj_state.2)
+    traj_state.3                             0x20001d3c   Data           4  trajectory.o(.bss.traj_state.3)
+    [Anonymous Symbol]                       0x20001d3c   Section        0  trajectory.o(.bss.traj_state.3)
+    trans_fault_tic                          0x20001d40   Data           1  usb_port.o(.bss.trans_fault_tic)
+    [Anonymous Symbol]                       0x20001d40   Section        0  usb_port.o(.bss.trans_fault_tic)
+    valid                                    0x20001dcc   Data           1  encoder.o(.bss.valid)
+    [Anonymous Symbol]                       0x20001dcc   Section        0  encoder.o(.bss.valid)
+    value_ref                                0x20001dd0   Data           8  port_mapping.o(.bss.value_ref)
+    [Anonymous Symbol]                       0x20001dd0   Section        0  port_mapping.o(.bss.value_ref)
+    STACK                                    0x20001dd8   Section     1024  startup_stm32f405xx.o(STACK)
 
     Global Symbols
 
@@ -5161,116 +5159,117 @@ Image Symbol Table
     fFLASH_Init                              0x0800a2e9   Thumb Code   186  flashdr.o(.text.fFLASH_Init)
     fFLASH_ReadData                          0x0800a3a5   Thumb Code   220  flashdr.o(.text.fFLASH_ReadData)
     fFLASH_WriteWord                         0x0800a481   Thumb Code   360  flashdr.o(.text.fFLASH_WriteWord)
-    fFOC_CoreInit                            0x0800a5e9   Thumb Code   388  foc_core.o(.text.fFOC_CoreInit)
-    fFOC_CoreReset                           0x0800a775   Thumb Code    38  foc_core.o(.text.fFOC_CoreReset)
-    fFOC_Init                                0x0800a79d   Thumb Code    68  foc_statemachine.o(.text.fFOC_Init)
-    fFOC_MainLoopTask                        0x0800a7e1   Thumb Code   592  foc_core.o(.text.fFOC_MainLoopTask)
-    fFOC_SetLoopMode                         0x0800aa3d   Thumb Code    30  foc_core.o(.text.fFOC_SetLoopMode)
-    fFOC_SetOmegaIM                          0x0800aa5d   Thumb Code    18  foc_core.o(.text.fFOC_SetOmegaIM)
-    fFOC_SetSensorMode                       0x0800aa71   Thumb Code    76  foc_core.o(.text.fFOC_SetSensorMode)
-    fFOC_SetTargetValue                      0x0800aabd   Thumb Code   102  foc_core.o(.text.fFOC_SetTargetValue)
-    fFOC_SetUalphaBeta                       0x0800ab25   Thumb Code    18  foc_core.o(.text.fFOC_SetUalphaBeta)
-    fFOC_Shutdown                            0x0800ab39   Thumb Code   104  foc_core.o(.text.fFOC_Shutdown)
-    fFOC_StateMachineMainLoop                0x0800aba9   Thumb Code   152  foc_statemachine.o(.text.fFOC_StateMachineMainLoop)
-    fFOC_StateUpdate                         0x0800ac41   Thumb Code    24  foc_statemachine.o(.text.fFOC_StateUpdate)
-    fFOC_ValueUpdate                         0x0800ac59   Thumb Code   328  foc_core.o(.text.fFOC_ValueUpdate)
-    fFrequencyDivisionUpdate                 0x0800ada1   Thumb Code   104  loop_control.o(.text.fFrequencyDivisionUpdate)
-    fGetEncoderAngle_ABS                     0x0800ae09   Thumb Code    14  encoder.o(.text.fGetEncoderAngle_ABS)
-    fGetEncoderAngle_INC                     0x0800ae19   Thumb Code    14  encoder.o(.text.fGetEncoderAngle_INC)
-    fGetEncoderOmega                         0x0800ae29   Thumb Code    14  encoder.o(.text.fGetEncoderOmega)
-    fGetVoltage_u                            0x0800ae39   Thumb Code    36  svpwm.o(.text.fGetVoltage_u)
-    fGetVoltage_v                            0x0800ae61   Thumb Code    36  svpwm.o(.text.fGetVoltage_v)
-    fGetVoltage_w                            0x0800ae89   Thumb Code    36  svpwm.o(.text.fGetVoltage_w)
-    fHostComputer_send                       0x0800aeb1   Thumb Code    56  port_mapping.o(.text.fHostComputer_send)
-    fInvParkTransform                        0x0800aee9   Thumb Code    80  math_fast.o(.text.fInvParkTransform)
-    fLED_Show                                0x0800af39   Thumb Code   218  rgb.o(.text.fLED_Show)
-    fLogDataSave                             0x0800b015   Thumb Code   178  log.o(.text.fLogDataSave)
-    fLogDataWrite                            0x0800b0c9   Thumb Code    52  log.o(.text.fLogDataWrite)
-    fLogErase                                0x0800b0fd   Thumb Code    34  log.o(.text.fLogErase)
-    fLogInit                                 0x0800b121   Thumb Code    82  log.o(.text.fLogInit)
-    fLogReadFlash                            0x0800b175   Thumb Code   108  log.o(.text.fLogReadFlash)
-    fLoopControlInit                         0x0800b1e1   Thumb Code   304  loop_control.o(.text.fLoopControlInit)
-    fLoopReset                               0x0800b315   Thumb Code    62  loop_control.o(.text.fLoopReset)
-    fMagLoopUpdate                           0x0800b355   Thumb Code   150  loop_control.o(.text.fMagLoopUpdate)
-    fNormalizeAngle02pi                      0x0800b3ed   Thumb Code    44  math_fast.o(.text.fNormalizeAngle02pi)
-    fOpenLoopEnable                          0x0800b41d   Thumb Code    12  foc_core.o(.text.fOpenLoopEnable)
-    fPVT_SetOmega                            0x0800b429   Thumb Code    14  loop_control.o(.text.fPVT_SetOmega)
+    fFOC_CoreInit                            0x0800a5e9   Thumb Code   356  foc_core.o(.text.fFOC_CoreInit)
+    fFOC_CoreReset                           0x0800a751   Thumb Code    68  foc_core.o(.text.fFOC_CoreReset)
+    fFOC_Init                                0x0800a795   Thumb Code    68  foc_statemachine.o(.text.fFOC_Init)
+    fFOC_MainLoopTask                        0x0800a7d9   Thumb Code   644  foc_core.o(.text.fFOC_MainLoopTask)
+    fFOC_SetRunMode                          0x0800aa65   Thumb Code    30  foc_core.o(.text.fFOC_SetRunMode)
+    fFOC_SetSensorMode                       0x0800aa85   Thumb Code   100  foc_core.o(.text.fFOC_SetSensorMode)
+    fFOC_SetTargetValue                      0x0800aae9   Thumb Code    84  foc_core.o(.text.fFOC_SetTargetValue)
+    fFOC_SetUalphaBeta                       0x0800ab3d   Thumb Code    18  foc_core.o(.text.fFOC_SetUalphaBeta)
+    fFOC_Shutdown                            0x0800ab51   Thumb Code   104  foc_core.o(.text.fFOC_Shutdown)
+    fFOC_StateMachineMainLoop                0x0800abc1   Thumb Code   156  foc_statemachine.o(.text.fFOC_StateMachineMainLoop)
+    fFOC_StateUpdate                         0x0800ac5d   Thumb Code    24  foc_statemachine.o(.text.fFOC_StateUpdate)
+    fFOC_ValueUpdate                         0x0800ac75   Thumb Code   316  foc_core.o(.text.fFOC_ValueUpdate)
+    fFrequencyDivisionUpdate                 0x0800adb1   Thumb Code   104  loop_control.o(.text.fFrequencyDivisionUpdate)
+    fGetEncoderAngle_ABS                     0x0800ae19   Thumb Code    14  encoder.o(.text.fGetEncoderAngle_ABS)
+    fGetEncoderAngle_INC                     0x0800ae29   Thumb Code    14  encoder.o(.text.fGetEncoderAngle_INC)
+    fGetEncoderOmega                         0x0800ae39   Thumb Code    14  encoder.o(.text.fGetEncoderOmega)
+    fGetVoltage_u                            0x0800ae49   Thumb Code    36  svpwm.o(.text.fGetVoltage_u)
+    fGetVoltage_v                            0x0800ae71   Thumb Code    36  svpwm.o(.text.fGetVoltage_v)
+    fGetVoltage_w                            0x0800ae99   Thumb Code    36  svpwm.o(.text.fGetVoltage_w)
+    fHostComputer_send                       0x0800aec1   Thumb Code    56  port_mapping.o(.text.fHostComputer_send)
+    fInvParkTransform                        0x0800aef9   Thumb Code    80  math_fast.o(.text.fInvParkTransform)
+    fLED_Show                                0x0800af49   Thumb Code   218  rgb.o(.text.fLED_Show)
+    fLogDataSave                             0x0800b025   Thumb Code   178  log.o(.text.fLogDataSave)
+    fLogDataWrite                            0x0800b0d9   Thumb Code    52  log.o(.text.fLogDataWrite)
+    fLogErase                                0x0800b10d   Thumb Code    34  log.o(.text.fLogErase)
+    fLogInit                                 0x0800b131   Thumb Code    82  log.o(.text.fLogInit)
+    fLogReadFlash                            0x0800b185   Thumb Code   108  log.o(.text.fLogReadFlash)
+    fLoopControlInit                         0x0800b1f1   Thumb Code   304  loop_control.o(.text.fLoopControlInit)
+    fLoopReset                               0x0800b325   Thumb Code    62  loop_control.o(.text.fLoopReset)
+    fMagLoopUpdate                           0x0800b365   Thumb Code   150  loop_control.o(.text.fMagLoopUpdate)
+    fNormalizeAngle02pi                      0x0800b3fd   Thumb Code    44  math_fast.o(.text.fNormalizeAngle02pi)
+    fOpenLoopEnable                          0x0800b42d   Thumb Code    12  foc_core.o(.text.fOpenLoopEnable)
     fParamErase                              0x0800b439   Thumb Code     6  parameter_manager.o(.text.fParamErase)
-    fParamGet                                0x0800b441   Thumb Code   714  parameter_manager.o(.text.fParamGet)
-    fParamInit                               0x0800b70d   Thumb Code   364  parameter_manager.o(.text.fParamInit)
-    fParamSave                               0x0800b891   Thumb Code    30  parameter_manager.o(.text.fParamSave)
-    fParamSet                                0x0800b8b1   Thumb Code   480  parameter_manager.o(.text.fParamSet)
-    fParamTuneReset                          0x0800ba95   Thumb Code    18  smo.o(.text.fParamTuneReset)
-    fParamTuneUpdate                         0x0800baa9   Thumb Code  3000  smo.o(.text.fParamTuneUpdate)
-    fParkTransform                           0x0800c689   Thumb Code    80  math_fast.o(.text.fParkTransform)
-    fPositionAbsLoopUpdate                   0x0800c6d9   Thumb Code   254  loop_control.o(.text.fPositionAbsLoopUpdate)
-    fPositionRelLoopUpdate                   0x0800c7d9   Thumb Code   290  loop_control.o(.text.fPositionRelLoopUpdate)
-    fProManagerInit                          0x0800c8fd   Thumb Code   104  protection_manager.o(.text.fProManagerInit)
-    fProManagerMainLoop                      0x0800c969   Thumb Code   500  protection_manager.o(.text.fProManagerMainLoop)
-    fProManagerReset                         0x0800cb69   Thumb Code    16  protection_manager.o(.text.fProManagerReset)
-    fPulseInterferenceFilter                 0x0800cb79   Thumb Code   562  filter.o(.text.fPulseInterferenceFilter)
-    fPulseInterferenceInit                   0x0800cdad   Thumb Code    22  filter.o(.text.fPulseInterferenceInit)
-    fRGB_Breathe                             0x0800cdc5   Thumb Code   218  rgb.o(.text.fRGB_Breathe)
-    fRadToDeg                                0x0800cff1   Thumb Code    12  math_fast.o(.text.fRadToDeg)
-    fRadToRpm                                0x0800d001   Thumb Code    12  math_fast.o(.text.fRadToRpm)
-    fRpmToRad                                0x0800d011   Thumb Code    12  math_fast.o(.text.fRpmToRad)
-    fSMO_GetOmega                            0x0800d021   Thumb Code    28  smo.o(.text.fSMO_GetOmega)
-    fSMO_Init                                0x0800d03d   Thumb Code   116  smo.o(.text.fSMO_Init)
-    fSMO_MainLoop                            0x0800d0b1   Thumb Code  1232  smo.o(.text.fSMO_MainLoop)
-    fSMO_Reset                               0x0800d5c9   Thumb Code    26  smo.o(.text.fSMO_Reset)
-    fSamplePointCalibration                  0x0800d5e5   Thumb Code   122  svpwm.o(.text.fSamplePointCalibration)
-    fSetOpendLoopOmega                       0x0800d661   Thumb Code    14  foc_core.o(.text.fSetOpendLoopOmega)
-    fSetOpendLoopTheta                       0x0800d671   Thumb Code    18  foc_core.o(.text.fSetOpendLoopTheta)
-    fSetThetaOffset                          0x0800d685   Thumb Code    14  foc_core.o(.text.fSetThetaOffset)
-    fSetWireSequence                         0x0800d695   Thumb Code    14  foc_core.o(.text.fSetWireSequence)
-    fSpeedLoopUpdate                         0x0800d6a5   Thumb Code   150  loop_control.o(.text.fSpeedLoopUpdate)
-    fStaticQueueDequeue                      0x0800d73d   Thumb Code    62  queue.o(.text.fStaticQueueDequeue)
-    fStaticQueueEnqueue                      0x0800d77d   Thumb Code    64  queue.o(.text.fStaticQueueEnqueue)
-    fStaticQueueInit                         0x0800d7bd   Thumb Code    34  queue.o(.text.fStaticQueueInit)
-    fStatusFeedbackMainLoop                  0x0800d7e1   Thumb Code   112  status_feedback.o(.text.fStatusFeedbackMainLoop)
-    fStreamDataGet                           0x0800d891   Thumb Code   428  datamonitoring.o(.text.fStreamDataGet)
-    fSvpwmGetSector                          0x0800da3d   Thumb Code    12  svpwm.o(.text.fSvpwmGetSector)
-    fSvpwmInit                               0x0800da49   Thumb Code    28  svpwm.o(.text.fSvpwmInit)
-    fSvpwmRun                                0x0800da69   Thumb Code   480  svpwm.o(.text.fSvpwmRun)
-    fSystemFaultFeedback                     0x0800dc5d   Thumb Code    16  status_feedback.o(.text.fSystemFaultFeedback)
-    fSystemStateGet                          0x0800dc6d   Thumb Code    12  system_statemachine.o(.text.fSystemStateGet)
-    fSystemStateUpdata                       0x0800dc79   Thumb Code    12  system_statemachine.o(.text.fSystemStateUpdata)
-    fUSB_RxFrameCallback                     0x0800dc85   Thumb Code    42  port_mapping.o(.text.fUSB_RxFrameCallback)
-    fUSB_SendFrame                           0x0800dcb1   Thumb Code   284  usb_port.o(.text.fUSB_SendFrame)
-    fUartPortInit                            0x0800ddcd   Thumb Code    76  uart_port.o(.text.fUartPortInit)
-    fUartPortSendFrame                       0x0800de19   Thumb Code   216  uart_port.o(.text.fUartPortSendFrame)
-    fUartReviceByte                          0x0800def1   Thumb Code   216  uart_port.o(.text.fUartReviceByte)
-    fUartRxFrameCallback                     0x0800dfc9   Thumb Code    42  port_mapping.o(.text.fUartRxFrameCallback)
-    fVOFA_FloatDataSend                      0x0800dff5   Thumb Code   134  uart_port.o(.text.fVOFA_FloatDataSend)
-    fWeakMagLoopUpdate                       0x0800e07d   Thumb Code   188  loop_control.o(.text.fWeakMagLoopUpdate)
-    main                                     0x0800e13d   Thumb Code    90  main.o(.text.main)
-    usbRecvByte                              0x0800e199   Thumb Code   218  usb_port.o(.text.usbRecvByte)
-    __ARM_fpclassifyf                        0x0800e273   Thumb Code    38  fpclassifyf.o(i.__ARM_fpclassifyf)
-    __hardfp_atan2f                          0x0800e299   Thumb Code   594  atan2f.o(i.__hardfp_atan2f)
-    __hardfp_expf                            0x0800e545   Thumb Code   430  expf.o(i.__hardfp_expf)
-    __mathlib_expf                           0x0800e545   Thumb Code     0  expf.o(i.__hardfp_expf)
-    __hardfp_fmodf                           0x0800e731   Thumb Code   176  fmodf.o(i.__hardfp_fmodf)
-    __hardfp_tanhf                           0x0800e7e1   Thumb Code   208  tanhf.o(i.__hardfp_tanhf)
-    __mathlib_flt_infnan                     0x0800e8c5   Thumb Code     6  funder.o(i.__mathlib_flt_infnan)
-    __mathlib_flt_infnan2                    0x0800e8cb   Thumb Code     6  funder.o(i.__mathlib_flt_infnan2)
-    __mathlib_flt_invalid                    0x0800e8d1   Thumb Code    10  funder.o(i.__mathlib_flt_invalid)
-    __mathlib_flt_overflow                   0x0800e8e1   Thumb Code    10  funder.o(i.__mathlib_flt_overflow)
-    __mathlib_flt_underflow                  0x0800e8f1   Thumb Code    10  funder.o(i.__mathlib_flt_underflow)
-    __scatterload_copy                       0x0800e901   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x0800e90f   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x0800e911   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    __set_errno                              0x0800e921   Thumb Code     6  errno.o(i.__set_errno)
-    AHBPrescTable                            0x0800e95c   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
-    APBPrescTable                            0x0800e96c   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
-    BLUE                                     0x0800e974   Data           6  rgb.o(.rodata.BLUE)
-    GREEN                                    0x0800e97a   Data           6  rgb.o(.rodata.GREEN)
-    MAGENTA                                  0x0800e980   Data           6  rgb.o(.rodata.MAGENTA)
-    RED                                      0x0800e986   Data           6  rgb.o(.rodata.RED)
-    WHITE                                    0x0800ea8c   Data           6  rgb.o(.rodata.WHITE)
-    execute                                  0x0800ea9a   Data           1  port_mapping.o(.rodata.execute)
-    sinTable_f32                             0x0800ea9c   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
-    Region$$Table$$Base                      0x0800f3a0   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0800f3c0   Number         0  anon$$obj.o(Region$$Table)
+    fParamGet                                0x0800b441   Thumb Code   682  parameter_manager.o(.text.fParamGet)
+    fParamInit                               0x0800b6ed   Thumb Code   336  parameter_manager.o(.text.fParamInit)
+    fParamSave                               0x0800b849   Thumb Code    30  parameter_manager.o(.text.fParamSave)
+    fParamSet                                0x0800b869   Thumb Code   416  parameter_manager.o(.text.fParamSet)
+    fParamTuneReset                          0x0800ba0d   Thumb Code    18  smo.o(.text.fParamTuneReset)
+    fParamTuneUpdate                         0x0800ba21   Thumb Code  2976  smo.o(.text.fParamTuneUpdate)
+    fParkTransform                           0x0800c5e9   Thumb Code    80  math_fast.o(.text.fParkTransform)
+    fPositionRelLoopUpdate                   0x0800c639   Thumb Code   290  loop_control.o(.text.fPositionRelLoopUpdate)
+    fProManagerInit                          0x0800c75d   Thumb Code   104  protection_manager.o(.text.fProManagerInit)
+    fProManagerMainLoop                      0x0800c7c9   Thumb Code   496  protection_manager.o(.text.fProManagerMainLoop)
+    fProManagerReset                         0x0800c9c5   Thumb Code    16  protection_manager.o(.text.fProManagerReset)
+    fPulseInterferenceFilter                 0x0800c9d5   Thumb Code   562  filter.o(.text.fPulseInterferenceFilter)
+    fPulseInterferenceInit                   0x0800cc09   Thumb Code    22  filter.o(.text.fPulseInterferenceInit)
+    fRGB_Breathe                             0x0800cc21   Thumb Code   218  rgb.o(.text.fRGB_Breathe)
+    fRadToDeg                                0x0800ce4d   Thumb Code    12  math_fast.o(.text.fRadToDeg)
+    fRadToRpm                                0x0800ce5d   Thumb Code    12  math_fast.o(.text.fRadToRpm)
+    fRpmToRad                                0x0800ce6d   Thumb Code    12  math_fast.o(.text.fRpmToRad)
+    fSMO_GetOmega                            0x0800ce7d   Thumb Code    28  smo.o(.text.fSMO_GetOmega)
+    fSMO_Init                                0x0800ce99   Thumb Code   116  smo.o(.text.fSMO_Init)
+    fSMO_MainLoop                            0x0800cf11   Thumb Code  1232  smo.o(.text.fSMO_MainLoop)
+    fSMO_Reset                               0x0800d429   Thumb Code    26  smo.o(.text.fSMO_Reset)
+    fSamplePointCalibration                  0x0800d445   Thumb Code   122  svpwm.o(.text.fSamplePointCalibration)
+    fSetOpendLoopOmega                       0x0800d4c1   Thumb Code    14  foc_core.o(.text.fSetOpendLoopOmega)
+    fSetOpendLoopTheta                       0x0800d4d1   Thumb Code    18  foc_core.o(.text.fSetOpendLoopTheta)
+    fSetThetaOffset                          0x0800d4e5   Thumb Code    14  foc_core.o(.text.fSetThetaOffset)
+    fSetWireSequence                         0x0800d4f5   Thumb Code    14  foc_core.o(.text.fSetWireSequence)
+    fSpeedLoopUpdate                         0x0800d505   Thumb Code   150  loop_control.o(.text.fSpeedLoopUpdate)
+    fStaticQueueDequeue                      0x0800d59d   Thumb Code    62  queue.o(.text.fStaticQueueDequeue)
+    fStaticQueueEnqueue                      0x0800d5dd   Thumb Code    64  queue.o(.text.fStaticQueueEnqueue)
+    fStaticQueueInit                         0x0800d61d   Thumb Code    34  queue.o(.text.fStaticQueueInit)
+    fStatusFeedbackMainLoop                  0x0800d641   Thumb Code   112  status_feedback.o(.text.fStatusFeedbackMainLoop)
+    fStreamDataGet                           0x0800d6f1   Thumb Code   410  datamonitoring.o(.text.fStreamDataGet)
+    fSvpwmGetSector                          0x0800d88d   Thumb Code    12  svpwm.o(.text.fSvpwmGetSector)
+    fSvpwmInit                               0x0800d899   Thumb Code    28  svpwm.o(.text.fSvpwmInit)
+    fSvpwmRun                                0x0800d8b9   Thumb Code   480  svpwm.o(.text.fSvpwmRun)
+    fSystemFaultFeedback                     0x0800daad   Thumb Code    16  status_feedback.o(.text.fSystemFaultFeedback)
+    fSystemStateGet                          0x0800dabd   Thumb Code    12  system_statemachine.o(.text.fSystemStateGet)
+    fSystemStateUpdata                       0x0800dac9   Thumb Code    12  system_statemachine.o(.text.fSystemStateUpdata)
+    fTraj_Reset                              0x0800dad5   Thumb Code    48  trajectory.o(.text.fTraj_Reset)
+    fTraj_SetRate                            0x0800db05   Thumb Code    14  trajectory.o(.text.fTraj_SetRate)
+    fTraj_SetTarget                          0x0800db15   Thumb Code    14  trajectory.o(.text.fTraj_SetTarget)
+    fTraj_Update                             0x0800db25   Thumb Code   464  trajectory.o(.text.fTraj_Update)
+    fUSB_RxFrameCallback                     0x0800dd01   Thumb Code    42  port_mapping.o(.text.fUSB_RxFrameCallback)
+    fUSB_SendFrame                           0x0800dd2d   Thumb Code   284  usb_port.o(.text.fUSB_SendFrame)
+    fUartPortInit                            0x0800de49   Thumb Code    76  uart_port.o(.text.fUartPortInit)
+    fUartPortSendFrame                       0x0800de95   Thumb Code   216  uart_port.o(.text.fUartPortSendFrame)
+    fUartReviceByte                          0x0800df6d   Thumb Code   216  uart_port.o(.text.fUartReviceByte)
+    fUartRxFrameCallback                     0x0800e045   Thumb Code    42  port_mapping.o(.text.fUartRxFrameCallback)
+    fVOFA_FloatDataSend                      0x0800e071   Thumb Code   134  uart_port.o(.text.fVOFA_FloatDataSend)
+    fWeakMagLoopUpdate                       0x0800e0f9   Thumb Code   188  loop_control.o(.text.fWeakMagLoopUpdate)
+    main                                     0x0800e1b9   Thumb Code    90  main.o(.text.main)
+    usbRecvByte                              0x0800e215   Thumb Code   218  usb_port.o(.text.usbRecvByte)
+    __ARM_fpclassifyf                        0x0800e2ef   Thumb Code    38  fpclassifyf.o(i.__ARM_fpclassifyf)
+    __hardfp_atan2f                          0x0800e315   Thumb Code   594  atan2f.o(i.__hardfp_atan2f)
+    __hardfp_expf                            0x0800e5c1   Thumb Code   430  expf.o(i.__hardfp_expf)
+    __mathlib_expf                           0x0800e5c1   Thumb Code     0  expf.o(i.__hardfp_expf)
+    __hardfp_fmodf                           0x0800e7ad   Thumb Code   176  fmodf.o(i.__hardfp_fmodf)
+    __hardfp_tanhf                           0x0800e85d   Thumb Code   208  tanhf.o(i.__hardfp_tanhf)
+    __mathlib_flt_infnan                     0x0800e941   Thumb Code     6  funder.o(i.__mathlib_flt_infnan)
+    __mathlib_flt_infnan2                    0x0800e947   Thumb Code     6  funder.o(i.__mathlib_flt_infnan2)
+    __mathlib_flt_invalid                    0x0800e94d   Thumb Code    10  funder.o(i.__mathlib_flt_invalid)
+    __mathlib_flt_overflow                   0x0800e95d   Thumb Code    10  funder.o(i.__mathlib_flt_overflow)
+    __mathlib_flt_underflow                  0x0800e96d   Thumb Code    10  funder.o(i.__mathlib_flt_underflow)
+    __scatterload_copy                       0x0800e97d   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x0800e98b   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x0800e98d   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    __set_errno                              0x0800e99d   Thumb Code     6  errno.o(i.__set_errno)
+    AHBPrescTable                            0x0800e9d8   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
+    APBPrescTable                            0x0800e9e8   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
+    BLUE                                     0x0800e9f0   Data           6  rgb.o(.rodata.BLUE)
+    GREEN                                    0x0800e9f6   Data           6  rgb.o(.rodata.GREEN)
+    MAGENTA                                  0x0800e9fc   Data           6  rgb.o(.rodata.MAGENTA)
+    RED                                      0x0800ea02   Data           6  rgb.o(.rodata.RED)
+    WHITE                                    0x0800eb08   Data           6  rgb.o(.rodata.WHITE)
+    execute                                  0x0800eb16   Data           1  port_mapping.o(.rodata.execute)
+    sinTable_f32                             0x0800eb18   Data        2052  arm_common_tables.o(.rodata.sinTable_f32)
+    Region$$Table$$Base                      0x0800f41c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0800f43c   Number         0  anon$$obj.o(Region$$Table)
     FS_Desc                                  0x20000004   Data          28  usbd_desc.o(.data.FS_Desc)
     SystemCoreClock                          0x20000020   Data           4  system_stm32f4xx.o(.data.SystemCoreClock)
     USBD_CDC                                 0x20000024   Data          56  usbd_cdc.o(.data.USBD_CDC)
@@ -5281,10 +5280,10 @@ Image Symbol Table
     UsbRxFrame                               0x200000f2   Data         133  usb_port.o(.data.UsbRxFrame)
     UsbTxFrame                               0x20000177   Data         133  usb_port.o(.data.UsbTxFrame)
     can                                      0x200001fc   Data          20  can_port.o(.data.can)
-    foc_core                                 0x20000210   Data          16  foc_core.o(.data.foc_core)
-    g_com_state                              0x20000220   Data          12  port_mapping.o(.data.g_com_state)
-    uwTickFreq                               0x20000230   Data           1  stm32f4xx_hal.o(.data.uwTickFreq)
-    uwTickPrio                               0x20000234   Data           4  stm32f4xx_hal.o(.data.uwTickPrio)
+    foc_core                                 0x20000210   Data          12  foc_core.o(.data.foc_core)
+    g_com_state                              0x2000021c   Data          12  port_mapping.o(.data.g_com_state)
+    uwTickFreq                               0x2000022c   Data           1  stm32f4xx_hal.o(.data.uwTickFreq)
+    uwTickPrio                               0x20000230   Data           4  stm32f4xx_hal.o(.data.uwTickPrio)
     Index                                    0x2000027c   Data           8  log.o(.bss.Index)
     Log                                      0x20000284   Data          60  log.o(.bss.Log)
     Motor                                    0x200002c0   Data          36  foc_core.o(.bss.Motor)
@@ -5302,41 +5301,40 @@ Image Symbol Table
     _tx_data                                 0x20000abc   Data         133  uart_port.o(.bss._tx_data)
     change_Index                             0x20000b41   Data           1  svpwm.o(.bss.change_Index)
     com_frame                                0x20000b44   Data         152  port_mapping.o(.bss.com_frame)
-    foc_mode                                 0x20000c08   Data           7  foc_core.o(.bss.foc_mode)
-    foc_val                                  0x20000c10   Data          88  foc_core.o(.bss.foc_val)
-    g_Param                                  0x20000c68   Data         160  parameter_manager.o(.bss.g_Param)
-    g_device_status                          0x20000d20   Data           4  protection_manager.o(.bss.g_device_status)
-    g_foc                                    0x20000d24   Data          24  foc_statemachine.o(.bss.g_foc)
-    g_pro_manager                            0x20000d3c   Data          60  protection_manager.o(.bss.g_pro_manager)
-    hUsbDeviceFS                             0x20000dc8   Data         732  usb_device.o(.bss.hUsbDeviceFS)
-    hadc1                                    0x200010a4   Data          72  adc.o(.bss.hadc1)
-    hadc2                                    0x200010ec   Data          72  adc.o(.bss.hadc2)
-    hcan2                                    0x20001138   Data          40  can.o(.bss.hcan2)
-    hdma_adc1                                0x20001160   Data          96  adc.o(.bss.hdma_adc1)
-    hdma_adc2                                0x200011c0   Data          96  adc.o(.bss.hdma_adc2)
-    hdma_spi3_rx                             0x20001220   Data          96  spi.o(.bss.hdma_spi3_rx)
-    hdma_spi3_tx                             0x20001280   Data          96  spi.o(.bss.hdma_spi3_tx)
-    hdma_tim4_ch2                            0x200012e0   Data          96  tim.o(.bss.hdma_tim4_ch2)
-    hdma_tim4_ch3                            0x20001340   Data          96  tim.o(.bss.hdma_tim4_ch3)
-    hdma_usart1_rx                           0x200013a0   Data          96  usart.o(.bss.hdma_usart1_rx)
-    hdma_usart1_tx                           0x20001400   Data          96  usart.o(.bss.hdma_usart1_tx)
-    hpcd_USB_OTG_FS                          0x20001460   Data        1252  usbd_conf.o(.bss.hpcd_USB_OTG_FS)
-    hspi2                                    0x20001944   Data          88  spi.o(.bss.hspi2)
-    hspi3                                    0x2000199c   Data          88  spi.o(.bss.hspi3)
-    htim4                                    0x200019f4   Data          72  tim.o(.bss.htim4)
-    htim8                                    0x20001a3c   Data          72  tim.o(.bss.htim8)
-    huart1                                   0x20001a84   Data          72  usart.o(.bss.huart1)
-    loop_con                                 0x20001ad0   Data         200  loop_control.o(.bss.loop_con)
-    rgb_pixel_buf                            0x20001bd0   Data         192  rgb.o(.bss.rgb_pixel_buf)
-    smo                                      0x20001ca0   Data         116  smo.o(.bss.smo)
-    startup_machine                          0x20001d14   Data          28  foc_core.o(.bss.startup_machine)
-    svpwm                                    0x20001d30   Data          12  svpwm.o(.bss.svpwm)
-    system_status                            0x20001d3d   Data           1  system_statemachine.o(.bss.system_status)
-    time_while_T                             0x20001d40   Data           4  main.o(.bss.time_while_T)
-    time_while_zero                          0x20001d44   Data           4  main.o(.bss.time_while_zero)
-    tun                                      0x20001d4c   Data         132  smo.o(.bss.tun)
-    uwTick                                   0x20001dd0   Data           4  stm32f4xx_hal.o(.bss.uwTick)
-    __initial_sp                             0x200021e0   Data           0  startup_stm32f405xx.o(STACK)
+    foc_mode                                 0x20000c08   Data           8  foc_core.o(.bss.foc_mode)
+    foc_val                                  0x20000c10   Data          84  foc_core.o(.bss.foc_val)
+    g_Param                                  0x20000c64   Data         152  parameter_manager.o(.bss.g_Param)
+    g_device_status                          0x20000d14   Data           4  protection_manager.o(.bss.g_device_status)
+    g_foc                                    0x20000d18   Data          24  foc_statemachine.o(.bss.g_foc)
+    g_pro_manager                            0x20000d30   Data          60  protection_manager.o(.bss.g_pro_manager)
+    hUsbDeviceFS                             0x20000dbc   Data         732  usb_device.o(.bss.hUsbDeviceFS)
+    hadc1                                    0x20001098   Data          72  adc.o(.bss.hadc1)
+    hadc2                                    0x200010e0   Data          72  adc.o(.bss.hadc2)
+    hcan2                                    0x2000112c   Data          40  can.o(.bss.hcan2)
+    hdma_adc1                                0x20001154   Data          96  adc.o(.bss.hdma_adc1)
+    hdma_adc2                                0x200011b4   Data          96  adc.o(.bss.hdma_adc2)
+    hdma_spi3_rx                             0x20001214   Data          96  spi.o(.bss.hdma_spi3_rx)
+    hdma_spi3_tx                             0x20001274   Data          96  spi.o(.bss.hdma_spi3_tx)
+    hdma_tim4_ch2                            0x200012d4   Data          96  tim.o(.bss.hdma_tim4_ch2)
+    hdma_tim4_ch3                            0x20001334   Data          96  tim.o(.bss.hdma_tim4_ch3)
+    hdma_usart1_rx                           0x20001394   Data          96  usart.o(.bss.hdma_usart1_rx)
+    hdma_usart1_tx                           0x200013f4   Data          96  usart.o(.bss.hdma_usart1_tx)
+    hpcd_USB_OTG_FS                          0x20001454   Data        1252  usbd_conf.o(.bss.hpcd_USB_OTG_FS)
+    hspi2                                    0x20001938   Data          88  spi.o(.bss.hspi2)
+    hspi3                                    0x20001990   Data          88  spi.o(.bss.hspi3)
+    htim4                                    0x200019e8   Data          72  tim.o(.bss.htim4)
+    htim8                                    0x20001a30   Data          72  tim.o(.bss.htim8)
+    huart1                                   0x20001a78   Data          72  usart.o(.bss.huart1)
+    loop_con                                 0x20001ac4   Data         200  loop_control.o(.bss.loop_con)
+    rgb_pixel_buf                            0x20001bc0   Data         192  rgb.o(.bss.rgb_pixel_buf)
+    smo                                      0x20001c90   Data         116  smo.o(.bss.smo)
+    svpwm                                    0x20001d04   Data          12  svpwm.o(.bss.svpwm)
+    system_status                            0x20001d11   Data           1  system_statemachine.o(.bss.system_status)
+    time_while_T                             0x20001d14   Data           4  main.o(.bss.time_while_T)
+    time_while_zero                          0x20001d18   Data           4  main.o(.bss.time_while_zero)
+    tun                                      0x20001d44   Data         132  smo.o(.bss.tun)
+    uwTick                                   0x20001dc8   Data           4  stm32f4xx_hal.o(.bss.uwTick)
+    __initial_sp                             0x200021d8   Data           0  startup_stm32f405xx.o(STACK)
 
 
 
@@ -5346,42 +5344,42 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000f5f8, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000f4b0])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000f678, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x0000f530])
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000f3c0, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000f43c, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000188   Data   RO            3    RESET               startup_stm32f405xx.o
-    0x08000188   0x08000188   0x00000000   Code   RO         2635  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x08000188   0x08000188   0x00000004   Code   RO         2674    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x0800018c   0x0800018c   0x00000004   Code   RO         2677    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2679    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x08000190   0x08000190   0x00000000   Code   RO         2681    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x08000190   0x08000190   0x00000008   Code   RO         2682    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2684    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x08000198   0x08000198   0x00000000   Code   RO         2686    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x08000198   0x08000198   0x00000004   Code   RO         2675    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x08000188   0x08000188   0x00000000   Code   RO         2642  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x08000188   0x08000188   0x00000004   Code   RO         2681    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x0800018c   0x0800018c   0x00000004   Code   RO         2684    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2686    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2688    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x08000190   0x08000190   0x00000008   Code   RO         2689    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2691    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x08000198   0x08000198   0x00000000   Code   RO         2693    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x08000198   0x08000198   0x00000004   Code   RO         2682    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x0800019c   0x0800019c   0x00000024   Code   RO            4    .text               startup_stm32f405xx.o
-    0x080001c0   0x080001c0   0x00000062   Code   RO         2638    .text               mc_w.l(uldiv.o)
-    0x08000222   0x08000222   0x00000024   Code   RO         2640    .text               mc_w.l(memcpya.o)
-    0x08000246   0x08000246   0x00000024   Code   RO         2642    .text               mc_w.l(memseta.o)
-    0x0800026a   0x0800026a   0x0000000e   Code   RO         2644    .text               mc_w.l(strlen.o)
-    0x08000278   0x08000278   0x0000014e   Code   RO         2648    .text               mf_w.l(dadd.o)
-    0x080003c6   0x080003c6   0x000000e4   Code   RO         2650    .text               mf_w.l(dmul.o)
-    0x080004aa   0x080004aa   0x000000de   Code   RO         2652    .text               mf_w.l(ddiv.o)
-    0x08000588   0x08000588   0x00000026   Code   RO         2654    .text               mf_w.l(f2d.o)
-    0x080005ae   0x080005ae   0x00000038   Code   RO         2656    .text               mf_w.l(d2f.o)
-    0x080005e6   0x080005e6   0x0000001e   Code   RO         2688    .text               mc_w.l(llshl.o)
-    0x08000604   0x08000604   0x00000020   Code   RO         2690    .text               mc_w.l(llushr.o)
-    0x08000624   0x08000624   0x00000024   Code   RO         2692    .text               mc_w.l(llsshr.o)
-    0x08000648   0x08000648   0x00000000   Code   RO         2701    .text               mc_w.l(iusefp.o)
-    0x08000648   0x08000648   0x0000006e   Code   RO         2702    .text               mf_w.l(fepilogue.o)
-    0x080006b6   0x080006b6   0x00000052   Code   RO         2704    .text               mf_w.l(frem.o)
-    0x08000708   0x08000708   0x000000ba   Code   RO         2706    .text               mf_w.l(depilogue.o)
+    0x080001c0   0x080001c0   0x00000062   Code   RO         2645    .text               mc_w.l(uldiv.o)
+    0x08000222   0x08000222   0x00000024   Code   RO         2647    .text               mc_w.l(memcpya.o)
+    0x08000246   0x08000246   0x00000024   Code   RO         2649    .text               mc_w.l(memseta.o)
+    0x0800026a   0x0800026a   0x0000000e   Code   RO         2651    .text               mc_w.l(strlen.o)
+    0x08000278   0x08000278   0x0000014e   Code   RO         2655    .text               mf_w.l(dadd.o)
+    0x080003c6   0x080003c6   0x000000e4   Code   RO         2657    .text               mf_w.l(dmul.o)
+    0x080004aa   0x080004aa   0x000000de   Code   RO         2659    .text               mf_w.l(ddiv.o)
+    0x08000588   0x08000588   0x00000026   Code   RO         2661    .text               mf_w.l(f2d.o)
+    0x080005ae   0x080005ae   0x00000038   Code   RO         2663    .text               mf_w.l(d2f.o)
+    0x080005e6   0x080005e6   0x0000001e   Code   RO         2695    .text               mc_w.l(llshl.o)
+    0x08000604   0x08000604   0x00000020   Code   RO         2697    .text               mc_w.l(llushr.o)
+    0x08000624   0x08000624   0x00000024   Code   RO         2699    .text               mc_w.l(llsshr.o)
+    0x08000648   0x08000648   0x00000000   Code   RO         2708    .text               mc_w.l(iusefp.o)
+    0x08000648   0x08000648   0x0000006e   Code   RO         2709    .text               mf_w.l(fepilogue.o)
+    0x080006b6   0x080006b6   0x00000052   Code   RO         2711    .text               mf_w.l(frem.o)
+    0x08000708   0x08000708   0x000000ba   Code   RO         2713    .text               mf_w.l(depilogue.o)
     0x080007c2   0x080007c2   0x00000002   PAD
-    0x080007c4   0x080007c4   0x00000030   Code   RO         2708    .text               mc_w.l(init.o)
-    0x080007f4   0x080007f4   0x0000003a   Code   RO         2718    .text               mc_w.l(__dczerorl.o)
+    0x080007c4   0x080007c4   0x00000030   Code   RO         2715    .text               mc_w.l(init.o)
+    0x080007f4   0x080007f4   0x0000003a   Code   RO         2725    .text               mc_w.l(__dczerorl.o)
     0x0800082e   0x0800082e   0x00000002   PAD
     0x08000830   0x08000830   0x0000006c   Code   RO          813    .text.ADC_DMAConvCplt  stm32f4xx_hal_adc.o
     0x0800089c   0x0800089c   0x00000012   Code   RO          817    .text.ADC_DMAError  stm32f4xx_hal_adc.o
@@ -5399,7 +5397,7 @@ Memory Map of the image
     0x08000920   0x08000920   0x00000004   Code   RO         1576    .text.CDC_TransmitCplt_FS  usbd_cdc_if.o
     0x08000924   0x08000924   0x00000036   Code   RO         1578    .text.CDC_Transmit_FS  usbd_cdc_if.o
     0x0800095a   0x0800095a   0x00000002   PAD
-    0x0800095c   0x0800095c   0x0000005a   Code   RO         2119    .text.DISABLE_PWM   svpwm.o
+    0x0800095c   0x0800095c   0x0000005a   Code   RO         2103    .text.DISABLE_PWM   svpwm.o
     0x080009b6   0x080009b6   0x00000002   PAD
     0x080009b8   0x080009b8   0x0000000c   Code   RO          158    .text.DMA1_Stream0_IRQHandler  stm32f4xx_it.o
     0x080009c4   0x080009c4   0x0000000c   Code   RO          160    .text.DMA1_Stream3_IRQHandler  stm32f4xx_it.o
@@ -5411,11 +5409,11 @@ Memory Map of the image
     0x08000a0c   0x08000a0c   0x0000000c   Code   RO          182    .text.DMA2_Stream7_IRQHandler  stm32f4xx_it.o
     0x08000a18   0x08000a18   0x00000002   Code   RO          152    .text.DebugMon_Handler  stm32f4xx_it.o
     0x08000a1a   0x08000a1a   0x00000002   PAD
-    0x08000a1c   0x08000a1c   0x0000005a   Code   RO         2115    .text.ENABLE_PWM    svpwm.o
+    0x08000a1c   0x08000a1c   0x0000005a   Code   RO         2099    .text.ENABLE_PWM    svpwm.o
     0x08000a76   0x08000a76   0x00000002   PAD
     0x08000a78   0x08000a78   0x00000008   Code   RO           15    .text.Error_Handler  main.o
     0x08000a80   0x08000a80   0x00000138   Code   RO          825    .text.HAL_ADC_ConfigChannel  stm32f4xx_hal_adc.o
-    0x08000bb8   0x08000bb8   0x000000e8   Code   RO         2241    .text.HAL_ADC_ConvCpltCallback  adc_dr.o
+    0x08000bb8   0x08000bb8   0x000000e8   Code   RO         2225    .text.HAL_ADC_ConvCpltCallback  adc_dr.o
     0x08000ca0   0x08000ca0   0x00000002   Code   RO          823    .text.HAL_ADC_ConvHalfCpltCallback  stm32f4xx_hal_adc.o
     0x08000ca2   0x08000ca2   0x00000002   PAD
     0x08000ca4   0x08000ca4   0x00000002   Code   RO          809    .text.HAL_ADC_ErrorCallback  stm32f4xx_hal_adc.o
@@ -5478,7 +5476,7 @@ Memory Map of the image
     0x08001f74   0x08001f74   0x0000000a   Code   RO          513    .text.HAL_GPIO_WritePin  stm32f4xx_hal_gpio.o
     0x08001f7e   0x08001f7e   0x00000002   PAD
     0x08001f80   0x08001f80   0x0000000c   Code   RO          704    .text.HAL_GetTick   stm32f4xx_hal.o
-    0x08001f8c   0x08001f8c   0x0000002e   Code   RO         2432    .text.HAL_GetTick_us  math_fast.o
+    0x08001f8c   0x08001f8c   0x0000002e   Code   RO         2416    .text.HAL_GetTick_us  math_fast.o
     0x08001fba   0x08001fba   0x00000002   PAD
     0x08001fbc   0x08001fbc   0x0000001a   Code   RO          702    .text.HAL_IncTick   stm32f4xx_hal.o
     0x08001fd6   0x08001fd6   0x00000002   PAD
@@ -5552,7 +5550,7 @@ Memory Map of the image
     0x08003d9e   0x08003d9e   0x00000002   PAD
     0x08003da0   0x08003da0   0x0000028c   Code   RO          972    .text.HAL_SPI_TransmitReceive  stm32f4xx_hal_spi.o
     0x0800402c   0x0800402c   0x00000130   Code   RO         1008    .text.HAL_SPI_TransmitReceive_DMA  stm32f4xx_hal_spi.o
-    0x0800415c   0x0800415c   0x0000007e   Code   RO         2155    .text.HAL_SPI_TxRxCpltCallback  encoder.o
+    0x0800415c   0x0800415c   0x0000007e   Code   RO         2139    .text.HAL_SPI_TxRxCpltCallback  encoder.o
     0x080041da   0x080041da   0x00000002   PAD
     0x080041dc   0x080041dc   0x00000002   Code   RO         1054    .text.HAL_SPI_TxRxHalfCpltCallback  stm32f4xx_hal_spi.o
     0x080041de   0x080041de   0x00000002   PAD
@@ -5596,7 +5594,7 @@ Memory Map of the image
     0x08004e02   0x08004e02   0x00000002   PAD
     0x08004e04   0x08004e04   0x0000024c   Code   RO         1146    .text.HAL_TIM_PWM_Start_DMA  stm32f4xx_hal_tim.o
     0x08005050   0x08005050   0x0000009c   Code   RO         1140    .text.HAL_TIM_PWM_Stop  stm32f4xx_hal_tim.o
-    0x080050ec   0x080050ec   0x00000060   Code   RO         2011    .text.HAL_TIM_PeriodElapsedCallback  foc_statemachine.o
+    0x080050ec   0x080050ec   0x00000060   Code   RO         1999    .text.HAL_TIM_PeriodElapsedCallback  foc_statemachine.o
     0x0800514c   0x0800514c   0x00000002   Code   RO         1220    .text.HAL_TIM_TriggerCallback  stm32f4xx_hal_tim.o
     0x0800514e   0x0800514e   0x00000002   PAD
     0x08005150   0x08005150   0x00000002   Code   RO         1481    .text.HAL_UARTEx_RxEventCallback  stm32f4xx_hal_uart.o
@@ -5663,7 +5661,7 @@ Memory Map of the image
     0x080063ac   0x080063ac   0x000000b0   Code   RO           13    .text.SystemClock_Config  main.o
     0x0800645c   0x0800645c   0x00000012   Code   RO         1517    .text.SystemInit    system_stm32f4xx.o
     0x0800646e   0x0800646e   0x00000002   PAD
-    0x08006470   0x08006470   0x00000062   Code   RO         2364    .text.SystemStateMachine_MainLoop  system_statemachine.o
+    0x08006470   0x08006470   0x00000062   Code   RO         2348    .text.SystemStateMachine_MainLoop  system_statemachine.o
     0x080064d2   0x080064d2   0x00000002   PAD
     0x080064d4   0x080064d4   0x0000000c   Code   RO          166    .text.TIM8_UP_TIM13_IRQHandler  stm32f4xx_it.o
     0x080064e0   0x080064e0   0x0000012c   Code   RO         1080    .text.TIM_Base_SetConfig  stm32f4xx_hal_tim.o
@@ -5834,18 +5832,18 @@ Memory Map of the image
     0x080091f4   0x080091f4   0x000002c0   Code   RO         1851    .text._frame_data_deal  port_mapping.o
     0x080094b4   0x080094b4   0x000000dc   Code   RO         1849    .text._status_send  port_mapping.o
     0x08009590   0x08009590   0x000001d8   Code   RO         1859    .text._stream_data_trans  port_mapping.o
-    0x08009768   0x08009768   0x00000098   Code   RO         2473    .text.arm_cos_f32   arm_cortexM4lf_math.lib(arm_cos_f32.o)
-    0x08009800   0x08009800   0x00000090   Code   RO         2482    .text.arm_sin_f32   arm_cortexM4lf_math.lib(arm_sin_f32.o)
-    0x08009890   0x08009890   0x0000003a   Code   RO         2249    .text.fAdc2Sample   adc_dr.o
+    0x08009768   0x08009768   0x00000098   Code   RO         2480    .text.arm_cos_f32   arm_cortexM4lf_math.lib(arm_cos_f32.o)
+    0x08009800   0x08009800   0x00000090   Code   RO         2489    .text.arm_sin_f32   arm_cortexM4lf_math.lib(arm_sin_f32.o)
+    0x08009890   0x08009890   0x0000003a   Code   RO         2233    .text.fAdc2Sample   adc_dr.o
     0x080098ca   0x080098ca   0x00000002   PAD
-    0x080098cc   0x080098cc   0x00000092   Code   RO         2245    .text.fAdcDrInit    adc_dr.o
+    0x080098cc   0x080098cc   0x00000092   Code   RO         2229    .text.fAdcDrInit    adc_dr.o
     0x0800995e   0x0800995e   0x00000002   PAD
-    0x08009960   0x08009960   0x000000ec   Code   RO         2251    .text.fAdcGetCurrent  adc_dr.o
-    0x08009a4c   0x08009a4c   0x000000a0   Code   RO         2255    .text.fAdcGetTemp   adc_dr.o
-    0x08009aec   0x08009aec   0x00000024   Code   RO         2253    .text.fAdcGetVoltage  adc_dr.o
-    0x08009b10   0x08009b10   0x0000000e   Code   RO         2247    .text.fAdcSampleChange  adc_dr.o
+    0x08009960   0x08009960   0x000000ec   Code   RO         2235    .text.fAdcGetCurrent  adc_dr.o
+    0x08009a4c   0x08009a4c   0x000000a0   Code   RO         2239    .text.fAdcGetTemp   adc_dr.o
+    0x08009aec   0x08009aec   0x00000024   Code   RO         2237    .text.fAdcGetVoltage  adc_dr.o
+    0x08009b10   0x08009b10   0x0000000e   Code   RO         2231    .text.fAdcSampleChange  adc_dr.o
     0x08009b1e   0x08009b1e   0x00000002   PAD
-    0x08009b20   0x08009b20   0x0000003e   Code   RO         1979    .text.fAutoCalibrationUpdate  foc_core.o
+    0x08009b20   0x08009b20   0x0000003e   Code   RO         1969    .text.fAutoCalibrationUpdate  foc_core.o
     0x08009b5e   0x08009b5e   0x00000002   PAD
     0x08009b60   0x08009b60   0x000000ea   Code   RO         1803    .text.fCAN_PortInit  can_port.o
     0x08009c4a   0x08009c4a   0x00000002   PAD
@@ -5855,182 +5853,182 @@ Memory Map of the image
     0x08009d38   0x08009d38   0x00000064   Code   RO         1805    .text.fCAN_SendData  can_port.o
     0x08009d9c   0x08009d9c   0x000000a2   Code   RO         1807    .text.fCAN_SetConfig  can_port.o
     0x08009e3e   0x08009e3e   0x00000002   PAD
-    0x08009e40   0x08009e40   0x0000001c   Code   RO         2420    .text.fClarkTransform  math_fast.o
+    0x08009e40   0x08009e40   0x0000001c   Code   RO         2404    .text.fClarkTransform  math_fast.o
     0x08009e5c   0x08009e5c   0x0000002a   Code   RO         1841    .text.fCommunicateInit  port_mapping.o
     0x08009e86   0x08009e86   0x00000002   PAD
     0x08009e88   0x08009e88   0x0000000e   Code   RO         1861    .text.fCommunicateMainLoop  port_mapping.o
     0x08009e96   0x08009e96   0x00000002   PAD
-    0x08009e98   0x08009e98   0x00000096   Code   RO         2052    .text.fCurrentLoopUpdate  loop_control.o
+    0x08009e98   0x08009e98   0x00000096   Code   RO         2040    .text.fCurrentLoopUpdate  loop_control.o
     0x08009f2e   0x08009f2e   0x00000002   PAD
-    0x08009f30   0x08009f30   0x00000010   Code   RO         2416    .text.fDegToRad     math_fast.o
-    0x08009f40   0x08009f40   0x00000228   Code   RO         2157    .text.fEncoderMainLoopTask  encoder.o
-    0x0800a168   0x0800a168   0x0000015a   Code   RO         2186    .text.fEraseOneSector  flashdr.o
+    0x08009f30   0x08009f30   0x00000010   Code   RO         2400    .text.fDegToRad     math_fast.o
+    0x08009f40   0x08009f40   0x00000228   Code   RO         2141    .text.fEncoderMainLoopTask  encoder.o
+    0x0800a168   0x0800a168   0x0000015a   Code   RO         2170    .text.fEraseOneSector  flashdr.o
     0x0800a2c2   0x0800a2c2   0x00000002   PAD
-    0x0800a2c4   0x0800a2c4   0x00000024   Code   RO         2188    .text.fFLASH_EraseSector  flashdr.o
-    0x0800a2e8   0x0800a2e8   0x000000ba   Code   RO         2196    .text.fFLASH_Init   flashdr.o
+    0x0800a2c4   0x0800a2c4   0x00000024   Code   RO         2172    .text.fFLASH_EraseSector  flashdr.o
+    0x0800a2e8   0x0800a2e8   0x000000ba   Code   RO         2180    .text.fFLASH_Init   flashdr.o
     0x0800a3a2   0x0800a3a2   0x00000002   PAD
-    0x0800a3a4   0x0800a3a4   0x000000dc   Code   RO         2192    .text.fFLASH_ReadData  flashdr.o
-    0x0800a480   0x0800a480   0x00000168   Code   RO         2194    .text.fFLASH_WriteWord  flashdr.o
-    0x0800a5e8   0x0800a5e8   0x0000018c   Code   RO         1943    .text.fFOC_CoreInit  foc_core.o
-    0x0800a774   0x0800a774   0x00000026   Code   RO         1949    .text.fFOC_CoreReset  foc_core.o
-    0x0800a79a   0x0800a79a   0x00000002   PAD
-    0x0800a79c   0x0800a79c   0x00000044   Code   RO         2013    .text.fFOC_Init     foc_statemachine.o
-    0x0800a7e0   0x0800a7e0   0x0000025c   Code   RO         1973    .text.fFOC_MainLoopTask  foc_core.o
-    0x0800aa3c   0x0800aa3c   0x0000001e   Code   RO         1993    .text.fFOC_SetLoopMode  foc_core.o
-    0x0800aa5a   0x0800aa5a   0x00000002   PAD
-    0x0800aa5c   0x0800aa5c   0x00000012   Code   RO         1975    .text.fFOC_SetOmegaIM  foc_core.o
-    0x0800aa6e   0x0800aa6e   0x00000002   PAD
-    0x0800aa70   0x0800aa70   0x0000004c   Code   RO         1939    .text.fFOC_SetSensorMode  foc_core.o
-    0x0800aabc   0x0800aabc   0x00000066   Code   RO         1977    .text.fFOC_SetTargetValue  foc_core.o
-    0x0800ab22   0x0800ab22   0x00000002   PAD
-    0x0800ab24   0x0800ab24   0x00000012   Code   RO         1981    .text.fFOC_SetUalphaBeta  foc_core.o
-    0x0800ab36   0x0800ab36   0x00000002   PAD
-    0x0800ab38   0x0800ab38   0x00000070   Code   RO         1995    .text.fFOC_Shutdown  foc_core.o
-    0x0800aba8   0x0800aba8   0x00000098   Code   RO         2015    .text.fFOC_StateMachineMainLoop  foc_statemachine.o
-    0x0800ac40   0x0800ac40   0x00000018   Code   RO         2017    .text.fFOC_StateUpdate  foc_statemachine.o
-    0x0800ac58   0x0800ac58   0x00000148   Code   RO         1971    .text.fFOC_ValueUpdate  foc_core.o
-    0x0800ada0   0x0800ada0   0x00000068   Code   RO         2034    .text.fFrequencyDivisionUpdate  loop_control.o
-    0x0800ae08   0x0800ae08   0x0000000e   Code   RO         2159    .text.fGetEncoderAngle_ABS  encoder.o
-    0x0800ae16   0x0800ae16   0x00000002   PAD
-    0x0800ae18   0x0800ae18   0x0000000e   Code   RO         2161    .text.fGetEncoderAngle_INC  encoder.o
+    0x0800a3a4   0x0800a3a4   0x000000dc   Code   RO         2176    .text.fFLASH_ReadData  flashdr.o
+    0x0800a480   0x0800a480   0x00000168   Code   RO         2178    .text.fFLASH_WriteWord  flashdr.o
+    0x0800a5e8   0x0800a5e8   0x00000168   Code   RO         1943    .text.fFOC_CoreInit  foc_core.o
+    0x0800a750   0x0800a750   0x00000044   Code   RO         1947    .text.fFOC_CoreReset  foc_core.o
+    0x0800a794   0x0800a794   0x00000044   Code   RO         2001    .text.fFOC_Init     foc_statemachine.o
+    0x0800a7d8   0x0800a7d8   0x0000028c   Code   RO         1965    .text.fFOC_MainLoopTask  foc_core.o
+    0x0800aa64   0x0800aa64   0x0000001e   Code   RO         1983    .text.fFOC_SetRunMode  foc_core.o
+    0x0800aa82   0x0800aa82   0x00000002   PAD
+    0x0800aa84   0x0800aa84   0x00000064   Code   RO         1939    .text.fFOC_SetSensorMode  foc_core.o
+    0x0800aae8   0x0800aae8   0x00000054   Code   RO         1967    .text.fFOC_SetTargetValue  foc_core.o
+    0x0800ab3c   0x0800ab3c   0x00000012   Code   RO         1971    .text.fFOC_SetUalphaBeta  foc_core.o
+    0x0800ab4e   0x0800ab4e   0x00000002   PAD
+    0x0800ab50   0x0800ab50   0x00000070   Code   RO         1985    .text.fFOC_Shutdown  foc_core.o
+    0x0800abc0   0x0800abc0   0x0000009c   Code   RO         2003    .text.fFOC_StateMachineMainLoop  foc_statemachine.o
+    0x0800ac5c   0x0800ac5c   0x00000018   Code   RO         2005    .text.fFOC_StateUpdate  foc_statemachine.o
+    0x0800ac74   0x0800ac74   0x0000013c   Code   RO         1963    .text.fFOC_ValueUpdate  foc_core.o
+    0x0800adb0   0x0800adb0   0x00000068   Code   RO         2022    .text.fFrequencyDivisionUpdate  loop_control.o
+    0x0800ae18   0x0800ae18   0x0000000e   Code   RO         2143    .text.fGetEncoderAngle_ABS  encoder.o
     0x0800ae26   0x0800ae26   0x00000002   PAD
-    0x0800ae28   0x0800ae28   0x0000000e   Code   RO         2163    .text.fGetEncoderOmega  encoder.o
+    0x0800ae28   0x0800ae28   0x0000000e   Code   RO         2145    .text.fGetEncoderAngle_INC  encoder.o
     0x0800ae36   0x0800ae36   0x00000002   PAD
-    0x0800ae38   0x0800ae38   0x00000028   Code   RO         2127    .text.fGetVoltage_u  svpwm.o
-    0x0800ae60   0x0800ae60   0x00000028   Code   RO         2129    .text.fGetVoltage_v  svpwm.o
-    0x0800ae88   0x0800ae88   0x00000028   Code   RO         2131    .text.fGetVoltage_w  svpwm.o
-    0x0800aeb0   0x0800aeb0   0x00000038   Code   RO         1843    .text.fHostComputer_send  port_mapping.o
-    0x0800aee8   0x0800aee8   0x00000050   Code   RO         2426    .text.fInvParkTransform  math_fast.o
-    0x0800af38   0x0800af38   0x000000da   Code   RO         2217    .text.fLED_Show     rgb.o
-    0x0800b012   0x0800b012   0x00000002   PAD
-    0x0800b014   0x0800b014   0x000000b2   Code   RO         2286    .text.fLogDataSave  log.o
-    0x0800b0c6   0x0800b0c6   0x00000002   PAD
-    0x0800b0c8   0x0800b0c8   0x00000034   Code   RO         2288    .text.fLogDataWrite  log.o
-    0x0800b0fc   0x0800b0fc   0x00000022   Code   RO         2292    .text.fLogErase     log.o
-    0x0800b11e   0x0800b11e   0x00000002   PAD
-    0x0800b120   0x0800b120   0x00000052   Code   RO         2284    .text.fLogInit      log.o
-    0x0800b172   0x0800b172   0x00000002   PAD
-    0x0800b174   0x0800b174   0x0000006c   Code   RO         2290    .text.fLogReadFlash  log.o
-    0x0800b1e0   0x0800b1e0   0x00000134   Code   RO         2048    .text.fLoopControlInit  loop_control.o
-    0x0800b314   0x0800b314   0x0000003e   Code   RO         2050    .text.fLoopReset    loop_control.o
-    0x0800b352   0x0800b352   0x00000002   PAD
-    0x0800b354   0x0800b354   0x00000096   Code   RO         2054    .text.fMagLoopUpdate  loop_control.o
-    0x0800b3ea   0x0800b3ea   0x00000002   PAD
-    0x0800b3ec   0x0800b3ec   0x00000030   Code   RO         2434    .text.fNormalizeAngle02pi  math_fast.o
-    0x0800b41c   0x0800b41c   0x0000000c   Code   RO         1987    .text.fOpenLoopEnable  foc_core.o
-    0x0800b428   0x0800b428   0x0000000e   Code   RO         2064    .text.fPVT_SetOmega  loop_control.o
-    0x0800b436   0x0800b436   0x00000002   PAD
-    0x0800b438   0x0800b438   0x00000006   Code   RO         2315    .text.fParamErase   parameter_manager.o
+    0x0800ae38   0x0800ae38   0x0000000e   Code   RO         2147    .text.fGetEncoderOmega  encoder.o
+    0x0800ae46   0x0800ae46   0x00000002   PAD
+    0x0800ae48   0x0800ae48   0x00000028   Code   RO         2111    .text.fGetVoltage_u  svpwm.o
+    0x0800ae70   0x0800ae70   0x00000028   Code   RO         2113    .text.fGetVoltage_v  svpwm.o
+    0x0800ae98   0x0800ae98   0x00000028   Code   RO         2115    .text.fGetVoltage_w  svpwm.o
+    0x0800aec0   0x0800aec0   0x00000038   Code   RO         1843    .text.fHostComputer_send  port_mapping.o
+    0x0800aef8   0x0800aef8   0x00000050   Code   RO         2410    .text.fInvParkTransform  math_fast.o
+    0x0800af48   0x0800af48   0x000000da   Code   RO         2201    .text.fLED_Show     rgb.o
+    0x0800b022   0x0800b022   0x00000002   PAD
+    0x0800b024   0x0800b024   0x000000b2   Code   RO         2270    .text.fLogDataSave  log.o
+    0x0800b0d6   0x0800b0d6   0x00000002   PAD
+    0x0800b0d8   0x0800b0d8   0x00000034   Code   RO         2272    .text.fLogDataWrite  log.o
+    0x0800b10c   0x0800b10c   0x00000022   Code   RO         2276    .text.fLogErase     log.o
+    0x0800b12e   0x0800b12e   0x00000002   PAD
+    0x0800b130   0x0800b130   0x00000052   Code   RO         2268    .text.fLogInit      log.o
+    0x0800b182   0x0800b182   0x00000002   PAD
+    0x0800b184   0x0800b184   0x0000006c   Code   RO         2274    .text.fLogReadFlash  log.o
+    0x0800b1f0   0x0800b1f0   0x00000134   Code   RO         2036    .text.fLoopControlInit  loop_control.o
+    0x0800b324   0x0800b324   0x0000003e   Code   RO         2038    .text.fLoopReset    loop_control.o
+    0x0800b362   0x0800b362   0x00000002   PAD
+    0x0800b364   0x0800b364   0x00000096   Code   RO         2042    .text.fMagLoopUpdate  loop_control.o
+    0x0800b3fa   0x0800b3fa   0x00000002   PAD
+    0x0800b3fc   0x0800b3fc   0x00000030   Code   RO         2418    .text.fNormalizeAngle02pi  math_fast.o
+    0x0800b42c   0x0800b42c   0x0000000c   Code   RO         1977    .text.fOpenLoopEnable  foc_core.o
+    0x0800b438   0x0800b438   0x00000006   Code   RO         2299    .text.fParamErase   parameter_manager.o
     0x0800b43e   0x0800b43e   0x00000002   PAD
-    0x0800b440   0x0800b440   0x000002ca   Code   RO         2307    .text.fParamGet     parameter_manager.o
-    0x0800b70a   0x0800b70a   0x00000002   PAD
-    0x0800b70c   0x0800b70c   0x00000184   Code   RO         2313    .text.fParamInit    parameter_manager.o
-    0x0800b890   0x0800b890   0x0000001e   Code   RO         2311    .text.fParamSave    parameter_manager.o
-    0x0800b8ae   0x0800b8ae   0x00000002   PAD
-    0x0800b8b0   0x0800b8b0   0x000001e4   Code   RO         2305    .text.fParamSet     parameter_manager.o
-    0x0800ba94   0x0800ba94   0x00000012   Code   RO         2091    .text.fParamTuneReset  smo.o
-    0x0800baa6   0x0800baa6   0x00000002   PAD
-    0x0800baa8   0x0800baa8   0x00000be0   Code   RO         2093    .text.fParamTuneUpdate  smo.o
-    0x0800c688   0x0800c688   0x00000050   Code   RO         2424    .text.fParkTransform  math_fast.o
-    0x0800c6d8   0x0800c6d8   0x000000fe   Code   RO         2060    .text.fPositionAbsLoopUpdate  loop_control.o
-    0x0800c7d6   0x0800c7d6   0x00000002   PAD
-    0x0800c7d8   0x0800c7d8   0x00000122   Code   RO         2062    .text.fPositionRelLoopUpdate  loop_control.o
-    0x0800c8fa   0x0800c8fa   0x00000002   PAD
-    0x0800c8fc   0x0800c8fc   0x0000006c   Code   RO         2330    .text.fProManagerInit  protection_manager.o
-    0x0800c968   0x0800c968   0x00000200   Code   RO         2334    .text.fProManagerMainLoop  protection_manager.o
-    0x0800cb68   0x0800cb68   0x00000010   Code   RO         2332    .text.fProManagerReset  protection_manager.o
-    0x0800cb78   0x0800cb78   0x00000232   Code   RO         2400    .text.fPulseInterferenceFilter  filter.o
-    0x0800cdaa   0x0800cdaa   0x00000002   PAD
-    0x0800cdac   0x0800cdac   0x00000016   Code   RO         2398    .text.fPulseInterferenceInit  filter.o
-    0x0800cdc2   0x0800cdc2   0x00000002   PAD
-    0x0800cdc4   0x0800cdc4   0x000000da   Code   RO         2211    .text.fRGB_Breathe  rgb.o
-    0x0800ce9e   0x0800ce9e   0x00000002   PAD
-    0x0800cea0   0x0800cea0   0x00000150   Code   RO         2209    .text.fRGB_SetOneColor  rgb.o
-    0x0800cff0   0x0800cff0   0x00000010   Code   RO         2418    .text.fRadToDeg     math_fast.o
-    0x0800d000   0x0800d000   0x00000010   Code   RO         2412    .text.fRadToRpm     math_fast.o
-    0x0800d010   0x0800d010   0x00000010   Code   RO         2414    .text.fRpmToRad     math_fast.o
-    0x0800d020   0x0800d020   0x0000001c   Code   RO         2087    .text.fSMO_GetOmega  smo.o
-    0x0800d03c   0x0800d03c   0x00000074   Code   RO         2075    .text.fSMO_Init     smo.o
-    0x0800d0b0   0x0800d0b0   0x00000518   Code   RO         2083    .text.fSMO_MainLoop  smo.o
-    0x0800d5c8   0x0800d5c8   0x0000001a   Code   RO         2077    .text.fSMO_Reset    smo.o
-    0x0800d5e2   0x0800d5e2   0x00000002   PAD
-    0x0800d5e4   0x0800d5e4   0x0000007a   Code   RO         2125    .text.fSamplePointCalibration  svpwm.o
-    0x0800d65e   0x0800d65e   0x00000002   PAD
-    0x0800d660   0x0800d660   0x0000000e   Code   RO         1991    .text.fSetOpendLoopOmega  foc_core.o
-    0x0800d66e   0x0800d66e   0x00000002   PAD
-    0x0800d670   0x0800d670   0x00000012   Code   RO         1989    .text.fSetOpendLoopTheta  foc_core.o
-    0x0800d682   0x0800d682   0x00000002   PAD
-    0x0800d684   0x0800d684   0x0000000e   Code   RO         1983    .text.fSetThetaOffset  foc_core.o
-    0x0800d692   0x0800d692   0x00000002   PAD
-    0x0800d694   0x0800d694   0x0000000e   Code   RO         1985    .text.fSetWireSequence  foc_core.o
-    0x0800d6a2   0x0800d6a2   0x00000002   PAD
-    0x0800d6a4   0x0800d6a4   0x00000096   Code   RO         2058    .text.fSpeedLoopUpdate  loop_control.o
-    0x0800d73a   0x0800d73a   0x00000002   PAD
-    0x0800d73c   0x0800d73c   0x0000003e   Code   RO         2458    .text.fStaticQueueDequeue  queue.o
-    0x0800d77a   0x0800d77a   0x00000002   PAD
-    0x0800d77c   0x0800d77c   0x00000040   Code   RO         2456    .text.fStaticQueueEnqueue  queue.o
-    0x0800d7bc   0x0800d7bc   0x00000022   Code   RO         2444    .text.fStaticQueueInit  queue.o
-    0x0800d7de   0x0800d7de   0x00000002   PAD
-    0x0800d7e0   0x0800d7e0   0x000000b0   Code   RO         2346    .text.fStatusFeedbackMainLoop  status_feedback.o
-    0x0800d890   0x0800d890   0x000001ac   Code   RO         1831    .text.fStreamDataGet  datamonitoring.o
-    0x0800da3c   0x0800da3c   0x0000000c   Code   RO         2135    .text.fSvpwmGetSector  svpwm.o
-    0x0800da48   0x0800da48   0x00000020   Code   RO         2113    .text.fSvpwmInit    svpwm.o
-    0x0800da68   0x0800da68   0x000001f4   Code   RO         2123    .text.fSvpwmRun     svpwm.o
-    0x0800dc5c   0x0800dc5c   0x00000010   Code   RO         2348    .text.fSystemFaultFeedback  status_feedback.o
-    0x0800dc6c   0x0800dc6c   0x0000000c   Code   RO         2362    .text.fSystemStateGet  system_statemachine.o
-    0x0800dc78   0x0800dc78   0x0000000c   Code   RO         2360    .text.fSystemStateUpdata  system_statemachine.o
-    0x0800dc84   0x0800dc84   0x0000002a   Code   RO         1855    .text.fUSB_RxFrameCallback  port_mapping.o
-    0x0800dcae   0x0800dcae   0x00000002   PAD
-    0x0800dcb0   0x0800dcb0   0x0000011c   Code   RO         1918    .text.fUSB_SendFrame  usb_port.o
-    0x0800ddcc   0x0800ddcc   0x0000004c   Code   RO         1884    .text.fUartPortInit  uart_port.o
-    0x0800de18   0x0800de18   0x000000d8   Code   RO         1890    .text.fUartPortSendFrame  uart_port.o
-    0x0800def0   0x0800def0   0x000000d8   Code   RO         1894    .text.fUartReviceByte  uart_port.o
-    0x0800dfc8   0x0800dfc8   0x0000002a   Code   RO         1857    .text.fUartRxFrameCallback  port_mapping.o
-    0x0800dff2   0x0800dff2   0x00000002   PAD
-    0x0800dff4   0x0800dff4   0x00000086   Code   RO         1898    .text.fVOFA_FloatDataSend  uart_port.o
-    0x0800e07a   0x0800e07a   0x00000002   PAD
-    0x0800e07c   0x0800e07c   0x000000c0   Code   RO         2056    .text.fWeakMagLoopUpdate  loop_control.o
-    0x0800e13c   0x0800e13c   0x0000005a   Code   RO           11    .text.main          main.o
-    0x0800e196   0x0800e196   0x00000002   PAD
-    0x0800e198   0x0800e198   0x000000da   Code   RO         1922    .text.usbRecvByte   usb_port.o
-    0x0800e272   0x0800e272   0x00000026   Code   RO         2658    i.__ARM_fpclassifyf  m_wm.l(fpclassifyf.o)
-    0x0800e298   0x0800e298   0x000002ac   Code   RO         2610    i.__hardfp_atan2f   m_wm.l(atan2f.o)
-    0x0800e544   0x0800e544   0x000001ec   Code   RO         2616    i.__hardfp_expf     m_wm.l(expf.o)
-    0x0800e730   0x0800e730   0x000000b0   Code   RO         2623    i.__hardfp_fmodf    m_wm.l(fmodf.o)
-    0x0800e7e0   0x0800e7e0   0x000000e4   Code   RO         2629    i.__hardfp_tanhf    m_wm.l(tanhf.o)
-    0x0800e8c4   0x0800e8c4   0x00000006   Code   RO         2661    i.__mathlib_flt_infnan  m_wm.l(funder.o)
-    0x0800e8ca   0x0800e8ca   0x00000006   Code   RO         2662    i.__mathlib_flt_infnan2  m_wm.l(funder.o)
-    0x0800e8d0   0x0800e8d0   0x00000010   Code   RO         2663    i.__mathlib_flt_invalid  m_wm.l(funder.o)
-    0x0800e8e0   0x0800e8e0   0x00000010   Code   RO         2664    i.__mathlib_flt_overflow  m_wm.l(funder.o)
-    0x0800e8f0   0x0800e8f0   0x00000010   Code   RO         2666    i.__mathlib_flt_underflow  m_wm.l(funder.o)
-    0x0800e900   0x0800e900   0x0000000e   Code   RO         2712    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0800e90e   0x0800e90e   0x00000002   Code   RO         2713    i.__scatterload_null  mc_w.l(handlers.o)
-    0x0800e910   0x0800e910   0x0000000e   Code   RO         2714    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x0800e91e   0x0800e91e   0x00000002   PAD
-    0x0800e920   0x0800e920   0x0000000c   Code   RO         2696    i.__set_errno       mc_w.l(errno.o)
-    0x0800e92c   0x0800e92c   0x00000030   Data   RO         2619    .constdata          m_wm.l(expf.o)
-    0x0800e95c   0x0800e95c   0x00000010   Data   RO         1522    .rodata.AHBPrescTable  system_stm32f4xx.o
-    0x0800e96c   0x0800e96c   0x00000008   Data   RO         1523    .rodata.APBPrescTable  system_stm32f4xx.o
-    0x0800e974   0x0800e974   0x00000006   Data   RO         2221    .rodata.BLUE        rgb.o
-    0x0800e97a   0x0800e97a   0x00000006   Data   RO         2220    .rodata.GREEN       rgb.o
-    0x0800e980   0x0800e980   0x00000006   Data   RO         2223    .rodata.MAGENTA     rgb.o
-    0x0800e986   0x0800e986   0x00000006   Data   RO         2219    .rodata.RED         rgb.o
-    0x0800e98c   0x0800e98c   0x00000100   Data   RO         2229    .rodata.SINE_TABLE  rgb.o
-    0x0800ea8c   0x0800ea8c   0x00000006   Data   RO         2227    .rodata.WHITE       rgb.o
-    0x0800ea92   0x0800ea92   0x00000008   Data   RO          569    .rodata.cst8        stm32f4xx_hal_dma.o
-    0x0800ea9a   0x0800ea9a   0x00000001   Data   RO         1865    .rodata.execute     port_mapping.o
-    0x0800ea9b   0x0800ea9b   0x00000001   PAD
-    0x0800ea9c   0x0800ea9c   0x00000804   Data   RO         2603    .rodata.sinTable_f32  arm_cortexM4lf_math.lib(arm_common_tables.o)
-    0x0800f2a0   0x0800f2a0   0x000000ff   Data   RO         2275    .rodata.str1.1      adc_dr.o
-    0x0800f39f   0x0800f39f   0x00000001   PAD
-    0x0800f3a0   0x0800f3a0   0x00000020   Data   RO         2711    Region$$Table       anon$$obj.o
+    0x0800b440   0x0800b440   0x000002aa   Code   RO         2291    .text.fParamGet     parameter_manager.o
+    0x0800b6ea   0x0800b6ea   0x00000002   PAD
+    0x0800b6ec   0x0800b6ec   0x0000015c   Code   RO         2297    .text.fParamInit    parameter_manager.o
+    0x0800b848   0x0800b848   0x0000001e   Code   RO         2295    .text.fParamSave    parameter_manager.o
+    0x0800b866   0x0800b866   0x00000002   PAD
+    0x0800b868   0x0800b868   0x000001a4   Code   RO         2289    .text.fParamSet     parameter_manager.o
+    0x0800ba0c   0x0800ba0c   0x00000012   Code   RO         2075    .text.fParamTuneReset  smo.o
+    0x0800ba1e   0x0800ba1e   0x00000002   PAD
+    0x0800ba20   0x0800ba20   0x00000bc8   Code   RO         2077    .text.fParamTuneUpdate  smo.o
+    0x0800c5e8   0x0800c5e8   0x00000050   Code   RO         2408    .text.fParkTransform  math_fast.o
+    0x0800c638   0x0800c638   0x00000122   Code   RO         2048    .text.fPositionRelLoopUpdate  loop_control.o
+    0x0800c75a   0x0800c75a   0x00000002   PAD
+    0x0800c75c   0x0800c75c   0x0000006c   Code   RO         2314    .text.fProManagerInit  protection_manager.o
+    0x0800c7c8   0x0800c7c8   0x000001fc   Code   RO         2318    .text.fProManagerMainLoop  protection_manager.o
+    0x0800c9c4   0x0800c9c4   0x00000010   Code   RO         2316    .text.fProManagerReset  protection_manager.o
+    0x0800c9d4   0x0800c9d4   0x00000232   Code   RO         2384    .text.fPulseInterferenceFilter  filter.o
+    0x0800cc06   0x0800cc06   0x00000002   PAD
+    0x0800cc08   0x0800cc08   0x00000016   Code   RO         2382    .text.fPulseInterferenceInit  filter.o
+    0x0800cc1e   0x0800cc1e   0x00000002   PAD
+    0x0800cc20   0x0800cc20   0x000000da   Code   RO         2195    .text.fRGB_Breathe  rgb.o
+    0x0800ccfa   0x0800ccfa   0x00000002   PAD
+    0x0800ccfc   0x0800ccfc   0x00000150   Code   RO         2193    .text.fRGB_SetOneColor  rgb.o
+    0x0800ce4c   0x0800ce4c   0x00000010   Code   RO         2402    .text.fRadToDeg     math_fast.o
+    0x0800ce5c   0x0800ce5c   0x00000010   Code   RO         2396    .text.fRadToRpm     math_fast.o
+    0x0800ce6c   0x0800ce6c   0x00000010   Code   RO         2398    .text.fRpmToRad     math_fast.o
+    0x0800ce7c   0x0800ce7c   0x0000001c   Code   RO         2071    .text.fSMO_GetOmega  smo.o
+    0x0800ce98   0x0800ce98   0x00000074   Code   RO         2059    .text.fSMO_Init     smo.o
+    0x0800cf0c   0x0800cf0c   0x00000004   PAD
+    0x0800cf10   0x0800cf10   0x00000518   Code   RO         2067    .text.fSMO_MainLoop  smo.o
+    0x0800d428   0x0800d428   0x0000001a   Code   RO         2061    .text.fSMO_Reset    smo.o
+    0x0800d442   0x0800d442   0x00000002   PAD
+    0x0800d444   0x0800d444   0x0000007a   Code   RO         2109    .text.fSamplePointCalibration  svpwm.o
+    0x0800d4be   0x0800d4be   0x00000002   PAD
+    0x0800d4c0   0x0800d4c0   0x0000000e   Code   RO         1981    .text.fSetOpendLoopOmega  foc_core.o
+    0x0800d4ce   0x0800d4ce   0x00000002   PAD
+    0x0800d4d0   0x0800d4d0   0x00000012   Code   RO         1979    .text.fSetOpendLoopTheta  foc_core.o
+    0x0800d4e2   0x0800d4e2   0x00000002   PAD
+    0x0800d4e4   0x0800d4e4   0x0000000e   Code   RO         1973    .text.fSetThetaOffset  foc_core.o
+    0x0800d4f2   0x0800d4f2   0x00000002   PAD
+    0x0800d4f4   0x0800d4f4   0x0000000e   Code   RO         1975    .text.fSetWireSequence  foc_core.o
+    0x0800d502   0x0800d502   0x00000002   PAD
+    0x0800d504   0x0800d504   0x00000096   Code   RO         2046    .text.fSpeedLoopUpdate  loop_control.o
+    0x0800d59a   0x0800d59a   0x00000002   PAD
+    0x0800d59c   0x0800d59c   0x0000003e   Code   RO         2442    .text.fStaticQueueDequeue  queue.o
+    0x0800d5da   0x0800d5da   0x00000002   PAD
+    0x0800d5dc   0x0800d5dc   0x00000040   Code   RO         2440    .text.fStaticQueueEnqueue  queue.o
+    0x0800d61c   0x0800d61c   0x00000022   Code   RO         2428    .text.fStaticQueueInit  queue.o
+    0x0800d63e   0x0800d63e   0x00000002   PAD
+    0x0800d640   0x0800d640   0x000000b0   Code   RO         2330    .text.fStatusFeedbackMainLoop  status_feedback.o
+    0x0800d6f0   0x0800d6f0   0x0000019a   Code   RO         1831    .text.fStreamDataGet  datamonitoring.o
+    0x0800d88a   0x0800d88a   0x00000002   PAD
+    0x0800d88c   0x0800d88c   0x0000000c   Code   RO         2119    .text.fSvpwmGetSector  svpwm.o
+    0x0800d898   0x0800d898   0x00000020   Code   RO         2097    .text.fSvpwmInit    svpwm.o
+    0x0800d8b8   0x0800d8b8   0x000001f4   Code   RO         2107    .text.fSvpwmRun     svpwm.o
+    0x0800daac   0x0800daac   0x00000010   Code   RO         2332    .text.fSystemFaultFeedback  status_feedback.o
+    0x0800dabc   0x0800dabc   0x0000000c   Code   RO         2346    .text.fSystemStateGet  system_statemachine.o
+    0x0800dac8   0x0800dac8   0x0000000c   Code   RO         2344    .text.fSystemStateUpdata  system_statemachine.o
+    0x0800dad4   0x0800dad4   0x00000030   Code   RO         2459    .text.fTraj_Reset   trajectory.o
+    0x0800db04   0x0800db04   0x0000000e   Code   RO         2463    .text.fTraj_SetRate  trajectory.o
+    0x0800db12   0x0800db12   0x00000002   PAD
+    0x0800db14   0x0800db14   0x0000000e   Code   RO         2461    .text.fTraj_SetTarget  trajectory.o
+    0x0800db22   0x0800db22   0x00000002   PAD
+    0x0800db24   0x0800db24   0x000001dc   Code   RO         2465    .text.fTraj_Update  trajectory.o
+    0x0800dd00   0x0800dd00   0x0000002a   Code   RO         1855    .text.fUSB_RxFrameCallback  port_mapping.o
+    0x0800dd2a   0x0800dd2a   0x00000002   PAD
+    0x0800dd2c   0x0800dd2c   0x0000011c   Code   RO         1918    .text.fUSB_SendFrame  usb_port.o
+    0x0800de48   0x0800de48   0x0000004c   Code   RO         1884    .text.fUartPortInit  uart_port.o
+    0x0800de94   0x0800de94   0x000000d8   Code   RO         1890    .text.fUartPortSendFrame  uart_port.o
+    0x0800df6c   0x0800df6c   0x000000d8   Code   RO         1894    .text.fUartReviceByte  uart_port.o
+    0x0800e044   0x0800e044   0x0000002a   Code   RO         1857    .text.fUartRxFrameCallback  port_mapping.o
+    0x0800e06e   0x0800e06e   0x00000002   PAD
+    0x0800e070   0x0800e070   0x00000086   Code   RO         1898    .text.fVOFA_FloatDataSend  uart_port.o
+    0x0800e0f6   0x0800e0f6   0x00000002   PAD
+    0x0800e0f8   0x0800e0f8   0x000000c0   Code   RO         2044    .text.fWeakMagLoopUpdate  loop_control.o
+    0x0800e1b8   0x0800e1b8   0x0000005a   Code   RO           11    .text.main          main.o
+    0x0800e212   0x0800e212   0x00000002   PAD
+    0x0800e214   0x0800e214   0x000000da   Code   RO         1922    .text.usbRecvByte   usb_port.o
+    0x0800e2ee   0x0800e2ee   0x00000026   Code   RO         2665    i.__ARM_fpclassifyf  m_wm.l(fpclassifyf.o)
+    0x0800e314   0x0800e314   0x000002ac   Code   RO         2617    i.__hardfp_atan2f   m_wm.l(atan2f.o)
+    0x0800e5c0   0x0800e5c0   0x000001ec   Code   RO         2623    i.__hardfp_expf     m_wm.l(expf.o)
+    0x0800e7ac   0x0800e7ac   0x000000b0   Code   RO         2630    i.__hardfp_fmodf    m_wm.l(fmodf.o)
+    0x0800e85c   0x0800e85c   0x000000e4   Code   RO         2636    i.__hardfp_tanhf    m_wm.l(tanhf.o)
+    0x0800e940   0x0800e940   0x00000006   Code   RO         2668    i.__mathlib_flt_infnan  m_wm.l(funder.o)
+    0x0800e946   0x0800e946   0x00000006   Code   RO         2669    i.__mathlib_flt_infnan2  m_wm.l(funder.o)
+    0x0800e94c   0x0800e94c   0x00000010   Code   RO         2670    i.__mathlib_flt_invalid  m_wm.l(funder.o)
+    0x0800e95c   0x0800e95c   0x00000010   Code   RO         2671    i.__mathlib_flt_overflow  m_wm.l(funder.o)
+    0x0800e96c   0x0800e96c   0x00000010   Code   RO         2673    i.__mathlib_flt_underflow  m_wm.l(funder.o)
+    0x0800e97c   0x0800e97c   0x0000000e   Code   RO         2719    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x0800e98a   0x0800e98a   0x00000002   Code   RO         2720    i.__scatterload_null  mc_w.l(handlers.o)
+    0x0800e98c   0x0800e98c   0x0000000e   Code   RO         2721    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x0800e99a   0x0800e99a   0x00000002   PAD
+    0x0800e99c   0x0800e99c   0x0000000c   Code   RO         2703    i.__set_errno       mc_w.l(errno.o)
+    0x0800e9a8   0x0800e9a8   0x00000030   Data   RO         2626    .constdata          m_wm.l(expf.o)
+    0x0800e9d8   0x0800e9d8   0x00000010   Data   RO         1522    .rodata.AHBPrescTable  system_stm32f4xx.o
+    0x0800e9e8   0x0800e9e8   0x00000008   Data   RO         1523    .rodata.APBPrescTable  system_stm32f4xx.o
+    0x0800e9f0   0x0800e9f0   0x00000006   Data   RO         2205    .rodata.BLUE        rgb.o
+    0x0800e9f6   0x0800e9f6   0x00000006   Data   RO         2204    .rodata.GREEN       rgb.o
+    0x0800e9fc   0x0800e9fc   0x00000006   Data   RO         2207    .rodata.MAGENTA     rgb.o
+    0x0800ea02   0x0800ea02   0x00000006   Data   RO         2203    .rodata.RED         rgb.o
+    0x0800ea08   0x0800ea08   0x00000100   Data   RO         2213    .rodata.SINE_TABLE  rgb.o
+    0x0800eb08   0x0800eb08   0x00000006   Data   RO         2211    .rodata.WHITE       rgb.o
+    0x0800eb0e   0x0800eb0e   0x00000008   Data   RO          569    .rodata.cst8        stm32f4xx_hal_dma.o
+    0x0800eb16   0x0800eb16   0x00000001   Data   RO         1865    .rodata.execute     port_mapping.o
+    0x0800eb17   0x0800eb17   0x00000001   PAD
+    0x0800eb18   0x0800eb18   0x00000804   Data   RO         2610    .rodata.sinTable_f32  arm_cortexM4lf_math.lib(arm_common_tables.o)
+    0x0800f31c   0x0800f31c   0x000000ff   Data   RO         2259    .rodata.str1.1      adc_dr.o
+    0x0800f41b   0x0800f41b   0x00000001   PAD
+    0x0800f41c   0x0800f41c   0x00000020   Data   RO         2718    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800f3c0, Size: 0x000021e0, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000f0])
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0800f440, Size: 0x000021d8, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000f0])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   COMPRESSED   0x00000004   Data   RW         2697    .data               mc_w.l(errno.o)
+    0x20000000   COMPRESSED   0x00000004   Data   RW         2704    .data               mc_w.l(errno.o)
     0x20000004   COMPRESSED   0x0000001c   Data   RW         1555    .data.FS_Desc       usbd_desc.o
     0x20000020   COMPRESSED   0x00000004   Data   RW         1521    .data.SystemCoreClock  system_stm32f4xx.o
     0x20000024   COMPRESSED   0x00000038   Data   RW         1792    .data.USBD_CDC      usbd_cdc.o
@@ -6046,19 +6044,20 @@ Memory Map of the image
     0x200000f2   COMPRESSED   0x00000085   Data   RW         1925    .data.UsbRxFrame    usb_port.o
     0x20000177   COMPRESSED   0x00000085   Data   RW         1924    .data.UsbTxFrame    usb_port.o
     0x200001fc   COMPRESSED   0x00000014   Data   RW         1817    .data.can           can_port.o
-    0x20000210   COMPRESSED   0x00000010   Data   RW         2001    .data.foc_core      foc_core.o
-    0x20000220   COMPRESSED   0x0000000c   Data   RW         1864    .data.g_com_state   port_mapping.o
-    0x2000022c   COMPRESSED   0x00000002   Data   RW         2177    .data.reg03_cmd     encoder.o
-    0x2000022e   COMPRESSED   0x00000002   Data   RW         2173    .data.reg04_cmd     encoder.o
-    0x20000230   COMPRESSED   0x00000001   Data   RW          747    .data.uwTickFreq    stm32f4xx_hal.o
-    0x20000231   COMPRESSED   0x00000003   PAD
-    0x20000234   COMPRESSED   0x00000004   Data   RW          746    .data.uwTickPrio    stm32f4xx_hal.o
+    0x20000210   COMPRESSED   0x0000000c   Data   RW         1990    .data.foc_core      foc_core.o
+    0x2000021c   COMPRESSED   0x0000000c   Data   RW         1864    .data.g_com_state   port_mapping.o
+    0x20000228   COMPRESSED   0x00000002   Data   RW         2161    .data.reg03_cmd     encoder.o
+    0x2000022a   COMPRESSED   0x00000002   Data   RW         2157    .data.reg04_cmd     encoder.o
+    0x2000022c   COMPRESSED   0x00000001   Data   RW          747    .data.uwTickFreq    stm32f4xx_hal.o
+    0x2000022d   COMPRESSED   0x00000003   PAD
+    0x20000230   COMPRESSED   0x00000004   Data   RW          746    .data.uwTickPrio    stm32f4xx_hal.o
+    0x20000234   COMPRESSED   0x00000004   PAD
     0x20000238        -       0x00000040   Zero   RW         1818    .bss.CanRxData      can_port.o
     0x20000278        -       0x00000001   Zero   RW         1905    .bss.DataIndex      uart_port.o
     0x20000279   COMPRESSED   0x00000003   PAD
-    0x2000027c        -       0x00000008   Zero   RW         2294    .bss.Index          log.o
-    0x20000284        -       0x0000003c   Zero   RW         2295    .bss.Log            log.o
-    0x200002c0        -       0x00000024   Zero   RW         2000    .bss.Motor          foc_core.o
+    0x2000027c        -       0x00000008   Zero   RW         2278    .bss.Index          log.o
+    0x20000284        -       0x0000003c   Zero   RW         2279    .bss.Log            log.o
+    0x200002c0        -       0x00000024   Zero   RW         1989    .bss.Motor          foc_core.o
     0x200002e4        -       0x00000001   Zero   RW         1871    .bss.Noresponse_tic  port_mapping.o
     0x200002e5        -       0x00000001   Zero   RW         1731    .bss.USBD_SetConfig.cfgidx  usbd_ctlreq.o
     0x200002e6   COMPRESSED   0x00000002   PAD
@@ -6069,128 +6068,130 @@ Memory Map of the image
     0x20000692        -       0x00000200   Zero   RW         1581    .bss.UserRxBufferFS  usbd_cdc_if.o
     0x20000892        -       0x00000200   Zero   RW         1582    .bss.UserTxBufferFS  usbd_cdc_if.o
     0x20000a92        -       0x00000001   Zero   RW         1819    .bss._get_head      can_port.o
-    0x20000a93        -       0x00000001   Zero   RW         2198    .bss._init_fault_tic  flashdr.o
-    0x20000a94        -       0x00000004   Zero   RW         2230    .bss._led_time_zero  rgb.o
+    0x20000a93        -       0x00000001   Zero   RW         2182    .bss._init_fault_tic  flashdr.o
+    0x20000a94        -       0x00000004   Zero   RW         2214    .bss._led_time_zero  rgb.o
     0x20000a98        -       0x00000001   Zero   RW         1902    .bss._rx            uart_port.o
     0x20000a99   COMPRESSED   0x00000003   PAD
     0x20000a9c        -       0x00000004   Zero   RW         1833    .bss._sta           datamonitoring.o
     0x20000aa0        -       0x00000004   Zero   RW         1873    .bss._state_prev_ms  port_mapping.o
-    0x20000aa4        -       0x00000004   Zero   RW         2023    .bss._time_foc_T    foc_statemachine.o
-    0x20000aa8        -       0x00000004   Zero   RW         2021    .bss._time_focit_end  foc_statemachine.o
-    0x20000aac        -       0x00000004   Zero   RW         2022    .bss._time_focit_run  foc_statemachine.o
-    0x20000ab0        -       0x00000004   Zero   RW         2020    .bss._time_focit_start  foc_statemachine.o
+    0x20000aa4        -       0x00000004   Zero   RW         2011    .bss._time_foc_T    foc_statemachine.o
+    0x20000aa8        -       0x00000004   Zero   RW         2009    .bss._time_focit_end  foc_statemachine.o
+    0x20000aac        -       0x00000004   Zero   RW         2010    .bss._time_focit_run  foc_statemachine.o
+    0x20000ab0        -       0x00000004   Zero   RW         2008    .bss._time_focit_start  foc_statemachine.o
     0x20000ab4        -       0x00000004   Zero   RW         1874    .bss._time_ms       port_mapping.o
     0x20000ab8        -       0x00000004   Zero   RW         1875    .bss._time_prev_ms  port_mapping.o
     0x20000abc        -       0x00000085   Zero   RW         1903    .bss._tx_data       uart_port.o
-    0x20000b41        -       0x00000001   Zero   RW         2142    .bss.change_Index   svpwm.o
+    0x20000b41        -       0x00000001   Zero   RW         2126    .bss.change_Index   svpwm.o
     0x20000b42        -       0x00000002   Zero   RW         1906    .bss.check          uart_port.o
     0x20000b44        -       0x00000098   Zero   RW         1863    .bss.com_frame      port_mapping.o
-    0x20000bdc        -       0x00000001   Zero   RW         2165    .bss.encoder.0      encoder.o
+    0x20000bdc        -       0x00000001   Zero   RW         2149    .bss.encoder.0      encoder.o
     0x20000bdd   COMPRESSED   0x00000003   PAD
-    0x20000be0        -       0x00000004   Zero   RW         2166    .bss.encoder.1      encoder.o
-    0x20000be4        -       0x00000004   Zero   RW         2167    .bss.encoder.2      encoder.o
-    0x20000be8        -       0x00000004   Zero   RW         2168    .bss.encoder.3      encoder.o
-    0x20000bec        -       0x00000004   Zero   RW         2169    .bss.encoder.4      encoder.o
-    0x20000bf0        -       0x00000004   Zero   RW         2170    .bss.encoder.5      encoder.o
-    0x20000bf4        -       0x00000004   Zero   RW         2171    .bss.encoder.6      encoder.o
-    0x20000bf8        -       0x00000004   Zero   RW         2172    .bss.encoder.7      encoder.o
-    0x20000bfc        -       0x00000004   Zero   RW         2096    .bss.fSMO_MainLoop.integrator_alpha  smo.o
-    0x20000c00        -       0x00000004   Zero   RW         2097    .bss.fSMO_MainLoop.integrator_beta  smo.o
-    0x20000c04        -       0x00000004   Zero   RW         2098    .bss.fSMO_MainLoop.open_loop_omega  smo.o
-    0x20000c08        -       0x00000007   Zero   RW         1997    .bss.foc_mode       foc_core.o
-    0x20000c0f   COMPRESSED   0x00000001   PAD
-    0x20000c10        -       0x00000058   Zero   RW         1998    .bss.foc_val        foc_core.o
-    0x20000c68        -       0x000000a0   Zero   RW         2319    .bss.g_Param        parameter_manager.o
-    0x20000d08        -       0x00000006   Zero   RW         2258    .bss.g_adc1_buffer  adc_dr.o
-    0x20000d0e        -       0x00000004   Zero   RW         2266    .bss.g_adc2_buffer  adc_dr.o
-    0x20000d12        -       0x00000001   Zero   RW         2257    .bss.g_calibration_flag  adc_dr.o
-    0x20000d13   COMPRESSED   0x00000001   PAD
-    0x20000d14        -       0x00000004   Zero   RW         2263    .bss.g_cur_zero_u   adc_dr.o
-    0x20000d18        -       0x00000004   Zero   RW         2264    .bss.g_cur_zero_v   adc_dr.o
-    0x20000d1c        -       0x00000004   Zero   RW         2265    .bss.g_cur_zero_w   adc_dr.o
-    0x20000d20        -       0x00000004   Zero   RW         2337    .bss.g_device_status  protection_manager.o
-    0x20000d24        -       0x00000018   Zero   RW         2019    .bss.g_foc          foc_statemachine.o
-    0x20000d3c        -       0x0000003c   Zero   RW         2336    .bss.g_pro_manager  protection_manager.o
-    0x20000d78        -       0x00000001   Zero   RW         2262    .bss.g_sample_counter  adc_dr.o
-    0x20000d79        -       0x00000001   Zero   RW         2274    .bss.g_temp_index   adc_dr.o
-    0x20000d7a   COMPRESSED   0x00000002   PAD
-    0x20000d7c        -       0x00000004   Zero   RW         2259    .bss.g_u_sum        adc_dr.o
-    0x20000d80        -       0x0000000a   Zero   RW         2268    .bss.g_ui_buffer    adc_dr.o
-    0x20000d8a   COMPRESSED   0x00000002   PAD
-    0x20000d8c        -       0x00000008   Zero   RW         2267    .bss.g_ui_filter    adc_dr.o
-    0x20000d94        -       0x00000004   Zero   RW         2260    .bss.g_v_sum        adc_dr.o
-    0x20000d98        -       0x0000000a   Zero   RW         2270    .bss.g_vi_buffer    adc_dr.o
-    0x20000da2   COMPRESSED   0x00000002   PAD
-    0x20000da4        -       0x00000008   Zero   RW         2269    .bss.g_vi_filter    adc_dr.o
-    0x20000dac        -       0x00000004   Zero   RW         2261    .bss.g_w_sum        adc_dr.o
-    0x20000db0        -       0x0000000a   Zero   RW         2272    .bss.g_wi_buffer    adc_dr.o
-    0x20000dba   COMPRESSED   0x00000002   PAD
-    0x20000dbc        -       0x00000008   Zero   RW         2271    .bss.g_wi_filter    adc_dr.o
-    0x20000dc4        -       0x00000001   Zero   RW         1904    .bss.get_head       uart_port.o
-    0x20000dc5   COMPRESSED   0x00000003   PAD
-    0x20000dc8        -       0x000002dc   Zero   RW         1534    .bss.hUsbDeviceFS   usb_device.o
-    0x200010a4        -       0x00000048   Zero   RW           45    .bss.hadc1          adc.o
-    0x200010ec        -       0x00000048   Zero   RW           46    .bss.hadc2          adc.o
-    0x20001134        -       0x00000001   Zero   RW         2231    .bss.half_time_flag  rgb.o
-    0x20001135   COMPRESSED   0x00000003   PAD
-    0x20001138        -       0x00000028   Zero   RW           63    .bss.hcan2          can.o
-    0x20001160        -       0x00000060   Zero   RW           47    .bss.hdma_adc1      adc.o
-    0x200011c0        -       0x00000060   Zero   RW           48    .bss.hdma_adc2      adc.o
-    0x20001220        -       0x00000060   Zero   RW           91    .bss.hdma_spi3_rx   spi.o
-    0x20001280        -       0x00000060   Zero   RW           92    .bss.hdma_spi3_tx   spi.o
-    0x200012e0        -       0x00000060   Zero   RW          113    .bss.hdma_tim4_ch2  tim.o
-    0x20001340        -       0x00000060   Zero   RW          114    .bss.hdma_tim4_ch3  tim.o
-    0x200013a0        -       0x00000060   Zero   RW          131    .bss.hdma_usart1_rx  usart.o
-    0x20001400        -       0x00000060   Zero   RW          130    .bss.hdma_usart1_tx  usart.o
-    0x20001460        -       0x000004e4   Zero   RW         1653    .bss.hpcd_USB_OTG_FS  usbd_conf.o
-    0x20001944        -       0x00000058   Zero   RW           89    .bss.hspi2          spi.o
-    0x2000199c        -       0x00000058   Zero   RW           90    .bss.hspi3          spi.o
-    0x200019f4        -       0x00000048   Zero   RW          111    .bss.htim4          tim.o
-    0x20001a3c        -       0x00000048   Zero   RW          112    .bss.htim8          tim.o
-    0x20001a84        -       0x00000048   Zero   RW          129    .bss.huart1         usart.o
-    0x20001acc        -       0x00000001   Zero   RW         1869    .bss.log_send_flag  port_mapping.o
-    0x20001acd   COMPRESSED   0x00000003   PAD
-    0x20001ad0        -       0x000000c8   Zero   RW         2066    .bss.loop_con       loop_control.o
-    0x20001b98        -       0x00000004   Zero   RW         2100    .bss.omega_last     smo.o
-    0x20001b9c        -       0x00000004   Zero   RW         2002    .bss.omega_pre      foc_core.o
-    0x20001ba0        -       0x00000001   Zero   RW         1867    .bss.param_index    port_mapping.o
-    0x20001ba1        -       0x00000001   Zero   RW         1868    .bss.param_send_flag  port_mapping.o
-    0x20001ba2   COMPRESSED   0x00000002   PAD
-    0x20001ba4        -       0x00000004   Zero   RW         2102    .bss.param_tune_Ls.prev_i  smo.o
-    0x20001ba8        -       0x00000004   Zero   RW         2101    .bss.param_tune_Rs.prev_i_alpha  smo.o
-    0x20001bac        -       0x00000004   Zero   RW         2103    .bss.param_tune_pole_pairs.omega_smo_last  smo.o
-    0x20001bb0        -       0x00000004   Zero   RW         2104    .bss.param_tune_pole_pairs.pole_pairs  smo.o
-    0x20001bb4        -       0x00000001   Zero   RW         2296    .bss.read_index     log.o
-    0x20001bb5   COMPRESSED   0x00000001   PAD
-    0x20001bb6        -       0x00000002   Zero   RW         2175    .bss.reg03_data     encoder.o
-    0x20001bb8        -       0x00000002   Zero   RW         2174    .bss.reg04_data     encoder.o
-    0x20001bba   COMPRESSED   0x00000002   PAD
-    0x20001bbc        -       0x00000014   Zero   RW         2228    .bss.rgb_breathe_t  rgb.o
-    0x20001bd0        -       0x000000c0   Zero   RW         2232    .bss.rgb_pixel_buf  rgb.o
-    0x20001c90        -       0x00000008   Zero   RW         1821    .bss.rxbuffer       can_port.o
-    0x20001c98        -       0x00000001   Zero   RW         1820    .bss.rxindex        can_port.o
-    0x20001c99        -       0x00000001   Zero   RW         1822    .bss.rxtemp         can_port.o
-    0x20001c9a   COMPRESSED   0x00000002   PAD
-    0x20001c9c        -       0x00000004   Zero   RW         2273    .bss.sample_time_prev_ms  adc_dr.o
-    0x20001ca0        -       0x00000074   Zero   RW         2095    .bss.smo            smo.o
-    0x20001d14        -       0x0000001c   Zero   RW         1999    .bss.startup_machine  foc_core.o
-    0x20001d30        -       0x0000000c   Zero   RW         2141    .bss.svpwm          svpwm.o
-    0x20001d3c        -       0x00000001   Zero   RW         1870    .bss.system_message_send_flag  port_mapping.o
-    0x20001d3d        -       0x00000001   Zero   RW         2366    .bss.system_status  system_statemachine.o
-    0x20001d3e   COMPRESSED   0x00000002   PAD
-    0x20001d40        -       0x00000004   Zero   RW           18    .bss.time_while_T   main.o
-    0x20001d44        -       0x00000004   Zero   RW           17    .bss.time_while_zero  main.o
-    0x20001d48        -       0x00000001   Zero   RW         1926    .bss.trans_fault_tic  usb_port.o
-    0x20001d49   COMPRESSED   0x00000003   PAD
-    0x20001d4c        -       0x00000084   Zero   RW         2099    .bss.tun            smo.o
-    0x20001dd0        -       0x00000004   Zero   RW          748    .bss.uwTick         stm32f4xx_hal.o
-    0x20001dd4        -       0x00000001   Zero   RW         2176    .bss.valid          encoder.o
-    0x20001dd5   COMPRESSED   0x00000003   PAD
-    0x20001dd8        -       0x00000008   Zero   RW         1872    .bss.value_ref      port_mapping.o
-    0x20001de0        -       0x00000400   Zero   RW            1    STACK               startup_stm32f405xx.o
+    0x20000be0        -       0x00000004   Zero   RW         2150    .bss.encoder.1      encoder.o
+    0x20000be4        -       0x00000004   Zero   RW         2151    .bss.encoder.2      encoder.o
+    0x20000be8        -       0x00000004   Zero   RW         2152    .bss.encoder.3      encoder.o
+    0x20000bec        -       0x00000004   Zero   RW         2153    .bss.encoder.4      encoder.o
+    0x20000bf0        -       0x00000004   Zero   RW         2154    .bss.encoder.5      encoder.o
+    0x20000bf4        -       0x00000004   Zero   RW         2155    .bss.encoder.6      encoder.o
+    0x20000bf8        -       0x00000004   Zero   RW         2156    .bss.encoder.7      encoder.o
+    0x20000bfc        -       0x00000004   Zero   RW         2080    .bss.fSMO_MainLoop.integrator_alpha  smo.o
+    0x20000c00        -       0x00000004   Zero   RW         2081    .bss.fSMO_MainLoop.integrator_beta  smo.o
+    0x20000c04        -       0x00000004   Zero   RW         2082    .bss.fSMO_MainLoop.open_loop_omega  smo.o
+    0x20000c08        -       0x00000008   Zero   RW         1987    .bss.foc_mode       foc_core.o
+    0x20000c10        -       0x00000054   Zero   RW         1988    .bss.foc_val        foc_core.o
+    0x20000c64        -       0x00000098   Zero   RW         2303    .bss.g_Param        parameter_manager.o
+    0x20000cfc        -       0x00000006   Zero   RW         2242    .bss.g_adc1_buffer  adc_dr.o
+    0x20000d02        -       0x00000004   Zero   RW         2250    .bss.g_adc2_buffer  adc_dr.o
+    0x20000d06        -       0x00000001   Zero   RW         2241    .bss.g_calibration_flag  adc_dr.o
+    0x20000d07   COMPRESSED   0x00000001   PAD
+    0x20000d08        -       0x00000004   Zero   RW         2247    .bss.g_cur_zero_u   adc_dr.o
+    0x20000d0c        -       0x00000004   Zero   RW         2248    .bss.g_cur_zero_v   adc_dr.o
+    0x20000d10        -       0x00000004   Zero   RW         2249    .bss.g_cur_zero_w   adc_dr.o
+    0x20000d14        -       0x00000004   Zero   RW         2321    .bss.g_device_status  protection_manager.o
+    0x20000d18        -       0x00000018   Zero   RW         2007    .bss.g_foc          foc_statemachine.o
+    0x20000d30        -       0x0000003c   Zero   RW         2320    .bss.g_pro_manager  protection_manager.o
+    0x20000d6c        -       0x00000001   Zero   RW         2246    .bss.g_sample_counter  adc_dr.o
+    0x20000d6d        -       0x00000001   Zero   RW         2258    .bss.g_temp_index   adc_dr.o
+    0x20000d6e   COMPRESSED   0x00000002   PAD
+    0x20000d70        -       0x00000004   Zero   RW         2243    .bss.g_u_sum        adc_dr.o
+    0x20000d74        -       0x0000000a   Zero   RW         2252    .bss.g_ui_buffer    adc_dr.o
+    0x20000d7e   COMPRESSED   0x00000002   PAD
+    0x20000d80        -       0x00000008   Zero   RW         2251    .bss.g_ui_filter    adc_dr.o
+    0x20000d88        -       0x00000004   Zero   RW         2244    .bss.g_v_sum        adc_dr.o
+    0x20000d8c        -       0x0000000a   Zero   RW         2254    .bss.g_vi_buffer    adc_dr.o
+    0x20000d96   COMPRESSED   0x00000002   PAD
+    0x20000d98        -       0x00000008   Zero   RW         2253    .bss.g_vi_filter    adc_dr.o
+    0x20000da0        -       0x00000004   Zero   RW         2245    .bss.g_w_sum        adc_dr.o
+    0x20000da4        -       0x0000000a   Zero   RW         2256    .bss.g_wi_buffer    adc_dr.o
+    0x20000dae   COMPRESSED   0x00000002   PAD
+    0x20000db0        -       0x00000008   Zero   RW         2255    .bss.g_wi_filter    adc_dr.o
+    0x20000db8        -       0x00000001   Zero   RW         1904    .bss.get_head       uart_port.o
+    0x20000db9   COMPRESSED   0x00000003   PAD
+    0x20000dbc        -       0x000002dc   Zero   RW         1534    .bss.hUsbDeviceFS   usb_device.o
+    0x20001098        -       0x00000048   Zero   RW           45    .bss.hadc1          adc.o
+    0x200010e0        -       0x00000048   Zero   RW           46    .bss.hadc2          adc.o
+    0x20001128        -       0x00000001   Zero   RW         2215    .bss.half_time_flag  rgb.o
+    0x20001129   COMPRESSED   0x00000003   PAD
+    0x2000112c        -       0x00000028   Zero   RW           63    .bss.hcan2          can.o
+    0x20001154        -       0x00000060   Zero   RW           47    .bss.hdma_adc1      adc.o
+    0x200011b4        -       0x00000060   Zero   RW           48    .bss.hdma_adc2      adc.o
+    0x20001214        -       0x00000060   Zero   RW           91    .bss.hdma_spi3_rx   spi.o
+    0x20001274        -       0x00000060   Zero   RW           92    .bss.hdma_spi3_tx   spi.o
+    0x200012d4        -       0x00000060   Zero   RW          113    .bss.hdma_tim4_ch2  tim.o
+    0x20001334        -       0x00000060   Zero   RW          114    .bss.hdma_tim4_ch3  tim.o
+    0x20001394        -       0x00000060   Zero   RW          131    .bss.hdma_usart1_rx  usart.o
+    0x200013f4        -       0x00000060   Zero   RW          130    .bss.hdma_usart1_tx  usart.o
+    0x20001454        -       0x000004e4   Zero   RW         1653    .bss.hpcd_USB_OTG_FS  usbd_conf.o
+    0x20001938        -       0x00000058   Zero   RW           89    .bss.hspi2          spi.o
+    0x20001990        -       0x00000058   Zero   RW           90    .bss.hspi3          spi.o
+    0x200019e8        -       0x00000048   Zero   RW          111    .bss.htim4          tim.o
+    0x20001a30        -       0x00000048   Zero   RW          112    .bss.htim8          tim.o
+    0x20001a78        -       0x00000048   Zero   RW          129    .bss.huart1         usart.o
+    0x20001ac0        -       0x00000001   Zero   RW         1869    .bss.log_send_flag  port_mapping.o
+    0x20001ac1   COMPRESSED   0x00000003   PAD
+    0x20001ac4        -       0x000000c8   Zero   RW         2050    .bss.loop_con       loop_control.o
+    0x20001b8c        -       0x00000004   Zero   RW         2084    .bss.omega_last     smo.o
+    0x20001b90        -       0x00000001   Zero   RW         1867    .bss.param_index    port_mapping.o
+    0x20001b91        -       0x00000001   Zero   RW         1868    .bss.param_send_flag  port_mapping.o
+    0x20001b92   COMPRESSED   0x00000002   PAD
+    0x20001b94        -       0x00000004   Zero   RW         2086    .bss.param_tune_Ls.prev_i  smo.o
+    0x20001b98        -       0x00000004   Zero   RW         2085    .bss.param_tune_Rs.prev_i_alpha  smo.o
+    0x20001b9c        -       0x00000004   Zero   RW         2087    .bss.param_tune_pole_pairs.omega_smo_last  smo.o
+    0x20001ba0        -       0x00000004   Zero   RW         2088    .bss.param_tune_pole_pairs.pole_pairs  smo.o
+    0x20001ba4        -       0x00000001   Zero   RW         2280    .bss.read_index     log.o
+    0x20001ba5   COMPRESSED   0x00000001   PAD
+    0x20001ba6        -       0x00000002   Zero   RW         2159    .bss.reg03_data     encoder.o
+    0x20001ba8        -       0x00000002   Zero   RW         2158    .bss.reg04_data     encoder.o
+    0x20001baa   COMPRESSED   0x00000002   PAD
+    0x20001bac        -       0x00000014   Zero   RW         2212    .bss.rgb_breathe_t  rgb.o
+    0x20001bc0        -       0x000000c0   Zero   RW         2216    .bss.rgb_pixel_buf  rgb.o
+    0x20001c80        -       0x00000008   Zero   RW         1821    .bss.rxbuffer       can_port.o
+    0x20001c88        -       0x00000001   Zero   RW         1820    .bss.rxindex        can_port.o
+    0x20001c89        -       0x00000001   Zero   RW         1822    .bss.rxtemp         can_port.o
+    0x20001c8a   COMPRESSED   0x00000002   PAD
+    0x20001c8c        -       0x00000004   Zero   RW         2257    .bss.sample_time_prev_ms  adc_dr.o
+    0x20001c90        -       0x00000074   Zero   RW         2079    .bss.smo            smo.o
+    0x20001d04        -       0x0000000c   Zero   RW         2125    .bss.svpwm          svpwm.o
+    0x20001d10        -       0x00000001   Zero   RW         1870    .bss.system_message_send_flag  port_mapping.o
+    0x20001d11        -       0x00000001   Zero   RW         2350    .bss.system_status  system_statemachine.o
+    0x20001d12   COMPRESSED   0x00000002   PAD
+    0x20001d14        -       0x00000004   Zero   RW           18    .bss.time_while_T   main.o
+    0x20001d18        -       0x00000004   Zero   RW           17    .bss.time_while_zero  main.o
+    0x20001d1c        -       0x00000014   Zero   RW         2467    .bss.traj_cfg       trajectory.o
+    0x20001d30        -       0x00000004   Zero   RW         2468    .bss.traj_state.0   trajectory.o
+    0x20001d34        -       0x00000004   Zero   RW         2469    .bss.traj_state.1   trajectory.o
+    0x20001d38        -       0x00000004   Zero   RW         2470    .bss.traj_state.2   trajectory.o
+    0x20001d3c        -       0x00000004   Zero   RW         2471    .bss.traj_state.3   trajectory.o
+    0x20001d40        -       0x00000001   Zero   RW         1926    .bss.trans_fault_tic  usb_port.o
+    0x20001d41   COMPRESSED   0x00000003   PAD
+    0x20001d44        -       0x00000084   Zero   RW         2083    .bss.tun            smo.o
+    0x20001dc8        -       0x00000004   Zero   RW          748    .bss.uwTick         stm32f4xx_hal.o
+    0x20001dcc        -       0x00000001   Zero   RW         2160    .bss.valid          encoder.o
+    0x20001dcd   COMPRESSED   0x00000003   PAD
+    0x20001dd0        -       0x00000008   Zero   RW         1872    .bss.value_ref      port_mapping.o
+    0x20001dd8        -       0x00000400   Zero   RW            1    STACK               startup_stm32f405xx.o
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x0800f4b0, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
+    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x0800f530, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
@@ -6206,24 +6207,24 @@ Image component sizes
        882         20        255          0         95       7019   adc_dr.o
        260          0          0          0         40       6215   can.o
        778          0          0         20         75       7062   can_port.o
-       428         22          0          0          4       2590   datamonitoring.o
+       410         22          0          0          4       2523   datamonitoring.o
        188          0          0          0          0       3467   dma.o
        720         16          0          4         34       6672   encoder.o
        584          0          0          0          0       8908   filter.o
       1148          0          0          0          1       6992   flashdr.o
-      1856         46          0         16        163      12015   foc_core.o
-       340          8          0          0         40       9951   foc_statemachine.o
+      1874         20          0         12        128      11057   foc_core.o
+       344          8          0          0         40       9798   foc_statemachine.o
        312          0          0          0          0       2249   gpio.o
-       454          0          0          0         69       2657   log.o
-      1674          8          0          0        200      10594   loop_control.o
+       454          0          0          0         69       2656   log.o
+      1406          8          0          0        200       9841   loop_control.o
        274          0          0          0          8       3319   main.o
        346         24          0          0          0       3769   math_fast.o
-      1622        220          0          0        160       7680   parameter_manager.o
-      1680        154          1         12        177       7439   port_mapping.o
-       636         16          0          0         64       4016   protection_manager.o
+      1486        154          0          0        152       7437   parameter_manager.o
+      1680        154          1         12        177       7337   port_mapping.o
+       632         16          0          0         64       3970   protection_manager.o
        160          0          0          0          0       3484   queue.o
        772          8        286          0        217       5487   rgb.o
-      4532        178          0          0        280      14836   smo.o
+      4508        178          0          0        280      14754   smo.o
        556          0          0          0        368       7437   spi.o
         36          8        392          0       1024        836   startup_stm32f405xx.o
        192         64          0          0          0       1498   status_feedback.o
@@ -6247,6 +6248,7 @@ Image component sizes
        122          0          0          0          1       1517   system_statemachine.o
         18          0         24          4          0       2589   system_stm32f4xx.o
       1076          0          0          0        336       9668   tim.o
+       552         12          0          0         36       4284   trajectory.o
        670          0          0          0        404       6513   uart_port.o
        318          0          0          0        264       7082   usart.o
        114          0          0          0        732       3214   usb_device.o
@@ -6260,9 +6262,9 @@ Image component sizes
        134          0          0          0          0       4745   usbd_ioreq.o
 
     ----------------------------------------------------------------------
-     55614        946       1000        564       8104     526654   Object Totals
+     55738        866       1000        560       8100     528533   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-       410          0          2          8         45          0   (incl. Padding)
+       410          0          2          8         48          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -6329,15 +6331,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     59300       1184       3100        568       8104     535780   Grand Totals
-     59300       1184       3100        240       8104     535780   ELF Image Totals (compressed)
-     59300       1184       3100        240          0          0   ROM Totals
+     59424       1104       3100        564       8100     537639   Grand Totals
+     59424       1104       3100        240       8100     537639   ELF Image Totals (compressed)
+     59424       1104       3100        240          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                62400 (  60.94kB)
-    Total RW  Size (RW Data + ZI Data)              8672 (   8.47kB)
-    Total ROM Size (Code + RO Data + RW Data)      62640 (  61.17kB)
+    Total RO  Size (Code + RO Data)                62524 (  61.06kB)
+    Total RW  Size (RW Data + ZI Data)              8664 (   8.46kB)
+    Total ROM Size (Code + RO Data + RW Data)      62764 (  61.29kB)
 
 ==============================================================================
 

@@ -33,7 +33,9 @@ xdrive/status_feedback.o: ..\FOC\Src\services\status_feedback.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
-  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\utils\trajectory.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\drivers\rgb.h \
   ..\FOC\Inc\services\protection_manager.h ..\FOC\Config\device.h \

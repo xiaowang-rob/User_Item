@@ -23,7 +23,6 @@ typedef enum
     CURRENT_d_ref,
 
     SPEED,
-    SPEED_con,
     SPEED_ref,
 
     THETA_elec,

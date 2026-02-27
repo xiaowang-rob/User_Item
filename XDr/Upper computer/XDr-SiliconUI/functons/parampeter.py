@@ -39,7 +39,7 @@ class ParameterManager:
                     if idx < Pidx.CAN_ID:
                         match idx:
                             # 下拉列表
-                            case Pidx.SENSOR_MODE| Pidx.LOOP_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.FAN_MODE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                            case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.FAN_MODE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
                                 val = lineedit.currentIndex()
                                                                 
                             # 数字输入框
@@ -90,11 +90,11 @@ class ParameterManager:
         if index < Pidx.CAN_ID:
             match index:
                 # 下拉列表
-                case Pidx.SENSOR_MODE| Pidx.LOOP_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.FAN_MODE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.FAN_MODE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
                     self.param_map[index].setCurrentIndex(data)    
                     if index in self.param_show_map:
                         self.param_show_map[index].setText(self.param_map[index].currentText())
-                    if index == Pidx.LOOP_MODE:
+                    if index == Pidx.RUN_MODE:
                         self.target_val_show.setText(Midx.target_value[data])                
 
                 # 数字输入框

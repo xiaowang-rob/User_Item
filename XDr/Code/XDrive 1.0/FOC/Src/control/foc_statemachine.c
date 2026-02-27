@@ -76,6 +76,7 @@ void fFOC_StateMachineMainLoop()
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
+        fFOC_CoreReset();
         ENABLE_PWM();
         fFOC_StateUpdate(FOC_RUNNING);
         break;

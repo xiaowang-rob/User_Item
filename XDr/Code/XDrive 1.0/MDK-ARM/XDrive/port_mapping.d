@@ -35,7 +35,9 @@ xdrive/port_mapping.o: ..\FOC\Src\communication\port_mapping.c \
   ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h \
   ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
-  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\utils\trajectory.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Config\drive_parameters.h \
   ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \

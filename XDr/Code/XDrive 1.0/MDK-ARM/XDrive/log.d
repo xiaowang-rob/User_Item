@@ -38,6 +38,6 @@ xdrive/log.o: ..\FOC\Src\services\log.c ..\FOC\Inc\services\log.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
-  ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\utils\trajectory.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h

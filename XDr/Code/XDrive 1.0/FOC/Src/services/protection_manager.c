@@ -126,7 +126,7 @@ void fProManagerMainLoop()
         g_pro_manager.warning_flag = true;
     }
     // 3位置检测 位置模式下监测
-    if (g_foc.core->foc_mode->loop_mode == POSITION_ABS_LOOP || g_foc.core->foc_mode->loop_mode == POSITION_REL_LOOP)
+    if (g_foc.core->foc_mode->runmode == POSITION_MODE)
     {
         if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
         {

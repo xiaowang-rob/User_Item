@@ -219,12 +219,6 @@ float fSpeedLoopUpdate(float omega_ref, float omega_fb)
     return PI_update(&loop_con.PI_speed, omega_ref, omega_fb, loop_con.fd.Tspd);
 }
 
-// 绝对位置环（无指令限幅）
-float fPositionAbsLoopUpdate(float position_ref, float position_fb)
-{
-    return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
-}
-
 // 相对位置环（带指令限幅）
 float fPositionRelLoopUpdate(float position_ref, float position_fb)
 {
@@ -233,10 +227,4 @@ float fPositionRelLoopUpdate(float position_ref, float position_fb)
     if (position_ref < loop_con.position_min)
         position_ref = loop_con.position_min;
     return PID_update(&loop_con.PID_pos, position_ref, position_fb, loop_con.fd.Tpos);
-}
-
-// PVT模式：动态设置位置环输出限幅（即最大速度）
-void fPVT_SetOmega(float omega)
-{
-    loop_con.PID_pos.output_limit = omega;
 }

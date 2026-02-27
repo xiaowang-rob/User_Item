@@ -4,7 +4,7 @@
 class Pidx:
     # u8 类型参数
     SENSOR_MODE          = 0
-    LOOP_MODE            = 1
+    RUN_MODE            = 1
     CAN_MODE             = 2
     WEAKMAG_MODE         = 3
     FAN_MODE             = 4
@@ -68,7 +68,7 @@ class Lidx:
     fault              = 2   # 错误
     warning            = 3   # 警告
     sensor_mode        = 4   # 感应模式
-    loop_mode          = 5   # 环模式
+    run_mode           = 5   # 运行模式
     usb_status         = 6   # USB状态
     can_status         = 7   # CAN状态
     flash_status       = 8   # 闪存状态
@@ -159,8 +159,8 @@ class Sidx:
 # 模式与状态字符串映射表
 # ====================================
 class Midx:
-    sensor_mode        = ["开环", "有感（编码）", "无感（SMO）","融合（编码+SMO）"]
-    loop_mode          = ["电压环", "电流环", "速度环", "绝对位置环", "相对位置环"]
+    sensor_mode        = ["开环", "有感（编码反馈）", "无感（HFI+SMO）","融合（编码+SMO）"]
+    run_mode          = [ "电流模式", "速度模式", "绝对位置模式", "相对位置模式"]
     target_value       = ["q轴电压/V","q轴电流/A","速度/rpm","绝对位置/°","相对位置/°"]
     can_mode           = ["实时处理", "队列处理"]
     weakmag_mode       = ["禁用", "启动"]
@@ -214,7 +214,7 @@ class Data_UI_Map:
         self.param_map = {
             # u8 类型
             Pidx.SENSOR_MODE:          parameter_page.sensormode_input,
-            Pidx.LOOP_MODE:            parameter_page.loopmode_input,
+            Pidx.RUN_MODE:            parameter_page.runmode_input,
             Pidx.CAN_MODE:             parameter_page.can_mode_input,
             Pidx.WEAKMAG_MODE:         parameter_page.weakmag_mode_input,
             Pidx.FAN_MODE:             parameter_page.FAN_mode_input,
@@ -270,7 +270,7 @@ class Data_UI_Map:
         # 参数显示控件映射（顶部状态栏）
         self.param_show_map = {
             Pidx.SENSOR_MODE:          top_area.sensormode_show,
-            Pidx.LOOP_MODE:            top_area.loopmode_show,
+            Pidx.RUN_MODE:            top_area.runmode_show,
             Pidx.CAN_MODE:             top_area.canmode_show,
             Pidx.CAN_ID:               top_area.canid_show,
         }
@@ -292,7 +292,7 @@ class Data_UI_Map:
             Lidx.fault:                log_page.fault,
             Lidx.warning:              log_page.warning,
             Lidx.sensor_mode:          log_page.sensor_mode,
-            Lidx.loop_mode:            log_page.loop_mode,
+            Lidx.run_mode:             log_page.run_mode,
             Lidx.usb_status:           log_page.usb_status,
             Lidx.can_status:           log_page.can_status,
             Lidx.flash_status:         log_page.flash_status,

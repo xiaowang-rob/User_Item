@@ -22,7 +22,7 @@ typedef struct
     u8 warning;
 
     u8 sensor_mode;
-    u8 loop_mode;
+    u8 run_mode;
 
     u8 can_state;
     u8 encoder_state;
@@ -47,4 +47,5 @@ void fLogDataSave(void);
 bool fLogDataWrite(void);
 bool fLogReadFlash(u8 *data, u8 *len);
 void fLogErase();
+
 #endif /* __LOG_H */

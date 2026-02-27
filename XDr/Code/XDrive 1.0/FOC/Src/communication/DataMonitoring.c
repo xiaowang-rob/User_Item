@@ -66,9 +66,6 @@ void fStreamDataGet(Data_stream_e stream, float *data)
     case SPEED:
         *data = g_foc.core->foc_val->omega_fb;
         break;
-    case SPEED_con:
-        *data = g_foc.core->foc_val->omega_con;
-        break;
     case SPEED_ref:
         *data = g_foc.core->foc_val->omega_ref;
         break;

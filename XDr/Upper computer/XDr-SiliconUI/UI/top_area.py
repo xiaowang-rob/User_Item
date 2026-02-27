@@ -84,13 +84,13 @@ class TopArea:
         self.sensormode_show.setReadOnly(True)
         self.sensormode_show.setTitle("感应模式")
 
-        self.loopmode_show=SiCapsuleLineEdit()
-        self.loopmode_show.resize(all_W,40)
-        self.loopmode_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.loopmode_show.setTitleFixedWidth(title_W)  
-        self.loopmode_show.setAlignment(Qt.AlignCenter) 
-        self.loopmode_show.setReadOnly(True)
-        self.loopmode_show.setTitle("环模式")
+        self.runmode_show=SiCapsuleLineEdit()
+        self.runmode_show.resize(all_W,40)
+        self.runmode_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.runmode_show.setTitleFixedWidth(title_W)  
+        self.runmode_show.setAlignment(Qt.AlignCenter) 
+        self.runmode_show.setReadOnly(True)
+        self.runmode_show.setTitle("运行模式")
 
         self.canid_show=SiCapsuleLineEdit()
         self.canid_show.resize(all_W,40)
@@ -106,7 +106,7 @@ class TopArea:
         self.canmode_show.setTitleFixedWidth(title_W) 
         self.canmode_show.setAlignment(Qt.AlignCenter) 
         self.canmode_show.setReadOnly(True)
-        self.canmode_show.setTitle("can模式")
+        self.canmode_show.setTitle("CAN模式")
 
         #创建主水平布局
         mode_H_layout = QHBoxLayout(self.mode_area)
@@ -117,7 +117,7 @@ class TopArea:
         mode_V_layout_l.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
         mode_V_layout_l.setSpacing(8)  # 行间距
         mode_V_layout_l.addWidget(self.sensormode_show)
-        mode_V_layout_l.addWidget(self.loopmode_show)
+        mode_V_layout_l.addWidget(self.runmode_show)
 
         mode_V_layout_r = QVBoxLayout()
         mode_V_layout_r.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距

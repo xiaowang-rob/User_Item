@@ -38,7 +38,7 @@ void fLogDataSave(void)
     Log.speed_ref = fRadToRpm(g_foc.core->foc_val->omega_ref);
     Log.position = fRadToDeg(g_foc.core->foc_val->pos_fb);
     Log.position_ref = fRadToDeg(g_foc.core->foc_val->pos_ref);
-    Log.loop_mode = g_foc.core->foc_mode->loop_mode;
+    Log.run_mode = g_foc.core->foc_mode->runmode;
     Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
     Log.fault = (eFault)g_pro_manager.fault;
     Log.warning = (eWarning)g_pro_manager.warning;
