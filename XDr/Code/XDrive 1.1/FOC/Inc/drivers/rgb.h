@@ -1,49 +1,54 @@
+
+
 #ifndef __RGB_H
 #define __RGB_H
 
 #include "main.h"
-#include "drive_state.h"
-// 0码和1码的定义，设置的时CCR寄存器的值
-// 由于使用的思PWM输出模式1，计数值<CCR时，输出有效电平-高电平（CubeMX配置默认有效电平为高电平）
-#define CODE_1 (70) // 1码定时器计数次数，控制占空比为84/125 = 66%
-#define CODE_0 (35) // 0码定时器计数次数，控制占空比为42/125 = 33%
 
 // 单个LED的颜色控制结构体
 typedef struct
 {
-    u16 R;
-    u16 G;
-    u16 B;
-} RGB_Color_TypeDef;
+    u16 R; ///< 红色分量，范围0-255
+    u16 G; ///< 绿色分量，范围0-255
+    u16 B; ///< 蓝色分量，范围0-255
+} tRGBColor;
 
-extern const RGB_Color_TypeDef RED;     // 红色
-extern const RGB_Color_TypeDef GREEN;   // 绿色
-extern const RGB_Color_TypeDef BLUE;    // 深蓝色
-extern const RGB_Color_TypeDef SKY;     // 天蓝色
-extern const RGB_Color_TypeDef MAGENTA; // 粉色
-extern const RGB_Color_TypeDef YELLOW;  // 黄色
-extern const RGB_Color_TypeDef OEANGE;  // 橘色
-extern const RGB_Color_TypeDef BLACK;   // 无颜色
-extern const RGB_Color_TypeDef WHITE;   // 白色
+// 预定义颜色常量声明
+extern const tRGBColor RED;     ///< 红色
+extern const tRGBColor GREEN;   ///< 绿色
+extern const tRGBColor BLUE;    ///< 深蓝色
+extern const tRGBColor SKY;     ///< 天蓝色
+extern const tRGBColor MAGENTA; ///< 粉色
+extern const tRGBColor YELLOW;  ///< 黄色
+extern const tRGBColor ORANGE;  ///< 橙色
+extern const tRGBColor BLACK;   ///< 无颜色
+extern const tRGBColor WHITE;   ///< 白色
 
-static void Reset_Load(void); // 该函数用于将数组最后24个数据变为0，代表RESET_code
+// 呼吸灯控制结构体
+typedef struct
+{
+    tRGBColor target_color; ///< 目标颜色（最大亮度时）
+    u8 sine_index;          ///< 正弦表索引 [0-255]
+    tRGBColor last_output;  ///< 上次输出颜色（用于变化检测）
+    u32 last_time_ms;       ///< 上次更新时间
+} tRGBBreath;
 
-// 发送最终数组
-static void RGB_SendArray(void);
+// LED状态枚举
+typedef enum
+{
+    LED_OFF,        ///< 常灭
+    LED_SLOW_BLINK, ///< 慢速闪烁
+    LED_FAST_BLINK, ///< 快速闪烁
+    LED_ON          ///< 常亮
+} eLED_State;
 
-static void RGB_Flush(void); // 刷新RGB显示
+// LED闪烁时间常量定义
+#define LED_SLOW_BLINK_T_ms 1000 ///< 慢速闪烁周期：1秒
+#define LED_FAST_BLINK_T_ms 500  ///< 快速闪烁周期：0.5秒
 
-void RGB_SetOne_Color(u8 LedId, RGB_Color_TypeDef Color); // 给一个LED装载24个颜色数据码（0码和1码）
+/* 函数声明 ----------------------------------------------------------------*/
 
-// 控制多个LED显示相同的颜色
-void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color);
+void fRGB_Breathe(tRGBColor Color);
+void fLED_Show(eLED_State can_state, eLED_State encoder_state);
 
-void RGB_Show_64(void); // RGB写入函数
-
-void rgb_breathe(RGB_Color_TypeDef Color);                              // 呼吸灯效果
-void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2); // 交替显示两个颜色
-void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3);
-
-void led_show(Drive_state_e can_state, Drive_state_e encoder_state);
-
-#endif
+#endif /* __RGB_H */

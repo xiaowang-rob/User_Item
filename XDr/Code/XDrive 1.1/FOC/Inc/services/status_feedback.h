@@ -2,6 +2,6 @@
 #define __STATUS_FEEDBACK_H
 #include "main.h"
 
-void status_feedback();
-void System_Fault_feedback();
+void fStatusFeedbackMainLoop();
+void fSystemFaultFeedback();
 #endif //__STATUS_FEEDBACK_H

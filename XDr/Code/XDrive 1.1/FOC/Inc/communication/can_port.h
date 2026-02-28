@@ -10,14 +10,14 @@ typedef struct
     bool queue_flag;
     u8 queue_head;
     u8 queue_tail;
-    StaticQueue rx_queue;
-} CAN_Handle_t;
+    tStaticQueue rx_queue;
+} tCAN_handle;
 
-void CAN_PORT_Init(u32 CAN_ID, bool canQUEUE);
-void CAN_SET_ID_QUEUE(u32 CAN_ID, bool canQUEUE);
-bool CAN_Send_Msg(u8 *msg, u8 len);
-QueueStatus CAN_deQUEUE_data(u8 *data);
-void CAN_RxData_Deal(u8 *RxData, u8 len);
+// 函数声明
+void fCAN_PortInit(u32 CAN_ID, bool canQUEUE);
+void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE);
+bool fCAN_SendData(u8 *msg, u8 len);
+void fCAN_RxDataCallback(u8 *RxData, u8 len);
+void fCAN_QueueData_deal();
 
-void CAN_QUEUE_Deal();
 #endif

@@ -11,24 +11,21 @@
 
 typedef struct
 {
+    u32 log_addr;
     u8 num;
-    u32 write_addr;
-} Index_t;
+} tLogindex;
+
 typedef struct
 {
-    u8 num; // 序号
-    // 运行时间
-    u8 seconds;
-
+    u8 num;
+    u8 minutes;
     u8 fault;
     u8 warning;
 
+    u8 sensor_mode;
     u8 run_mode;
-    u8 loop_mode;
 
-    u8 usb_state;
     u8 can_state;
-    u8 flash_state;
     u8 encoder_state;
 
     float Vbus;
@@ -44,12 +41,12 @@ typedef struct
     float speed_ref;
     float position;
     float position_ref;
-} LOG_t;
+} tLog;
 
-void log_init(void);
-void log_data_save(void);
-bool log_data_write(void);
-bool log_read_flash(u8 *data, u8 *len);
-void log_read_now(u8 *data, u8 *len);
-void log_erase();
+void fLogInit(void);
+void fLogDataSave(void);
+bool fLogDataWrite(void);
+bool fLogReadFlash(u8 *data, u8 *len);
+void fLogErase();
+
 #endif /* __LOG_H */

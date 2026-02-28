@@ -34,5 +34,5 @@ xdrive/svpwm.o: ..\FOC\Src\control\svpwm.c ..\FOC\Inc\control\svpwm.h \
   ..\Core\Inc\tim.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Config\system_parameters.h ..\FOC\Config\device.h \
-  ..\Core\Inc\spi.h ..\FOC\Inc\drivers\adcDr.h
+  ..\FOC\Config\drive_parameters.h ..\FOC\Config\device.h \
+  ..\Core\Inc\spi.h ..\FOC\Inc\drivers\adc_dr.h

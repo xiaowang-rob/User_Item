@@ -31,8 +31,9 @@ xdrive/smo.o: ..\FOC\Src\control\smo.c ..\FOC\Inc\control\smo.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\FOC\Inc\control\foc_core.h ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Inc\utils\trajectory.h ..\FOC\Inc\utils\math_fast.h \
+  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Config\system_parameters.h ..\FOC\Inc\control\foc_core.h \
-  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\drivers\encoder.h \
+  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\drivers\encoder.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h

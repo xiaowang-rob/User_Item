@@ -2,33 +2,32 @@
 #include "tim.h"
 #include "math_fast.h"
 #include "string.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 #include "device.h"
-#include "adcDr.h"
+#include "adc_dr.h"
+// mos管 死区 采样 造势时间
+const u16 ticTs = Tsample_us * ticpwm / (Tpwm * 1000000);
+const u16 ticTd = Tdeath_us * ticpwm / (Tpwm * 1000000);
+const u16 ticTn = Tnoise_us * ticpwm / (Tpwm * 1000000);
+const u16 all_sdc = ticTs + ticTd + ticTn; // 总计数值
 
-SVPWM_t svpwm = {0};
+tSvpwm svpwm = {0};
 
-SVPWM_t *get_svpwm_adr()
+void fSvpwmInit(float Vbus)
 {
-    return &svpwm;
+    memset(&svpwm, 0, sizeof(tSvpwm));
+
+    svpwm.k = MATH_SQRT3 * (float)ticpwm / Vbus;
 }
-
-void svpwm_Init(float Vbus)
+void inline pwm_out()
 {
-    memset(&svpwm, 0, sizeof(SVPWM_t));
-
-    svpwm.k = sqrt3 * (float)ticpwm / Vbus;
-}
-void pwm_out()
-{
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticu);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticu);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, svpwm.ticv);
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticw);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticw);
 }
 
 void ENABLE_PWM()
 {
-	
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
@@ -36,7 +35,7 @@ void ENABLE_PWM()
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
-		PWM_POWER_ON();
+    PWM_POWER_ON();
 }
 void DISABLE_PWM()
 {
@@ -46,7 +45,7 @@ void DISABLE_PWM()
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_3);
-		PWM_POWER_OFF();
+    PWM_POWER_OFF();
 }
 void PWM_POWER_ON()
 {
@@ -58,16 +57,16 @@ void PWM_POWER_OFF()
     HAL_GPIO_WritePin(POWER12V_GPIOx, POWER12V_GPIOx_PIN, GPIO_PIN_RESET);
     svpwm.power_flag = false;
 }
-void svpwm_run(float ualpha, float ubeta)
+void fSvpwmRun(float ualpha, float ubeta)
 {
     float U1 = ubeta;
-    float U2 = sqrt3_2 * ualpha - 0.5 * ubeta;
+    float U2 = MATH_SQRT3_2 * ualpha - 0.5 * ubeta;
     float U3 = -U2 - ubeta;
     u8 A = U1 > 0;
     u8 B = U2 > 0;
     u8 C = U3 > 0;
     u8 vN = 4 * C + 2 * B + A;
-    float Tx, Ty, Tzero;
+    float Tx, Ty, Tzero; // Tx:第一相作用时间 Ty:第二相作用时间 Tzero:零向量作用时间
     switch (vN)
     {
     case 0:               // Zero vector (all negative)
@@ -121,10 +120,6 @@ void svpwm_run(float ualpha, float ubeta)
         Tzero = ticpwm - Tx - Ty;
     }
     // 以七段式开关序列方式输出--更小的电流纹波和中心对称性（5段 可以减小开关次数）
-
-    //    float t0 = Tzero / 2; // V0作用起点零向量（0，0，0）
-    //    float t1 = t0 + Tx;   // V1作用
-    //    float t2 = t1 + Ty;   // V2作用
 
     float t0 = Tzero / 2;   // V0作用起点零向量（0，0，0）
     float t1 = ticpwm - t0; // V1作用
@@ -182,7 +177,7 @@ void svpwm_run(float ualpha, float ubeta)
 }
 // 电流采样点改变
 u8 change_Index = 0;
-void smaple_point_change()
+void fSamplePointCalibration()
 {
     switch (svpwm.sector)
     {
@@ -192,14 +187,14 @@ void smaple_point_change()
         break;
     case 1:
     case 4:
-        if (svpwm.ticu > ticDT + ticTN)
+        if (svpwm.ticu > ticTd + ticTn)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * svpwm.ticu)
+        else if (all_sdc > 2 * svpwm.ticu)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -216,14 +211,14 @@ void smaple_point_change()
         break;
     case 2:
     case 5:
-        if (svpwm.ticv > ticDT + ticTN)
+        if (svpwm.ticv > ticTd + ticTn)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * svpwm.ticv)
+        else if (all_sdc > 2 * svpwm.ticv)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -238,15 +233,15 @@ void smaple_point_change()
                 return;
         }
         break;
-    default:
-        if (svpwm.ticw > ticDT + ticTN)
+    default: // 3,6
+        if (svpwm.ticw > ticTd + ticTn)
         {
             if (change_Index != 1)
                 change_Index = 1;
             else
                 return;
         }
-        else if (alltic_tsdttn > 2 * svpwm.ticw)
+        else if (all_sdc > 2 * svpwm.ticw)
         {
             if (change_Index != 3)
                 change_Index = 3;
@@ -266,13 +261,13 @@ void smaple_point_change()
     switch (change_Index)
     {
     case 1: // 低调制 25us开始采样
-        ADC_sample_change(ticpwm - 50);
+        fAdcSampleChange(ticpwm - 50);
         break;
     case 2: // 中调制 u相高打开前 ts（采样时间）开始采样
-        ADC_sample_change(svpwm.ticu + tics);
+        fAdcSampleChange(svpwm.ticu + ticTs);
         break;
     case 3: // 高调制 u相高开启之后 ts tn 开始采样
-        ADC_sample_change(svpwm.ticu - ticDT - ticTN);
+        fAdcSampleChange(svpwm.ticu - ticTd - ticTn);
         break;
     default:
         break;
@@ -280,22 +275,22 @@ void smaple_point_change()
 }
 float fGetVoltage_u()
 {
-    return svpwm.ticu * sqrt3 / svpwm.k;
+    return svpwm.ticu * MATH_SQRT3 / svpwm.k;
 }
 float fGetVoltage_v()
 {
-    return svpwm.ticv * sqrt3 / svpwm.k;
+    return svpwm.ticv * MATH_SQRT3 / svpwm.k;
 }
 float fGetVoltage_w()
 {
-    return svpwm.ticw * sqrt3 / svpwm.k;
+    return svpwm.ticw * MATH_SQRT3 / svpwm.k;
 }
 
-void svpwm_SetVbus(float Vbus)
+void fSvpwmSetVbus(float Vbus)
 {
-    svpwm.k = sqrt3 * ticpwm / Vbus;
+    svpwm.k = MATH_SQRT3 * ticpwm / Vbus;
 }
-u8 svpwm_GetSector()
+u8 fSvpwmGetSector()
 {
     return svpwm.sector;
 }

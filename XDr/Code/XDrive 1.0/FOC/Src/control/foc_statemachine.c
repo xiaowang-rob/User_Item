@@ -4,7 +4,7 @@
 #include "parameter_manager.h"
 #include "encoder.h"
 
-FOC_t g_foc = {0};
+FOC_t g_foc = {.core = &foc_core,.loop_con = &loop_con,.smo = &smo,.tun = &tun,.svpwm = &svpwm};
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
@@ -45,11 +45,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void fFOC_Init()
 {
     g_foc.state = FOC_IDLE;
-    g_foc.core = &foc_core;
-    g_foc.loop_con = &loop_con;
-    g_foc.smo = &smo;
-    g_foc.tun = &tun;
-    g_foc.svpwm = &svpwm;
+//    g_foc.core = &foc_core;
+//    g_foc.loop_con = &loop_con;
+//    g_foc.smo = &smo;
+//    g_foc.tun = &tun;
+//    g_foc.svpwm = &svpwm;
     fFOC_CoreInit();
 }
 // FOC 主循环函数

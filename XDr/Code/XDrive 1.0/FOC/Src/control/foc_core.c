@@ -23,6 +23,7 @@ void _trajectory_init(tParameter param)
     traj_cfg.max_jerk = param.traj_max_jerk;
     traj_cfg.tolerance = param.tolerance;
     traj_cfg.type = param.traj_type;
+		fTraj_Init(traj_cfg);
 }
 
 // 模式初始化

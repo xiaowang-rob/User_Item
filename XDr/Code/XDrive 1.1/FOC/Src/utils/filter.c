@@ -1,12 +1,18 @@
 #include "filter.h"
 #include "stddef.h"
 #include "string.h"
+
 /**
- * 冒泡排序函数
+ * @file filter.c
+ * @brief 各种数字滤波算法实现
+ */
+
+/**
+ * @brief 冒泡排序函数
  * @param arr 待排序的数组
  * @param n 数组大小
  */
-void bubble_sort(int arr[], int n)
+static void vBubbleSort(int arr[], int n)
 {
     if (arr == NULL || n <= 1)
     {
@@ -41,14 +47,26 @@ void bubble_sort(int arr[], int n)
         }
     }
 }
-/* 限幅滤波法 */
-void amplitude_limiting_init(AmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
+
+/**
+ * @brief 限幅滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param max_deviation 最大允许偏差值
+ * @param initial_value 初始值
+ */
+void fAmplitudeLimitingInit(tAmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
 {
     filter->max_deviation = max_deviation;
     filter->last_value = initial_value;
 }
 
-int amplitude_limiting_filter(AmplitudeLimitingFilter *filter, int new_value)
+/**
+ * @brief 限幅滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+int fAmplitudeLimitingFilter(tAmplitudeLimitingFilter *filter, int new_value)
 {
     if ((new_value - filter->last_value > filter->max_deviation) ||
         (filter->last_value - new_value > filter->max_deviation))
@@ -59,8 +77,13 @@ int amplitude_limiting_filter(AmplitudeLimitingFilter *filter, int new_value)
     return new_value;
 }
 
-/* 中位值滤波法 */
-void median_filter_init(MedianFilter *filter, int *buffer, int size)
+/**
+ * @brief 中位值滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param buffer 数据缓冲区指针
+ * @param size 缓冲区大小
+ */
+void fMedianFilterInit(tMedianFilter *filter, int *buffer, int size)
 {
     filter->buffer = buffer;
     filter->size = size;
@@ -68,7 +91,13 @@ void median_filter_init(MedianFilter *filter, int *buffer, int size)
     memset(buffer, 0, size * sizeof(int));
 }
 
-int median_filter(MedianFilter *filter, int new_value)
+/**
+ * @brief 中位值滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+int fMedianFilter(tMedianFilter *filter, int new_value)
 {
     int i, j, temp;
     int buf[filter->size];
@@ -84,14 +113,19 @@ int median_filter(MedianFilter *filter, int new_value)
     }
 
     // 排序
-    bubble_sort(buf, filter->size);
+    vBubbleSort(buf, filter->size);
 
     // 返回中值
     return buf[(filter->size - 1) / 2];
 }
 
-/* 滑动平均滤波法 */
-void moving_average_init(MovingAverageFilter *filter, int *buffer, int size)
+/**
+ * @brief 滑动平均滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param buffer 数据缓冲区指针
+ * @param size 缓冲区大小
+ */
+void fMovingAverageInit(tMovingAverageFilter *filter, int *buffer, int size)
 {
     filter->buffer = buffer;
     filter->size = size;
@@ -101,7 +135,13 @@ void moving_average_init(MovingAverageFilter *filter, int *buffer, int size)
     memset(buffer, 0, size * sizeof(int));
 }
 
-int moving_average_filter(MovingAverageFilter *filter, int new_value)
+/**
+ * @brief 滑动平均滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+int fMovingAverageFilter(tMovingAverageFilter *filter, int new_value)
 {
     // 减去即将被替换的值（如果缓冲区已满）
     if (filter->is_full)
@@ -133,9 +173,15 @@ int moving_average_filter(MovingAverageFilter *filter, int new_value)
     }
 }
 
-/* 加权滑动平均滤波法 */
-void weighted_moving_average_init(WeightedMovingAverageFilter *filter,
-                                  int *buffer, int *coefficient, int size)
+/**
+ * @brief 加权滑动平均滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param buffer 数据缓冲区指针
+ * @param coefficient 加权系数数组指针
+ * @param size 缓冲区大小
+ */
+void fWeightedMovingAverageInit(tWeightedMovingAverageFilter *filter,
+                                int *buffer, int *coefficient, int size)
 {
     filter->buffer = buffer;
     filter->coefficient = coefficient;
@@ -152,7 +198,13 @@ void weighted_moving_average_init(WeightedMovingAverageFilter *filter,
     memset(buffer, 0, size * sizeof(int));
 }
 
-int weighted_moving_average_filter(WeightedMovingAverageFilter *filter, int new_value)
+/**
+ * @brief 加权滑动平均滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+int fWeightedMovingAverageFilter(tWeightedMovingAverageFilter *filter, int new_value)
 {
     int sum = 0;
 
@@ -172,21 +224,38 @@ int weighted_moving_average_filter(WeightedMovingAverageFilter *filter, int new_
     return sum / filter->coeff_sum;
 }
 
-/* 一阶滞后滤波法 */
-void first_order_lag_init(FirstOrderLagFilter *filter, float alpha, float initial_value)
+/**
+ * @brief 一阶滞后滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param alpha 滤波系数(0~1)
+ * @param initial_value 初始值
+ */
+void fFirstOrderLagInit(tFirstOrderLagFilter *filter, float alpha, float initial_value)
 {
     filter->alpha = alpha;
     filter->last_value = initial_value;
 }
 
-float first_order_lag_filter(FirstOrderLagFilter *filter, float new_value)
+/**
+ * @brief 一阶滞后滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+float fFirstOrderLagFilter(tFirstOrderLagFilter *filter, float new_value)
 {
     filter->last_value = filter->alpha * new_value + (1 - filter->alpha) * filter->last_value;
     return filter->last_value;
 }
 
-/* 卡尔曼滤波 */
-void kalman_init(KalmanFilter *filter, float q, float r, float initial_value)
+/**
+ * @brief 卡尔曼滤波初始化
+ * @param filter 滤波器结构体指针
+ * @param q 过程噪声协方差
+ * @param r 测量噪声协方差
+ * @param initial_value 初始值
+ */
+void fKalmanInit(tKalmanFilter *filter, float q, float r, float initial_value)
 {
     filter->q = q;
     filter->r = r;
@@ -195,7 +264,13 @@ void kalman_init(KalmanFilter *filter, float q, float r, float initial_value)
     filter->k = 0.0f;
 }
 
-float kalman_filter(KalmanFilter *filter, float measurement)
+/**
+ * @brief 卡尔曼滤波处理
+ * @param filter 滤波器结构体指针
+ * @param measurement 测量值
+ * @return 滤波后的值
+ */
+float fKalmanFilter(tKalmanFilter *filter, float measurement)
 {
     // 预测
     filter->p = filter->p + filter->q;
@@ -208,16 +283,27 @@ float kalman_filter(KalmanFilter *filter, float measurement)
     return filter->x;
 }
 
-/* 防脉冲干扰平均滤波法 */
-void pulse_interference_init(PulseInterferenceFilter *filter, uint16_t *buffer, uint8_t size)
+/**
+ * @brief 防脉冲干扰平均滤波法初始化
+ * @param filter 滤波器结构体指针
+ * @param buffer 数据缓冲区指针
+ * @param size 缓冲区大小
+ */
+void fPulseInterferenceInit(tPulseInterferenceFilter *filter, u16 *buffer, u8 size)
 {
     filter->buffer = buffer;
     filter->size = size;
     filter->index = 0;
-    memset(buffer, 0, size * sizeof(uint16_t));
+    memset(buffer, 0, size * sizeof(u16));
 }
 
-uint16_t pulse_interference_filter(PulseInterferenceFilter *filter, uint16_t new_value)
+/**
+ * @brief 防脉冲干扰平均滤波法处理
+ * @param filter 滤波器结构体指针
+ * @param new_value 新的采样值
+ * @return 滤波后的值
+ */
+u16 fPulseInterferenceFilter(tPulseInterferenceFilter *filter, u16 new_value)
 {
     int i, sum = 0;
     int buf[filter->size];
@@ -233,7 +319,7 @@ uint16_t pulse_interference_filter(PulseInterferenceFilter *filter, uint16_t new
     }
 
     // 排序
-    bubble_sort(buf, filter->size);
+    vBubbleSort(buf, filter->size);
 
     // 去掉最大最小值后求平均
     for (i = 1; i < filter->size - 1; i++)
@@ -244,8 +330,13 @@ uint16_t pulse_interference_filter(PulseInterferenceFilter *filter, uint16_t new
     return sum / (filter->size - 2);
 }
 
-/* 算术平均滤波法 */
-int arithmetic_mean_filter(const int *data_buf, int size)
+/**
+ * @brief 算术平均滤波法处理
+ * @param data_buf 数据数组指针
+ * @param size 数组大小
+ * @return 平均值
+ */
+int fArithmeticMeanFilter(const int *data_buf, int size)
 {
     int sum = 0;
 

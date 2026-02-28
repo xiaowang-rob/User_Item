@@ -33,6 +33,6 @@ xdrive/loop_control.o: ..\FOC\Src\control\loop_control.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\FOC\Inc\services\parameter_manager.h \
-  ..\FOC\Config\system_parameters.h ..\FOC\Inc\utils\math_fast.h \
+  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h

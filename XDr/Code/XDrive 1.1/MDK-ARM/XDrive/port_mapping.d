@@ -33,10 +33,13 @@ xdrive/port_mapping.o: ..\FOC\Src\communication\port_mapping.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\drive_state.h ..\FOC\Inc\control\foc_statemachine.h \
-  ..\FOC\Inc\control\foc_core.h ..\FOC\Inc\services\parameter_manager.h \
+  ..\FOC\Config\device.h ..\Core\Inc\spi.h \
+  ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
+  ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\utils\trajectory.h \
+  ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h ..\FOC\Config\system_parameters.h \
+  ..\FOC\Inc\control\svpwm.h ..\FOC\Config\drive_parameters.h \
   ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\can_port.h ..\FOC\Inc\utils\queue.h \
   ..\FOC\Inc\communication\usb_port.h \

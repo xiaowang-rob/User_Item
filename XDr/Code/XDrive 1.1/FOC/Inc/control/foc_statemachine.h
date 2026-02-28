@@ -8,36 +8,30 @@
 #include "svpwm.h"
 typedef enum
 {
-    FOC_IDLE,
-    FOC_AUTO_TUNE,
-    FOC_RESET,
-    FOC_ENABLE,
-    FOC_DISABLE,
-    FOC_RUNNING,
-    FOC_SHUTDOWN,
-    FOC_FAULT,
-    FOC_WARNING,
-} FOC_STATE_e;
+    FOC_IDLE,      // 用于参数调节、模式调节 状态
+    FOC_AUTO_TUNE, // 自动校准电机参数 状态
+    FOC_RESET,     // 复位电机动作 过程
+    FOC_ENABLE,    // 使能电机动作 过程
+    FOC_DISABLE,   // 禁用电机动作 过程
+    FOC_RUNNING,   // FOC参数计算 PWM输出 状态
+    FOC_SHUTDOWN,  // 紧急停止电机动作 过程
+    FOC_FAULT,     // 故障状态
+} eFOC_Status;
 
 typedef struct
 {
     bool foc_enable;
-    FOC_STATE_e state;
-    FOC_mode_t *mode;
-    FOC_val_t *val;
-    startup_mechine_t *startup_mechine;
-    LOOP_CON_t *g_loop_con;
-    smo_t *smo;
-    param_tuning_t *tun;
-    SVPWM_t *svpwm;
-    Motor_t *motor;
+    eFOC_Status state;
+    tFOC_Core *core;
+    tLoopControl *loop_con;
+    tSMO *smo;
+    tParameterTune *tun;
+    tSvpwm *svpwm;
 } FOC_t;
 extern FOC_t g_foc;
 
 void fFOC_Init();
-void FOC_StateMachine_updata();
-void FOC_CHANGE_STATE(FOC_STATE_e state);
-void FOC_Start_run();
-void FOC_Stop_run();
+void fFOC_StateMachineMainLoop();
+void fFOC_StateUpdate(eFOC_Status state);
 
 #endif

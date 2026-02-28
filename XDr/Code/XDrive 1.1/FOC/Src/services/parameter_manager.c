@@ -5,36 +5,36 @@
 #include "math_fast.h"
 #include "protection_manager.h"
 #include "can_port.h"
-#include "system_parameters.h"
+#include "drive_parameters.h"
 
-Parameter_t g_Param;
+tParameter g_Param;
 
-void Param_set(Parameter_e para, u8 *value)
+void fParamSet(eParameter para, u8 *value)
 {
     float temp = 0;
     switch (para)
     {
     // u8类型参数
-    case FOC_MODE:
-        g_Param.foc_mode = *(u8 *)value;
+    case SENSOR_MODE:
+        g_Param.sensor_mode = *(u8 *)value;
         break;
     case LOOP_MODE:
-        g_Param.loop_mode = *(u8 *)value;
+        g_Param.run_mode = *(u8 *)value;
         break;
-    case SW_CANQUEUE:
+    case CAN_MODE:
         g_Param.sw_canqueue = *(u8 *)value;
         break;
-    case SW_WEAKMAG:
+    case WEAKMAG_MODE:
         g_Param.sw_weakmag = *(u8 *)value;
         break;
-    case SW_FAN:
-        g_Param.sw_fan = *(u8 *)value;
-        break;
-    case SW_VAGUE_PID:
+    case VAGUE_PID_MODE:
         g_Param.sw_vague_pid = *(u8 *)value;
         break;
-    case SW_PVT:
+    case PVT_MODE:
         g_Param.sw_pvt = *(u8 *)value;
+        break;
+    case TRAJ_TYPE:
+        g_Param.traj_type = *(u8 *)value;
         break;
 
     case MOTOR_WIRE_SEQUENCE:
@@ -62,8 +62,7 @@ void Param_set(Parameter_e para, u8 *value)
 
         // float类型参数
     case THETA_OFFSET:
-        memcpy(&temp, value, 4);
-        g_Param.theta_offset = deg_to_rad(temp);
+        g_Param.theta_offset = *(float *)value;
         break;
     case MOTOR_RS:
         g_Param.motor_rs = *(float *)value;
@@ -114,16 +113,13 @@ void Param_set(Parameter_e para, u8 *value)
         g_Param.limit_current = *(float *)value;
         break;
     case LIMIT_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.limit_omega = rpm_to_rad(temp);
+        g_Param.limit_omega = *(float *)value;
         break;
     case LIMIT_POSITION_min:
-        memcpy(&temp, value, 4);
-        g_Param.limit_position_min = deg_to_rad(temp);
+        g_Param.limit_position_min = *(float *)value;
         break;
     case LIMIT_POSITION_max:
-        memcpy(&temp, value, 4);
-        g_Param.limit_position_max = deg_to_rad(temp);
+        g_Param.limit_position_max = *(float *)value;
         break;
     case TOLERANCE_TIME:
         g_Param.tolerance_time = *(float *)value;
@@ -140,65 +136,56 @@ void Param_set(Parameter_e para, u8 *value)
     case TOLERANCE_POSITION:
         g_Param.tolerance_position = *(float *)value;
         break;
-
-    case STARTUP_ACC:
-        memcpy(&temp, value, 4);
-        g_Param.startup_acc = rpm_to_rad(temp);
+    case TRAJ_MAX_RATE:
+        g_Param.traj_max_rate = *(float *)value;
         break;
-    case ALIGN_CURRENT:
-        g_Param.align_current = *(float *)value;
+    case TRAJ_MAX_ACC:
+        g_Param.traj_max_acc = *(float *)value;
         break;
-    case ALIGN_TIME:
-        g_Param.align_time = *(float *)value;
+    case TRAJ_MAX_JERK:
+        g_Param.traj_max_jerk = *(float *)value;
         break;
-    case OPEN_LOOP_CURRENT:
-        g_Param.open_loop_current = *(float *)value;
+    case TRAJ_TOLERANCE:
+        g_Param.tolerance = *(float *)value;
         break;
-    case OPEN_LOOP_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.open_loop_omega = rpm_to_rad(temp);
-        break;
-    case CHANGE_LOOP_SPEED:
-        memcpy(&temp, value, 4);
-        g_Param.change_loop_omega = rpm_to_rad(temp);
     default:
-        Param_write_foc();
         break;
     }
+    fParamWriteFOC();
 }
 
-void Param_get(Parameter_e para, u8 *value, u8 *len)
+void fParamGet(eParameter para, u8 *value, u8 *len)
 {
     float temp = 0;
     switch (para)
     {
     // u8类型参数
-    case FOC_MODE:
-        *(u8 *)value = g_Param.foc_mode;
+    case SENSOR_MODE:
+        *(u8 *)value = g_Param.sensor_mode;
         *len = sizeof(u8);
         break;
     case LOOP_MODE:
-        *(u8 *)value = g_Param.loop_mode;
+        *(u8 *)value = g_Param.run_mode;
         *len = sizeof(u8);
         break;
-    case SW_CANQUEUE:
+    case CAN_MODE:
         *(u8 *)value = g_Param.sw_canqueue;
         *len = sizeof(u8);
         break;
-    case SW_WEAKMAG:
+    case WEAKMAG_MODE:
         *(u8 *)value = g_Param.sw_weakmag;
         *len = sizeof(u8);
         break;
-    case SW_FAN:
-        *(u8 *)value = g_Param.sw_fan;
-        *len = sizeof(u8);
-        break;
-    case SW_VAGUE_PID:
+    case VAGUE_PID_MODE:
         *(u8 *)value = g_Param.sw_vague_pid;
         *len = sizeof(u8);
         break;
-    case SW_PVT:
+    case PVT_MODE:
         *(u8 *)value = g_Param.sw_pvt;
+        *len = sizeof(u8);
+        break;
+    case TRAJ_TYPE:
+        *(u8 *)value = g_Param.traj_type;
         *len = sizeof(u8);
         break;
 
@@ -248,8 +235,7 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case THETA_OFFSET:
-        temp = rad_to_deg(g_Param.theta_offset);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.theta_offset;
         *len = sizeof(float);
         break;
     case MOTOR_RS:
@@ -317,18 +303,15 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
     case LIMIT_SPEED:
-        temp = rad_to_rpm(g_Param.limit_omega);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_omega;
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_min:
-        temp = rad_to_deg(g_Param.limit_position_min);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_position_min;
         *len = sizeof(float);
         break;
     case LIMIT_POSITION_max:
-        temp = rad_to_deg(g_Param.limit_position_max);
-        memcpy(value, &temp, 4);
+        *(float *)value = g_Param.limit_position_max;
         *len = sizeof(float);
         break;
     case TOLERANCE_TIME:
@@ -352,31 +335,20 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         *len = sizeof(float);
         break;
 
-    case STARTUP_ACC:
-        temp = rad_to_rpm(g_Param.startup_acc);
-        memcpy(value, &temp, 4);
+    case TRAJ_MAX_RATE:
+        *(float *)value = g_Param.traj_max_rate;
         *len = sizeof(float);
         break;
-    case ALIGN_CURRENT:
-        *(float *)value = g_Param.align_current;
+    case TRAJ_MAX_ACC:
+        *(float *)value = g_Param.traj_max_acc;
         *len = sizeof(float);
         break;
-    case ALIGN_TIME:
-        *(float *)value = g_Param.align_time;
+    case TRAJ_MAX_JERK:
+        *(float *)value = g_Param.traj_max_jerk;
         *len = sizeof(float);
         break;
-    case OPEN_LOOP_CURRENT:
-        *(float *)value = g_Param.open_loop_current;
-        *len = sizeof(float);
-        break;
-    case OPEN_LOOP_SPEED:
-        temp = rad_to_rpm(g_Param.open_loop_omega);
-        memcpy(value, &temp, 4);
-        *len = sizeof(float);
-        break;
-    case CHANGE_LOOP_SPEED:
-        temp = rad_to_rpm(g_Param.change_loop_omega);
-        memcpy(value, &temp, 4);
+    case TRAJ_TOLERANCE:
+        *(float *)value = g_Param.tolerance;
         *len = sizeof(float);
         break;
 
@@ -385,18 +357,18 @@ void Param_get(Parameter_e para, u8 *value, u8 *len)
         break;
     }
 }
-bool Param_read_flash()
+bool _ParamReadFlash()
 {
-    return FLASH_Read_data((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    return fFLASH_ReadData((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
-bool Param_write_flash()
+bool fParamSave()
 {
-    FLASH_erase_sector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
-    return FLASH_Write_Word((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    fFLASH_EraseSector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    return fFLASH_WriteWord((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
-bool Param_init()
+bool fParamInit()
 {
-    if (Param_read_flash() == false)
+    if (_ParamReadFlash() == false)
         return false;
     if (g_Param.none_flag != 0x01)
     { // flash中没有参数，初始化参数
@@ -405,11 +377,11 @@ bool Param_init()
         // 初始化u8类型参数
         g_Param.sw_canqueue = 0;  // CAN队列开关
         g_Param.sw_weakmag = 0;   // 弱磁开关
-        g_Param.sw_fan = 0;       // 风扇
         g_Param.sw_vague_pid = 0; // 模糊PID
         g_Param.sw_pvt = 0;       // PVT模式
-        g_Param.foc_mode = 0;     // 运行模式
-        g_Param.loop_mode = 0;    // 环模式
+        g_Param.traj_type = 0;    // 轨迹类型
+        g_Param.sensor_mode = 0;  // 运行模式
+        g_Param.run_mode = 0;     // 环模式
 
         g_Param.motor_wire_sequence = 0; // 电机线圈顺序
         g_Param.motor_polepairs = 14;    // 电机转子对数
@@ -445,40 +417,33 @@ bool Param_init()
         g_Param.ki_position = 0.05f;  // 位置环积分系数
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
-        g_Param.limit_current = 30.0f;                       // 电流限幅 50A
-        g_Param.limit_omega = rpm_to_rad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
-        g_Param.limit_position_min = deg_to_rad(-100000.0f); // 最小位置限制 -10000度 (弧度)
-        g_Param.limit_position_max = deg_to_rad(100000.0f);  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;                       // 容忍时间 0.1秒
-        g_Param.tolerance_voltage = 1.2f;                    // 电压容忍度 1.2
-        g_Param.tolerance_current = 1.1f;                    // 电流容忍度 1.1
-        g_Param.tolerance_speed = 1.1f;                      // 速度容忍度 1.1
-        g_Param.tolerance_position = 1.1f;                   // 位置容忍度 1.1
+        g_Param.limit_current = 30.0f;                      // 电流限幅 50A
+        g_Param.limit_omega = fRpmToRad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
+        g_Param.limit_position_min = fDegToRad(-100000.0f); // 最小位置限制 -10000度 (弧度)
+        g_Param.limit_position_max = fDegToRad(100000.0f);  // 最大位置限制 10000度 (弧度)
+        g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1秒
+        g_Param.tolerance_voltage = 1.2f;                   // 电压容忍度 1.2
+        g_Param.tolerance_current = 1.1f;                   // 电流容忍度 1.1
+        g_Param.tolerance_speed = 1.1f;                     // 速度容忍度 1.1
+        g_Param.tolerance_position = 1.1f;                  // 位置容忍度 1.1
 
-        g_Param.startup_acc = rpm_to_rad(1000.0f);      // 启动加速度 1000 RPM/秒
-        g_Param.align_current = 2.0f;                   // 对齐电流 5A
-        g_Param.align_time = 0.5f;                      // 对齐时间 0.5秒
-        g_Param.open_loop_current = 1.0f;               // 开环电流 5A
-        g_Param.open_loop_omega = rpm_to_rad(150.0f);   // 开环速度 150 RPM (弧度/秒)
-        g_Param.change_loop_omega = rpm_to_rad(100.0f); // 切环速度 100 RPM (弧度/秒) (弧度/秒)
+        g_Param.traj_max_rate = 100.0f; // 最大变化率
+        g_Param.traj_max_acc = 50.0f;   // 最大加速度
+        g_Param.traj_max_jerk = 200.f;  // 最大加加速度
+        g_Param.tolerance = 0.01f;      // 容差
     }
     return true;
 }
 
-bool Param_save()
+void fParamErase()
 {
-    return Param_write_flash();
-}
-
-void Param_erase()
-{
-    Erase_one_Sector(PARAMETER_LOAD_ADDr);
+    fEraseOneSector(PARAMETER_LOAD_ADDr);
 }
 // 写入FOC
-void Param_write_foc()
+void fParamWriteFOC()
 {
     // 带参数写入的全部初始化
-    protection_manager_init();
-    CAN_SET_ID_QUEUE(g_Param.can_id, g_Param.sw_canqueue);
+    fProManagerInit();
+    fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
     fFOC_Init();
 }

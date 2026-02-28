@@ -1,5 +1,5 @@
-#ifndef ENCODER_H
-#define ENCODER_H
+#ifndef __ENCODER_H
+#define __ENCODER_H
 
 #include "main.h"
 #include "device.h"
@@ -10,10 +10,10 @@ typedef enum
     ENCODER_STATE_WAIT_HIGH,   // 等待高位完成
     ENCODER_STATE_WAIT_LOW,    // 等待低位完成
     ENCODER_STATE_PROCESS_DATA // 处理数据
-} ENCODER_STATE_DMA;
+} eEncoderState_DMA;
 typedef struct
 {
-    ENCODER_STATE_DMA state;
+    eEncoderState_DMA state;
     float angle_abs; // 弧度值
     float angle_last;
     float angle_inc; // 角度增量值rad
@@ -22,15 +22,7 @@ typedef struct
     u32 last_time; // 上次读取时间
     u32 time_T;    // 周期
     int num_turns; // 转数
-} ENCODER_t;
-
-// 全局变量
-static u16 reg03_cmd = 0x83ff;
-static u16 reg03_data = 0; // 高位寄存器数据
-static u16 reg04_cmd = 0x84ff;
-static u16 reg04_data = 0; // 低位寄存器数据
-static uint32_t transfer_start_time = 0;
-static const uint32_t TRANSFER_TIMEOUT_MS = 2; // 2ms超时
+} tEncoder;
 
 #if ENcoder == 1 // MT6816
 // MT6816 寄存器地址定义
@@ -46,9 +38,9 @@ static const uint32_t TRANSFER_TIMEOUT_MS = 2; // 2ms超时
 
 // 函数声明
 
-void ENCODER_MainLoopTask();
-float GET_ENCODER_ANGLE_ABS();
-float GET_ENCODER_ANGLE_INC();
-float GET_ENCODER_OMEGA();
+void fEncoderMainLoopTask();
+float fGetEncoderAngle_ABS();
+float fGetEncoderAngle_INC();
+float fGetEncoderOmega();
 
-#endif // ENCODER_H
+#endif // __ENCODER_H

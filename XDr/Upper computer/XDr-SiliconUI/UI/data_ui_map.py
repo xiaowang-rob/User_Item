@@ -110,12 +110,11 @@ class Didx:
     CURRENT_q_ref      = 16
     CURRENT_d_ref      = 17
     SPEED              = 18
-    SPEED_con          = 19
-    SPEED_ref          = 20
-    THETA_elec         = 21
-    THETA_mech         = 22
-    POSITION           = 23
-    POSITION_ref       = 24
+    SPEED_ref          = 19
+    THETA_elec         = 20
+    THETA_mech         = 21
+    POSITION           = 22
+    POSITION_ref       = 23
 
 
 # ============================
@@ -160,7 +159,7 @@ class Sidx:
 class Midx:
     sensor_mode        = ["开环", "有感（编码反馈）", "无感（HFI+SMO）","融合（编码+SMO）"]
     run_mode           = [ "电流模式", "速度模式", "位置模式"]
-    target_value       = ["q轴电压/V","q轴电流/A","速度/rpm","位置/°"]
+    target_value       = ["拖动电流/A","速度/rpm","位置/°"]
     can_mode           = ["实时处理", "队列处理"]
     weakmag_mode       = ["禁用", "启动"]
     vague_PID_mode     = ["禁用", "启动"]
@@ -194,8 +193,8 @@ class Midx:
         "NONE",
         "温度", "Vbus", "VOL_U", "VOL_V", "VOL_W", "VOL_q", "VOL_d",
         "CUR_U", "CUR_V", "CUR_W", "CUR_q", "CUR_d", "CUR_q_ref", "CUR_d_ref",
-        "SPE", "SPE_con", "SPE_ref", "THE_elec", "THE_mech",
-        "POS", "POS_con", "POS_ref"
+        "SPE", "SPE_ref", "THE_elec", "THE_mech",
+        "POS", "POS_ref"
     ]
 
 

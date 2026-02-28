@@ -1,120 +1,51 @@
+/**
+ ******************************************************************************
+ * @file    rgb.c
+ * @brief   RGB LED驱动模块实现文件
+ * @details 实现WS2812B LED驱动和普通LED控制功能
+ *          包括呼吸灯效果、颜色设置和状态显示
+ ******************************************************************************
+ * @note
+ * - WS2812B使用PWM+DMA方式驱动，需要精确的时序控制
+ * - 呼吸灯效果基于256点正弦表实现
+ * - 支持单个和多个LED的颜色设置
+ ******************************************************************************
+ */
+
 #include "rgb.h"
 #include "tim.h"
 #include "stdlib.h"
 #include "device.h"
 #include "math_fast.h"
 
-/*Some Static Colors------------------------------*/
-const RGB_Color_TypeDef RED = {255, 0, 0};       // 红色
-const RGB_Color_TypeDef GREEN = {0, 255, 0};     // 绿色
-const RGB_Color_TypeDef BLUE = {0, 0, 255};      // 深蓝色
-const RGB_Color_TypeDef SKY = {0, 255, 255};     // 天蓝色
-const RGB_Color_TypeDef MAGENTA = {255, 0, 220}; // 粉色
-const RGB_Color_TypeDef YELLOW = {128, 216, 0};  // 黄色
-const RGB_Color_TypeDef OEANGE = {127, 106, 0};  // 橘色
-const RGB_Color_TypeDef BLACK = {0, 0, 0};       // 无颜色
-const RGB_Color_TypeDef WHITE = {255, 255, 255}; // 白色
+/* 预定义颜色常量定义 -------------------------------------------------------*/
 
-// 将好看的颜色封装成数组，便于集中管理和访问
-RGB_Color_TypeDef table[16] =
-    {
-        {254, 67, 101},
-        {76, 0, 10},
-        {249, 15, 173},
-        {128, 0, 32},
-        {158, 46, 36},
-        {184, 206, 142},
-        {227, 23, 13},
-        {178, 34, 34},
-        {255, 99, 71},
-        {99, 38, 18},
-        {255, 97, 0},
-        {21, 161, 201},
-        {56, 94, 15},
-        {50, 205, 50},
-        {160, 32, 240},
-        {218, 60, 90}};
-// 这些是好看的颜色
-const RGB_Color_TypeDef color1 = {254, 67, 101};
-// const RGB_Color_TypeDef color2 = {76,0,10};
-// const RGB_Color_TypeDef color3 = {249,15,173};
-// const RGB_Color_TypeDef color4 = {128,0,32};
-// const RGB_Color_TypeDef color5 = {158,46,36};
-// const RGB_Color_TypeDef color6 = {184,206,142};
-// const RGB_Color_TypeDef color7 = {227,23,13};
-// const RGB_Color_TypeDef color8 = {178,34,34};
-// const RGB_Color_TypeDef color9 = {255,99,71};
-// const RGB_Color_TypeDef color10 ={99,38,18};
-// const RGB_Color_TypeDef color11= {255,97,0};
-// const RGB_Color_TypeDef color12= {21,161,201};
-// const RGB_Color_TypeDef color13= {56,94,15};
-// const RGB_Color_TypeDef color14= {50,205,50};
-// const RGB_Color_TypeDef color15= {160,32,240};
-// const RGB_Color_TypeDef color16= {218,60,90};
+const tRGBColor RED = {255, 0, 0};       ///< 红色
+const tRGBColor GREEN = {0, 255, 0};     ///< 绿色
+const tRGBColor BLUE = {0, 0, 255};      ///< 深蓝色
+const tRGBColor SKY = {0, 255, 255};     ///< 天蓝色
+const tRGBColor MAGENTA = {255, 0, 220}; ///< 粉色
+const tRGBColor YELLOW = {128, 216, 0};  ///< 黄色
+const tRGBColor ORANGE = {127, 106, 0};  ///< 橙色
+const tRGBColor BLACK = {0, 0, 0};       ///< 无颜色
+const tRGBColor WHITE = {255, 255, 255}; ///< 白色
 
-/*二维数组存放最终PWM输出数组，每一行24个数据代表一个LED，最后一行24个0用于复位*/
-u32 Pixel_Buf[Pixel_NUM + 1][24];
+/* 全局变量定义 -----------------------------------------------------------*/
 
-/*
-功能：最后一行装在24个0，输出24个周期占空比为0的PWM波，作为最后reset延时，这里总时长为24*1.25=37.5us > 24us(要求大于24us)
-//如果出现无法复位的情况，只需要在增加数组Pixel_Buf[Pixel_NUM+1][24]的行数，并改写Reset_Load即可，这里不做演示了，
-*/
-static void Reset_Load(void)
-{
-    u8 i;
-    for (i = 0; i < 24; i++)
-    {
-        Pixel_Buf[Pixel_NUM][i] = 0;
-    }
-}
+/**
+ * @brief  PWM输出缓冲区
+ * @note   二维数组，每一行24个数据代表一个LED的24位颜色数据
+ *         最后一行24个0用于复位信号，保证>24us的低电平复位时间
+ *         [LED数量+1][24] - 额外一行用于复位信号
+ */
+u32 rgb_pixel_buf[Pixel_NUM + 1][24];
 
-/*
-功能：发送数组Pixel_Buf[Pixel_NUM+1][24]内的数据，发送的数据被存储到定时器1通道1的CCR寄存器，用于控制PWM占空比
-参数：(&htim1)定时器1，(TIM_CHANNEL_1)通道1，((u32 *)Pixel_Buf)待发送数组，
-            (Pixel_NUM+1)*24)发送个数，数组行列相乘
-*/
-static void RGB_SendArray(void)
-{
-    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
-    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL2, (u32 *)Pixel_Buf, (Pixel_NUM + 1) * 24);
-}
-
-/*
-功能：设定单个RGB LED的颜色，把结构体中RGB的24BIT转换为0码和1码
-参数：LedId为LED序号，Color：定义的颜色结构体
-*/
-// 刷新WS2812B灯板显示函数
-static void RGB_Flush(void)
-{
-    Reset_Load();    // 复位
-    RGB_SendArray(); // 发送数据
-}
-
-void RGB_SetOne_Color(u8 LedId, RGB_Color_TypeDef Color)
-{
-    u8 i;
-    if (LedId > Pixel_NUM)
-        return; // avoid overflow 防止写入ID大于LED总数
-    // 这里是对 Pixel_Buf[LedId][i]写入一个周期内高电平的持续时间（或者说时PWM的占空比寄存器CCR1），
-    for (i = 0; i < 8; i++)
-        Pixel_Buf[LedId][i] = ((Color.G & (1 << (7 - i))) ? (CODE_1) : CODE_0); // 数组某一行0~7转化存放G
-    for (i = 8; i < 16; i++)
-        Pixel_Buf[LedId][i] = ((Color.R & (1 << (15 - i))) ? (CODE_1) : CODE_0); // 数组某一行8~15转化存放R
-    for (i = 16; i < 24; i++)
-        Pixel_Buf[LedId][i] = ((Color.B & (1 << (23 - i))) ? (CODE_1) : CODE_0); // 数组某一行16~23转化存放B
-}
-
-// 调用RGB_SetOne_Color函数，完成对多个LED的颜色设置。
-void RGB_SetMore_Color(u8 head, u8 heal, RGB_Color_TypeDef color)
-{
-    u8 i = 0;
-    for (i = head; i <= heal; i++)
-    {
-        RGB_SetOne_Color(i, color);
-    }
-}
-// 以查表法正弦波显示
-static const u8 sine_table[256] = {
+/**
+ * @brief  正弦波亮度表（256点）
+ * @note   用于呼吸灯效果，预计算的sin(x)值，范围0-255
+ *         对应sin(x)*127.5+127.5，中心值128
+ */
+static const u8 SINE_TABLE[256] = {
     128, 131, 134, 137, 140, 143, 146, 149, 152, 155, 158, 162, 165, 167, 170, 173,
     176, 179, 182, 185, 188, 190, 193, 196, 198, 201, 203, 206, 208, 211, 213, 215,
     218, 220, 222, 224, 226, 228, 230, 232, 234, 235, 237, 238, 240, 241, 243, 244,
@@ -132,132 +63,232 @@ static const u8 sine_table[256] = {
     37, 40, 42, 44, 47, 49, 52, 54, 57, 59, 62, 65, 67, 70, 73, 76,
     79, 82, 85, 88, 90, 93, 97, 100, 103, 106, 109, 112, 115, 118, 121, 124};
 
-#define BREATHE_T_steps 128000 // 呼吸周期步数
-#define INDEX_T_steps BREATHE_T_steps / 256
+static tRGBBreath rgb_breathe_t;    ///< 呼吸灯控制结构体
+static u32 _led_time_zero = 0;      ///< LED状态计时起始时间
+static bool half_time_flag = false; ///< 快速闪烁中间切换标志
 
-static u16 _tic = 0;
-static u8 index = 0;
-static RGB_Color_TypeDef color_temp;
-static RGB_Color_TypeDef color_temp_last;
-void rgb_breathe(RGB_Color_TypeDef Color)
-{
-    // 使用整数计算，避免浮点数精度问题
-    color_temp.R = Color.R == 0 ? 0 : Color.R * sine_table[index] / 255;
-    color_temp.G = Color.G == 0 ? 0 : Color.G * sine_table[index] / 255;
-    color_temp.B = Color.B == 0 ? 0 : Color.B * sine_table[index] / 255;
+/* 静态函数声明 -----------------------------------------------------------*/
+static void fResetLoad(void);
+static void fRGB_SendArray(void);
+static void fRGB_Flush(void);
+static void fRGB_SetOneColor(u8 LedId, tRGBColor Color);
 
-    if (_tic++ >= INDEX_T_steps)
-    {
-        _tic = 0;
-        index++;
-        if (index >= 255)
-            index = 0;
-    }
-    if (color_temp.R != color_temp_last.R || color_temp.G != color_temp_last.G || color_temp.B != color_temp_last.B)
-    { // 设置颜色并刷新
-        color_temp_last = color_temp;
-        RGB_SetMore_Color(0, Pixel_NUM, color_temp);
-        RGB_Flush();
-    }
-}
-#define RGB_ALTERNATE_T_ms 500
-static u32 _time_zero = 0;
-static u8 _color_index = 0;
-static bool _lock = false;
-void rgb_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2)
+/**
+ * @brief  加载复位信号到缓冲区
+ * @note   在缓冲区最后一行填充24个0，产生>24us的低电平复位信号
+ *         WS2812B要求RESET信号 >24us，这里为24*1.25=37.5us
+ */
+static void fResetLoad(void)
 {
-    if (HAL_GetTick() - _time_zero >= RGB_ALTERNATE_T_ms)
+    for (u8 i = 0; i < 24; i++)
     {
-        _lock = false;
-        _color_index++;
-        _time_zero = HAL_GetTick();
-    }
-    if (_color_index == 1 && !_lock)
-    {
-        _lock = true;
-        RGB_SetMore_Color(0, Pixel_NUM, Color1);
-        RGB_Flush(); // 刷新WS2812B的显示
-    }
-    else if (_color_index == 2 && !_lock)
-    {
-        _color_index = 0;
-        _lock = true;
-        RGB_SetMore_Color(0, Pixel_NUM, Color2);
-        RGB_Flush(); // 刷新WS2812B的显示
+        rgb_pixel_buf[Pixel_NUM][i] = 0; // 占空比为0，产生低电平
     }
 }
-void rgb_3_alternate(RGB_Color_TypeDef Color1, RGB_Color_TypeDef Color2, RGB_Color_TypeDef Color3)
-{
-    if (HAL_GetTick() - _time_zero >= RGB_ALTERNATE_T_ms)
-    {
-        _lock = false;
-        _color_index++;
-        _time_zero = HAL_GetTick();
-    }
-    if (_color_index == 1 && !_lock)
-    {
-        _lock = true;
-        RGB_SetMore_Color(0, Pixel_NUM, Color1);
-        RGB_Flush(); // 刷新WS2812B的显示
-    }
-    else if (_color_index == 2 && !_lock)
-    {
-        _lock = true;
-        RGB_SetMore_Color(0, Pixel_NUM, Color2);
-        RGB_Flush(); // 刷新WS2812B的显示
-    }
-    else if (_color_index == 3 && !_lock)
-    {
-        _color_index = 0;
-        _lock = true;
-        RGB_SetMore_Color(0, Pixel_NUM, Color3);
-        RGB_Flush(); // 刷新WS2812B的显示
-    }
-}
-void LED_ENCODER_EN(void)
-{
-    HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);
-}
-void LED_ENCODER_DIS(void)
-{
-    HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_RESET);
-}
-void LED_CAN_EN(void)
-{
-    HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
-}
-void LED_CAN_DIS(void)
-{
-    HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
-}
-#define LED_T_ms 1000
-static u32 _led_time_zero = 0;
-static bool _led_switch = false;
 
-static Drive_state_e can_led_state = 0;
-static Drive_state_e encoder_led_state = 0;
-// 0-灭 1 - 亮 2-闪烁
-// fun-哪个外设
-void led_show(Drive_state_e can_state, Drive_state_e encoder_state)
+/**
+ * @brief  通过DMA发送PWM数据到定时器
+ * @note   发送整个缓冲区数据到定时器的CCR寄存器，控制PWM占空比
+ *         使用双通道同时发送，确保同步性
+ */
+static void fRGB_SendArray(void)
 {
-    if (HAL_GetTick() - _led_time_zero >= LED_T_ms)
+    // 启动DMA传输，将缓冲区数据发送到PWM通道
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1,
+                          (u32 *)rgb_pixel_buf, (Pixel_NUM + 1) * 24);
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL2,
+                          (u32 *)rgb_pixel_buf, (Pixel_NUM + 1) * 24);
+}
+
+/**
+ * @brief  刷新WS2812B显示
+ * @note   先加载复位信号，然后发送所有数据到LED
+ *         必须在设置完所有LED颜色后调用此函数才能更新显示
+ */
+static void fRGB_Flush(void)
+{
+    fResetLoad();     // 加载复位信号
+    fRGB_SendArray(); // 发送数据到LED
+}
+
+/**
+ * @brief  设置单个LED的颜色
+ * @param  LedId: LED序号（0起始）
+ * @param  Color: 要设置的颜色
+ * @note   将24位RGB颜色数据转换为WS2812B的0码和1码时序
+ *         WS2812B数据格式：G7-G0, R7-R0, B7-B0
+ *         每个位对应一个PWM周期的占空比
+ */
+static void fRGB_SetOneColor(u8 LedId, tRGBColor Color)
+{
+    u8 i;
+
+    // 防止数组越界
+    if (LedId > Pixel_NUM)
+        return;
+
+    // 转换绿色分量（8位）到PWM占空比数组
+    // CODE_1和CODE_0定义对应WS2812B的T1H/T0H时间
+    for (i = 0; i < 8; i++)
+        rgb_pixel_buf[LedId][i] = ((Color.G & (1 << (7 - i))) ? (CODE_1) : CODE_0);
+
+    // 转换红色分量（8位）
+    for (i = 8; i < 16; i++)
+        rgb_pixel_buf[LedId][i] = ((Color.R & (1 << (15 - i))) ? (CODE_1) : CODE_0);
+
+    // 转换蓝色分量（8位）
+    for (i = 16; i < 24; i++)
+        rgb_pixel_buf[LedId][i] = ((Color.B & (1 << (23 - i))) ? (CODE_1) : CODE_0);
+}
+
+/**
+ * @brief  设置多个连续LED的颜色
+ * @param  head: 起始LED序号
+ * @param  heal: 结束LED序号
+ * @param  color: 要设置的颜色
+ * @note   循环调用fRGB_SetOneColor设置指定范围内的所有LED
+ */
+void fRGB_SetMoreColor(u8 head, u8 heal, tRGBColor color)
+{
+    u8 i = 0;
+    for (i = head; i <= heal; i++)
     {
-        _led_switch = !_led_switch;
+        fRGB_SetOneColor(i, color);
+    }
+}
+
+/**
+ * @brief  设置呼吸灯效果
+ * @param  Color: 呼吸灯最大亮度时的目标颜色
+ * @note   使用正弦波查表法实现亮度渐变
+ *         每4ms更新一次亮度，减少不必要的刷新
+ *         使用定点数运算提高效率
+ */
+void fRGB_Breathe(tRGBColor Color)
+{
+    // 限制更新频率为4ms一次（约250Hz）
+    if (HAL_GetTick() - rgb_breathe_t.last_time_ms < 10)
+        return;
+    rgb_breathe_t.last_time_ms = HAL_GetTick();
+
+    // 检查是否需要更新目标颜色（仅当颜色实际变化时）
+    if (Color.R != rgb_breathe_t.target_color.R ||
+        Color.G != rgb_breathe_t.target_color.G ||
+        Color.B != rgb_breathe_t.target_color.B)
+    {
+        rgb_breathe_t.target_color = Color;
+    }
+
+    // 从正弦表获取当前亮度值（0-255）
+    // 注意：SINE_TABLE的范围是0-255，但实际亮度曲线是正弦波
+    uint8_t brightness = SINE_TABLE[rgb_breathe_t.sine_index];
+
+    // 计算当前颜色 = 目标颜色 × 亮度 / 255
+    // 使用32位中间变量防止溢出
+    tRGBColor current = {
+        .R = (uint8_t)(((uint32_t)rgb_breathe_t.target_color.R * brightness) / 255),
+        .G = (uint8_t)(((uint32_t)rgb_breathe_t.target_color.G * brightness) / 255),
+        .B = (uint8_t)(((uint32_t)rgb_breathe_t.target_color.B * brightness) / 255)};
+
+    // 仅当颜色实际变化时才刷新LED（优化性能）
+    if (current.R != rgb_breathe_t.last_output.R ||
+        current.G != rgb_breathe_t.last_output.G ||
+        current.B != rgb_breathe_t.last_output.B)
+    {
+        fRGB_SetOneColor(0, current);        // 设置第0个LED
+        fRGB_Flush();                        // 刷新显示
+        rgb_breathe_t.last_output = current; // 保存当前输出
+    }
+
+    // 更新正弦索引（循环0-255）
+    rgb_breathe_t.sine_index = (rgb_breathe_t.sine_index + 1) & 0xFF;
+}
+
+/**
+ * @brief  翻转编码器LED引脚状态
+ * @note   用于实现LED闪烁效果
+ */
+void fLED_EncoderTogglePin(void)
+{
+    HAL_GPIO_TogglePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN);
+}
+
+/**
+ * @brief  翻转CAN LED引脚状态
+ * @note   用于实现LED闪烁效果
+ */
+void fLED_CanTogglePin(void)
+{
+    HAL_GPIO_TogglePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN);
+}
+
+/**
+ * @brief  LED状态显示函数
+ * @param  can_led_state: CAN通信LED状态
+ * @param  encoder_led_state: 编码器LED状态
+ * @note   根据状态控制LED显示模式：
+ *         - 常亮/常灭：直接设置GPIO
+ *         - 慢速闪烁：1秒周期翻转
+ *         - 快速闪烁：0.5秒周期翻转，需要中间切换点
+ *         使用定时器控制，保证精确的闪烁周期
+ */
+void fLED_Show(eLED_State can_led_state, eLED_State encoder_led_state)
+{
+    // 主计时：达到慢速闪烁周期（1秒）时执行
+    if (HAL_GetTick() - _led_time_zero >= LED_SLOW_BLINK_T_ms)
+    {
+        // 处理CAN LED状态
+        switch (can_led_state)
+        {
+        case LED_OFF:
+            HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
+            break;
+        case LED_ON:
+            HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
+            break;
+        case LED_SLOW_BLINK:
+            fLED_CanTogglePin(); // 1秒翻转一次
+            break;
+        case LED_FAST_BLINK:
+            fLED_CanTogglePin(); // 这里也会翻转，结合下面的中间切换实现0.5秒周期
+            break;
+        default:
+            break;
+        }
+
+        // 处理编码器LED状态
+        switch (encoder_led_state)
+        {
+        case LED_OFF:
+            HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_RESET);
+            break;
+        case LED_ON:
+            HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);
+            break;
+        case LED_SLOW_BLINK:
+            fLED_EncoderTogglePin(); // 1秒翻转一次
+            break;
+        case LED_FAST_BLINK:
+            fLED_EncoderTogglePin(); // 这里也会翻转
+            break;
+        default:
+            break;
+        }
+
+        // 重置计时器和中间切换标志
         _led_time_zero = HAL_GetTick();
+        half_time_flag = false;
     }
 
-    if (_led_switch)
+    // 中间计时：达到快速闪烁半周期（0.5秒）时执行
+    if (HAL_GetTick() - _led_time_zero >= LED_FAST_BLINK_T_ms && !half_time_flag)
     {
-        if (can_state != OFFLINE)
-            LED_CAN_EN();
-        if (encoder_state != OFFLINE)
-            LED_ENCODER_EN();
-    }
-    else
-    {
-        if (can_state != RUN_ERROR)
-            LED_CAN_DIS();
-        if (encoder_state != RUN_ERROR)
-            LED_ENCODER_DIS();
+        // 快速闪烁需要中间再翻转一次，实现0.5秒周期
+        if (encoder_led_state == LED_FAST_BLINK)
+            fLED_EncoderTogglePin();
+        if (can_led_state == LED_FAST_BLINK)
+            fLED_CanTogglePin();
+
+        half_time_flag = true; // 设置标志，防止半周期内重复执行
     }
 }

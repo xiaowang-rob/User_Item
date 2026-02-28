@@ -9,13 +9,13 @@
 
 typedef enum
 {
-    FOC_MODE,     // 运行模式
-    LOOP_MODE,    // 环路模式
-    SW_CANQUEUE,  // CAN队列开关
-    SW_WEAKMAG,   // 弱磁开关
-    SW_FAN,       // 风扇
-    SW_VAGUE_PID, // 模糊PID
-    SW_PVT,       // PVT 模式
+    SENSOR_MODE,    // 感应模式
+    LOOP_MODE,      // 环路模式
+    CAN_MODE,       // CAN 0-实时 1-队列
+    WEAKMAG_MODE,   // 弱磁 模式
+    VAGUE_PID_MODE, // 模糊PID
+    PVT_MODE,       // PVT 模式
+    TRAJ_TYPE,      // 轨迹规划类型
 
     MOTOR_WIRE_SEQUENCE, // 电机线圈顺序 0-正线 1-反线
     MOTOR_POLEPAIRS,     // 电机转子对数
@@ -61,15 +61,13 @@ typedef enum
     TOLERANCE_SPEED,    // 速度容忍度
     TOLERANCE_POSITION, // 位置容忍度
 
-    STARTUP_ACC,       // 启动速度斜率
-    ALIGN_CURRENT,     // 对齐电流
-    ALIGN_TIME,        // 对齐时间
-    OPEN_LOOP_CURRENT, // 开环电流
-    OPEN_LOOP_SPEED,   // 开环速度
-    CHANGE_LOOP_SPEED, // 切环速度
+    TRAJ_MAX_RATE,  // 轨迹规划最大变化率
+    TRAJ_MAX_ACC,   // 轨迹规划最大加速度
+    TRAJ_MAX_JERK,  // 轨迹规划最大加加速度
+    TRAJ_TOLERANCE, // 轨迹规划容差
 
     COUNT_PARAM
-} Parameter_e;
+} eParameter;
 
 typedef struct
 {
@@ -77,11 +75,12 @@ typedef struct
     u8 none_flag;
     u8 sw_canqueue;
     u8 sw_weakmag;
-    u8 sw_fan;
     u8 sw_vague_pid;
     u8 sw_pvt;
-    u8 foc_mode;
-    u8 loop_mode;
+    u8 traj_type;
+    u8 sensor_mode;
+    u8 run_mode;
+
     u8 motor_wire_sequence; // 电机线圈顺序 0-正线 1-反线
     u8 motor_polepairs;
 
@@ -122,21 +121,20 @@ typedef struct
     float tolerance_current;
     float tolerance_speed;
     float tolerance_position;
-    float startup_acc; // 启动加速度
-    float align_current;
-    float align_time;
-    float open_loop_current;
-    float open_loop_omega;
-    float change_loop_omega;
-} Parameter_t;
 
-extern Parameter_t g_Param;
+    float traj_max_rate;
+    float traj_max_acc;
+    float traj_max_jerk;
+    float tolerance;
+} tParameter;
 
-void Param_set(Parameter_e para, u8 *value);
-void Param_get(Parameter_e para, u8 *value, u8 *len);
-bool Param_save();      // 一键保存
-void Param_erase();     // 一键擦除
-void Param_write_foc(); // 一键写入
-bool Param_init();
+extern tParameter g_Param;
+
+void fParamSet(eParameter para, u8 *value);
+void fParamGet(eParameter para, u8 *value, u8 *len);
+bool fParamSave();     // 一键保存
+void fParamErase();    // 一键擦除
+void fParamWriteFOC(); // 一键写入
+bool fParamInit();
 
 #endif // __PARAMETER_MANAGER_H__

@@ -56,8 +56,9 @@ tTraj_Out fTraj_Update(float dt)
 
     /* === 2. 刹车距离计算 (rate² / 2a) === */
     float rate_abs = traj_abs(traj_state.rate);
-    float stop_dist = (traj_cfg.max_acc > TRAJ_EPSILON) ? (rate_abs * rate_abs) / (2.0f * traj_cfg.max_acc) : 0.0f;
-
+    float stop_dist = (traj_cfg.max_acc > TRAJ_EPSILON)
+                          ? (rate_abs * rate_abs) / (2.0f * traj_cfg.max_acc)
+                          : 0.0f;
     /* === 3. 计算允许的最大变化率 === */
     float rate_limit;
     if (dist <= stop_dist)
@@ -97,7 +98,7 @@ tTraj_Out fTraj_Update(float dt)
         float accel_err = target_accel - traj_state.accel;
         float max_accel_step = traj_cfg.max_jerk * dt;
 
-        float accel_step = (traj_abs(accel_err) > max_accel_step) ? traj_sign(accel_err) * max_accel_step : accel_step;
+        float accel_step = (traj_abs(accel_err) > max_accel_step) ? traj_sign(accel_err) * max_accel_step : accel_err;
 
         traj_state.accel += accel_step;
         traj_state.rate += traj_state.accel * dt;

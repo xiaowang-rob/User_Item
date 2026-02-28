@@ -120,12 +120,13 @@ class QuickBut:
     def send_val_ref(self):
         idx=Midx.target_value.index(self.target_show.text())
         match idx:
-            case 0|1:#电流电压环
+            case 0:#电流环
                 value=float(self.target_val_input.text())
-            case 2:#速度环
+            case 1:#速度环
                 value=self.rpm_to_rad( float(self.target_val_input.text()))
-            case 3|4:#位置环
+            case 2:#位置环
                 value=self.deg_to_rad( float(self.target_val_input.text()))
+                print(self.target_val_input.text(),value)
         val_ref= struct.pack('<f', value)
         self.com.send_packet(Cidx.CMD_REFVALUE_SET, val_ref)
     def rpm_to_rad(self, rpm):

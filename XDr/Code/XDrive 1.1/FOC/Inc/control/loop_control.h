@@ -4,73 +4,61 @@
 #include "main.h"
 #include "stdbool.h"
 #include "parameter_manager.h"
+
+// 频率分频控制（实现电流/速度/位置环分层更新）
 typedef struct
 {
     u8 tic;
     u8 current_steps;
     u8 speed_steps;
-    u8 current_updata_steps;
-    u8 speed_updata_steps;
-    u8 position_updata_steps;
-    bool current_updata;
-    bool speed_updata;
-    bool position_updata;
-    float Tcur;
-    float Tspd;
-    float Tpos;
+    u8 current_update_steps; // 修正拼写：updata → update
+    u8 speed_update_steps;
+    u8 position_update_steps;
+    bool current_update;
+    bool speed_update;
+    bool position_update;
+    float Tcur; // 电流环周期
+    float Tspd; // 速度环周期
+    float Tpos; // 位置环周期
+} tFrequencyDivision;
 
-} f_Division_t;
+// PI控制器
 typedef struct
 {
-    float kp;
-    float ki;
+    float kp, ki;
     u8 enable_integral;
-    float integral;
-    float integral_limit;
-    float output_limit;
-    float output;
-} PI_t;
+    float integral, integral_limit;
+    float output_limit, output;
+} tPI;
+
+// PID控制器（含微分滤波）
 typedef struct
 {
-    float kp;
-    float ki;
-    float kd;
+    float kp, ki, kd;
     u8 enable_integral;
-    float last_error;
-    float integral;
-    float integral_limit;
-    float derivative;
-    float last_derivative;
-    float derivative_limit;
-    float derivative_filter;
-    float output_limit;
-    float output;
-} PID_t;
+    float last_error, integral, integral_limit;
+    float derivative, last_derivative, derivative_limit, derivative_filter;
+    float output_limit, output;
+} tPID;
+
 typedef struct
 {
-    f_Division_t fd;
-    PI_t PI_iq;
-    PI_t PI_id;
-    PI_t PI_weakmag;
-    PI_t PI_speed;
-    PID_t PID_pos;
+    tFrequencyDivision fd;
+    tPI PI_iq, PI_id, PI_weakmag, PI_speed;
+    tPID PID_pos;
     float max_Vs;
-    float position_min;
-    float position_max;
-} LOOP_CON_t;
-extern LOOP_CON_t g_loop_con;
+    float position_min, position_max;
+} tLoopControl;
 
-void Frequency_division_update();
-void loop_parameter_init(Parameter_t param, float Vmax);
-void loop_reset();
-float Current_loop(float current_ref, float current_fb);
-float Magnetic_loop(float id_ref, float id_fb);
-float WeakMag_loop(float ud, float uq);
-float Speed_loop(float omega_ref, float omega_fb);
-float Position_abs_loop(float position_ref, float position_fb);
-float Position_rel_loop(float position_ref, float position_fb);
-void POS_LOOP_set_omega(float omega);
+extern tLoopControl loop_con;
 
-LOOP_CON_t *get_loop_con_adr();
+void fFrequencyDivisionUpdate(void);                 // 更新分频计数器和各环更新标志
+void fLoopControlInit(tParameter param, float Vmax); // 环路参数初始化
+void fLoopReset(void);                               // 重置所有控制器状态
+float fCurrentLoopUpdate(float ref, float fb);       // q轴电流环
+float fMagLoopUpdate(float ref, float fb);           // d轴磁链环
+float fWeakMagLoopUpdate(float ud, float uq);        // 弱磁控制
+float fSpeedLoopUpdate(float ref, float fb);         // 速度环
+float fPositionRelLoopUpdate(float ref, float fb);   // 相对位置环（带限幅）
 
 #endif

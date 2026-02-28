@@ -2,7 +2,6 @@
 #include "tim.h"
 #include "math_fast.h"
 #include "parameter_manager.h"
-#include "sim_motor.h"
 #include "encoder.h"
 
 FOC_t g_foc = {0};
@@ -12,9 +11,6 @@ u32 _time_focit_start = 0;
 u32 _time_focit_end = 0;
 u32 _time_focit_run = 0;
 u32 _time_foc_T = 0;
-
-u32 _time_curadc_zero = 0;
-u32 _time_curadc_T = 0;
 
 #endif
 
@@ -35,7 +31,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             _time_focit_start = HAL_GetTick_us();
 
 #endif
-            FOC_StateMachine_updata();
+            fFOC_StateMachineMainLoop();
 #ifdef __DEBUG__
             _time_foc_T = HAL_GetTick_us() - _time_focit_end;
             _time_focit_end = HAL_GetTick_us();
@@ -45,24 +41,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         }
     }
 }
-
+// FOC 主初始化函数
 void fFOC_Init()
 {
     g_foc.state = FOC_IDLE;
-    g_foc.mode = FOC_GET_MODE_adr();
-    g_foc.val = FOC_GET_VAL_adr();
-    g_foc.startup_mechine = FOC_GET_STARTUP_adr();
-    g_foc.g_loop_con = get_loop_con_adr();
-    g_foc.smo = get_smo_adr();
-    g_foc.tun = get_tuning_adr();
-    g_foc.svpwm = get_svpwm_adr();
-    g_foc.motor = get_motor_adr();
-    foc_core_init();
+    g_foc.core = &foc_core;
+    g_foc.loop_con = &loop_con;
+    g_foc.smo = &smo;
+    g_foc.tun = &tun;
+    g_foc.svpwm = &svpwm;
+    fFOC_CoreInit();
 }
-
-void FOC_StateMachine_updata()
+// FOC 主循环函数
+void fFOC_StateMachineMainLoop()
 {
-    FOC_PREPARE();
+    fFOC_ValueUpdate();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -73,39 +66,33 @@ void FOC_StateMachine_updata()
             ENABLE_PWM();
             g_foc.foc_enable = true;
         }
-        if (auto_calibration_update())
-            FOC_CHANGE_STATE(FOC_DISABLE);
-        FOC_RUN();
+        if (fAutoCalibrationUpdate())
+            fFOC_StateUpdate(FOC_DISABLE);
+        fFOC_MainLoopTask();
         break;
     case FOC_RESET:
-        foc_core_reset();
-        FOC_CHANGE_STATE(FOC_IDLE);
+        fFOC_CoreReset();
+        fFOC_StateUpdate(FOC_IDLE);
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
+        fFOC_CoreReset();
         ENABLE_PWM();
-        FOC_CHANGE_STATE(FOC_RUNNING);
+        fFOC_StateUpdate(FOC_RUNNING);
         break;
     case FOC_DISABLE:
         g_foc.foc_enable = false;
         DISABLE_PWM();
-        FOC_CHANGE_STATE(FOC_RESET);
+        fFOC_StateUpdate(FOC_RESET);
         break;
     case FOC_RUNNING:
-        FOC_RUN();
+        fFOC_MainLoopTask();
         break;
     case FOC_SHUTDOWN:
-        if (SHUTDOWM())
-            FOC_CHANGE_STATE(FOC_WARNING);
+        if (fFOC_Shutdown())
+            fFOC_StateUpdate(FOC_FAULT);
         break;
     case FOC_FAULT:
-        if (g_foc.foc_enable)
-        {
-            g_foc.foc_enable = false;
-            DISABLE_PWM();
-        }
-        break;
-    case FOC_WARNING:
         if (g_foc.foc_enable)
         {
             g_foc.foc_enable = false;
@@ -115,9 +102,11 @@ void FOC_StateMachine_updata()
     default:
         break;
     }
-    ENCODER_MainLoopTask();
 }
-void FOC_CHANGE_STATE(FOC_STATE_e state)
+// FOC 状态更新函数
+void fFOC_StateUpdate(eFOC_Status state)
 {
+    if (g_foc.state == FOC_FAULT && state != FOC_IDLE)
+        return;
     g_foc.state = state;
 }

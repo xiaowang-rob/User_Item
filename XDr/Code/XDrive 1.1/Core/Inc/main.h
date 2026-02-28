@@ -33,6 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "stdbool.h"
 #define __DEBUG__
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
