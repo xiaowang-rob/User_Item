@@ -3,7 +3,7 @@
 <title>Static Call Graph - [XDrive\XDrive.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image XDrive\XDrive.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Sat Feb 28 17:06:40 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Mon Mar  2 10:13:06 2026
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -939,6 +939,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 </UL>
 <BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetCurrentMode
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFLASH_Init
 </UL>
 
@@ -973,12 +974,12 @@ Global Symbols
 
 <P><STRONG><a name="[c1]"></a>HAL_GetTick</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f4xx_hal.o(.text.HAL_GetTick))
 <BR><BR>[Called By]<UL><LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
-<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CAN_Init
 <LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Init
 <LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_OscConfig
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick_us
+<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[19b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_stream_data_trans
 <LI><a href="#[119]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_TransmitReceive
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Receive
@@ -2657,7 +2658,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[1c4]"></a>fCurrentLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fCurrentLoopUpdate))
+<P><STRONG><a name="[1c5]"></a>fCurrentLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fCurrentLoopUpdate))
 <BR><BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_MainLoopTask
 </UL>
 
@@ -2699,8 +2700,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 144 + In Cycle
 <LI>Call Chain = fFLASH_Init &rArr;  fFLASH_Init (Cycle)
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
-<LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
+<BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
+<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[118]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Receive
 <LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFLASH_Init
@@ -2735,8 +2736,7 @@ Global Symbols
 <P><STRONG><a name="[1a5]"></a>fFOC_CoreInit</STRONG> (Thumb, 368 bytes, Stack size 168 bytes, foc_core.o(.text.fFOC_CoreInit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = fFOC_CoreInit &rArr; fLoopControlInit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSvpwmInit
+<BR>[Calls]<UL><LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSvpwmInit
 <LI><a href="#[1b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLoopControlInit
 <LI><a href="#[1b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fAdcGetVoltage
 <LI><a href="#[1b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamTuneReset
@@ -2745,6 +2745,7 @@ Global Symbols
 <LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSMO_Reset
 <LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLoopReset
 <LI><a href="#[1ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Init
+<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
 <LI><a href="#[1a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fAutoCalibrationUpdate
@@ -2753,10 +2754,10 @@ Global Symbols
 <P><STRONG><a name="[1be]"></a>fFOC_CoreReset</STRONG> (Thumb, 68 bytes, Stack size 8 bytes, foc_core.o(.text.fFOC_CoreReset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = fFOC_CoreReset &rArr; fSMO_Reset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Reset
+<BR>[Calls]<UL><LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Reset
 <LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSMO_Reset
 <LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLoopReset
+<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_StateMachineMainLoop
 </UL>
@@ -2771,18 +2772,18 @@ Global Symbols
 <LI><a href="#[18b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSet
 </UL>
 
-<P><STRONG><a name="[1bf]"></a>fFOC_MainLoopTask</STRONG> (Thumb, 644 bytes, Stack size 32 bytes, foc_core.o(.text.fFOC_MainLoopTask))
+<P><STRONG><a name="[1bf]"></a>fFOC_MainLoopTask</STRONG> (Thumb, 444 bytes, Stack size 32 bytes, foc_core.o(.text.fFOC_MainLoopTask))
 <BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = fFOC_MainLoopTask &rArr; fSvpwmRun &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSamplePointCalibration
 <LI><a href="#[1c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSvpwmRun
 <LI><a href="#[1c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fNormalizeAngle02pi
-<LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fPositionRelLoopUpdate
-<LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fWeakMagLoopUpdate
-<LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSpeedLoopUpdate
+<LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fPositionRelLoopUpdate
+<LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fWeakMagLoopUpdate
+<LI><a href="#[1c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSpeedLoopUpdate
 <LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Update
-<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fMagLoopUpdate
-<LI><a href="#[1c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fCurrentLoopUpdate
+<LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fMagLoopUpdate
+<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fCurrentLoopUpdate
 <LI><a href="#[1c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fInvParkTransform
 </UL>
 <BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_StateMachineMainLoop
@@ -2800,10 +2801,10 @@ Global Symbols
 <P><STRONG><a name="[1ca]"></a>fFOC_SetSensorMode</STRONG> (Thumb, 100 bytes, Stack size 16 bytes, foc_core.o(.text.fFOC_SetSensorMode))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = fFOC_SetSensorMode &rArr; fSMO_Reset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Reset
+<BR>[Calls]<UL><LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_Reset
 <LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSMO_Reset
 <LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLoopReset
+<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamTuneUpdate
 </UL>
@@ -2825,8 +2826,8 @@ Global Symbols
 <P><STRONG><a name="[1cd]"></a>fFOC_Shutdown</STRONG> (Thumb, 104 bytes, Stack size 24 bytes, foc_core.o(.text.fFOC_Shutdown))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = fFOC_Shutdown
 </UL>
-<BR>[Calls]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
-<LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_SetTarget
+<BR>[Calls]<UL><LI><a href="#[1cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fTraj_SetTarget
+<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_StateMachineMainLoop
 </UL>
@@ -2987,7 +2988,7 @@ Global Symbols
 <LI><a href="#[1ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_SetSensorMode
 </UL>
 
-<P><STRONG><a name="[1c5]"></a>fMagLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fMagLoopUpdate))
+<P><STRONG><a name="[1c6]"></a>fMagLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fMagLoopUpdate))
 <BR><BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_MainLoopTask
 </UL>
 
@@ -3080,7 +3081,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_ValueUpdate
 </UL>
 
-<P><STRONG><a name="[1c6]"></a>fPositionRelLoopUpdate</STRONG> (Thumb, 290 bytes, Stack size 0 bytes, loop_control.o(.text.fPositionRelLoopUpdate))
+<P><STRONG><a name="[1c2]"></a>fPositionRelLoopUpdate</STRONG> (Thumb, 290 bytes, Stack size 0 bytes, loop_control.o(.text.fPositionRelLoopUpdate))
 <BR><BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_MainLoopTask
 </UL>
 
@@ -3130,8 +3131,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[12d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_Start_DMA
-<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 <LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fRGB_SetOneColor
+<LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSystemFaultFeedback
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fStatusFeedbackMainLoop
@@ -3207,7 +3208,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamTuneUpdate
 </UL>
 
-<P><STRONG><a name="[1c2]"></a>fSpeedLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fSpeedLoopUpdate))
+<P><STRONG><a name="[1c3]"></a>fSpeedLoopUpdate</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, loop_control.o(.text.fSpeedLoopUpdate))
 <BR><BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_MainLoopTask
 </UL>
 
@@ -3375,16 +3376,17 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[19b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_stream_data_trans
 </UL>
 
-<P><STRONG><a name="[1c3]"></a>fWeakMagLoopUpdate</STRONG> (Thumb, 188 bytes, Stack size 0 bytes, loop_control.o(.text.fWeakMagLoopUpdate))
+<P><STRONG><a name="[1c4]"></a>fWeakMagLoopUpdate</STRONG> (Thumb, 188 bytes, Stack size 0 bytes, loop_control.o(.text.fWeakMagLoopUpdate))
 <BR><BR>[Called By]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_MainLoopTask
 </UL>
 
-<P><STRONG><a name="[6e]"></a>main</STRONG> (Thumb, 90 bytes, Stack size 0 bytes, main.o(.text.main))
+<P><STRONG><a name="[6e]"></a>main</STRONG> (Thumb, 118 bytes, Stack size 0 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 288<LI>Call Chain = main &rArr; SystemStateMachine_MainLoop &rArr; fCommunicateMainLoop &rArr; fCAN_QueueData_deal &rArr; fCAN_RxDataCallback &rArr; _frame_data_deal &rArr; fParamSet &rArr; fFOC_Init &rArr; fFOC_CoreInit &rArr; fLoopControlInit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick_us
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_MainLoop
 <LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USB_DEVICE_Init
+<LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM8_Init
 <LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USART1_UART_Init
 <LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_SPI3_Init

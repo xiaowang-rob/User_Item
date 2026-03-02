@@ -125,7 +125,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=409,-779,667,-191,0)(1012=135,-911,612,-596,0)</Name>
+          <Name>(1010=232,152,682,709,0)(1007=-1,-1,-1,-1,0)(1008=688,357,1064,593,0)(1009=409,-779,667,-191,0)(1012=135,-911,612,-596,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -204,6 +204,26 @@
           <count>10</count>
           <WinNumber>1</WinNumber>
           <ItemText>g_Param,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>SCB</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>uwTick</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>SCB-&gt;VTOR</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>SysTick</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

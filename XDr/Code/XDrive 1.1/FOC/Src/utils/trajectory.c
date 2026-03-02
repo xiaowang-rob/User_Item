@@ -28,7 +28,7 @@ void fTraj_Reset(float current_value)
 void fTraj_SetTarget(float target)
 {
     traj_state.target = target;
-    float err = traj_abs(target - traj_state.current);
+    float err = FABSF(target - traj_state.current);
     traj_state.busy = (err > TRAJ_TOL_DEFAULT);
 }
 
@@ -51,11 +51,11 @@ tTraj_Out fTraj_Update(float dt)
 
     /* === 1. 误差计算 === */
     float error = traj_state.target - traj_state.current;
-    float dist = traj_abs(error);
-    float dir = traj_sign(error);
+    float dist = FABSF(error);
+    float dir = FSIGN(error);
 
     /* === 2. 刹车距离计算 (rate² / 2a) === */
-    float rate_abs = traj_abs(traj_state.rate);
+    float rate_abs = FABSF(traj_state.rate);
     float stop_dist = (traj_cfg.max_acc > TRAJ_EPSILON) ? (rate_abs * rate_abs) / (2.0f * traj_cfg.max_acc) : 0.0f;
 
     /* === 3. 计算允许的最大变化率 === */
@@ -79,7 +79,7 @@ tTraj_Out fTraj_Update(float dt)
         float max_rate_step = traj_cfg.max_acc * dt;
 
         /* 变化率斜坡 (分支消除) */
-        float rate_step = (traj_abs(rate_diff) > max_rate_step) ? traj_sign(rate_diff) * max_rate_step : rate_diff;
+        float rate_step = (FABSF(rate_diff) > max_rate_step) ? FSIGN(rate_diff) * max_rate_step : rate_diff;
 
         traj_state.rate += rate_step;
     }
@@ -91,13 +91,13 @@ tTraj_Out fTraj_Update(float dt)
 
         /* 目标加速度 */
         float target_accel = (dt > TRAJ_EPSILON) ? (rate_err / dt) : 0.0f;
-        target_accel = traj_clamp(target_accel, -traj_cfg.max_acc, traj_cfg.max_acc);
+        target_accel = CLAMP(target_accel, -traj_cfg.max_acc, traj_cfg.max_acc);
 
         /* Jerk 限制 */
         float accel_err = target_accel - traj_state.accel;
         float max_accel_step = traj_cfg.max_jerk * dt;
 
-        float accel_step = (traj_abs(accel_err) > max_accel_step) ? traj_sign(accel_err) * max_accel_step : accel_step;
+        float accel_step = (FABSF(accel_err) > max_accel_step) ? FSIGN(accel_err) * max_accel_step : accel_step;
 
         traj_state.accel += accel_step;
         traj_state.rate += traj_state.accel * dt;
@@ -112,7 +112,7 @@ tTraj_Out fTraj_Update(float dt)
 
     /* === 7. 到达判断 === */
     float tol = (traj_cfg.tolerance > 0.0f) ? traj_cfg.tolerance : TRAJ_TOL_DEFAULT;
-    bool done = (dist <= tol) && (traj_abs(traj_state.rate) <= tol);
+    bool done = (dist <= tol) && (FABSF(traj_state.rate) <= tol);
 
     if (done)
     {

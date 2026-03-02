@@ -183,7 +183,7 @@ void fFOC_ValueUpdate(void)
         fEncoderMainLoopTask(); // 编码器主循环
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs - Motor.offset_angle;
-        foc_val.theta_elec = Motor.Wire_sequence * fNormalizeAngle02pi(foc_val.theta_elec);
+        foc_val.theta_elec = Motor.Wire_sequence * fNormalizeAngle_0_2pi(foc_val.theta_elec);
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.omega_fb = fGetEncoderOmega();
@@ -213,7 +213,7 @@ void fFOC_MainLoopTask(void)
     if (foc_mode.OPEN_LOOP_enable)
     {
         foc_val.theta_openloop += foc_val.omega_openloop * Tcon;
-        foc_val.theta_openloop = fNormalizeAngle02pi(foc_val.theta_openloop);
+        foc_val.theta_openloop = fNormalizeAngle_0_2pi(foc_val.theta_openloop);
         foc_val.theta_elec = foc_val.theta_openloop;
     }
     switch (foc_mode.sensor_mode)
@@ -227,6 +227,7 @@ void fFOC_MainLoopTask(void)
                 weak_mag_loop_run();
         case CURRENT_MODE:
             current_loop_run();
+            voltage_control();
         case POSITION_MODE:
             position_loop_run();
             speed_loop_run();

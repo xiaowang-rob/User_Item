@@ -81,7 +81,12 @@ int main(void)
   /* USER CODE BEGIN 1 */
 //  SCB->CPACR |= (3UL << 20) | (3UL << 22); // Enable CP10 and CP11 for full access
 //  __DSB();                                 // 数据同步屏障
-//  __ISB();                                 // 指令同步屏障
+//  __ISB();   	// 指令同步屏障
+	
+	  /* 告诉 CPU，中断向量表不在 0x08000000，而在 0x08004000 */
+  /* 0x08004000 是你的 App 起始地址，需与 CubeMX 设置一致 */
+  SCB->VTOR = FLASH_BASE | 0x4000;
+	__enable_irq(); //bl中关闭了全局中断
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -111,6 +116,8 @@ int main(void)
   MX_SPI3_Init();
   MX_USART1_UART_Init();
   MX_TIM8_Init();
+	u32 scb_vtor=SCB->VTOR ;
+	HAL_Delay(3);
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 

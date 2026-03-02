@@ -23,7 +23,7 @@ void _trajectory_init(tParameter param)
     traj_cfg.max_jerk = param.traj_max_jerk;
     traj_cfg.tolerance = param.tolerance;
     traj_cfg.type = param.traj_type;
-		fTraj_Init(traj_cfg);
+    fTraj_Init(traj_cfg);
 }
 
 // 模式初始化
@@ -228,6 +228,8 @@ void fFOC_MainLoopTask(void)
                 weak_mag_loop_run();
         case CURRENT_MODE:
             current_loop_run();
+            voltage_control();
+            break;
         case POSITION_MODE:
             position_loop_run();
             speed_loop_run();

@@ -67,22 +67,6 @@ void fSMO_Reset()
     smo.startup_gain = 0.0f;
 }
 
-float clampf(float value, float min, float max)
-{
-    if (value < min)
-        return min;
-    if (value > max)
-        return max;
-    return value;
-}
-float normalize_angle_pi_pi(float angle)
-{
-    while (angle > MATH_PI)
-        angle -= MATH_2PI;
-    while (angle < -MATH_PI)
-        angle += MATH_2PI;
-    return angle;
-}
 void fSMO_MainLoop(float v_alpha, float v_beta,
                    float i_alpha, float i_beta)
 {
@@ -115,7 +99,7 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
 
     // ✅ 阶段2：渐进式启动（增益从0逐渐增加）
     smo.startup_gain += 0.001f; // 每50μs增加0.001，约50ms达到满增益
-    smo.startup_gain = clampf(smo.startup_gain, 0.0f, 1.0f);
+    smo.startup_gain = CLAMP(smo.startup_gain, 0.0f, 1.0f);
 
     float current_gain = smo.startup_gain;
     float observer_gain = current_gain * (1.0f / (smo.Ls + smo.Rs * smo.dt));
@@ -127,8 +111,8 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     float i_beta_error = i_beta - smo.i_beta_hat;
 
     // 电流误差限幅（防止大误差导致饱和）
-    i_alpha_error = clampf(i_alpha_error, -2.0f, 2.0f); // ±2A限幅
-    i_beta_error = clampf(i_beta_error, -2.0f, 2.0f);
+    i_alpha_error = CLAMP(i_alpha_error, -2.0f, 2.0f); // ±2A限幅
+    i_beta_error = CLAMP(i_beta_error, -2.0f, 2.0f);
 
     // ✅ 关键：使用PI型观测器，而不是纯积分器
     static float integrator_alpha = 0.0f;
@@ -143,8 +127,8 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     integrator_beta += observer_gain * (-smo.e_beta) * smo.dt;
 
     // 积分器限幅
-    integrator_alpha = clampf(integrator_alpha, -INTEGRATOR_LIMIT, INTEGRATOR_LIMIT);
-    integrator_beta = clampf(integrator_beta, -INTEGRATOR_LIMIT, INTEGRATOR_LIMIT);
+    integrator_alpha = CLAMP(integrator_alpha, -INTEGRATOR_LIMIT, INTEGRATOR_LIMIT);
+    integrator_beta = CLAMP(integrator_beta, -INTEGRATOR_LIMIT, INTEGRATOR_LIMIT);
 
     // 估算电流更新
     float di_alpha_hat = (prop_alpha + integrator_alpha) * smo.dt;
@@ -154,8 +138,8 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     smo.i_beta_hat += di_beta_hat;
 
     // 严格限幅估算电流
-    smo.i_alpha_hat = clampf(smo.i_alpha_hat, -MAX_CURRENT_EST, MAX_CURRENT_EST);
-    smo.i_beta_hat = clampf(smo.i_beta_hat, -MAX_CURRENT_EST, MAX_CURRENT_EST);
+    smo.i_alpha_hat = CLAMP(smo.i_alpha_hat, -MAX_CURRENT_EST, MAX_CURRENT_EST);
+    smo.i_beta_hat = CLAMP(smo.i_beta_hat, -MAX_CURRENT_EST, MAX_CURRENT_EST);
 
     // ✅ 阶段4：改进的滑模控制
     float normalized_alpha_error = i_alpha_error / (MAX_CURRENT_EST + 1e-6);
@@ -170,19 +154,19 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     smo.e_beta = current_gain * smo.k_sl * sign_beta;
 
     // 限幅反电动势
-    smo.e_alpha = clampf(smo.e_alpha, -10.0f, 10.0f);
-    smo.e_beta = clampf(smo.e_beta, -10.0f, 10.0f);
+    smo.e_alpha = CLAMP(smo.e_alpha, -10.0f, 10.0f);
+    smo.e_beta = CLAMP(smo.e_beta, -10.0f, 10.0f);
 
     // ✅ 阶段5：鲁棒滤波器
     float fc = 100.0f * current_gain + 50.0f; // 从50Hz逐渐增加到150Hz
     float alpha = 1.0f - expf(-MATH_2PI * fc * smo.dt);
-    alpha = clampf(alpha, 0.01f, 0.99f);
+    alpha = CLAMP(alpha, 0.01f, 0.99f);
 
     smo.e_alpha_filtered = (1.0f - alpha) * smo.e_alpha_filtered + alpha * smo.e_alpha;
     smo.e_beta_filtered = (1.0f - alpha) * smo.e_beta_filtered + alpha * smo.e_beta;
 
     // ✅ 阶段6：角度和速度计算（保持您已修正的版本）
-    if (fabsf(smo.e_alpha_filtered) < 0.1f && fabsf(smo.e_beta_filtered) < 0.1f)
+    if (FABSF(smo.e_alpha_filtered) < 0.1f && FABSF(smo.e_beta_filtered) < 0.1f)
     {
         // 低速时使用开环估计
         static float open_loop_omega = 0.0f;
@@ -200,11 +184,11 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
         smo.theta += 0.5f * diff; // 50%融合
     }
 
-    smo.theta = fNormalizeAngle02pi(smo.theta);
+    smo.theta = fNormalizeAngle_0_2pi(smo.theta);
 
-    float angle_diff = normalize_angle_pi_pi(smo.theta - smo.theta_prev);
+    float angle_diff = fNormalizeAngle_pi_pi(smo.theta - smo.theta_prev);
     float speed_raw = angle_diff / smo.dt;
-    speed_raw = clampf(speed_raw, -smo.max_omega, smo.max_omega);
+    speed_raw = CLAMP(speed_raw, -smo.max_omega, smo.max_omega);
 
     float speed_alpha = 0.1f + 0.4f * current_gain; // 从0.1逐渐增加到0.5
     smo.omega = (1.0f - speed_alpha) * smo.omega + speed_alpha * speed_raw;
@@ -303,7 +287,7 @@ static bool param_tune_Rs(float v_alpha, float i_alpha)
 
     static float prev_i_alpha = 0.0f;
 
-    if (fabsf(i_alpha - prev_i_alpha) < 0.3f)
+    if (FABSF(i_alpha - prev_i_alpha) < 0.3f)
     {
         tun.tune_samples++;
     }
@@ -424,7 +408,7 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
         {
             float avg_di_dt_alpha_pos = tun.sum_di_dt_alpha_pos / tun.alpha_pos_count;
             float avg_di_dt_alpha_neg = tun.sum_di_dt_alpha_neg / tun.alpha_neg_count;
-            float avg_di_dt_alpha = (fabsf(avg_di_dt_alpha_pos) + fabsf(avg_di_dt_alpha_neg)) / 2.0f;
+            float avg_di_dt_alpha = (FABSF(avg_di_dt_alpha_pos) + FABSF(avg_di_dt_alpha_neg)) / 2.0f;
             Ls_alpha = Ls_inject_u / avg_di_dt_alpha;
         }
 
@@ -434,7 +418,7 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
         {
             float avg_di_dt_beta_pos = tun.sum_di_dt_beta_pos / tun.beta_pos_count;
             float avg_di_dt_beta_neg = tun.sum_di_dt_beta_neg / tun.beta_neg_count;
-            float avg_di_dt_beta = (fabsf(avg_di_dt_beta_pos) + fabsf(avg_di_dt_beta_neg)) / 2.0f;
+            float avg_di_dt_beta = (FABSF(avg_di_dt_beta_pos) + FABSF(avg_di_dt_beta_neg)) / 2.0f;
             Ls_beta = Ls_inject_u / avg_di_dt_beta;
         }
 
@@ -445,7 +429,7 @@ static bool param_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_be
             smo.Ls = (Ls_alpha + Ls_beta) / 2.0f;
 
             // 一致性检查：如果差异过大，可能是电机问题
-            if (fabsf(Ls_alpha - Ls_beta) > 0.3f * smo.Ls)
+            if (FABSF(Ls_alpha - Ls_beta) > 0.3f * smo.Ls)
             {
                 // 差异>30%，记录警告但不报错（可用于诊断）
                 tun.fault_flag = true;
@@ -489,8 +473,8 @@ static bool param_tune_pole_pairs(float omega_mech)
     static float omega_smo_last = 0;
     static float pole_pairs = 0;
     tun.tune_samples++;
-    omega_mech = fabsf(omega_mech);
-    smo.omega = fabsf(smo.omega);
+    omega_mech = FABSF(omega_mech);
+    smo.omega = FABSF(smo.omega);
     if ((omega_mech - tun.omega_mech_prev) < 0.1f && (smo.omega - omega_smo_last) < 0.1f)
     {
         tun.steady_samples++;
@@ -531,9 +515,10 @@ static bool param_tune_Psi_f(float omega_mech)
 {
     float speed_electrical = omega_mech * smo.pole_pairs;
 
-    float e_mag = sqrtf(smo.e_alpha_filtered * smo.e_alpha_filtered + smo.e_beta_filtered * smo.e_beta_filtered);
+    float e_mag;
+    arm_sqrt_f32(smo.e_alpha_filtered * smo.e_alpha_filtered + smo.e_beta_filtered * smo.e_beta_filtered, &e_mag);
 
-    if (fabsf(e_mag) > 0.5f && fabsf(speed_electrical) > 100.0f)
+    if (FABSF(e_mag) > 0.5f && FABSF(speed_electrical) > 100.0f)
         tun.tune_samples++;
     else
         tun.tune_samples = 0;
@@ -541,7 +526,7 @@ static bool param_tune_Psi_f(float omega_mech)
     if (tun.tune_samples >= PK_samples - 100)
     {
         tun.sum_e_mag += e_mag;
-        tun.sum_speed += fabsf(speed_electrical);
+        tun.sum_speed += FABSF(speed_electrical);
     }
     else
     {
@@ -577,16 +562,16 @@ static bool param_tune_JB(float omega_mech, float iq)
 {
     float accel = (omega_mech - tun.omega_mech_prev) / smo.dt;
     // 从2rad/s开始采样
-    if (fabsf(omega_mech) < 2.0f)
+    if (FABSF(omega_mech) < 2.0f)
         return false;
     tun.tune_samples++;
     tun.sum_accel += accel;
     tun.sum_iq += iq;
-    if (tun.tune_samples > 100 || fabsf(omega_mech - PK_omega_mech) < 1.f)
+    if (tun.tune_samples > 100 || FABSF(omega_mech - PK_omega_mech) < 1.f)
     {
         float avg_accel = tun.sum_accel / tun.tune_samples;
         float avg_torque = tun.sum_iq * smo.Ke / tun.tune_samples;
-        if (fabsf(avg_accel) < 5.0f)
+        if (FABSF(avg_accel) < 5.0f)
         {
             smo.J = 0.001f;
         }
@@ -606,7 +591,7 @@ static bool param_tune_JB(float omega_mech, float iq)
                 tun.fault_state = PARAM_TUNE_JB;
             }
         }
-        if (fabsf(accel) < 1.0f && fabsf(omega_mech) > 5.0f)
+        if (FABSF(accel) < 1.0f && FABSF(omega_mech) > 5.0f)
         {
             smo.B = (avg_torque - smo.J * 0.1f) / omega_mech;
             if (smo.B < 0.0001f)
@@ -682,14 +667,14 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         2. 不能转 线序不对 尝试反线序
         3. 反转 线序不对 尝试增大uq
         */
-        if (fabsf(foc_value.omega_fb - omega_last) > 0.5f)
+        if (FABSF(foc_value.omega_fb - omega_last) > 0.5f)
         { // 非稳态
             omega_last = foc_value.omega_fb;
             tun.tune_samples = 0;
             return tun.tune_state;
         }
         // 条件判断
-        if (fabsf(foc_value.omega_fb) < 0.5f)
+        if (FABSF(foc_value.omega_fb) < 0.5f)
         {
             tun.steady_samples = 0;
             tun.tune_samples++;
@@ -796,7 +781,7 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         break;
     case PARAM_TUNE_POLE_PAIRS:
         // 控制
-        if (fabsf(foc_value.theta_mech - tun.omega_mech_prev) > 2.f)
+        if (FABSF(foc_value.theta_mech - tun.omega_mech_prev) > 2.f)
             return tun.tune_state;
         // 稳态点采样
         if (param_tune_pole_pairs(foc_value.omega_fb))
@@ -813,7 +798,7 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
     case PARAM_TUNE_PK:
         // 控制
         // 等速度稳定
-        if (fabsf(foc_value.theta_mech - tun.omega_mech_prev) > 1.f)
+        if (FABSF(foc_value.theta_mech - tun.omega_mech_prev) > 1.f)
             return tun.tune_state;
         // 超时监测
         tun.time_tic++;
@@ -839,7 +824,7 @@ eParameterTuneStatus fParamTuneUpdate(tFOC_val foc_value)
         // 等待速度降0
         if (!tun.start_smp_flag)
         {
-            if (fabsf(foc_value.omega_fb) < 0.1f)
+            if (FABSF(foc_value.omega_fb) < 0.1f)
                 tun.start_smp_flag = true;
             return tun.tune_state;
         }

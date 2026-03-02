@@ -1,115 +1,66 @@
+import scipy.signal as signal
 import numpy as np
 
-def svpwm_inverter_terminal_voltages(ud_cmd, uq_cmd, theta_e, Vdc):
+def calculate_butterworth_coeffs(fc, fs, order=2):
     """
-    输入 ud, uq, 电角度, 母线电压，
-    输出：
-      - 实际施加的 ud, uq（考虑限幅）
-      - 相电压（对中性点）
-      - 逆变器端对地电压 va, vb, vc
-      - SVPWM 扇区（1~6）
-    """
-    # 1. Park 反变换: dq -> αβ
-    cos_t = np.cos(theta_e)
-    sin_t = np.sin(theta_e)
+    计算巴特沃斯低通滤波器系数，适配 CMSIS-DSP arm_biquad_cascade_df1_f32
     
-    u_alpha_cmd = cos_t * ud_cmd - sin_t * uq_cmd
-    u_beta_cmd  = sin_t * ud_cmd + cos_t * uq_cmd
+    参数:
+    fc: 截止频率 (Hz)
+    fs: 采样频率 (Hz)
+    order: 滤波器阶数 (建议 2)
+    """
+    # 1. 设计滤波器
+    # nyq = 0.5 * fs
+    # normal_cutoff = fc / nyq
+    # b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
+    
+    # 使用双线性变换法直接计算数字滤波器系数
+    b, a = signal.butter(order, fc, fs=fs, btype='low')
+    
+    print(f"--- 滤波器参数 ---")
+    print(f"截止频率：{fc} Hz")
+    print(f"采样频率：{fs} Hz")
+    print(f"阶数：{order}")
+    print(f"分子系数 (b): {b}")
+    print(f"分母系数 (a): {a}")
+    
+    # 2. 转换为 CMSIS-DSP 格式
+    # CMSIS 结构体 pCoeffs 布局为：{b0, b1, b2, a1, a2}
+    # 注意：CMSIS 内部计算是减法： - a1 * y[n-1] - a2 * y[n-2]
+    # scipy 输出的 a 是 [1, a1, a2]，对应 y + a1*y[-1] + a2*y[-2] = ...
+    # 所以传入 CMSIS 的 a1, a2 应该是 scipy 输出的 a[1], a[2] (保持正号，库函数内部会减)
+    # 但为了保险，我们检查 CMSIS 文档：
+    # arm_biquad_cascade_df1_f32 implements: 
+    # y[n] = b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] - a1 * y[n-1] - a2 * y[n-2]
+    # scipy 传递函数： H(z) = (b0 + b1 z^-1 + b2 z^-2) / (1 + a1 z^-1 + a2 z^-2)
+    # 对比可知：CMSIS 的 a1 对应 scipy 的 a[1]，CMSIS 的 a2 对应 scipy 的 a[2]。
+    # 直接填入即可，库函数内部有负号。
+    
+    cmsis_coeffs = []
+    # 2 阶滤波器只有一个二阶节 (numStages = 1)
+    # 系数数组长度 = 5 * numStages = 5
+    cmsis_coeffs.append(b[0])
+    cmsis_coeffs.append(b[1])
+    cmsis_coeffs.append(b[2])
+    cmsis_coeffs.append(a[1])  # 注意：这里直接填 a[1]，库函数内部做减法
+    cmsis_coeffs.append(a[2])  # 注意：这里直接填 a[2]，库函数内部做减法
+    
+    print(f"\n--- C 代码数组初始化 ---")
+    print(f"float32_t hfi_speed_coeffs[5] = {{")
+    print(f"    {cmsis_coeffs[0]:.10f}f,  // b0")
+    print(f"    {cmsis_coeffs[1]:.10f}f,  // b1")
+    print(f"    {cmsis_coeffs[2]:.10f}f,  // b2")
+    print(f"    {cmsis_coeffs[3]:.10f}f,  // a1")
+    print(f"    {cmsis_coeffs[4]:.10f}f   // a2")
+    print(f"}};")
+    
+    return cmsis_coeffs
 
-    # 2. 限幅（SVPWM 线性区最大幅值）
-    U_cmd = np.sqrt(u_alpha_cmd**2 + u_beta_cmd**2)
-    U_max = Vdc / np.sqrt(3)  # 线性调制上限
-
-    if U_cmd > U_max:
-        scale = U_max / U_cmd
-        u_alpha = u_alpha_cmd * scale
-        u_beta  = u_beta_cmd  * scale
-        # 反推实际 ud, uq
-        ud_actual = cos_t * u_alpha + sin_t * u_beta
-        uq_actual = -sin_t * u_alpha + cos_t * u_beta
-    else:
-        u_alpha = u_alpha_cmd
-        u_beta  = u_beta_cmd
-        ud_actual = ud_cmd
-        uq_actual = uq_cmd
-
-    # 3. 计算扇区（基于限幅后的 u_alpha, u_beta）
-    # 定义三个判别式
-    A = u_beta
-    B = np.sqrt(3)/2 * u_alpha - 0.5 * u_beta
-    C = -np.sqrt(3)/2 * u_alpha - 0.5 * u_beta
-
-    print(f"A={A:.2f}, B={B:.2f}, C={C:.2f}")
-    # 判断正负（>0 为 True -> 1，否则 0）
-    a = 1 if A > 0 else 0
-    b = 1 if B > 0 else 0
-    c = 1 if C > 0 else 0
-
-    # 组合成三位二进制数（注意顺序：CBA 或 ABC？）
-    # 标准查表法使用 N = 4*c + 2*b + a
-    N = c * 4 + b * 2 + a
-
-    # 扇区映射表（N -> sector）
-    sector_map = {
-        1: 2,
-        2: 6,
-        3: 1,
-        4: 4,
-        5: 3,
-        6: 5,
-        7: 1  # 理论上不会出现，但防止数值误差
-    }
-
-    # 特殊情况：电压矢量为零（原点）
-    if U_cmd == 0:
-        sector = 0  # 或设为1，但通常零矢量不区分扇区
-    else:
-        sector = sector_map.get(N, 1)  # 默认扇区1
-
-    print(f"{u_alpha:.2f}, {u_beta:.2f} -> {N} -> {sector}")
-    # 4. Clarke 反变换: αβ -> abc (相电压，对中性点)
-    ua = u_alpha
-    ub = -0.5 * u_alpha + (np.sqrt(3)/2) * u_beta
-    uc = -0.5 * u_alpha - (np.sqrt(3)/2) * u_beta
-
-    print(f"ua={ua:.2f}, ub={ub:.2f}, uc={uc:.2f}")
-    # 5. 逆变器端对地电压（对母线负端）
-    v_cm = Vdc / 2.0
-    va = ua + v_cm
-    vb = ub + v_cm
-    vc = uc + v_cm
-
-    return {
-        'ud_actual': ud_actual,
-        'uq_actual': uq_actual,
-        'ua_neutral': ua,
-        'ub_neutral': ub,
-        'uc_neutral': uc,
-        'va_terminal': va,   # 你要的：电机端子对母线负电压
-        'vb_terminal': vb,
-        'vc_terminal': vc,
-        'u_alpha': u_alpha,
-        'u_beta': u_beta,
-        'sector': sector,    # SVPWM 扇区 (1~6)
-        'voltage_magnitude': np.sqrt(u_alpha**2 + u_beta**2),
-        'is_saturated': U_cmd > U_max,
-        'common_mode_voltage': v_cm
-    }
-
-# 示例测试
+# ================= 使用示例 =================
 if __name__ == "__main__":
-    Vdc = 24.0
-    theta = 1.67970896
-    ud_in = 0.0
-    uq_in = 2       # 纯 q 轴，应在扇区1附近
-
-    res = svpwm_inverter_terminal_voltages(ud_in, uq_in, theta, Vdc)
-
-    print("=== SVPWM 输出结果 ===")
-    print(f"指令: ud={ud_in:.2f}, uq={uq_in:.2f}, θ={np.degrees(theta):.1f}°")
-    print(f"实际: ud={res['ud_actual']:.2f}, uq={res['uq_actual']:.2f}")
-    print(f"αβ 电压: uα={res['u_alpha']:.2f}, uβ={res['u_beta']:.2f}")
-    print(f"扇区: {res['sector']}")  # 👈 新增
-    print(f"端电压: va={res['va_terminal']:.2f} V, vb={res['vb_terminal']:.2f} V, vc={res['vc_terminal']:.2f} V")
-    print(f"是否饱和: {res['is_saturated']}")
-    print(f"电压幅值: {res['voltage_magnitude']:.2f} V (max={Vdc/np.sqrt(3):.2f} V)")
+    # 根据你的实际系统修改这里
+    CONTROL_FREQ = 10000.0  # 控制中断频率 10kHz
+    CUT_OFF_FREQ = 50.0     # 速度滤波截止频率 50Hz
+    
+    calculate_butterworth_coeffs(CUT_OFF_FREQ, CONTROL_FREQ, order=2)

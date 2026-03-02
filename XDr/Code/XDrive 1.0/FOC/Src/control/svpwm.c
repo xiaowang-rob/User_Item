@@ -19,7 +19,7 @@ void fSvpwmInit(float Vbus)
 
     svpwm.k = MATH_SQRT3 * (float)ticpwm / Vbus;
 }
-void inline pwm_out()
+__STATIC_INLINE void pwm_out()
 {
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticu);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, svpwm.ticv);

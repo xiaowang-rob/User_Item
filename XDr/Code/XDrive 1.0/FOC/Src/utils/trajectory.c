@@ -62,7 +62,7 @@ tTraj_Out fTraj_Update(float dt)
     /* === 3. 计算允许的最大变化率 === */
     float rate_limit;
     if (dist <= stop_dist)
-    {
+    { 
         /* 减速段：使用 ARM 优化 sqrt */
         arm_sqrt_f32(2.0f * traj_cfg.max_acc * dist, &rate_limit);
     }

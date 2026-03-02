@@ -46,22 +46,6 @@ typedef struct
     uint8_t reserved[3];
 } tTraj_Out;
 
-/* === 内联优化函数 (保持你的命名) === */
-__STATIC_FORCEINLINE float traj_abs(float x)
-{
-    return __builtin_fabsf(x);
-}
-
-__STATIC_FORCEINLINE float traj_sign(float x)
-{
-    return (x > 0.0f) - (x < 0.0f); // 分支消除
-}
-
-__STATIC_FORCEINLINE float traj_clamp(float x, float min, float max)
-{
-    return (x < min) ? min : ((x > max) ? max : x);
-}
-
 /* === 核心 API (保持你的函数签名) === */
 void fTraj_Init(tTraj_Config cfg);
 void fTraj_Reset(float current_value);

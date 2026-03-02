@@ -16,6 +16,17 @@ from UI.data_ui_map import Cidx
 HEAD = 0x3A  # 协议包头 ':'
 FOOT = 0x0D  # 协议包尾 '\r'
 
+# ============ 设备配置 (直接写在这里或从 JSON 读取) ============
+DEVICE_CONFIG = {
+    'vendor_id': '0483',
+    'devices': {
+        '5741': {'name': 'XDr-P', 'full_name': 'X motor Drive Power'},
+        '5742': {'name': 'XDr-S', 'full_name': 'X motor Drive Standard'},
+        '5740': {'name': 'XDr-bl', 'full_name': 'XDr Bootloader'},
+    }
+}
+# =============================================================
+
 
 class ComPort(QObject):
     """串口通信模块"""
@@ -32,6 +43,7 @@ class ComPort(QObject):
         self.serial_port = None
         self.is_connected = False
         self._current_ports = []
+        self._port_devices = []
         self.HEADER = HEAD
         self.FOOTER = FOOT
         
@@ -65,7 +77,7 @@ class ComPort(QObject):
             self.disconnect()
 
     def _update_ui_state(self):
-        """根据连接状态更新UI"""
+        """根据连接状态更新 UI"""
         btn = self.connect_but
         if self.is_connected:
             btn.setText("已连接")
@@ -84,20 +96,68 @@ class ComPort(QObject):
             self.comport_list.setEnabled(True)
 
     def _refresh_ports(self):
-        """刷新可用串口列表"""
-        ports = [p.device for p in serial.tools.list_ports.comports()]
-        if ports == self._current_ports:
+        """刷新可用串口列表，根据 PID 识别设备"""
+        ports_info = serial.tools.list_ports.comports()
+        current_devices = [p.device for p in ports_info]
+        
+        if current_devices == self._current_ports:
             return
         
-        self._current_ports = ports
+        self._current_ports = current_devices
         combo = self.comport_list
-        current = combo.currentText()
-        combo.clear()
-        combo.addItems(ports)
         
-        if current in ports:
-            combo.setCurrentText(current)
-        elif ports:
+        current_index = combo.currentIndex()
+        selected_device = None
+        if current_index >= 0 and len(self._port_devices) > current_index:
+            selected_device = self._port_devices[current_index]
+        
+        combo.clear()
+        self._port_devices = []
+        
+        vid = DEVICE_CONFIG['vendor_id'].upper()  # 0483
+        devices = DEVICE_CONFIG['devices']
+        
+        for port in ports_info:
+            device_name = port.device
+            hwid = port.hwid.upper()
+            
+            # 【修复】从 HWID 中提取 VID 和 PID
+            matched_pid = None
+            device_info = None
+        
+            
+            for pid, info in devices.items():
+                pid_upper = pid.upper()
+                
+                # 搜索多种格式
+                search_patterns = [
+                    f"={vid}:{pid_upper}",      # VID:PID=0483:5741
+                    f"VID:{vid}:PID:{pid_upper}",  # 带标签
+                    f"VID_{vid}&PID_{pid_upper}",  # 下划线格式
+                    f"VID:{vid}&PID:{pid_upper}",  # 混合格式
+                ]
+                
+                for pattern in search_patterns:
+                    if pattern in hwid:
+                        matched_pid = pid_upper
+                        device_info = info
+                        break
+                
+                if matched_pid:
+                    break
+            
+            # 构造显示文本
+            if matched_pid and device_info:
+                display_text = f"{device_name} ({device_info['name']})"
+            else:
+                display_text = device_name
+            
+            combo.addItem(display_text)
+            self._port_devices.append(device_name)
+        
+        if selected_device and selected_device in self._port_devices:
+            combo.setCurrentIndex(self._port_devices.index(selected_device))
+        elif combo.count() > 0:
             combo.setCurrentIndex(0)
         
         if not self.is_connected:
@@ -110,7 +170,10 @@ class ComPort(QObject):
         QApplication.processEvents()
 
         try:
-            port = self.comport_list.currentText()
+            index = self.comport_list.currentIndex()
+            if index < 0 or index >= len(self._port_devices):
+                raise ValueError("未选择串口")
+            port = self._port_devices[index]
             if not port:
                 raise ValueError("未选择串口")
             
@@ -146,7 +209,7 @@ class ComPort(QObject):
             
         except Exception as e:
             error_msg = str(e)
-            print(f"连接异常: {error_msg}")
+            print(f"连接异常：{error_msg}")
             
             disconnect_keywords = [
                 'PermissionError', '拒绝访问', 'Access is denied',
@@ -154,9 +217,9 @@ class ComPort(QObject):
                 '设备未就绪', 'could not open port'
             ]
             if any(kw in error_msg for kw in disconnect_keywords):
-                send_simple_message(MSG_TYPE_ERROR, f"串口被占用或不存在: {port}", True, 3000)
+                send_simple_message(MSG_TYPE_ERROR, f"串口被占用或不存在：{port}", True, 3000)
             else:
-                send_simple_message(MSG_TYPE_WARNING, f"连接失败: {error_msg}", True, 2000)
+                send_simple_message(MSG_TYPE_WARNING, f"连接失败：{error_msg}", True, 2000)
             self._update_ui_state()
             self.disconnect()
             return False
@@ -189,15 +252,11 @@ class ComPort(QObject):
 
     def _sender_loop(self):
         """发送线程主循环"""
-        from queue import Empty  # 显式导入Empty异常
-        
         while not self._stop_sender.is_set():
             try:
-                # 尝试从队列获取数据包，超时返回继续循环（正常空闲状态）
                 try:
                     packet = self._send_queue.get(timeout=0.1)
                 except Empty:
-                    # 队列为空是正常状态，不视为异常
                     continue
                 
                 if packet is None:
@@ -205,28 +264,24 @@ class ComPort(QObject):
                 
                 self._lock.lock()
                 try:
-                    # 检查串口有效性（防御性编程）
                     if not self._is_port_valid():
                         self._handle_connection_lost("串口已关闭")
                         continue
                     
-                    # 流量控制：检查输出缓冲区是否积压
                     if hasattr(self.serial_port, 'out_waiting'):
                         if self.serial_port.out_waiting > 2048:
                             time.sleep(0.05)
-                            self._send_queue.put(packet)  # 重新入队稍后重试
+                            self._send_queue.put(packet)
                             continue
                     
-                    # 执行发送
                     self.serial_port.write(packet)
                     self.serial_port.flush()
                 except (serial.SerialTimeoutException, OSError) as e:
                     error_str = str(e)
-                    # 识别物理断开错误
                     if "timed out" in error_str or "PermissionError" in error_str or "Access is denied" in error_str:
-                        self._handle_connection_lost(f"发送失败: {error_str}")
+                        self._handle_connection_lost(f"发送失败：{error_str}")
                     else:
-                        print(f"[串口] 发送OS错误: {error_str}")
+                        print(f"[串口] 发送 OS 错误：{error_str}")
                 finally:
                     self._lock.unlock()
             
@@ -234,7 +289,7 @@ class ComPort(QObject):
                 break
             except Exception as e:
                 if not self._stop_sender.is_set():
-                    print(f"[串口] 发送线程未知异常: {type(e).__name__}: {e}")
+                    print(f"[串口] 发送线程未知异常：{type(e).__name__}: {e}")
 
     def _is_port_valid(self):
         """检查串口是否有效"""
@@ -249,15 +304,15 @@ class ComPort(QObject):
         try:
             if self.is_connected:
                 self.is_connected = False
-                print(f"[串口] 连接断开: {reason}")
+                print(f"[串口] 连接断开：{reason}")
                 self.connection_lost.emit(reason)
         finally:
             self._lock.unlock()
     
     def _on_connection_lost_ui(self, reason):
-        """在主线程处理连接丢失的UI更新"""
+        """在主线程处理连接丢失的 UI 更新"""
         self.disconnect()
-        send_simple_message(MSG_TYPE_ERROR, f"串口断开: {reason}", True, 3000)
+        send_simple_message(MSG_TYPE_ERROR, f"串口断开：{reason}", True, 3000)
 
     def _monitor_connection(self):
         """监控连接状态"""
@@ -286,23 +341,20 @@ class ComPort(QObject):
         self._last_status_time = time.time()
 
     def send_packet(self, cmd_id, data_bytes):
-        """
-        发送数据包
-        协议格式：包头(1b) | ID(1b) | Len(1b) | Data(nb) | Checksum(1b) | 包尾(1b)
-        """
+        """发送数据包"""
         if not self.is_connected:
             return False
         
         if not isinstance(cmd_id, int) or not (0 <= cmd_id <= 255):
-            raise ValueError("cmd_id 必须是0-255的整数")
+            raise ValueError("cmd_id 必须是 0-255 的整数")
         
         if not isinstance(data_bytes, (bytes, bytearray, list)):
-            raise TypeError("data_bytes 必须是bytes/bytearray/list")
+            raise TypeError("data_bytes 必须是 bytes/bytearray/list")
         
         data_bytes = bytes(data_bytes)
         length = len(data_bytes)
         if length > 255:
-            raise ValueError("数据长度超过255字节限制")
+            raise ValueError("数据长度超过 255 字节限制")
         
         packet = bytearray()
         packet.append(self.HEADER)
@@ -318,7 +370,7 @@ class ComPort(QObject):
             self._send_queue.put_nowait(packet)
             return True
         except Full:
-            print(f"[串口警告] 发送队列满，丢弃cmd={cmd_id}的数据包")
+            print(f"[串口警告] 发送队列满，丢弃 cmd={cmd_id} 的数据包")
             send_simple_message(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
             return False
 
@@ -373,13 +425,13 @@ class ComPort(QObject):
                 if not self._stop_recv.is_set():
                     error_str = str(e)
                     if "read failed" in error_str or "PermissionError" in error_str or "Access is denied" in error_str:
-                        self._handle_connection_lost(f"接收失败: {error_str}")
+                        self._handle_connection_lost(f"接收失败：{error_str}")
                     else:
-                        print(f"[串口警告] 非致命接收错误: {e}")
+                        print(f"[串口警告] 非致命接收错误：{e}")
                 break
             except Exception as e:
                 if not self._stop_recv.is_set():
-                    print(f"接收线程未知异常: {e}")
+                    print(f"接收线程未知异常：{e}")
                 break
         
         buffer.clear()
@@ -417,7 +469,7 @@ class ComPort(QObject):
                 cmd_id_int = int(cmd_id)
                 self.packet_valid.emit(cmd_id_int, bytes(data_bytes))
             else:
-                print(f"[串口] 校验失败: cmd={cmd_id}, exp={calculated_checksum:02X}, got={received_checksum:02X}")
+                print(f"[串口] 校验失败：cmd={cmd_id}, exp={calculated_checksum:02X}, got={received_checksum:02X}")
             
             del buffer[:min_packet_len]
         

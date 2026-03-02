@@ -347,3 +347,58 @@ int fArithmeticMeanFilter(const int *data_buf, int size)
 
     return sum / size;
 }
+/**
+ * @brief 巴特沃斯滤波器初始化
+ * @param[in] f       滤波器实例指针，指向tBW_FilterInstance结构体
+ * @param[in] coeffs  滤波器系数数组指针，格式为{b0, b1, b2, a1, a2}
+ * @retval 无
+ * @note 系数需预先通过双线性变换法计算（推荐使用Python scipy.signal.butter生成）
+ */
+void fButterworthFilter_Init(tBW_FilterInstance *f, float32_t *coeffs)
+{
+    /* 拷贝系数到实例内部缓冲区，避免外部数组被意外修改 */
+    for (int i = 0; i < 5; i++)
+    {
+        f->coeffs[i] = coeffs[i];
+    }
+
+    /* 初始化CMSIS-DSP滤波器结构体
+     * 参数说明：
+     *   &f->inst  : 滤波器实例
+     *   1         : 二阶节数量（2阶巴特沃斯对应1个二阶节）
+     *   f->coeffs : 系数数组
+     *   f->state  : 状态变量缓冲区（长度=2*numStages=4）
+     */
+    arm_biquad_cascade_df1_init_f32(&f->inst, 1, f->coeffs, f->state);
+}
+
+/**
+ * @brief 巴特沃斯滤波器单步处理
+ * @param[in] f     滤波器实例指针
+ * @param[in] input 当前采样输入值
+ * @retval float32_t 滤波后的输出值
+ * @note 该函数为实时调用，执行时间约几十 cycles（FPU使能）
+ */
+float32_t fButterworthFilter_Process(tBW_FilterInstance *f, float32_t input)
+{
+    float32_t output;
+
+    /* 调用CMSIS-DSP优化函数执行滤波
+     * 输入输出指针传递，长度为1（单通道单采样）
+     */
+    arm_biquad_cascade_df1_f32(&f->inst, &input, &output, 1);
+
+    return output;
+}
+
+/**
+ * @brief 滤波器状态清零（用于启动或重置）
+ * @param[in] f 滤波器实例指针
+ * @retval 无
+ * @note 避免重启时状态变量残留导致输出跳变
+ */
+void fButterworthFilter_Reset(tBW_FilterInstance *f)
+{
+    /* 清空状态缓冲区，共4个float32_t（2阶*2状态） */
+    memset(f->state, 0, sizeof(float32_t) * 4);
+}

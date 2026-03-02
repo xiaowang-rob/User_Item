@@ -2,7 +2,7 @@
 #define __FILTER_H
 
 #include "main.h"
-
+#include "math_fast.h"
 /* 限幅滤波法 */
 typedef struct
 {
@@ -88,4 +88,15 @@ u16 fPulseInterferenceFilter(tPulseInterferenceFilter *filter, u16 new_value);
 /* 算术平均滤波法（静态函数，不需要状态） */
 int fArithmeticMeanFilter(const int *data_buf, int size);
 
+/* 巴特沃斯低通滤波器*/
+typedef struct
+{
+    arm_biquad_casd_df1_inst_f32 inst;
+    float32_t state[4];  // 2 阶 * 2 状态
+    float32_t coeffs[5]; // 由 Python 生成填入
+} tBW_FilterInstance;
+
+void fButterworthFilter_Init(tBW_FilterInstance *f, float32_t *coeffs);
+float32_t fButterworthFilter_Process(tBW_FilterInstance *f, float32_t input);
+void fButterworthFilter_Reset(tBW_FilterInstance *f);
 #endif

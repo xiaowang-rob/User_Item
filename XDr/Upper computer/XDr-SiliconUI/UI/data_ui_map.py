@@ -157,7 +157,7 @@ class Sidx:
 # 模式与状态字符串映射表
 # ====================================
 class Midx:
-    sensor_mode        = ["开环", "有感（编码反馈）", "无感（HFI+SMO）","融合（编码+SMO）"]
+    sensor_mode        = ["编码反馈", "HFI+SMO","编码+SMO"]
     run_mode           = [ "电流模式", "速度模式", "位置模式"]
     target_value       = ["拖动电流/A","速度/rpm","位置/°"]
     can_mode           = ["实时处理", "队列处理"]
