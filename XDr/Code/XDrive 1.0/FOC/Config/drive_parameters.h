@@ -6,8 +6,8 @@
 人为输入 转速用rpm   角度用°
 时间用ms
 */
-#define Description "XDr-power"
-#define VERSION "1.0.0"
+#define Description "XDr-P"
+#define VERSION "O_V1.0_260303"
 #define AUTHOR "xiaowang"
 #define MAX_CURRENT_string "100A"
 #define Voltage_string "20-30V"

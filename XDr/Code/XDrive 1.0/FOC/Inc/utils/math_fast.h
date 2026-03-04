@@ -13,18 +13,118 @@
 #define MATH_INSQRT3 0.5773502693f
 
 /* 函数声明 */
-float fRadToRpm(float rad);
-float fRpmToRad(float rpm);
-float fDegToRad(float deg);
-float fRadToDeg(float rad);
-
-void fClarkTransform(float ia, float ib, float ic, float *alpha, float *beta);
-void fInvClarkTransform(float alpha, float beta, float *ia, float *ib, float *ic);
-void fParkTransform(float alpha, float beta, float angle, float *d, float *q);
-void fInvParkTransform(float d, float q, float angle, float *alpha, float *beta);
-u32 fFastRoundf(float x);
-float fFastAbsf(float x);
+// 一般函数--大型函数 不经常调用
 u32 HAL_GetTick_us(void);
-float fNormalizeAngle02pi(float angle);
+
+// 内联函数--小函数 经常调用
+static inline float fRadToRpm(float rad)
+{
+    return rad * 9.549296748f;
+}
+static inline float fRpmToRad(float rpm)
+{
+    return rpm / 9.549296748f;
+}
+static inline float fDegToRad(float deg)
+{
+    return deg * 0.017453293f;
+}
+static inline float fRadToDeg(float rad)
+{
+    return rad * 57.29577951f;
+}
+// 快速限幅
+static inline float CLAMP(float val, float min, float max)
+{
+    return (val < min) ? min : ((val > max) ? max : val);
+}
+// 快速绝对值
+__STATIC_FORCEINLINE float FABSF(float x)
+{
+    return __builtin_fabsf(x);
+}
+// 快速符号函数
+__STATIC_FORCEINLINE float FSIGN(float x)
+{
+    return (x > 0.0f) - (x < 0.0f); // 分支消除
+}
+// 快速浮点数四舍五入
+static inline u32 fFastRoundf(float x)
+{
+    return (u32)(x + 0.5f);
+}
+
+// 将角度标准化到 [0, 2π) 范围
+static inline float fNormalizeAngle_0_2pi(float angle)
+{
+    angle = fmodf(angle, MATH_2PI);
+    if (angle < 0.0f)
+    {
+        angle += MATH_2PI;
+    }
+    return angle;
+}
+// 将角度标准化到[-π, π]范围
+static inline float fNormalizeAngle_pi_pi(float angle)
+{
+    /* 利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] */
+    angle = fmodf(angle + MATH_PI, MATH_2PI);
+    if (angle < 0.0f)
+        angle += MATH_2PI;
+    return angle - MATH_PI;
+}
+
+/**
+ * @brief Clark 变换 (abc → αβ)(等幅值)
+ * @param ia, ib, ic: 三相电流或电压
+ * @param alpha, beta: 输出的 αβ 轴分量
+ */
+static inline void fClarkTransform(float ia, float ib, float ic, float *alpha, float *beta)
+{
+    // 使用幅值不变变换（系数 2/3）
+    // 简化电流 ia+ib+ic=0
+    *alpha = ia;
+    *beta = MATH_INSQRT3 * (ib - ic);
+}
+/**
+ * @brief Clark 反变换 (αβ → abc)(等幅值)
+ * @param alpha, beta: αβ 轴分量
+ * @param ia, ib, ic: 输出的三相值
+ */
+static inline void fInvClarkTransform(float alpha, float beta, float *ia, float *ib, float *ic)
+{
+    *ia = alpha;
+    *ib = -0.5f * alpha + MATH_SQRT3_2 * beta;
+    *ic = -0.5f * alpha - MATH_SQRT3_2 * beta;
+}
+/**
+ * @brief Park 变换 (αβ → dq)
+ * @param alpha, beta: αβ 轴分量
+ * @param angle: 电角度（弧度）
+ * @param d, q: 输出的 dq 轴分量
+ */
+static inline void fParkTransform(float alpha, float beta, float angle, float *d, float *q)
+{
+    float sin_theta, cos_theta;
+    sin_theta = arm_sin_f32(angle);
+    cos_theta = arm_cos_f32(angle);
+
+    *d = alpha * cos_theta + beta * sin_theta;
+    *q = -alpha * sin_theta + beta * cos_theta;
+}
+/**
+ * @brief Park 反变换 (dq → αβ)
+ * @param d, q: dq 轴分量
+ * @param angle: 电角度（弧度）
+ * @param alpha, beta: 输出的 αβ 轴分量
+ */
+static inline void fInvParkTransform(float d, float q, float angle, float *alpha, float *beta)
+{
+    float sin_theta, cos_theta;
+    sin_theta = arm_sin_f32(angle);
+    cos_theta = arm_cos_f32(angle);
+    *alpha = d * cos_theta - q * sin_theta;
+    *beta = d * sin_theta + q * cos_theta;
+}
 
 #endif /* __MATH_FAST_H */

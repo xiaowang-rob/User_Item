@@ -41,6 +41,11 @@ class TopArea:
     
         # 创建连接区域按钮 
         ###################################################################
+        self.download_but=SiPushButtonRefactor()
+        self.download_but.setSvgIcon(self.mw.icon.get("ic_fluent_arrow_download_filled","#DFDFDF"))
+        self.download_but.setToolTip("烧录固件")
+        self.download_but.adjustSize()
+       
         self.com_port=SiCapsuleComboBox()
         self.com_port.setTitle("端口")
         self.com_port.setMinimumHeight(36)
@@ -61,13 +66,18 @@ class TopArea:
         connect_H_layout.setSpacing(8)  # 行间距
 
         # 第一行：端口选择框
-        connect_H_layout.addWidget(self.com_port)
+        device_W_layout = QHBoxLayout()
+        device_W_layout.setContentsMargins(0, 0, 0, 0)  # 根据需要调整边距
+        device_W_layout.setSpacing(16)  # 行间距
+        device_W_layout.addWidget(self.download_but,1)
+        device_W_layout.addWidget(self.com_port,4)
+        connect_H_layout.addLayout(device_W_layout)
 
         # 第二行：水平布局包含两个按钮
         connect_W_layout = QHBoxLayout()
         connect_W_layout.setSpacing(16)
         connect_W_layout.addWidget(self.system_message,1)
-        connect_W_layout.addWidget(self.connect_but,3)
+        connect_W_layout.addWidget(self.connect_but,4)
 
         connect_H_layout.addLayout(connect_W_layout)
         #############################################################################
@@ -99,34 +109,16 @@ class TopArea:
         self.canid_show.setAlignment(Qt.AlignCenter) 
         self.canid_show.setReadOnly(True)
         self.canid_show.setTitle("CAN ID")
- 
-        self.canmode_show=SiCapsuleLineEdit()
-        self.canmode_show.resize(all_W,40)
-        self.canmode_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.canmode_show.setTitleFixedWidth(title_W) 
-        self.canmode_show.setAlignment(Qt.AlignCenter) 
-        self.canmode_show.setReadOnly(True)
-        self.canmode_show.setTitle("CAN模式")
 
-        #创建主水平布局
-        mode_H_layout = QHBoxLayout(self.mode_area)
-        mode_H_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
-        mode_H_layout.setSpacing(16)  
-        #创建模式区域垂直布局
-        mode_V_layout_l = QVBoxLayout()
-        mode_V_layout_l.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
-        mode_V_layout_l.setSpacing(8)  # 行间距
-        mode_V_layout_l.addWidget(self.sensormode_show)
-        mode_V_layout_l.addWidget(self.runmode_show)
 
-        mode_V_layout_r = QVBoxLayout()
-        mode_V_layout_r.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
-        mode_V_layout_r.setSpacing(8)  # 行间距
-        mode_V_layout_r.addWidget(self.canid_show)
-        mode_V_layout_r.addWidget(self.canmode_show)
-        
-        mode_H_layout.addLayout(mode_V_layout_l,1)
-        mode_H_layout.addLayout(mode_V_layout_r,1)
+        #创建主垂直布局
+        mode_V_layout=QVBoxLayout(self.mode_area)
+        mode_V_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
+        mode_V_layout.setSpacing(8)  # 行间距
+
+        mode_V_layout.addWidget(self.sensormode_show)
+        mode_V_layout.addWidget(self.runmode_show)
+        mode_V_layout.addWidget(self.canid_show)
 
         #############################################################################
         # 状态区域显示控件

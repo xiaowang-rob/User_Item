@@ -1,8 +1,4 @@
 # XDr_project
 
-
-USB CDC 对应版本
-VID = 0x0483
-PID = 0x5740  DFU
-    0x5741 XDr-P
-    0x5742 XDr-S
+IAP 流程 
+上位机发送指令 flash标志位改变 跳转bl bl运行 等待上位机开始（取消 跳回app）指令 接收数据 写入flash对应地址 校验 跳回app 

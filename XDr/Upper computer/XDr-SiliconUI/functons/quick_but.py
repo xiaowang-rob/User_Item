@@ -17,6 +17,8 @@ class QuickBut:
         self.mw = main_window
         self.com = comport
         
+
+
         self.driver_message = self.mw.top_area.system_message
         self.driver_message.clicked.connect(self._handleSystemMessage)
 
@@ -50,6 +52,7 @@ class QuickBut:
 
     def _handleSystemMessage(self):
         send_titled_message(MSG_TYPE_INFO,"设备信息",self.mw.system_message)
+
 
     def  enable_button_clicked(self):
         self.com.send_packet(Cidx.ENABLE,bytes())

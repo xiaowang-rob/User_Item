@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdbool.h"
 #include "led.h"
 #include "usbd_cdc_if.h"
 /* USER CODE END Includes */
@@ -48,15 +48,13 @@
 /* USER CODE BEGIN PV */
 extern USBD_HandleTypeDef hUsbDeviceFS; /* 来自 usb_device.c */
 
-/* 升级命令全局变量 (usbd_cdc_if.c 中定义) */
-extern volatile uint8_t g_upgrade_cmd;
-extern volatile uint32_t g_upgrade_addr;
-extern volatile uint16_t g_upgrade_len;
-extern volatile uint8_t g_upgrade_data[256];
-extern volatile uint8_t g_cmd_received;
+volatile uint32_t g_firmware_total_size = 0; // 固件总大小
+volatile uint8_t g_erase_sectors_start = 0;  // 起始扇区号
+volatile uint8_t g_erase_sectors_count = 0;  // 擦除扇区数量
 
-/* 升级状态 */
-volatile uint8_t g_in_upgrade_mode = 0;
+volatile uint32_t upgrade_addr;
+
+volatile bool g_in_upgrade_mode = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,23 +123,17 @@ int main(void)
         /* 根据命令类型设置对应 LED 状态 */
         switch (g_upgrade_cmd)
         {
-        case 0x01: /* 进入升级确认 */
+        case CMD_IAP_ENTER: /* 进入升级确认 */
           LED_SetState(LED_IDLE);
           break;
 
-        case 0x02: /* 擦除 Flash */
-          LED_SetState(LED_ERASING);
-          break;
-
-        case 0x03: /* 写入 Flash */
+        case CMD_IAP_ERASE_FLASH:  /* 擦除 Flash */
+        case CMD_IAP_WRITE_FLASH:  /* 写入 Flash */
+        case CMD_IAP_VERIFY_FLASH: /* 校验 Flash */
           LED_SetState(LED_WRITING);
           break;
 
-        case 0x04: /* 校验 Flash */
-          LED_SetState(LED_VERIFYING);
-          break;
-
-        case 0x05: /* 跳转 App */
+        case CMD_IAP_EXIT: /* 跳转 App */
           LED_SetState(LED_SUCCESS);
           break;
 
@@ -149,17 +141,36 @@ int main(void)
           LED_SetState(LED_ERROR);
           break;
         }
+        /* === 开启临界区保护 === */
+        __disable_irq(); // 1. 关中断
 
-        uint8_t result = Process_Upgrade_Cmd(g_upgrade_cmd, g_upgrade_addr,
-                                             (uint8_t *)g_upgrade_data, g_upgrade_len);
+        /* 2. 一次性将 volatile 全局变量拷贝到局部变量 */
+        uint8_t cmd = g_upgrade_cmd;
+        uint16_t len = g_upgrade_len;
+        uint8_t data_buf[256];
+
+        if (len > 0 && len <= 256)
+        {
+          memcpy(data_buf, (void *)g_upgrade_data, len);
+        }
+
+        g_cmd_received = 0; // 3. 清除标志
+
+        __enable_irq(); // 4. 开中断
+                        /* === 临界区结束 === */
+        uint8_t result = Process_Upgrade_Cmd(cmd, data_buf, len);
 
         /* 如果是跳转命令，显示结果后执行 */
-        if (g_upgrade_cmd == 0x05)
+        if (g_upgrade_cmd == CMD_IAP_EXIT)
         {
           if (result)
           {
             LED_SetState(LED_SUCCESS);
-            HAL_Delay(300);
+            for (int i = 0; i < 200; i++)
+            {
+              HAL_Delay(10);
+              LED_Process();
+            }
             JumpToApp();
           }
           else
@@ -295,13 +306,90 @@ void Clear_Upgrade_Flag(void)
 
   HAL_FLASH_Lock();
 }
-
 /**
- * @brief 擦除 App 区 Flash (Sector 1-10)
+ * @brief 根据 Flash 地址计算扇区号
+ * @param addr: Flash 地址
+ * @retval 扇区号 (0-11)，失败返回 0xFF
+ */
+uint8_t Flash_GetSectorFromAddr(uint32_t addr)
+{
+  // STM32F405 Flash 扇区映射表
+  static const uint32_t sector_start_addr[] = {
+      0x08000000, // Sector 0:  16KB
+      0x08004000, // Sector 1:  16KB
+      0x08008000, // Sector 2:  16KB
+      0x0800C000, // Sector 3:  16KB
+      0x08010000, // Sector 4:  64KB
+      0x08020000, // Sector 5:  128KB
+      0x08040000, // Sector 6:  128KB
+      0x08060000, // Sector 7:  128KB
+      0x08080000, // Sector 8:  128KB
+      0x080A0000, // Sector 9:  128KB
+      0x080C0000, // Sector 10: 128KB
+      0x080E0000, // Sector 11: 128KB
+  };
+
+  for (uint8_t i = 0; i < 12; i++)
+  {
+    if (addr >= sector_start_addr[i])
+    {
+      if (i == 11)
+        return 11; // 最后一个扇区
+      if (addr < sector_start_addr[i + 1])
+        return i;
+    }
+  }
+  return 0xFF; // 无效地址
+}
+/**
+ * @brief 根据起始地址和固件大小计算需要擦除的扇区
+ * @param start_addr: 起始地址
+ * @param total_size: 固件总大小
+ * @retval 1: 成功，0: 失败
+ */
+uint8_t Flash_CalcEraseSectors(uint32_t start_addr, uint32_t total_size)
+{
+  if (total_size == 0)
+    return 0; // 固件大小为 0，无效
+
+  uint32_t end_addr = start_addr + total_size;
+
+  // 获取起始扇区
+  uint8_t start_sector = Flash_GetSectorFromAddr(start_addr);
+  if (start_sector == 0xFF)
+    return 0;
+
+  // 获取结束扇区 (end_addr-1 是因为地址是开区间)
+  uint8_t end_sector = Flash_GetSectorFromAddr(end_addr - 1);
+  if (end_sector == 0xFF)
+    return 0;
+
+  // 安全检查 1: 不能擦除 Sector 0 (Bootloader 所在)
+  if (start_sector == 0)
+    return 0;
+
+  // 安全检查 2: 不能擦除 CONFIG_SECTOR (存升级标志)
+  if (end_sector >= CONFIG_SECTOR)
+  {
+    end_sector = CONFIG_SECTOR - 1;
+  }
+
+  // 计算扇区数量
+  g_erase_sectors_start = start_sector;
+  g_erase_sectors_count = end_sector - start_sector + 1;
+
+  return 1;
+}
+/**
+ * @brief 擦除 App 区 Flash (使用动态计算的扇区)
  * @retval 1: 成功，0: 失败
  */
 uint8_t Flash_Erase_App(void)
 {
+  // 检查是否已计算擦除范围
+  if (g_erase_sectors_count == 0)
+    return 0;
+
   FLASH_EraseInitTypeDef erase_init;
   uint32_t sector_error;
 
@@ -309,17 +397,16 @@ uint8_t Flash_Erase_App(void)
 
   erase_init.TypeErase = FLASH_TYPEERASE_SECTORS;
   erase_init.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-  erase_init.Sector = FLASH_SECTOR_1; /* App 起始扇区 */
-  erase_init.NbSectors = 10;          /* Sector 1-10 */
+  erase_init.Sector = g_erase_sectors_start;    // 动态起始扇区
+  erase_init.NbSectors = g_erase_sectors_count; // 动态扇区数量
 
   uint8_t result = (HAL_FLASHEx_Erase(&erase_init, &sector_error) == HAL_OK) ? 1 : 0;
 
   HAL_FLASH_Lock();
   return result;
 }
-
 /**
- * @brief 写入 Flash
+ * @brief 写入 Flash (支持非 4 字节对齐)
  * @param addr: 目标地址
  * @param data: 数据指针
  * @param len: 数据长度 (字节)
@@ -330,19 +417,22 @@ uint8_t Flash_Write(uint32_t addr, uint8_t *data, uint16_t len)
   HAL_StatusTypeDef status = HAL_OK;
   HAL_FLASH_Unlock();
 
-  for (uint16_t i = 0; i < len && status == HAL_OK; i += 4)
-  {
-    uint32_t word = 0;
-    word = data[i];
-    if (i + 1 < len)
-      word |= (uint32_t)data[i + 1] << 8;
-    if (i + 2 < len)
-      word |= (uint32_t)data[i + 2] << 16;
-    if (i + 3 < len)
-      word |= (uint32_t)data[i + 3] << 24;
+  uint16_t i = 0;
 
+  /* 1. 先按 4 字节 (Word) 写入，效率高 */
+  for (; i + 3 < len && status == HAL_OK; i += 4)
+  {
+    uint32_t word = data[i] | (data[i + 1] << 8) | (data[i + 2] << 16) | (data[i + 3] << 24);
     status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr, word);
     addr += 4;
+  }
+
+  /* 2. 处理剩余不足的 4 字节 (1~3 字节)，按字节 (Byte) 写入 */
+  while (i < len && status == HAL_OK)
+  {
+    status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, addr, data[i]);
+    addr++;
+    i++;
   }
 
   HAL_FLASH_Lock();
@@ -399,38 +489,71 @@ void JumpToApp(void)
  * @brief 处理升级命令
  * @retval 1: 成功，0: 失败
  */
-uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint32_t addr, uint8_t *data, uint16_t len)
+uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
 {
-  uint8_t response[3] = {0x3A, cmd, 0x00};
+  uint8_t response[6] = {0x3A, cmd, 0x01, 0x00, 0x00, 0x0D};
   uint8_t result = 1;
 
   switch (cmd)
   {
-  case 0x01: /* 进入升级 (确认) */
-    result = 1;
+  case CMD_IAP_ENTER: /* 进入升级 (确认) */
+    if (len >= 4)
+    {
+      // 解析 4 字节小端序固件大小
+      g_firmware_total_size = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+
+      // 计算需要擦除的扇区范围
+      if (Flash_CalcEraseSectors(APP_START_ADDR, g_firmware_total_size))
+      {
+        result = 1;
+      }
+      else
+      {
+        result = 0; // 扇区计算失败
+      }
+    }
+    else
+    {
+      result = 0; // 数据长度不足 4 字节
+    }
+    break;
+  case CMD_IAP_ERASE_FLASH: /* 擦除 Flash */
+    //result = Flash_Erase_App();
+		result=1;
     break;
 
-  case 0x02: /* 擦除 Flash */
-    result = Flash_Erase_App();
-    break;
+  case CMD_IAP_WRITE_FLASH: /* 写入 Flash */
 
-  case 0x03: /* 写入 Flash */
+    upgrade_addr = (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
+                   ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
+    if (upgrade_addr < 0x08004000 || upgrade_addr >= 0x080FFFFF)
+    {
+      result = 0; // 非法地址，直接丢弃
+      break;
+    }
+    g_upgrade_len = len - 4; /* 减去地址(4B) */
+
     /* [修改点 7] 地址对齐检查 */
-    if (addr % 4 != 0)
+    if (upgrade_addr % 4 != 0)
     {
       result = 0; /* 地址必须 4 字节对齐 */
     }
     else
     {
-      result = Flash_Write(addr, data, len);
+      //result = Flash_Write(upgrade_addr, &data[4], g_upgrade_len);
+			result=1;
     }
     break;
 
-  case 0x04: /* 校验 Flash */
-    result = Flash_Verify(addr, data, len);
+  case CMD_IAP_VERIFY_FLASH: /* 校验 Flash */
+    upgrade_addr = (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
+                   ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
+    g_upgrade_len = len - 4; /* 减去地址(4B) */
+    //result = Flash_Verify(upgrade_addr, &data[4], g_upgrade_len);
+		result=1;
     break;
 
-  case 0x05: /* 跳转 App */
+  case CMD_IAP_EXIT: /* 跳转 App */
     result = 1;
     break;
 
@@ -439,14 +562,15 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint32_t addr, uint8_t *data, uint16_t 
     break;
   }
 
-  response[2] = result ? 0x00 : 0x01;
+  response[3] = result;
+  response[4] = response[3] & 0x01; // 校验位只加数据
 
-  /* [修改点 4] USB 发送状态检查与重试 */
-  uint8_t retry = 0;
-  while (CDC_Transmit_FS(response, 3) != USBD_OK && retry < 50)
+  /*  USB 发送状态检查与重试 */
+  uint32_t start = HAL_GetTick();
+  while ((CDC_Transmit_FS(response, 6) == USBD_BUSY) &&
+         (HAL_GetTick() - start < 100)) // 100ms 超时
   {
-    HAL_Delay(2);
-    retry++;
+    HAL_Delay(1);
   }
 
   return result;

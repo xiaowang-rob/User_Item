@@ -76,6 +76,7 @@ class SiPage(SiDenseVContainer):
         # 标题
         self.title = SiLabel(self)
         self.title.setFont(SiFont.tokenized(GlobalFont.L_BOLD))
+        self.title.setStyleSheet("color:#E5E5E5;")
         self.title.setFixedHeight(32)
         self.title.setContentsMargins(64, 0, 0, 0)
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -95,7 +96,8 @@ class SiPage(SiDenseVContainer):
 
     def reloadStyleSheet(self):
         super().reloadStyleSheet()
-        self.title.setStyleSheet("color: {}".format(SiGlobal.siui.colors["TEXT_A"]))
+        print("reload page style sheet")
+        self.title.setStyleSheet("color:#E5E5E5;")
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

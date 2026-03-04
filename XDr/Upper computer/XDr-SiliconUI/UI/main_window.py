@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QMainWindow
 from UI.Ui_mainwindow import Ui_XDr
 from siui.gui.icons.parser import GlobalIconPack
+from siui.components.widgets.abstracts import SiWidget
+from siui.templates.application.components.layer.layer_child_page.layer_child_page import LayerChildPage
 from .top_area import TopArea
-
 from siui.core import SiGlobal
 from siui.components.tooltip import ToolTipWindow
 from functons.message_show import init_message_system
@@ -11,6 +12,8 @@ from .middle_area import MiddleArea
 from .parameter_page import ParameterPage
 from .log_page import LogPage
 from .control_page import ControlPage
+from .IAP_widget import DownloadPage
+
 from functons.wave import Wave
 from .data_ui_map import Data_UI_Map
 from functons.data_show import DataShow
@@ -19,7 +22,7 @@ from functons.parampeter import ParameterManager
 from functons.config import Pconfig
 from functons.data_process import DataProcess
 from functons.quick_but import QuickBut
-
+from functons.IAP_downloader import IAP_downloader
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -42,6 +45,7 @@ class MainWindow(QMainWindow):
         init_message_system(self)  # 初始化消息系统
 
 
+
         #主要布局
         self.ui=Ui_XDr()
         self.ui.setupUi(self)
@@ -52,6 +56,11 @@ class MainWindow(QMainWindow):
         self.parameter_page=ParameterPage(self)
         self.log_page=LogPage(self)
         self.control_page=ControlPage(self)
+        self.download_page=DownloadPage(self)
+
+        #构建二级消息子页面界面
+        self.layer_child_page = LayerChildPage(self)
+        self.layer_child_page.raise_() # 置顶
 
         # 控件映射表
         self.ui_map=Data_UI_Map(self)
@@ -65,7 +74,16 @@ class MainWindow(QMainWindow):
         self.param_manager=ParameterManager(self,self.comport)
         self.config=Pconfig(self)
         self.quick_but=QuickBut(self,self.comport)
+        self.IAP=IAP_downloader(self)
 
         # 连接信号
         self.comport.packet_valid.connect(self.data_process.handle_received_data)
 
+    def showChildPage(self):
+        self.layer_child_page.setChildPage(self.download_page)
+
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # 当窗口大小改变时，调整层的大小以覆盖整个窗口
+        self.layer_child_page.resize(event.size())

@@ -116,8 +116,6 @@ int main(void)
   MX_SPI3_Init();
   MX_USART1_UART_Init();
   MX_TIM8_Init();
-	u32 scb_vtor=SCB->VTOR ;
-	HAL_Delay(3);
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 

@@ -11,7 +11,7 @@ from siui.typing import T_WidgetParent
 
 
 class ProgressBarStyleData:
-    background_color = QColor("#25222a")
+    background_color = QColor("#000000")
     loading_color = QColor("#66cbff")
     processing_color = QColor("#fed966")
     paused_color = QColor("#7f7f7f")

@@ -25,6 +25,13 @@
 #define CMD_STREAM_GET 0x23   // 监测值获取 单个值直接获取
 #define CMD_STREAM_SET 0x25   // 要连续传输的数据流设置
 
+#define CMD_IAP_ENTER 0x31 // 进入IAP模式 进入开始固件烧录确认
+/* 这些在上位机 和 bl上实现
+#define CMD_IAP_ERASE_FLASH 0x32  // 擦除flash
+#define CMD_IAP_WRITE_FLASH 0x33  // 写入flash
+#define CMD_IAP_VERIFY_FLASH 0x34 // 校验flash
+#define CMD_IAP_EXIT 0x35         // 完成 退出IAP模式 进入APP
+*/
 #define MAX_frame_length 128 // 通讯帧最大长度
 /***********USB Config***********/
 /*

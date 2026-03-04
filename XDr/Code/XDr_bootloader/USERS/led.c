@@ -10,28 +10,18 @@ static void _LED_Update(void)
 {
     switch (g_led_state)
     {
-    case LED_ERROR:   /* 交替慢闪 - 错误 */
-    case LED_WRITING: /* 交替快闪 - 写入中 */
+    case LED_IDLE:
+    case LED_ERROR:
         /* 两个灯状态相反，产生交替效果 */
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, g_led_toggle ? GPIO_PIN_SET : GPIO_PIN_RESET);
         HAL_GPIO_WritePin(LED2_PORT, LED2_PIN, g_led_toggle ? GPIO_PIN_RESET : GPIO_PIN_SET);
         break;
 
-    case LED_ERASING:   /* 同步慢闪 - 擦除中 */
-    case LED_VERIFYING: /* 同步快闪 - 校验中 */
+    case LED_WRITING:
+    case LED_SUCCESS:
         /* 两个灯状态相同，产生同步效果 */
         HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, g_led_toggle ? GPIO_PIN_SET : GPIO_PIN_RESET);
         HAL_GPIO_WritePin(LED2_PORT, LED2_PIN, g_led_toggle ? GPIO_PIN_SET : GPIO_PIN_RESET);
-        break;
-
-    case LED_SUCCESS: /* 全亮 - 成功 */
-        HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(LED2_PORT, LED2_PIN, GPIO_PIN_SET);
-        break;
-
-    case LED_IDLE: /* 全灭 - 空闲 */
-        HAL_GPIO_WritePin(LED1_PORT, LED1_PIN, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(LED2_PORT, LED2_PIN, GPIO_PIN_RESET);
         break;
     }
 }
@@ -66,26 +56,22 @@ void LED_Process(void)
     /* 根据状态确定闪烁间隔 */
     switch (g_led_state)
     {
-    case LED_ERROR: /* 交替慢闪 - 500ms */
+    case LED_IDLE: /* 交替慢闪 - 500ms */
         interval = 500;
         break;
 
-    case LED_ERASING: /* 同步慢闪 - 400ms */
-        interval = 400;
+    case LED_SUCCESS: /* 同步慢闪 - 400ms */
+        interval = 600;
         break;
 
-    case LED_WRITING: /* 交替快闪 - 100ms */
+    case LED_ERROR: /* 交替快闪 - 100ms */
         interval = 100;
         break;
 
-    case LED_VERIFYING: /* 同步快闪 - 150ms */
-        interval = 150;
+    case LED_WRITING: /* 同步快闪 - 150ms */
+        interval = 100;
         break;
-
-    case LED_SUCCESS: /* 全亮 - 不闪烁 */
-    case LED_IDLE:    /* 全灭 - 不闪烁 */
         return;
-
     default:
         return;
     }

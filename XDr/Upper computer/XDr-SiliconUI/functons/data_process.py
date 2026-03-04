@@ -33,6 +33,8 @@ class DataProcess:
                         # 解析 system_message 字符串，按逗号分隔
                         sys_msg=data.decode()
                         parts = sys_msg.split(',')
+                        version = parts[0].strip()+" "+parts[1].strip()
+                        self.mw.IAP.set_current_version(version)
                         # 定义字段标签（项目名称）
                         labels = ["设备名称", "版本", "作者", "最大电流", "电压范围", "最大温度"]
                         # 构建带标签的多行字符串
@@ -71,6 +73,10 @@ class DataProcess:
                     byte_len=int(len(data)/4)
                     for i in range(byte_len):
                         self.mw.wave.add_data_by_index(i,struct.unpack('<f',data[i*4:(i+1)*4])[0])
+                    return
+                
+                case Cidx.CMD_IAP_ENTER,Cidx.CMD_IAP_ERASE,Cidx.CMD_IAP_WRITE,Cidx.CMD_IAP_VERIFY,Cidx.CMD_IAP_EXIT:
+                    self.mw.IAP.iap_cmd_received(cmd_id, data)
                     return
 
 

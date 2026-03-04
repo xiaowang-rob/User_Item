@@ -120,8 +120,7 @@ class ComPort(QObject):
         for port in ports_info:
             device_name = port.device
             hwid = port.hwid.upper()
-            
-            # 【修复】从 HWID 中提取 VID 和 PID
+
             matched_pid = None
             device_info = None
         
@@ -204,7 +203,7 @@ class ComPort(QObject):
             self._send_with_retry(Cidx.UC_CONNECT, bytes(), retries=2)
             
             self._update_ui_state()
-            send_simple_message(MSG_TYPE_SUCCESS, f"已连接 {port}", True, 1500)
+            send_simple_message(MSG_TYPE_SUCCESS, f"已连接 {self.comport_list.currentText()}", True, 1500)
             return True
             
         except Exception as e:
@@ -223,10 +222,65 @@ class ComPort(QObject):
             self._update_ui_state()
             self.disconnect()
             return False
-
-    def disconnect(self):
+    def connect_by_pid(self, target_pid, timeout=5.0):
+        """
+        根据 PID 自动扫描并连接，不依赖 ComboBox 选择
+        用于 IAP 模式下自动重连 Bootloader
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            ports_info = serial.tools.list_ports.comports()
+            vid = DEVICE_CONFIG['vendor_id'].upper()
+            
+            for port in ports_info:
+                hwid = port.hwid.upper()
+                # 匹配 PID
+                if f"PID:{target_pid.upper()}" in hwid or f"PID_{target_pid.upper()}" in hwid:
+                    try:
+                        # 尝试打开串口
+                        self.serial_port = serial.Serial(
+                            port=port.device,
+                            baudrate=115200,
+                            bytesize=serial.EIGHTBITS,
+                            parity=serial.PARITY_NONE,
+                            stopbits=serial.STOPBITS_ONE,
+                            timeout=0.1,
+                            write_timeout=0.5,
+                        )
+                        self.is_connected = True
+                        self._connect_time = time.time()
+                        
+                        # 启动收发线程
+                        self._stop_recv.clear()
+                        self._stop_sender.clear()
+                        self._recv_thread = threading.Thread(target=self._receive_loop, daemon=True)
+                        self._sender_thread = threading.Thread(target=self._sender_loop, daemon=True)
+                        self._recv_thread.start()
+                        self._sender_thread.start()
+                        
+                        # 【重要】同步更新 UI 的 ComboBox，防止后续操作找不到端口
+                        # 注意：在子线程调用 UI 控件有风险，但为了兼容你的架构，这里保持原逻辑
+                        # 建议在实际项目中通过 signal 通知主线程更新
+                        idx = self.comport_list.findText(port.device)
+                        if idx < 0:
+                            self.comport_list.addItem(port.device)
+                            idx = self.comport_list.count() - 1
+                        self.comport_list.setCurrentIndex(idx)
+                        self._update_ui_state()
+                        
+                        return True
+                    except Exception as e:
+                        # 如果打开失败（如端口被占用），继续循环等待
+                        print(f"尝试连接 {port.device} 失败：{e}")
+                        time.sleep(0.5) 
+                        break # 跳出 for 循环，进入 while 下一次重试
+            
+            time.sleep(0.3) # 扫描间隔
+        return False
+    
+    def disconnect(self, force=False):
         """断开串口连接"""
-        if not self.is_connected:
+        if not self.is_connected and not force:
             return
         
         self._stop_recv.set()
@@ -240,15 +294,21 @@ class ComPort(QObject):
         try:
             if self.serial_port and self.serial_port.is_open:
                 self.serial_port.close()
+                self.serial_port = None  # 设为 None 让 GC 回收
         except:
             pass
         
-        self.serial_port = None
+        self.serial_port = None 
         self.is_connected = False
         self._last_status_time = 0.0
         self._connect_time = 0.0
-        self._update_ui_state()
-        send_simple_message(MSG_TYPE_SUCCESS, "已断开连接", True, 1000)
+        
+        # 只有非 force 模式才更新 UI 和弹窗
+        if not force:
+            self._update_ui_state()
+            send_simple_message(MSG_TYPE_SUCCESS, "已断开连接", True, 1000)
+        else:
+            self._update_ui_state()
 
     def _sender_loop(self):
         """发送线程主循环"""

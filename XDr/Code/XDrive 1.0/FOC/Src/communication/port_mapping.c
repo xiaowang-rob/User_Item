@@ -11,6 +11,7 @@ USB、串口、CAN 端口映射
 #include "usb_port.h"
 #include "uart_port.h"
 #include "string.h"
+#include "App_IAP.h"
 
 tCOM_Frame com_frame;
 
@@ -179,6 +180,19 @@ void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
 
+            case CMD_IAP_ENTER:
+                if (fApp_JumpToBootloader())
+                {
+                    com_frame.txdata[0] = execute;
+                    com_frame.txdatalen = 1;
+                    fHostComputer_send();
+                    NVIC_SystemReset();
+                }
+                else
+                    com_frame.txdata[0] = failure;
+                com_frame.txdatalen = 1;
+                fHostComputer_send();
+                break;
             default:
                 break;
             }

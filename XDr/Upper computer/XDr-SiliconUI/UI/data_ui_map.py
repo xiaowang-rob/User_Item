@@ -140,6 +140,13 @@ class Cidx:
     CMD_STREAM_GET     = 0x23
     CMD_STREAM_SET     = 0x25
 
+    CMD_IAP_ENTER      = 0x31   #进入IAP模式
+    CMD_IAP_ERASE      = 0x32   #擦除flash
+    CMD_IAP_WRITE      = 0x33   #写入flash
+    CMD_IAP_VERIFY     = 0x34   #校验flash
+    CMD_IAP_EXIT       = 0x35   #退出IAP模式
+
+
 
 # ============================
 # 状态映射表 - 对应下位机状态索引
@@ -269,7 +276,6 @@ class Data_UI_Map:
         self.param_show_map = {
             Pidx.SENSOR_MODE:          top_area.sensormode_show,
             Pidx.RUN_MODE:            top_area.runmode_show,
-            Pidx.CAN_MODE:             top_area.canmode_show,
             Pidx.CAN_ID:               top_area.canid_show,
         }
 

@@ -200,7 +200,7 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
         smo.theta += 0.5f * diff; // 50%融合
     }
 
-    smo.theta = fNormalizeAngle02pi(smo.theta);
+    smo.theta = fNormalizeAngle_0_2pi(smo.theta);
 
     float angle_diff = normalize_angle_pi_pi(smo.theta - smo.theta_prev);
     float speed_raw = angle_diff / smo.dt;
