@@ -66,8 +66,8 @@ class MainWindow(QMainWindow):
         self.ui_map=Data_UI_Map(self)
 
         #功能初始化
-        self.comport=ComPort(self.top_area)
         self.data_process=DataProcess(self)
+        self.comport=ComPort(self)
         self.wave = Wave(self) 
         self.data_show=DataShow(self)
         self.log=LogManager(self)
@@ -76,8 +76,6 @@ class MainWindow(QMainWindow):
         self.quick_but=QuickBut(self,self.comport)
         self.IAP=IAP_downloader(self)
 
-        # 连接信号
-        self.comport.packet_valid.connect(self.data_process.handle_received_data)
 
     def showChildPage(self):
         self.layer_child_page.setChildPage(self.download_page)

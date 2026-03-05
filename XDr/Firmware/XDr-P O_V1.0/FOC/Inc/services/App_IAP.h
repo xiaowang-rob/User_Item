@@ -12,7 +12,6 @@
                                       /* F405 1MB Flash: Sector 11 地址范围 0x080E0000 - 0x080EFFFF */
 
 #define FLAG_ADDRESS 0x080E0000
-#define UPGRADE_MAGIC 0x12345678
 #define NORMAL_MAGIC 0xFFFFFFFF
 
 bool fApp_JumpToBootloader(void);

@@ -17,8 +17,11 @@ tCOM_Frame com_frame;
 
 tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
 
-const u8 execute = 0xfe;
-const u8 failure = 0xf0;
+const u8 execute = FEEDBACK_OK;
+const u8 failure = FEEDBACK_ERROR;
+
+static u8 Noresponse_tic = 0; // 无响应次数
+static bool system_message_send_flag = false;
 
 void fCommunicateInit()
 {
@@ -31,7 +34,11 @@ void fHostComputer_send()
     if (com_frame.com_port == UART_port)
         fUartPortSendFrame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
     else if (!fUSB_SendFrame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
+    {
         g_com_state.Host_port = NONE_port;
+        system_message_send_flag = false;
+        com_frame.stream_num = 0;
+    }
 }
 static bool param_send_flag = false;
 static u8 param_index = 0;
@@ -56,8 +63,7 @@ void _all_log_send()
     else
         fHostComputer_send();
 }
-static u8 Noresponse_tic = 0; // 无响应次数
-static bool system_message_send_flag = false;
+
 void _status_send()
 {
     com_frame.cmd_id = UC_connect;
@@ -180,14 +186,13 @@ void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
 
+            case CMD_SYSTEM_RESET: // 系统复位
+                NVIC_SystemReset();
+                break;
+
             case CMD_IAP_ENTER:
                 if (fApp_JumpToBootloader())
-                {
                     com_frame.txdata[0] = execute;
-                    com_frame.txdatalen = 1;
-                    fHostComputer_send();
-                    NVIC_SystemReset();
-                }
                 else
                     com_frame.txdata[0] = failure;
                 com_frame.txdatalen = 1;

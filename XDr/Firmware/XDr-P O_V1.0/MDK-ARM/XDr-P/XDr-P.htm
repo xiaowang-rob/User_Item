@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\XDr-P\XDr-P.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\XDr-P\XDr-P.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Wed Mar  4 11:24:36 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Thu Mar  5 17:55:55 2026
 <BR><P>
 <H3>Maximum Stack Usage =        336 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -398,7 +398,7 @@ Global Symbols
 <P><STRONG><a name="[19f]"></a>__aeabi_memcpy</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, memcpya.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[19d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_status_send
 <LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogReadFlash
-<LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUartPortSendFrame
 <LI><a href="#[191]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fCAN_SendData
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbRecvByte
@@ -592,7 +592,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_TransmitPacket
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_SetTxBuffer
 </UL>
-<BR>[Called By]<UL><LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<BR>[Called By]<UL><LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 </UL>
 
 <P><STRONG><a name="[a2]"></a>DISABLE_PWM</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, svpwm.o(.text.DISABLE_PWM))
@@ -956,11 +956,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_WaitForLastOperation
 </UL>
-<BR>[Called By]<UL><LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
+<BR>[Called By]<UL><LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
 </UL>
 
 <P><STRONG><a name="[1a9]"></a>HAL_FLASH_Lock</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, stm32f4xx_hal_flash.o(.text.HAL_FLASH_Lock))
-<BR><BR>[Called By]<UL><LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
+<BR><BR>[Called By]<UL><LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
 </UL>
 
 <P><STRONG><a name="[cd]"></a>HAL_FLASH_Program</STRONG> (Thumb, 210 bytes, Stack size 24 bytes, stm32f4xx_hal_flash.o(.text.HAL_FLASH_Program))
@@ -968,11 +968,11 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_WaitForLastOperation
 </UL>
-<BR>[Called By]<UL><LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
+<BR>[Called By]<UL><LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
 </UL>
 
 <P><STRONG><a name="[1a8]"></a>HAL_FLASH_Unlock</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, stm32f4xx_hal_flash.o(.text.HAL_FLASH_Unlock))
-<BR><BR>[Called By]<UL><LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
+<BR><BR>[Called By]<UL><LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
 </UL>
 
 <P><STRONG><a name="[b0]"></a>HAL_GPIO_Init</STRONG> (Thumb, 414 bytes, Stack size 48 bytes, stm32f4xx_hal_gpio.o(.text.HAL_GPIO_Init))
@@ -2503,20 +2503,20 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(RESET)
 </UL>
-<P><STRONG><a name="[18d]"></a>_frame_data_deal</STRONG> (Thumb, 732 bytes, Stack size 16 bytes, port_mapping.o(.text._frame_data_deal))
+<P><STRONG><a name="[18d]"></a>_frame_data_deal</STRONG> (Thumb, 782 bytes, Stack size 16 bytes, port_mapping.o(.text._frame_data_deal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = _frame_data_deal &rArr; fParamSet &rArr; fFOC_Init &rArr; fFOC_CoreInit &rArr; fLoopControlInit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogErase
-<LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fProManagerReset
-<LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
-<LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
-<LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamErase
+<BR>[Calls]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
+<LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fApp_JumpToBootloader
+<LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fProManagerReset
+<LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogErase
+<LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamErase
 <LI><a href="#[192]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_SetTargetValue
 <LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_StateUpdate
 <LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_SetRunMode
 <LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSet
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamGet
-<LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUartPortSendFrame
 <LI><a href="#[19b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 <LI><a href="#[19c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__NVIC_SystemReset
@@ -2528,10 +2528,10 @@ Global Symbols
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fCAN_RxDataCallback
 </UL>
 
-<P><STRONG><a name="[19d]"></a>_status_send</STRONG> (Thumb, 176 bytes, Stack size 16 bytes, port_mapping.o(.text._status_send))
+<P><STRONG><a name="[19d]"></a>_status_send</STRONG> (Thumb, 180 bytes, Stack size 16 bytes, port_mapping.o(.text._status_send))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = _status_send &rArr; fUSB_SendFrame &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
-<BR>[Calls]<UL><LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<BR>[Calls]<UL><LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUartPortSendFrame
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fStreamDataGet
 <LI><a href="#[19e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
@@ -2540,7 +2540,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_stream_data_trans
 </UL>
 
-<P><STRONG><a name="[1a0]"></a>_stream_data_trans</STRONG> (Thumb, 472 bytes, Stack size 24 bytes, port_mapping.o(.text._stream_data_trans))
+<P><STRONG><a name="[1a0]"></a>_stream_data_trans</STRONG> (Thumb, 510 bytes, Stack size 24 bytes, port_mapping.o(.text._stream_data_trans))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = _stream_data_trans &rArr; fLogReadFlash &rArr; fFLASH_ReadData &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -2548,7 +2548,7 @@ Global Symbols
 <LI><a href="#[19d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_status_send
 <LI><a href="#[1a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogReadFlash
 <LI><a href="#[193]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamGet
-<LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUartPortSendFrame
 <LI><a href="#[19b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fHostComputer_send
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fStreamDataGet
@@ -2609,8 +2609,8 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fSamplePointCalibration
 </UL>
 
-<P><STRONG><a name="[198]"></a>fApp_JumpToBootloader</STRONG> (Thumb, 82 bytes, Stack size 32 bytes, app_iap.o(.text.fApp_JumpToBootloader))
-<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = fApp_JumpToBootloader &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<P><STRONG><a name="[199]"></a>fApp_JumpToBootloader</STRONG> (Thumb, 324 bytes, Stack size 48 bytes, app_iap.o(.text.fApp_JumpToBootloader))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = fApp_JumpToBootloader &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[cc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASHEx_Erase
 <LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Lock
@@ -2721,7 +2721,7 @@ Global Symbols
 <LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Receive
 <LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 </UL>
-<BR>[Called By]<UL><LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamErase
+<BR>[Called By]<UL><LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamErase
 <LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFLASH_EraseSector
 </UL>
 
@@ -2730,8 +2730,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fEraseOneSector
 </UL>
-<BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogErase
-<LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
+<BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
+<LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogErase
 </UL>
 
 <P><STRONG><a name="[15a]"></a>fFLASH_Init</STRONG> (Thumb, 186 bytes, Stack size 32 bytes, flashdr.o(.text.fFLASH_Init))
@@ -2767,7 +2767,7 @@ Global Symbols
 <LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Receive
 <LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 </UL>
-<BR>[Called By]<UL><LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
+<BR>[Called By]<UL><LI><a href="#[19a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSave
 <LI><a href="#[1e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fLogDataWrite
 </UL>
 
@@ -2806,7 +2806,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[1ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_CoreInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_MainLoop
-<LI><a href="#[199]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fProManagerReset
+<LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fProManagerReset
 <LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamSet
 </UL>
 
@@ -2941,10 +2941,10 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fStreamDataGet
 </UL>
 
-<P><STRONG><a name="[19b]"></a>fHostComputer_send</STRONG> (Thumb, 56 bytes, Stack size 8 bytes, port_mapping.o(.text.fHostComputer_send))
+<P><STRONG><a name="[19b]"></a>fHostComputer_send</STRONG> (Thumb, 74 bytes, Stack size 8 bytes, port_mapping.o(.text.fHostComputer_send))
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = fHostComputer_send &rArr; fUSB_SendFrame &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
-<BR>[Calls]<UL><LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
+<BR>[Calls]<UL><LI><a href="#[196]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUSB_SendFrame
 <LI><a href="#[194]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fUartPortSendFrame
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_stream_data_trans
@@ -2977,7 +2977,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fProManagerMainLoop
 </UL>
 
-<P><STRONG><a name="[19a]"></a>fLogErase</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, log.o(.text.fLogErase))
+<P><STRONG><a name="[197]"></a>fLogErase</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, log.o(.text.fLogErase))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = fLogErase &rArr; fFLASH_EraseSector &rArr; fEraseOneSector &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFLASH_EraseSector
@@ -3024,7 +3024,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[1ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fParamTuneUpdate
 </UL>
 
-<P><STRONG><a name="[196]"></a>fParamErase</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, parameter_manager.o(.text.fParamErase))
+<P><STRONG><a name="[195]"></a>fParamErase</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, parameter_manager.o(.text.fParamErase))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = fParamErase &rArr; fEraseOneSector &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fEraseOneSector
@@ -3045,7 +3045,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[197]"></a>fParamSave</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, parameter_manager.o(.text.fParamSave))
+<P><STRONG><a name="[19a]"></a>fParamSave</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, parameter_manager.o(.text.fParamSave))
 <BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = fParamSave &rArr; fFLASH_EraseSector &rArr; fEraseOneSector &rArr; HAL_SPI_Receive &rArr; HAL_SPI_TransmitReceive &rArr; SPI_WaitFlagStateUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFLASH_WriteWord
@@ -3111,7 +3111,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemStateMachine_MainLoop
 </UL>
 
-<P><STRONG><a name="[199]"></a>fProManagerReset</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, protection_manager.o(.text.fProManagerReset))
+<P><STRONG><a name="[198]"></a>fProManagerReset</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, protection_manager.o(.text.fProManagerReset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = fProManagerReset &rArr; fFOC_Init &rArr; fFOC_CoreInit &rArr; fLoopControlInit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fFOC_Init
@@ -3313,7 +3313,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usbRecvByte
 </UL>
 
-<P><STRONG><a name="[195]"></a>fUSB_SendFrame</STRONG> (Thumb, 284 bytes, Stack size 32 bytes, usb_port.o(.text.fUSB_SendFrame))
+<P><STRONG><a name="[196]"></a>fUSB_SendFrame</STRONG> (Thumb, 284 bytes, Stack size 32 bytes, usb_port.o(.text.fUSB_SendFrame))
 <BR><BR>[Stack]<UL><LI>Max Depth = 84<LI>Call Chain = fUSB_SendFrame &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_FS

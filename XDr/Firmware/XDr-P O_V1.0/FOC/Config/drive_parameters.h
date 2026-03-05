@@ -7,11 +7,11 @@
 时间用ms
 */
 #define Description "XDr-P"
-#define VERSION "O_V1.0_260303"
+#define VERSION "O_V1.0_260305"
 #define AUTHOR "xiaowang"
-#define MAX_CURRENT_string "100A"
-#define Voltage_string "20-30V"
-#define MAX_Temperature_string "90°C"
+#define MAX_CURRENT_string "100"
+#define Voltage_string "20-30"
+#define MAX_Temperature_string "90"
 #define DRIVE_DESC_str \
     Description "," VERSION "," AUTHOR "," MAX_CURRENT_string "," Voltage_string "," MAX_Temperature_string
 

@@ -1,4 +1,4 @@
-from UI.data_ui_map import Cidx
+from UI.data_ui_map import Cidx,Fidx
 from PyQt5.QtWidgets import QMessageBox
 from functons.message_show import (
     send_simple_message,
@@ -31,17 +31,22 @@ class DataProcess:
                         self.mw.comport.send_packet(Cidx.UC_CONNECT, bytes()) 
                     else:
                         # 解析 system_message 字符串，按逗号分隔
-                        sys_msg=data.decode()
+                        sys_msg_in=data.decode()
+                        if not sys_msg_in:
+                            sys_msg=""
+                        else:
+                            sys_msg=''.join(c for c in sys_msg_in if 32 <= ord(c) <= 126).strip()
                         parts = sys_msg.split(',')
                         version = parts[0].strip()+" "+parts[1].strip()
                         self.mw.IAP.set_current_version(version)
                         # 定义字段标签（项目名称）
-                        labels = ["设备名称", "版本", "作者", "最大电流", "电压范围", "最大温度"]
+                        labels = ["设备名称", "版本", "作者", "最大电流", "输入电压", "最大温度"]
+                        units=["","","","A","V","°C"]
                         # 构建带标签的多行字符串
                         formatted_lines = []
                         for i, label in enumerate(labels):
                             value = parts[i].strip() if i < len(parts) else ""
-                            formatted_lines.append(f"{label}: {value}")
+                            formatted_lines.append(f"{label}: {value}{units[i]}")
 
                         # 用换行符连接所有行
                         self.mw.system_message = "\n".join(formatted_lines)
@@ -49,19 +54,19 @@ class DataProcess:
                 case Cidx.LOG_GET:  # 日志读取返回
                     self.mw.log.add_log(data)
                 case Cidx.LOG_ERASE:
-                    if(data[0] == 0xfe):
+                    if(data[0] == Fidx.SUCCESS):
                         send_titled_message(MSG_TYPE_SUCCESS, "提示", "日志已清除",True,1000)
                     else:
                         send_titled_message(MSG_TYPE_ERROR, "错误", "日志清除失败")
                     return
                 case Cidx.PARAM_ERASE:  # 参数读取返回
-                    if(data[0] == 0xfe):
+                    if(data[0] == Fidx.SUCCESS):
                         send_titled_message(MSG_TYPE_SUCCESS, "提示", "参数已清除",True,1000)
                     else:
                         send_titled_message(MSG_TYPE_ERROR, "错误", "参数清除失败")
                     return
                 case Cidx.PARAM_SAVE:  # 参数保存返回
-                    if(data[0] == 0xfe):
+                    if(data[0] == Fidx.SUCCESS):
                         send_titled_message(MSG_TYPE_SUCCESS, "提示", "参数已保存",True,1000)
                     else:
                         send_titled_message(MSG_TYPE_ERROR, "错误", "参数保存失败")
@@ -75,8 +80,8 @@ class DataProcess:
                         self.mw.wave.add_data_by_index(i,struct.unpack('<f',data[i*4:(i+1)*4])[0])
                     return
                 
-                case Cidx.CMD_IAP_ENTER,Cidx.CMD_IAP_ERASE,Cidx.CMD_IAP_WRITE,Cidx.CMD_IAP_VERIFY,Cidx.CMD_IAP_EXIT:
-                    self.mw.IAP.iap_cmd_received(cmd_id, data)
+                case Cidx.CMD_BL_CONNECT|Cidx.CMD_IAP_ENTER|Cidx.CMD_IAP_ERASE|Cidx.CMD_IAP_WRITE|Cidx.CMD_IAP_VERIFY|Cidx.CMD_IAP_EXIT:
+                    self.mw.IAP._iap_cmd_received(cmd_id,data)
                     return
 
 

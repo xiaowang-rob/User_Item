@@ -71,7 +71,6 @@ void LED_Process(void)
     case LED_WRITING: /* 同步快闪 - 150ms */
         interval = 100;
         break;
-        return;
     default:
         return;
     }

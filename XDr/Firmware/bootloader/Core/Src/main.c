@@ -23,7 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stdbool.h"
 #include "led.h"
 #include "usbd_cdc_if.h"
 /* USER CODE END Includes */
@@ -53,7 +52,7 @@ volatile uint8_t g_erase_sectors_start = 0;  // 起始扇区号
 volatile uint8_t g_erase_sectors_count = 0;  // 擦除扇区数量
 
 volatile uint32_t upgrade_addr;
-
+volatile uint8_t g_fw_info_str[24] = {0};
 volatile bool g_in_upgrade_mode = false;
 /* USER CODE END PV */
 
@@ -69,9 +68,9 @@ void SystemClock_Config(void);
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -104,8 +103,7 @@ int main(void)
   /* 检查升级标志，有则进入升级模式 */
   if (Check_Upgrade_Flag())
   {
-    Clear_Upgrade_Flag(); /* 清除标志 */
-    g_in_upgrade_mode = 1;
+    g_in_upgrade_mode = true;
     LED_SetState(LED_IDLE);
   }
 
@@ -123,7 +121,8 @@ int main(void)
         /* 根据命令类型设置对应 LED 状态 */
         switch (g_upgrade_cmd)
         {
-        case CMD_IAP_ENTER: /* 进入升级确认 */
+        case CMD_BL_CONNECT: /* 连接 BL */
+        case CMD_IAP_ENTER:  /* 进入升级确认 */
           LED_SetState(LED_IDLE);
           break;
 
@@ -163,7 +162,7 @@ int main(void)
         /* 如果是跳转命令，显示结果后执行 */
         if (g_upgrade_cmd == CMD_IAP_EXIT)
         {
-          if (result)
+          if (result == FEEDBACK_OK)
           {
             LED_SetState(LED_SUCCESS);
             for (int i = 0; i < 200; i++)
@@ -179,7 +178,7 @@ int main(void)
             LED_SetState(LED_ERROR);
           }
         }
-        else if (!result)
+        else if (result == FEEDBACK_ERROR)
         {
           /* 其他命令失败 */
           LED_SetState(LED_ERROR);
@@ -205,22 +204,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -235,9 +234,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -250,63 +248,62 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+ * @brief  从 Flash 读取固件信息字符串
+ */
+static void FW_Info_ReadRaw(void)
+{
+  uint8_t i;
+  memset((uint8_t *)g_fw_info_str, 0, sizeof(g_fw_info_str));
+
+  for (i = 0; i < sizeof(g_fw_info_str) - 1; i++)
+  {
+    uint8_t byte = *(__IO uint8_t *)(FLAG_ADDRESS + i);
+    if ((byte == 0x00) || (byte == 0xFF))
+      break;
+    g_fw_info_str[i] = (char)byte;
+  }
+}
 
 /**
- * @brief 检查升级标志
+ * @brief  判断字符串是否有效
+ * @retval 1: 有效，0: 无效
+ */
+static bool FW_Info_IsValid(void)
+{
+  return (g_fw_info_str[0] != '\0' && g_fw_info_str[0] != 0xFF);
+}
+
+/**
+ * @brief  检查升级标志（读取字符串判断）
  * @retval 1: 需要升级，0: 正常运行
  */
-uint8_t Check_Upgrade_Flag(void)
+bool Check_Upgrade_Flag(void)
 {
-  return (*(__IO uint32_t *)FLAG_ADDRESS == UPGRADE_MAGIC) ? 1 : 0;
+  FW_Info_ReadRaw();
+  return FW_Info_IsValid();
 }
 
 /**
- * @brief 设置升级标志
+ * @brief  清除升级标志（擦除扇区即可）
  */
-void Set_Upgrade_Flag(void)
+bool Clear_Upgrade_Flag(void)
 {
   HAL_FLASH_Unlock();
 
-  FLASH_EraseInitTypeDef erase_init;
+  FLASH_EraseInitTypeDef erase_init = {0};
   uint32_t sector_error;
-
   erase_init.TypeErase = FLASH_TYPEERASE_SECTORS;
   erase_init.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-  /* 修改为 Sector 11 */
-  erase_init.Sector = FLASH_SECTOR_11;
+  erase_init.Sector = CONFIG_SECTOR;
   erase_init.NbSectors = 1;
 
-  if (HAL_FLASHEx_Erase(&erase_init, &sector_error) == HAL_OK)
-  {
-    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLAG_ADDRESS, UPGRADE_MAGIC);
-  }
-
+	bool result=HAL_FLASHEx_Erase(&erase_init, &sector_error) != HAL_OK;
   HAL_FLASH_Lock();
+  memset((uint8_t *)g_fw_info_str, 0, sizeof(g_fw_info_str)); // 清空本地缓存
+  return !result;
 }
 
-/**
- * @brief 清除升级标志
- */
-void Clear_Upgrade_Flag(void)
-{
-  HAL_FLASH_Unlock();
-
-  FLASH_EraseInitTypeDef erase_init;
-  uint32_t sector_error;
-
-  erase_init.TypeErase = FLASH_TYPEERASE_SECTORS;
-  erase_init.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-  /* 修改为 Sector 11 */
-  erase_init.Sector = FLASH_SECTOR_11;
-  erase_init.NbSectors = 1;
-
-  if (HAL_FLASHEx_Erase(&erase_init, &sector_error) == HAL_OK)
-  {
-    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, FLAG_ADDRESS, NORMAL_MAGIC);
-  }
-
-  HAL_FLASH_Lock();
-}
 /**
  * @brief 根据 Flash 地址计算扇区号
  * @param addr: Flash 地址
@@ -348,26 +345,26 @@ uint8_t Flash_GetSectorFromAddr(uint32_t addr)
  * @param total_size: 固件总大小
  * @retval 1: 成功，0: 失败
  */
-uint8_t Flash_CalcEraseSectors(uint32_t start_addr, uint32_t total_size)
+bool Flash_CalcEraseSectors(uint32_t start_addr, uint32_t total_size)
 {
   if (total_size == 0)
-    return 0; // 固件大小为 0，无效
+    return false; // 固件大小为 0，无效
 
   uint32_t end_addr = start_addr + total_size;
 
   // 获取起始扇区
   uint8_t start_sector = Flash_GetSectorFromAddr(start_addr);
   if (start_sector == 0xFF)
-    return 0;
+    return false;
 
   // 获取结束扇区 (end_addr-1 是因为地址是开区间)
   uint8_t end_sector = Flash_GetSectorFromAddr(end_addr - 1);
   if (end_sector == 0xFF)
-    return 0;
+    return false;
 
   // 安全检查 1: 不能擦除 Sector 0 (Bootloader 所在)
   if (start_sector == 0)
-    return 0;
+    return false;
 
   // 安全检查 2: 不能擦除 CONFIG_SECTOR (存升级标志)
   if (end_sector >= CONFIG_SECTOR)
@@ -379,17 +376,17 @@ uint8_t Flash_CalcEraseSectors(uint32_t start_addr, uint32_t total_size)
   g_erase_sectors_start = start_sector;
   g_erase_sectors_count = end_sector - start_sector + 1;
 
-  return 1;
+  return true;
 }
 /**
  * @brief 擦除 App 区 Flash (使用动态计算的扇区)
  * @retval 1: 成功，0: 失败
  */
-uint8_t Flash_Erase_App(void)
+bool Flash_Erase_App(void)
 {
   // 检查是否已计算擦除范围
   if (g_erase_sectors_count == 0)
-    return 0;
+    return false;
 
   FLASH_EraseInitTypeDef erase_init;
   uint32_t sector_error;
@@ -401,7 +398,7 @@ uint8_t Flash_Erase_App(void)
   erase_init.Sector = g_erase_sectors_start;    // 动态起始扇区
   erase_init.NbSectors = g_erase_sectors_count; // 动态扇区数量
 
-  uint8_t result = (HAL_FLASHEx_Erase(&erase_init, &sector_error) == HAL_OK) ? 1 : 0;
+  bool result = HAL_FLASHEx_Erase(&erase_init, &sector_error) == HAL_OK;
 
   HAL_FLASH_Lock();
   return result;
@@ -413,7 +410,7 @@ uint8_t Flash_Erase_App(void)
  * @param len: 数据长度 (字节)
  * @retval 1: 成功，0: 失败
  */
-uint8_t Flash_Write(uint32_t addr, uint8_t *data, uint16_t len)
+bool Flash_Write(uint32_t addr, uint8_t *data, uint16_t len)
 {
   HAL_StatusTypeDef status = HAL_OK;
   HAL_FLASH_Unlock();
@@ -437,23 +434,23 @@ uint8_t Flash_Write(uint32_t addr, uint8_t *data, uint16_t len)
   }
 
   HAL_FLASH_Lock();
-  return (status == HAL_OK) ? 1 : 0;
+  return status == HAL_OK;
 }
 
 /**
  * @brief 校验 Flash
  * @retval 1: 成功，0: 失败
  */
-uint8_t Flash_Verify(uint32_t addr, uint8_t *data, uint16_t len)
+bool Flash_Verify(uint32_t addr, uint8_t *data, uint16_t len)
 {
   for (uint16_t i = 0; i < len; i++)
   {
     if (*(uint8_t *)(addr + i) != data[i])
     {
-      return 0;
+      return false;
     }
   }
-  return 1;
+  return true;
 }
 /**
  * @brief 跳转到 App
@@ -486,17 +483,37 @@ void JumpToApp(void)
     }
   }
 }
+uint8_t firmware_info[36] = {0x3A, CMD_BL_CONNECT};
+uint8_t response[6] = {0x3A, 0x00, 0x01, 0x00, 0x00, 0x0D}; // 0xf0和0xfe 校验位都为0
 /**
  * @brief 处理升级命令
  * @retval 1: 成功，0: 失败
  */
 uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
 {
-  uint8_t response[6] = {0x3A, cmd, 0x01, 0x00, 0x00, 0x0D};
-  uint8_t result = 1;
+
+  uint8_t result = FEEDBACK_OK;
 
   switch (cmd)
   {
+  case CMD_BL_CONNECT: /* 连接 Bootloader */
+    firmware_info[2] = strlen((char *)g_fw_info_str);
+    memcpy(&firmware_info[3], (uint8_t *)g_fw_info_str, firmware_info[2]);
+    uint8_t checksum = 0;
+    for (int i = 0; i < firmware_info[2]; i++)
+    {
+      checksum += firmware_info[i] & 0x01;
+    }
+    firmware_info[3 + firmware_info[2]] = checksum & 0x01;
+    firmware_info[4 + firmware_info[2]] = 0x0D;
+    /*  USB 发送状态检查与重试 */
+    uint32_t start = HAL_GetTick();
+    while ((CDC_Transmit_FS(firmware_info, 5 + firmware_info[2]) == USBD_BUSY) &&
+           (HAL_GetTick() - start < 100)) // 100ms 超时
+    {
+      HAL_Delay(1);
+    }
+    return FEEDBACK_OK;
   case CMD_IAP_ENTER: /* 进入升级 (确认) */
     if (len >= 4)
     {
@@ -504,23 +521,15 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
       g_firmware_total_size = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
 
       // 计算需要擦除的扇区范围
-      if (Flash_CalcEraseSectors(APP_START_ADDR, g_firmware_total_size))
-      {
-        result = 1;
-      }
-      else
-      {
-        result = 0; // 扇区计算失败
-      }
+      result = Flash_CalcEraseSectors(APP_START_ADDR, g_firmware_total_size) ? FEEDBACK_OK : FEEDBACK_ERROR;
     }
     else
     {
-      result = 0; // 数据长度不足 4 字节
+      result = FEEDBACK_ERROR; // 数据长度不足 4 字节
     }
     break;
   case CMD_IAP_ERASE_FLASH: /* 擦除 Flash */
-    //result = Flash_Erase_App();
-		result=1;
+    result = Flash_Erase_App() ? FEEDBACK_OK : FEEDBACK_ERROR;
     break;
 
   case CMD_IAP_WRITE_FLASH: /* 写入 Flash */
@@ -529,7 +538,7 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
                    ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
     if (upgrade_addr < 0x08004000 || upgrade_addr >= 0x080FFFFF)
     {
-      result = 0; // 非法地址，直接丢弃
+      result = FEEDBACK_ERROR; // 非法地址，直接丢弃
       break;
     }
     g_upgrade_len = len - 4; /* 减去地址(4B) */
@@ -537,12 +546,11 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
     /* [修改点 7] 地址对齐检查 */
     if (upgrade_addr % 4 != 0)
     {
-      result = 0; /* 地址必须 4 字节对齐 */
+      result = FEEDBACK_ERROR; /* 地址必须 4 字节对齐 */
     }
     else
     {
-      //result = Flash_Write(upgrade_addr, &data[4], g_upgrade_len);
-			result=1;
+      result = Flash_Write(upgrade_addr, &data[4], g_upgrade_len) ? FEEDBACK_OK : FEEDBACK_ERROR;
     }
     break;
 
@@ -550,21 +558,20 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
     upgrade_addr = (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
                    ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
     g_upgrade_len = len - 4; /* 减去地址(4B) */
-    //result = Flash_Verify(upgrade_addr, &data[4], g_upgrade_len);
-		result=1;
+    result = Flash_Verify(upgrade_addr, &data[4], g_upgrade_len) ? FEEDBACK_OK : FEEDBACK_ERROR;
     break;
 
-  case CMD_IAP_EXIT: /* 跳转 App */
-    result = 1;
+  case CMD_IAP_EXIT:                                              /* 跳转 App */
+    result = Clear_Upgrade_Flag() ? FEEDBACK_OK : FEEDBACK_ERROR; /* 清除标志 */
     break;
 
   default:
-    result = 0;
+    result = FEEDBACK_ERROR;
     break;
   }
 
+  response[1] = cmd;
   response[3] = result;
-  response[4] = response[3] & 0x01; // 校验位只加数据
 
   /*  USB 发送状态检查与重试 */
   uint32_t start = HAL_GetTick();
@@ -579,9 +586,9 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -594,12 +601,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

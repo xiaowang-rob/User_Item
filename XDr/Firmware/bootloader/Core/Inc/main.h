@@ -23,7 +23,8 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -31,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdbool.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -45,14 +46,17 @@ extern "C" {
   /* F405 1MB Flash: Sector 11 地址范围 0x080E0000 - 0x080EFFFF */
 
 #define FLAG_ADDRESS 0x080E0000
-#define UPGRADE_MAGIC 0x12345678
 #define NORMAL_MAGIC 0xFFFFFFFF
 
+#define CMD_BL_CONNECT 0x3f       // 连接Bootloader
 #define CMD_IAP_ENTER 0x31        // 进入IAP模式 进入开始固件烧录确认
 #define CMD_IAP_ERASE_FLASH 0x32  // 擦除flash
 #define CMD_IAP_WRITE_FLASH 0x33  // 写入flash
 #define CMD_IAP_VERIFY_FLASH 0x34 // 校验flash
 #define CMD_IAP_EXIT 0x35         // 完成 退出IAP模式 进入APP
+
+#define FEEDBACK_OK 0xf0
+#define FEEDBACK_ERROR 0xfe
 
   /* 升级命令全局变量 (usbd_cdc_if.c 中定义) */
   extern volatile uint8_t g_upgrade_cmd;
@@ -65,39 +69,39 @@ extern "C" {
   extern volatile uint8_t g_erase_sectors_start;  // 起始扇区号
   extern volatile uint8_t g_erase_sectors_count;  // 擦除扇区数量
 
-  uint8_t Check_Upgrade_Flag(void);
+  bool Check_Upgrade_Flag(void);
   void Set_Upgrade_Flag(void);
-  void Clear_Upgrade_Flag(void);
-  uint8_t Flash_Erase_App(void);
-  uint8_t Flash_Write(uint32_t addr, uint8_t *data, uint16_t len);
-  uint8_t Flash_Verify(uint32_t addr, uint8_t *data, uint16_t len);
+  bool Clear_Upgrade_Flag(void);
+  bool Flash_Erase_App(void);
+  bool Flash_Write(uint32_t addr, uint8_t *data, uint16_t len);
+  bool Flash_Verify(uint32_t addr, uint8_t *data, uint16_t len);
 
   void JumpToApp(void);
   uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len);
-/* USER CODE END ET */
+  /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+  /* Exported constants --------------------------------------------------------*/
+  /* USER CODE BEGIN EC */
 
-/* USER CODE END EC */
+  /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+  /* Exported macro ------------------------------------------------------------*/
+  /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+  /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+  /* Exported functions prototypes ---------------------------------------------*/
+  void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
+  /* USER CODE BEGIN EFP */
 
-/* USER CODE END EFP */
+  /* USER CODE END EFP */
 
-/* Private defines -----------------------------------------------------------*/
+  /* Private defines -----------------------------------------------------------*/
 
-/* USER CODE BEGIN Private defines */
+  /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+  /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

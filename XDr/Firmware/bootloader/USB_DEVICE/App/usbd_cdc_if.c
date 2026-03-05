@@ -261,12 +261,16 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   * @param  Len: Number of data received (in bytes)
   * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
+volatile uint8_t rxbuf[256];
+uint8_t rxlen;
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
 
   /* 解析升级协议：包头(0x3A) + 命令 + 数据长度+ 数据（地址(4B) + 数据） + 校验 + 包尾(0x0D) */
-  if (*Len >= 6)
+	rxlen=*Len;
+	memcpy((uint8_t*)rxbuf,Buf,rxlen);
+  if (*Len >= 5)
   {
     if (Buf[0] == 0x3A && Buf[*Len - 1] == 0x0D)
     {

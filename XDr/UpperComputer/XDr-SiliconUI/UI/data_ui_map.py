@@ -140,13 +140,20 @@ class Cidx:
     CMD_STREAM_GET     = 0x23
     CMD_STREAM_SET     = 0x25
 
+    CMD_SYSTEM_RESET   = 0x30   #系统复位
+    CMD_BL_CONNECT     = 0x3f   #连接BL设备
     CMD_IAP_ENTER      = 0x31   #进入IAP模式
     CMD_IAP_ERASE      = 0x32   #擦除flash
     CMD_IAP_WRITE      = 0x33   #写入flash
     CMD_IAP_VERIFY     = 0x34   #校验flash
     CMD_IAP_EXIT       = 0x35   #退出IAP模式
 
-
+# ============================
+# 反馈映射表 - 对应下位机对上位机消息的反馈
+# ============================
+class Fidx:
+    SUCCESS            = 0xf0
+    ERROR              = 0xfe
 
 # ============================
 # 状态映射表 - 对应下位机状态索引
