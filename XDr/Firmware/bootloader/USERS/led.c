@@ -46,7 +46,7 @@ void LED_SetState(LedState_t state)
     /* 立即更新显示 */
     _LED_Update();
 }
-
+volatile static uint8_t _tic = 0;
 /* ========== 主循环中调用，非阻塞 ========== */
 void LED_Process(void)
 {
@@ -68,9 +68,14 @@ void LED_Process(void)
         interval = 100;
         break;
 
-    case LED_WRITING: /* 同步快闪 - 150ms */
-        interval = 100;
-        break;
+    case LED_WRITING: /* 同步闪烁 */
+        if (_tic++ > 200)
+        {
+            g_led_toggle = !g_led_toggle;
+            _tic = 0;
+            _LED_Update();
+        }
+        return;
     default:
         return;
     }

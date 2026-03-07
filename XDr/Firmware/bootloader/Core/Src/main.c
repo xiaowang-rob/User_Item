@@ -184,7 +184,7 @@ int main(void)
           LED_SetState(LED_ERROR);
         }
       }
-      HAL_Delay(1);
+			HAL_Delay(1);
     }
   }
 
