@@ -12,7 +12,6 @@
 #define FLASH_BLOCK_NUM 256                ///< 块数量：256块
 
 /* 函数声明 -------------------------------------------------------------*/
-
 void fFLASH_Init(void);
 void fEraseOneSector(u32 Address);
 void fFLASH_EraseSector(u32 Address, u32 Write_data_NUM);

@@ -19,7 +19,7 @@ MT6816---1
 #define RGB_PWM_GET_HTIM (htim4)
 #define RGB_PWM_CHANNEL1 TIM_CHANNEL_2
 #define Pixel_NUM 2 // RGB数量宏定义
-#define CODE_1 (70)
+#define CODE_1 (75) 
 #define CODE_0 (35)
 
 #define LED_ENCODER_GPIOx GPIOD

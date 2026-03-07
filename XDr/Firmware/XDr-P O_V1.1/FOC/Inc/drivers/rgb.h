@@ -1,54 +1,47 @@
-
+/***************************************************************************************************
+ * @file    rgb.h
+ * @brief   RGB LED 驱动 (WS2812B呼吸+GPIO状态LED)
+ ***************************************************************************************************/
 
 #ifndef __RGB_H
 #define __RGB_H
 
-#include "main.h"
+#include "device.h"
+#include <stdbool.h>
 
-// 单个LED的颜色控制结构体
+/* ========== 颜色结构体 ========== */
 typedef struct
 {
-    u16 R; ///< 红色分量，范围0-255
-    u16 G; ///< 绿色分量，范围0-255
-    u16 B; ///< 蓝色分量，范围0-255
+    uint8_t R;
+    uint8_t G;
+    uint8_t B;
 } tRGBColor;
 
-// 预定义颜色常量声明
-extern const tRGBColor RED;     ///< 红色
-extern const tRGBColor GREEN;   ///< 绿色
-extern const tRGBColor BLUE;    ///< 深蓝色
-extern const tRGBColor SKY;     ///< 天蓝色
-extern const tRGBColor MAGENTA; ///< 粉色
-extern const tRGBColor YELLOW;  ///< 黄色
-extern const tRGBColor ORANGE;  ///< 橙色
-extern const tRGBColor BLACK;   ///< 无颜色
-extern const tRGBColor WHITE;   ///< 白色
+/* ========== 预定义颜色 ========== */
+extern const tRGBColor RED;
+extern const tRGBColor GREEN;
+extern const tRGBColor BLUE;
+extern const tRGBColor SKY;
+extern const tRGBColor MAGENTA;
+extern const tRGBColor YELLOW;
+extern const tRGBColor ORANGE;
+extern const tRGBColor BLACK;
+extern const tRGBColor WHITE;
 
-// 呼吸灯控制结构体
-typedef struct
-{
-    tRGBColor target_color; ///< 目标颜色（最大亮度时）
-    u8 sine_index;          ///< 正弦表索引 [0-255]
-    tRGBColor last_output;  ///< 上次输出颜色（用于变化检测）
-    u32 last_time_ms;       ///< 上次更新时间
-} tRGBBreath;
-
-// LED状态枚举
+/* ========== LED状态枚举 ========== */
 typedef enum
 {
-    LED_OFF,        ///< 常灭
-    LED_SLOW_BLINK, ///< 慢速闪烁
-    LED_FAST_BLINK, ///< 快速闪烁
-    LED_ON          ///< 常亮
+    LED_OFF,
+    LED_SLOW_BLINK,
+    LED_FAST_BLINK,
+    LED_ON
 } eLED_State;
 
-// LED闪烁时间常量定义
-#define LED_SLOW_BLINK_T_ms 1000 ///< 慢速闪烁周期：1秒
-#define LED_FAST_BLINK_T_ms 500  ///< 快速闪烁周期：0.5秒
-
-/* 函数声明 ----------------------------------------------------------------*/
-
-void fRGB_Breathe(tRGBColor Color);
+/* ========== 函数声明 ========== */
+void fRGB_Init(void);
+bool fRGB_SetAllColor(tRGBColor color);
+void fRGB_Breathe(tRGBColor Color); // 原API，无period_ms参数
+void fRGB_Stop(void);
 void fLED_Show(eLED_State can_state, eLED_State encoder_state);
 
 #endif /* __RGB_H */

@@ -205,6 +205,7 @@ bool fFLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
     }
 
     FLASH_Disable();
+    g_device_status.flash_state = ONLINE; // 设置在线状态
     return true;
 }
 
@@ -240,6 +241,7 @@ bool fFLASH_WriteWord(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 
     FLASH_Disable();
     FLASH_Wait_Busy(); // 等待编程完成（典型时间0.7ms）
+    g_device_status.flash_state = ONLINE;
     return true;
 }
 
@@ -281,7 +283,6 @@ static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
         }
     }
 }
-
 /**
  * @brief  初始化Flash存储器
  * @note   读取设备ID（0xEF4018）验证连接
@@ -291,7 +292,7 @@ void fFLASH_Init(void)
 {
     u8 id[3] = {0};
     FLASH_Enable(); // 片选
-    HAL_Delay(10);  // 上电延时
+    HAL_Delay(100); // 上电延时
 
     spi_Transmit_one_byte(0x9F);    // Read JEDEC ID命令
     id[0] = spi_Receive_one_byte(); // Manufacturer ID

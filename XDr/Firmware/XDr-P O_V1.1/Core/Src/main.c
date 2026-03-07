@@ -129,7 +129,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     SystemStateMachine_MainLoop();
-
 #ifdef __DEBUG__ //***********调试************
 
     time_while_T = HAL_GetTick_us() - time_while_zero;

@@ -38,6 +38,7 @@
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\drivers\rgb.h \
-  ..\FOC\Inc\services\protection_manager.h ..\FOC\Config\device.h \
-  ..\Core\Inc\spi.h ..\FOC\Inc\communication\port_mapping.h \
-  ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h
+  ..\FOC\Config\device.h ..\Core\Inc\spi.h \
+  ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h

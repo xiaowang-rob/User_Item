@@ -42,4 +42,4 @@
   ..\FOC\Config\device.h ..\Core\Inc\spi.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
   ..\FOC\Inc\communication\DataMonitoring.h ..\FOC\Inc\drivers\adc_dr.h \
-  ..\FOC\Inc\drivers\flashDr.h
+  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Inc\drivers\rgb.h

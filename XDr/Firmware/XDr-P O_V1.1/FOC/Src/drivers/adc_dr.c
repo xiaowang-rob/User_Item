@@ -109,10 +109,11 @@ void fAdcDrInit(void)
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)g_adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)g_adc2_buffer, 4);
-    fAdcSampleChange(2050);
-    fPulseInterferenceInit(&g_ui_filter, g_ui_buffer, FILTER_BUFFER_SIZE);
-    fPulseInterferenceInit(&g_vi_filter, g_vi_buffer, FILTER_BUFFER_SIZE);
-    fPulseInterferenceInit(&g_wi_filter, g_wi_buffer, FILTER_BUFFER_SIZE);
+		HAL_Delay(100);//等待采集数据
+		fAdcSampleChange(2050);
+//    fPulseInterferenceInit(&g_ui_filter, g_ui_buffer, FILTER_BUFFER_SIZE);
+//    fPulseInterferenceInit(&g_vi_filter, g_vi_buffer, FILTER_BUFFER_SIZE);
+//    fPulseInterferenceInit(&g_wi_filter, g_wi_buffer, FILTER_BUFFER_SIZE);
 }
 
 /**
@@ -134,9 +135,9 @@ void fAdc2Sample(void)
  */
 void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
-    g_adc1_buffer[0] = fPulseInterferenceFilter(&g_ui_filter, g_adc1_buffer[0]);
-    g_adc1_buffer[1] = fPulseInterferenceFilter(&g_vi_filter, g_adc1_buffer[1]);
-    g_adc1_buffer[2] = fPulseInterferenceFilter(&g_wi_filter, g_adc1_buffer[2]);
+//    g_adc1_buffer[0] = fPulseInterferenceFilter(&g_ui_filter, g_adc1_buffer[0]);
+//    g_adc1_buffer[1] = fPulseInterferenceFilter(&g_vi_filter, g_adc1_buffer[1]);
+//    g_adc1_buffer[2] = fPulseInterferenceFilter(&g_wi_filter, g_adc1_buffer[2]);
 
     // 计算校准后的电流值（确保非负）
     float raw_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
@@ -179,23 +180,28 @@ void fAdcGetVoltage(float *voltage)
  */
 void fAdcGetTemp(u8 *ut, u8 *vt, u8 *wt, float *temperature)
 {
-    switch (g_temp_index)
-    {
-    case 0:
-        *ut = g_adc_to_temp[g_adc2_buffer[0]];
-        g_temp_index = 1;
-        break;
-    case 1:
-        *vt = g_adc_to_temp[g_adc2_buffer[1]];
-        g_temp_index = 2;
-        break;
-    case 2:
-        *wt = g_adc_to_temp[g_adc2_buffer[2]];
-        g_temp_index = 3;
-        break;
-    default:
-        *temperature = (float)(*ut + *vt + *wt) / 3.0f;
-        g_temp_index = 0;
-        break;
-    }
+//    switch (g_temp_index)
+//    {
+//    case 0:
+//        *ut = g_adc_to_temp[g_adc2_buffer[0]];
+//        g_temp_index = 1;
+//        break;
+//    case 1:
+//        *vt = g_adc_to_temp[g_adc2_buffer[1]];
+//        g_temp_index = 2;
+//        break;
+//    case 2:
+//        *wt = g_adc_to_temp[g_adc2_buffer[2]];
+//        g_temp_index = 3;
+//        break;
+//    default:
+//        *temperature = (float)(*ut + *vt + *wt) / 3.0f;
+//        g_temp_index = 0;
+//        break;
+//    }
+	//由于这一版温度采样我设计有问题，跳过
+	*ut=25;
+	*vt=25;
+	*wt=25;
+	*temperature=25;
 }

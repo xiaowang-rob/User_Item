@@ -113,8 +113,14 @@ class ComPort(QObject):
 
     def _refresh_ports(self):
         """刷新可用串口列表，处理自动连接逻辑"""
+        if self.is_connected:
+            return
+
         ports_info = serial.tools.list_ports.comports()
         current_devices = [p.device for p in ports_info]
+
+        if current_devices == self._current_ports:
+            return
         
         # 保存当前选中的设备
         combo = self.comport_list
