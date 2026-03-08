@@ -7,7 +7,7 @@
 #include "parameter_manager.h"
 #include "system_statemachine.h"
 
-tDeviceStatus g_device_status;
+tDeviceStatus g_device_status={.encoder_state=ONLINE};
 tProtectionManager g_pro_manager = {0};
 // 容忍度检测
 bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)

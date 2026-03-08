@@ -33,5 +33,5 @@ typedef enum
 
 // 读取数据流
 void fStreamDataGet(Data_stream_e stream, float *data);
-
+void fStreamDataPrepare(Data_stream_e stream, u8 index, u8 *data, bool _tx);
 #endif

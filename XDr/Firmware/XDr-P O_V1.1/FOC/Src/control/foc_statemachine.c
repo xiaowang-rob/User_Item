@@ -9,8 +9,8 @@ FOC_t g_foc = {.core = &foc_core,.loop_con = &loop_con,.smo = &smo,.tun = &tun,.
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
 u32 _time_focit_end = 0;
-u32 _time_focit_run = 0;
-u32 _time_foc_T = 0;
+volatile u32 _time_focit_run = 0;
+volatile u32 _time_foc_T = 0;
 
 #endif
 

@@ -205,6 +205,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>g_adc2_buffer,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>valid</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

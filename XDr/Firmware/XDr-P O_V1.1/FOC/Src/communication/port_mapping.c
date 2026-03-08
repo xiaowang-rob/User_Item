@@ -14,7 +14,6 @@ USB、串口、CAN 端口映射
 #include "App_IAP.h"
 
 tCOM_Frame com_frame;
-
 tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
 
 const u8 execute = FEEDBACK_OK;
@@ -69,6 +68,7 @@ void _status_send()
     com_frame.cmd_id = UC_connect;
     if (system_message_send_flag == false)
     {
+        com_frame.txdata[0] = '\0';
         strcat((char *)com_frame.txdata, DRIVE_DESC_str);
         com_frame.txdatalen = strlen((char *)com_frame.txdata);
         system_message_send_flag = true;
@@ -305,6 +305,7 @@ void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
 static u32 _time_ms = 0;
 static u32 _time_prev_ms = 0;
 static u32 _state_prev_ms = 0;
+static u8 _datanum = 0;
 void _stream_data_trans()
 {
     if (com_frame.is_busy) // 端口忙
@@ -339,18 +340,22 @@ void _stream_data_trans()
         { // 状态发送
             _status_send();
             _state_prev_ms = _time_ms;
+						_time_prev_ms = _time_ms;
         }
         else if ((_time_ms - _time_prev_ms > DATA_stream_T))
         { // 数据发送
             if (com_frame.stream_num == 0)
                 return;
-            com_frame.cmd_id = CMD_STREAM_SET;
-            for (u8 i = 0; i < com_frame.stream_num; i++)
+            bool txflag = (12 - _datanum) < com_frame.stream_num;
+            fStreamDataPrepare(com_frame.data_id_index[_datanum % com_frame.stream_num], _datanum, com_frame.txdata, txflag);
+            _datanum++;
+            if (txflag)
             {
-                fStreamDataGet(com_frame.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
+                com_frame.cmd_id = CMD_STREAM_SET;
+                com_frame.txdatalen = _datanum * 4;
+                fHostComputer_send();
+                _datanum = 0;
             }
-            com_frame.txdatalen = com_frame.stream_num * 4;
-            fHostComputer_send();
             _time_prev_ms = _time_ms;
         }
     }

@@ -456,7 +456,8 @@ class Wave:
             index: 显示索引(0-4)
             data: 数值或数值列表
         """
-        match (self.showindex[index]+3):
+        id_index=index%len(self.channel_index)
+        match (self.showindex[id_index]+3):
             case Didx.SPEED|Didx.SPEED_ref:
                 val=rad_per_sec_to_rpm(data)
             case Didx.THETA_elec|Didx.THETA_mech|Didx.POSITION|Didx.POSITION_ref:
@@ -464,5 +465,5 @@ class Wave:
                 print(data,val)
             case _:
                 val=data
-        if index < len(self.channel_index):
-            self.add_data(self.channel_index[index], val)
+        if id_index < len(self.channel_index):
+            self.add_data(self.channel_index[id_index], val)

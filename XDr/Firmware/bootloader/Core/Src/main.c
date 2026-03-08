@@ -499,12 +499,12 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
   case CMD_BL_CONNECT: /* 连接 Bootloader */
     firmware_info[2] = strlen((char *)g_fw_info_str);
     memcpy(&firmware_info[3], (uint8_t *)g_fw_info_str, firmware_info[2]);
-    uint8_t checksum = 0;
+    uint16_t checksum = 0;
     for (int i = 0; i < firmware_info[2]; i++)
     {
-      checksum += firmware_info[i] & 0x01;
+      checksum += firmware_info[i];
     }
-    firmware_info[3 + firmware_info[2]] = checksum & 0x01;
+    firmware_info[3 + firmware_info[2]] = (uint8_t)checksum & 0xff;
     firmware_info[4 + firmware_info[2]] = 0x0D;
     /*  USB 发送状态检查与重试 */
     uint32_t start = HAL_GetTick();
@@ -572,6 +572,7 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
 
   response[1] = cmd;
   response[3] = result;
+	response[4]	=	result;
 
   /*  USB 发送状态检查与重试 */
   uint32_t start = HAL_GetTick();

@@ -35,7 +35,7 @@
 #include "math_fast.h"
 
 u32 time_while_zero = 0;
-u32 time_while_T = 0;
+volatile u32 time_while_T = 0;
 #endif
 /* USER CODE END Includes */
 

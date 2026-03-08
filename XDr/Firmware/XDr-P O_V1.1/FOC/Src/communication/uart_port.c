@@ -77,7 +77,7 @@ void fUartPortSendFrame(u8 id, u8 *data, u8 len)
     u16 temp = 0;
     for (int i = 0; i < len; i++)
         temp += data[i];
-    UsartTxFrame_g.check = (u8)temp & 0x01;
+    UsartTxFrame_g.check = (u8)temp&0xff;
 
     /* 复制数据到帧结构 */
     memcpy(UsartTxFrame_g.data, data, len);
@@ -128,7 +128,7 @@ void fUartReviceByte(u8 *data)
         if (*data == UsartRxFrame_g.tail)
         {
 #ifndef __DEBUG__
-            if (check == UsartRxFrame_g.check) // 校验通过
+            if ((u8)check&0xff == UsartRxFrame_g.check) // 校验通过
 #endif
                 fUartRxFrameCallback(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
             get_head = false; // 重置状态机
@@ -143,12 +143,11 @@ void fUartReviceByte(u8 *data)
             else if (DataIndex >= 2 && DataIndex < 2 + UsartRxFrame_g.len)
             {
                 UsartRxFrame_g.data[DataIndex - 2] = *data; // 数据域
-                check += *data;                             // 累加校验和
+                check += *data;                      		// 累加校验和
             }
             else if (DataIndex == 2 + UsartRxFrame_g.len)
             {
                 UsartRxFrame_g.check = *data; // 校验字节
-                check &= 0x01;                // 校验值取最低位
             }
             else if (DataIndex > 3 + UsartRxFrame_g.len)
             {

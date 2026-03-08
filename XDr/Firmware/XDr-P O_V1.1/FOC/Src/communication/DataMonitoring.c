@@ -4,8 +4,12 @@
 #include "svpwm.h"
 #include "system_statemachine.h"
 #include "string.h"
-u8 _sta[4];
+
+static u8 _sta[4];
 static float temp_val = 0;
+
+static u8 txdata_queue[64];
+
 void fStreamDataGet(Data_stream_e stream, float *data)
 {
 
@@ -83,5 +87,14 @@ void fStreamDataGet(Data_stream_e stream, float *data)
         break;
     default:
         break;
+    }
+}
+
+void fStreamDataPrepare(Data_stream_e stream, u8 index, u8 *data, bool _tx)
+{
+    fStreamDataGet(stream, (float*)&txdata_queue[index * 4]);
+    if (_tx)
+    {
+        memcpy(data, txdata_queue, index * 4);
     }
 }

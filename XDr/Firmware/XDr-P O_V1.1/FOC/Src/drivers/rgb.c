@@ -48,7 +48,7 @@ static uint32_t ws2812_dma_buf[WS2812_BUF_SIZE];
 static tRGBColor led_cache[WS2812_NUM_LEDS];
 static volatile bool dma_done = true;
 
-#define BREATHE_INTERVAL_MS (20u)
+#define BREATHE_INTERVAL_MS (40u)
 
 static bool breath_active = false;
 static uint8_t breath_idx = 0;

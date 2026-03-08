@@ -32,7 +32,7 @@
 #define MIN_Voltage 20     // 最小电压 20V 电压过低影响控制
 #define MAX_Temperature 80 // 最大工作温度
 
-#define DATA_stream_T 2     // 监测数据发送周期 ms
+#define DATA_stream_T 1     // 监测数据截取周期 ms
 #define STATE_stream_T 500  // 状态数据发送周期 ms
 #define TEMP_VBUS_TS_MS 100 // 温度、电压采样周期 ms
 

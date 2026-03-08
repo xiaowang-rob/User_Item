@@ -328,7 +328,7 @@ class ComPort(QObject):
         packet.append(cmd_id)
         packet.append(length)
         packet.extend(data_bytes[:length])
-        packet.append(sum(data_bytes[:length]) & 0x01)
+        packet.append(sum(data_bytes[:length]) & 0xff)
         packet.append(FOOT)
         return packet
 
@@ -534,7 +534,7 @@ class ComPort(QObject):
             
             data_bytes = buffer[3:3 + length]
             received_checksum = buffer[3 + length]
-            calculated_checksum = sum(data_bytes) & 0x01
+            calculated_checksum = sum(data_bytes)&0xff 
             
             if received_checksum == calculated_checksum:
                 cmd_id_int = int(cmd_id)

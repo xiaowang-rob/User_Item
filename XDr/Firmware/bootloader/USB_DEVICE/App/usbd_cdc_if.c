@@ -274,13 +274,13 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   {
     if (Buf[0] == 0x3A && Buf[*Len - 1] == 0x0D)
     {
-      uint8_t check = 0;
+      uint16_t check = 0;
       for (uint8_t i = 3; i < *Len - 2; i++)
       {
         check += Buf[i];
       }
-      check &= 0x01;
-      if (Buf[*Len - 2] == check)
+      check &= 0xff;
+      if (Buf[*Len - 2] == (uint8_t)check)
       {
         g_upgrade_cmd = Buf[1];
         g_upgrade_len = Buf[2];

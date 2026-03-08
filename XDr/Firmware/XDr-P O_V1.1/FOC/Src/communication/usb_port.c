@@ -35,7 +35,7 @@ bool fUSB_SendData(u8 *data, u8 len)
     }
     else // 发送忙，启动重发机制
     {
-        if (trans_fault_tic > 5) // 重发超过5次则放弃
+        if (trans_fault_tic > 10) // 重发超过5次则放弃
         {
             trans_fault_tic = 0;
             return false;
@@ -70,7 +70,7 @@ bool fUSB_SendFrame(u8 id, u8 *data, u8 len)
     UsbTxFrame.id = id;
     UsbTxFrame.len = len;
     memcpy(UsbTxFrame.data, data, len);
-    UsbTxFrame.check = (u8)check & 0x01;
+    UsbTxFrame.check = (u8)check&0xff;
 
     /* 组装完整帧：head(1)+id(1)+len(1)+data(N)+check(1)+tail(1) = N+5字节 */
     UsbTxFrame.data[len] = UsbTxFrame.check;    // 校验字节
@@ -121,7 +121,7 @@ bool usbRecvByte(u8 *data, u8 *len)
             check += data[i];
 
         /* 校验比对（取最低位） */
-        if ((check & 0x01) != UsbRxFrame.check)
+        if ((u8)(check &0xff) != UsbRxFrame.check)
             return false; // 校验失败
 
         /* 校验通过，解析帧内容 */
