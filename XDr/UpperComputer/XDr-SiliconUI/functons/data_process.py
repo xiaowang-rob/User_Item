@@ -15,7 +15,6 @@ class DataProcess:
         self.mw = main_window
     def handle_received_data(self, cmd_id: int, data: bytes):
         """处理已解析的有效数据包"""
-        print(f"收到数据包：{cmd_id} {data}")
         try:
             match cmd_id:
                 case Cidx.UC_CONNECT:  # UC连接成功 返回系统参数

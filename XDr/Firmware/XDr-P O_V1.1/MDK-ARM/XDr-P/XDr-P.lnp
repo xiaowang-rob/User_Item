@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp.sp --lto
+--cpu=Cortex-M4.fp.sp
 ".\xdr-p\startup_stm32f405xx.o"
 ".\xdr-p\main.o"
 ".\xdr-p\gpio.o"

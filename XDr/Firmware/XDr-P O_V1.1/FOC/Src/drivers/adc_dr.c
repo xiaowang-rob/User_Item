@@ -6,8 +6,6 @@
 
 /* ADC相关配置定义 */
 
-#define FILTER_BUFFER_SIZE 5
-
 static const float ADC_VAL_TO_CUR_FACTOR = 3.3f * rate_CurrentSample / 4095.0f;
 static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * rate_VoltageSample / 255.0f;
 /* ADC采样相关变量 */
@@ -17,7 +15,7 @@ static float g_cur_zero_u = 0;
 static float g_cur_zero_v = 0;
 static float g_cur_zero_w = 0;
 
-static u8 g_sample_counter = 0;
+static u16 g_sample_counter = 0;
 static float g_u_sum = 0;
 static float g_v_sum = 0;
 static float g_w_sum = 0;
@@ -30,16 +28,6 @@ static u16 g_adc1_buffer[3];
 static u8 g_adc2_buffer[4];
 
 static u8 g_adc2_index = 0;
-
-/* 滤波器实例 */
-static tPulseInterferenceFilter g_ui_filter;
-static tPulseInterferenceFilter g_vi_filter;
-static tPulseInterferenceFilter g_wi_filter;
-
-/* 滤波器缓冲区 */
-static u16 g_ui_buffer[FILTER_BUFFER_SIZE];
-static u16 g_vi_buffer[FILTER_BUFFER_SIZE];
-static u16 g_wi_buffer[FILTER_BUFFER_SIZE];
 
 /* 温度转换查找表 */
 static const u8 g_adc_to_temp[255] = {
@@ -73,31 +61,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     {
         if (!g_calibration_flag)
         {
-            g_u_sum += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[0];
-            g_v_sum += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[1];
-            g_w_sum += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[2];
-            g_sample_counter++;
-            if (g_sample_counter == 100)
-            {
-                g_cur_zero_u = g_u_sum / 100;
-                g_cur_zero_v = g_v_sum / 100;
-                g_cur_zero_w = g_w_sum / 100;
+            g_cur_zero_u += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[0] * 0.001;
+            g_cur_zero_v += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[1] * 0.001;
+            g_cur_zero_w += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[2] * 0.001;
+            if (++g_sample_counter >= 1000)
                 g_calibration_flag = true;
-            }
         }
     }
-}
-
-/**
- * @brief 电流校准初始化
- */
-void fAdcCurCalibration(void)
-{
-    g_sample_counter = 0;
-    g_u_sum = 0;
-    g_v_sum = 0;
-    g_w_sum = 0;
-    g_calibration_flag = false;
 }
 
 /**
@@ -105,15 +75,13 @@ void fAdcCurCalibration(void)
  */
 void fAdcDrInit(void)
 {
+    fAdcSampleChange(2090);
     HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)g_adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)g_adc2_buffer, 4);
-		HAL_Delay(100);//等待采集数据
-		fAdcSampleChange(2050);
-//    fPulseInterferenceInit(&g_ui_filter, g_ui_buffer, FILTER_BUFFER_SIZE);
-//    fPulseInterferenceInit(&g_vi_filter, g_vi_buffer, FILTER_BUFFER_SIZE);
-//    fPulseInterferenceInit(&g_wi_filter, g_wi_buffer, FILTER_BUFFER_SIZE);
+    while (!g_calibration_flag)
+        HAL_Delay(1);
 }
 
 /**
@@ -135,9 +103,6 @@ void fAdc2Sample(void)
  */
 void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
-//    g_adc1_buffer[0] = fPulseInterferenceFilter(&g_ui_filter, g_adc1_buffer[0]);
-//    g_adc1_buffer[1] = fPulseInterferenceFilter(&g_vi_filter, g_adc1_buffer[1]);
-//    g_adc1_buffer[2] = fPulseInterferenceFilter(&g_wi_filter, g_adc1_buffer[2]);
 
     // 计算校准后的电流值（确保非负）
     float raw_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
@@ -180,28 +145,28 @@ void fAdcGetVoltage(float *voltage)
  */
 void fAdcGetTemp(u8 *ut, u8 *vt, u8 *wt, float *temperature)
 {
-//    switch (g_temp_index)
-//    {
-//    case 0:
-//        *ut = g_adc_to_temp[g_adc2_buffer[0]];
-//        g_temp_index = 1;
-//        break;
-//    case 1:
-//        *vt = g_adc_to_temp[g_adc2_buffer[1]];
-//        g_temp_index = 2;
-//        break;
-//    case 2:
-//        *wt = g_adc_to_temp[g_adc2_buffer[2]];
-//        g_temp_index = 3;
-//        break;
-//    default:
-//        *temperature = (float)(*ut + *vt + *wt) / 3.0f;
-//        g_temp_index = 0;
-//        break;
-//    }
-	//由于这一版温度采样我设计有问题，跳过
-	*ut=25;
-	*vt=25;
-	*wt=25;
-	*temperature=25;
+    //    switch (g_temp_index)
+    //    {
+    //    case 0:
+    //        *ut = g_adc_to_temp[g_adc2_buffer[0]];
+    //        g_temp_index = 1;
+    //        break;
+    //    case 1:
+    //        *vt = g_adc_to_temp[g_adc2_buffer[1]];
+    //        g_temp_index = 2;
+    //        break;
+    //    case 2:
+    //        *wt = g_adc_to_temp[g_adc2_buffer[2]];
+    //        g_temp_index = 3;
+    //        break;
+    //    default:
+    //        *temperature = (float)(*ut + *vt + *wt) / 3.0f;
+    //        g_temp_index = 0;
+    //        break;
+    //    }
+    // 由于这一版温度采样我设计有问题，跳过
+    *ut = 25;
+    *vt = 25;
+    *wt = 25;
+    *temperature = 25;
 }

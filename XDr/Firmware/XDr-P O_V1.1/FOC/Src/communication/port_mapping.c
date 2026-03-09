@@ -340,13 +340,13 @@ void _stream_data_trans()
         { // 状态发送
             _status_send();
             _state_prev_ms = _time_ms;
-						_time_prev_ms = _time_ms;
+            _time_prev_ms = _time_ms;
         }
         else if ((_time_ms - _time_prev_ms > DATA_stream_T))
         { // 数据发送
             if (com_frame.stream_num == 0)
                 return;
-            bool txflag = (12 - _datanum) < com_frame.stream_num;
+            bool txflag = (11 - _datanum) < com_frame.stream_num;
             fStreamDataPrepare(com_frame.data_id_index[_datanum % com_frame.stream_num], _datanum, com_frame.txdata, txflag);
             _datanum++;
             if (txflag)

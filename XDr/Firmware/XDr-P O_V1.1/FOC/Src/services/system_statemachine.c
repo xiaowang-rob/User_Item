@@ -18,7 +18,7 @@ bool _SystemInitEvent(void)
     正确的顺序应该是：
     flash和参数一起-通讯-保护-日志-adc -foc初始化
     */
-    fRGB_Init();
+
     fFLASH_Init();
     if (!fParamInit())
         return false;

@@ -15,6 +15,7 @@
 /* 函数声明 */
 // 一般函数--大型函数 不经常调用
 u32 HAL_GetTick_us(void);
+float fSqrt(float x);
 
 // 内联函数--小函数 经常调用
 static inline float fRadToRpm(float rad)

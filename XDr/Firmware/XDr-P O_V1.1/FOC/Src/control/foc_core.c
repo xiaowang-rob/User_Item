@@ -7,12 +7,23 @@
 #include "smo.h"
 #include "loop_control.h"
 #include "drive_parameters.h"
+#include "filter.h"
 
 tFOC_Mode foc_mode = {0};
 tFOC_val foc_val = {0};
 tMotor Motor = {0};
 
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .motor = &Motor};
+
+/* 滤波器实例 */
+static tFirstOrderLagFilter _ialpha_filter;
+static tFirstOrderLagFilter _ibeta_filter;
+static float _ialpha_temp, _ibeta_temp;
+
+static tFirstOrderLagFilter _omega_filter;
+
+#define CCURRENT_FILTER_alpha 0.4f
+#define SPEED_FILTER_alpha 0.2f
 
 // 启动器初始化
 void _trajectory_init(tParameter param)
@@ -51,6 +62,14 @@ void _motor_init(tParameter param)
     fParamTuneReset();
 }
 
+// 滤波器初始化
+void _filter_init(void)
+{
+    fFirstOrderLagInit(&_ialpha_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
+    fFirstOrderLagInit(&_ibeta_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
+    fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.omega_fb);
+}
+
 // FOC核心初始化
 void fFOC_CoreInit(void)
 {
@@ -61,6 +80,7 @@ void fFOC_CoreInit(void)
     _trajectory_init(g_Param);
     fFOC_CoreReset();
     _mode_init(g_Param);
+    _filter_init();
 }
 
 // 重置FOC中间变量
@@ -112,7 +132,10 @@ void Current_reconstruction(void)
         wi = foc_val.Iw;
         break;
     }
-    fClarkTransform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
+
+    fClarkTransform(ui, vi, wi, &_ialpha_temp, &_ibeta_temp);
+    foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, _ialpha_temp);
+    foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, _ibeta_temp);
 }
 
 // todo:待完善 无感FOC（SMO）：获取电压/电流/角度/速度
@@ -187,7 +210,7 @@ void fFOC_ValueUpdate(void)
         foc_val.theta_elec = Motor.Wire_sequence * fNormalizeAngle_0_2pi(foc_val.theta_elec);
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.pos_fb = fGetEncoderAngle_INC();
-        foc_val.omega_fb = fGetEncoderOmega();
+        foc_val.omega_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderOmega());
     }
     if (foc_mode.SMO_enable)
     {
@@ -216,70 +239,74 @@ void fFOC_MainLoopTask(void)
         foc_val.theta_openloop += foc_val.omega_openloop * Tcon;
         foc_val.theta_openloop = fNormalizeAngle_0_2pi(foc_val.theta_openloop);
         foc_val.theta_elec = foc_val.theta_openloop;
+        voltage_control();
     }
-    switch (foc_mode.sensor_mode)
+    else
     {
-    case ENCODER_CONTROL: // 编码器闭环控制
-        switch (foc_mode.runmode)
+        switch (foc_mode.sensor_mode)
         {
-        case SPEED_MODE:
-            speed_loop_run();
-            if (foc_mode.weak_mag)
-                weak_mag_loop_run();
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
+        case ENCODER_CONTROL: // 编码器闭环控制
+            switch (foc_mode.runmode)
+            {
+            case SPEED_MODE:
+                speed_loop_run();
+                if (foc_mode.weak_mag)
+                    weak_mag_loop_run();
+            case CURRENT_MODE:
+                current_loop_run();
+                voltage_control();
+                break;
+            case POSITION_MODE:
+                position_loop_run();
+                speed_loop_run();
+                current_loop_run();
+                voltage_control();
+                break;
+            default:
+                break;
+            }
             break;
-        case POSITION_MODE:
-            position_loop_run();
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
+        case SENSORLESS_CONTROL: // 无感控制
+            switch (foc_mode.runmode)
+            {
+            case CURRENT_MODE:
+                current_loop_run();
+                voltage_control();
+                break;
+            case SPEED_MODE:
+                speed_loop_run();
+                current_loop_run();
+                voltage_control();
+                break;
+            default:
+                break;
+            }
             break;
-        default:
-            break;
-        }
-        break;
-    case SENSORLESS_CONTROL: // 无感控制
-        switch (foc_mode.runmode)
-        {
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
-            break;
-        case SPEED_MODE:
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
-            break;
-        default:
-            break;
-        }
-        break;
-    case MERGE_CONTROL:
-        switch (foc_mode.runmode)
-        {
-        case SPEED_MODE:
-            speed_loop_run();
-            if (foc_mode.weak_mag)
-                weak_mag_loop_run();
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
-            break;
+        case MERGE_CONTROL:
+            switch (foc_mode.runmode)
+            {
+            case SPEED_MODE:
+                speed_loop_run();
+                if (foc_mode.weak_mag)
+                    weak_mag_loop_run();
+            case CURRENT_MODE:
+                current_loop_run();
+                voltage_control();
+                break;
 
-        case POSITION_MODE:
-            position_loop_run();
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
+            case POSITION_MODE:
+                position_loop_run();
+                speed_loop_run();
+                current_loop_run();
+                voltage_control();
+                break;
+            default:
+                break;
+            }
             break;
         default:
             break;
         }
-        break;
-    default:
-        break;
     }
     fSvpwmRun(foc_val.Ualpha, foc_val.Ubeta);
     fSamplePointCalibration();
@@ -288,6 +315,12 @@ void fFOC_MainLoopTask(void)
 // 设置各环指令值
 void fFOC_SetTargetValue(float *value)
 {
+    if (foc_mode.OPEN_LOOP_enable)
+    {
+        foc_val.uq = value[0];
+        foc_val.ud = value[1];
+        return;
+    }
     switch (foc_mode.runmode)
     {
     case CURRENT_MODE:

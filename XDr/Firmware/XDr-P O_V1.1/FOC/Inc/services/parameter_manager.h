@@ -35,7 +35,8 @@ typedef enum
 
     THETA_OFFSET, // 角度补偿
     MOTOR_RS,
-    MOTOR_LS,
+    MOTOR_Ld,
+    MOTOR_Lq,
     MOTOR_Psif,
     MOTOR_Ke, // 反电动势常数
     MOTOR_J,  // 转动惯量

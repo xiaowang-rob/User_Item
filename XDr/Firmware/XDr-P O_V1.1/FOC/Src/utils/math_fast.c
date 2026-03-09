@@ -1,5 +1,11 @@
 #include "math_fast.h"
 
+float fSqrt(float x)
+{
+    float y;
+    arm_sqrt_f32(x, &y);
+    return y;
+}
 /**
  * @brief 获取微秒级系统时间戳
  * @return 当前时间（微秒）

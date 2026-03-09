@@ -95,6 +95,6 @@ void fStreamDataPrepare(Data_stream_e stream, u8 index, u8 *data, bool _tx)
     fStreamDataGet(stream, (float*)&txdata_queue[index * 4]);
     if (_tx)
     {
-        memcpy(data, txdata_queue, index * 4);
+        memcpy(data, txdata_queue, (index+1) * 4);
     }
 }

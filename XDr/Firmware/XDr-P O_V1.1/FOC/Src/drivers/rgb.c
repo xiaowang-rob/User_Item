@@ -101,10 +101,6 @@ void fRGB_Init(void)
     for (uint32_t i = 0; i < WS2812_BUF_SIZE; i++)
         ws2812_dma_buf[i] = 0;
 
-    // 先设绿色测试
-    for (uint8_t i = 0; i < WS2812_NUM_LEDS; i++)
-        led_cache[i] = GREEN;
-
     breath_active = false;
     breath_next_ms = HAL_GetTick() + BREATHE_INTERVAL_MS;
 

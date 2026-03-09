@@ -37,4 +37,5 @@
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\FOC\Inc\drivers\adc_dr.h \
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\drivers\encoder.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\loop_control.h ..\FOC\Config\drive_parameters.h
+  ..\FOC\Inc\control\loop_control.h ..\FOC\Config\drive_parameters.h \
+  ..\FOC\Inc\utils\filter.h
