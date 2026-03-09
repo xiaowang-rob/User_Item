@@ -53,6 +53,7 @@
 ".\xdr-p\smo.o"
 ".\xdr-p\svpwm.o"
 ".\xdr-p\hfi.o"
+".\xdr-p\tune.o"
 ".\xdr-p\encoder.o"
 ".\xdr-p\flashdr.o"
 ".\xdr-p\rgb.o"

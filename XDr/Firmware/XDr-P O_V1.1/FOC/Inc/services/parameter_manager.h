@@ -34,6 +34,7 @@ typedef enum
     f_POSITION_LOOP, // 位置环频率
 
     THETA_OFFSET, // 角度补偿
+    MOTOR_KV,
     MOTOR_RS,
     MOTOR_Ld,
     MOTOR_Lq,
@@ -98,8 +99,10 @@ typedef struct
     float f_position_loop;
 
     float theta_offset;
+    float motor_kv;
     float motor_rs;
-    float motor_ls;
+    float motor_ld;
+    float motor_lq;
     float motor_psif;
     float motor_ke;
     float motor_j;

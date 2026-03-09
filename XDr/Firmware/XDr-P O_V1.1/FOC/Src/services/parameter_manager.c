@@ -64,11 +64,17 @@ void fParamSet(eParameter para, u8 *value)
     case THETA_OFFSET:
         g_Param.theta_offset = *(float *)value;
         break;
+    case MOTOR_KV:
+        g_Param.motor_kv = *(float *)value;
+        break;
     case MOTOR_RS:
         g_Param.motor_rs = *(float *)value;
         break;
-    case MOTOR_LS:
-        g_Param.motor_ls = *(float *)value;
+    case MOTOR_Ld:
+        g_Param.motor_ld = *(float *)value;
+        break;
+    case MOTOR_Lq:
+        g_Param.motor_lq = *(float *)value;
         break;
     case MOTOR_Psif:
         g_Param.motor_psif = *(float *)value;
@@ -238,12 +244,20 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.theta_offset;
         *len = sizeof(float);
         break;
+    case MOTOR_KV:
+        *(float *)value = g_Param.motor_kv;
+        *len = sizeof(float);
+        break;
     case MOTOR_RS:
         *(float *)value = g_Param.motor_rs;
         *len = sizeof(float);
         break;
-    case MOTOR_LS:
-        *(float *)value = g_Param.motor_ls;
+    case MOTOR_Ld:
+        *(float *)value = g_Param.motor_ld;
+        *len = sizeof(float);
+        break;
+    case MOTOR_Lq:
+        *(float *)value = g_Param.motor_lq;
         *len = sizeof(float);
         break;
     case MOTOR_Psif:
@@ -400,9 +414,11 @@ bool fParamInit()
         g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 
         g_Param.theta_offset = 0.453290999f; // 角度补偿
-        g_Param.motor_rs = 0.0218206495f;    // 电阻Rs 50mΩ3.062550.0218206495
-        g_Param.motor_ls = 0.00003f;         // 电感Ls 30μH
-        g_Param.motor_psif = 0.01f;          // 磁链 0.01Wb
+        g_Param.motor_kv = 0.00;
+        g_Param.motor_rs = 0.0218206495f; // 电阻Rs 50mΩ3.062550.0218206495
+        g_Param.motor_lq = 0.00003f;      // 电感Ls 30μH
+        g_Param.motor_ld = 0.00003f;
+        g_Param.motor_psif = 0.01f; // 磁链 0.01Wb
         g_Param.motor_ke = 0.01f;
         g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
         g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad

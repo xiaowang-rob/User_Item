@@ -8,6 +8,7 @@
 typedef struct
 {
     // 电气参数
+    float KV;    // 电压转化器增益 (V/V)
     float Rs;    // 定子电阻(Ω)
     float Ld;    // d 轴电感 (H)
     float Lq;    // q 轴电感 (H)
@@ -111,6 +112,7 @@ typedef struct
         u8 step;
         u32 step_start_tick;
         u32 wait_ticks;
+        s32 enc_start;
         s32 enc_delta_fwd;
         s32 enc_delta_rev;
         u8 test_iter;
@@ -153,20 +155,14 @@ typedef struct
 } tTuneContext;
 
 /* ================================= 全局变量声明 ================================= */
-extern tMotorParams g_motor_params;
 extern tTuneContext g_tune_ctx;
 
 /* ================================= 公共接口 ================================= */
-void fMotorParamTune_Init(const tMotorParams *params);
+void fMotorParamTune_Init();
 void fMotorParamTune_Reset(void);
 eTuneState fMotorParamTune_Update(tFOC_val foc_val);
 u8 fMotorParamTune_GetProgress(void);
 eTuneFault fMotorParamTune_GetFault(void);
 void fMotorParamTune_ForceSave(void);
-
-/* ================================= 参数访问接口 ================================= */
-bool fMotorParam_Get(tMotorParams *params);
-bool fMotorParam_Set(const tMotorParams *params);
-bool fMotorParam_Validate(const tMotorParams *params);
 
 #endif /* __TUNE_H */

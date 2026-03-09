@@ -37,5 +37,5 @@
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h ..\Core\Inc\tim.h \
+  ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\svpwm.h ..\Core\Inc\tim.h \
   ..\FOC\Inc\drivers\encoder.h ..\FOC\Config\device.h ..\Core\Inc\spi.h

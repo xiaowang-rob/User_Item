@@ -39,8 +39,9 @@
   ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h ..\FOC\Config\drive_parameters.h \
-  ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\svpwm.h \
+  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\services\log.h \
+  ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\can_port.h ..\FOC\Inc\utils\queue.h \
   ..\FOC\Inc\communication\usb_port.h \
   ..\FOC\Inc\communication\uart_port.h ..\FOC\Inc\services\App_IAP.h

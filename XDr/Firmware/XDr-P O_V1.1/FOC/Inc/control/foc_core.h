@@ -41,8 +41,6 @@ typedef struct
     float iq_ref;
     float id_ref;
     float iq_fb, id_fb;
-    float theta_openloop;
-    float omega_openloop;
     float ud, uq;
     float Ualpha, Ubeta;
     float omega_ref;
@@ -53,10 +51,11 @@ typedef struct
 
 typedef struct
 {
-    float Udc;            // 直流母线电压
-    float offset_angle;   // 偏移角度
-    float Rs;             // 定子电阻
-    float Ls;             // 定子电感
+    float Udc;          // 直流母线电压
+    float offset_angle; // 偏移角度
+    float Rs;           // 定子电阻
+    float Ld;           // 定子电感
+    float Lq;
     float Psi_f;          // 永磁体磁链
     float Ke;             // 反电动势常数
     float J;              // 转动惯量
@@ -84,11 +83,10 @@ bool fAutoCalibrationUpdate();
 
 // 辅助整定 函数
 void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
+void fFOC_SetIdIq(float id, float iq);
 void fSetThetaOffset(float thetaoffset);
 void fSetWireSequence(int wire_sequence);
-void fOpenLoopEnable(bool enable);
-void fSetOpendLoopTheta(float theta_elec);
-void fSetOpendLoopOmega(float omega_elec);
+void fTraj_Start(bool en);
 
 // 主要函数
 

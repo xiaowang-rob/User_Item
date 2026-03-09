@@ -40,4 +40,4 @@
   ..\FOC\Inc\control\foc_statemachine.h ..\FOC\Inc\control\foc_core.h \
   ..\FOC\Inc\services\parameter_manager.h ..\FOC\Inc\utils\trajectory.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\svpwm.h
+  ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\svpwm.h

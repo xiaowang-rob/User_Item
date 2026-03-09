@@ -5,6 +5,7 @@
 #include "foc_core.h"
 #include "loop_control.h"
 #include "smo.h"
+#include "tune.h"
 #include "svpwm.h"
 typedef enum
 {
@@ -25,7 +26,7 @@ typedef struct
     tFOC_Core *core;
     tLoopControl *loop_con;
     tSMO *smo;
-    tParameterTune *tun;
+    tTuneContext *tun;
     tSvpwm *svpwm;
 } FOC_t;
 extern FOC_t g_foc;

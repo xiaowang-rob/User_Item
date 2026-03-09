@@ -7,7 +7,7 @@
 #include "parameter_manager.h"
 #include "system_statemachine.h"
 
-tDeviceStatus g_device_status={.encoder_state=ONLINE};
+tDeviceStatus g_device_status = {.encoder_state = ONLINE};
 tProtectionManager g_pro_manager = {0};
 // 容忍度检测
 bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)
@@ -64,15 +64,13 @@ void fProManagerMainLoop()
         g_pro_manager.fault_flag = true;
     }
     // 1.整定
-    if (g_foc.tun->fault_flag)
+    if (g_foc.tun->fault != TUNE_FAULT_NONE)
     {
-        switch (g_foc.tun->fault_type)
+        switch (g_foc.tun->fault)
         {
-        case PARAM_FAULT_TIMEOUT:
+            // todo:还有很多错误待扩充
+        case TUNE_FAULT_TIMEOUT:
             g_pro_manager.fault = TUNING_TIMEOUT;
-            break;
-        case PARAM_FAULT_POLE_PAIRS_MISMATCH:
-            g_pro_manager.fault = POLE_PAIRS_MISMATCH;
             break;
         default:
             g_pro_manager.fault = MOTOR_PARAM_FAULT;

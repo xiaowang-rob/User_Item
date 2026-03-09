@@ -23,6 +23,11 @@ void fTraj_Reset(float current_value)
     traj_state.accel = 0.0f;
     traj_state.busy = false;
 }
+// 临时禁用
+void fTraj_Disable()
+{
+    traj_cfg.type = TRAJ_TYPE_DISABLE;
+}
 
 /* === 设置目标 === */
 void fTraj_SetTarget(float target)
@@ -62,7 +67,7 @@ tTraj_Out fTraj_Update(float dt)
     /* === 3. 计算允许的最大变化率 === */
     float rate_limit;
     if (dist <= stop_dist)
-    { 
+    {
         /* 减速段：使用 ARM 优化 sqrt */
         arm_sqrt_f32(2.0f * traj_cfg.max_acc * dist, &rate_limit);
     }

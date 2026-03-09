@@ -65,6 +65,7 @@ __STATIC_FORCEINLINE float traj_clamp(float x, float min, float max)
 /* === 核心 API (保持你的函数签名) === */
 void fTraj_Init(tTraj_Config cfg);
 void fTraj_Reset(float current_value);
+void fTraj_Disable();
 void fTraj_SetTarget(float target);
 void fTraj_SetRate(float rate);
 tTraj_Out fTraj_Update(float dt);

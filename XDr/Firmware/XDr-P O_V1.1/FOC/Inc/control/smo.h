@@ -7,15 +7,14 @@
 // 无感 SMO 结构体
 typedef struct
 {
-    u8 pole_pairs;       // 极对数
-    float theta_offset;  // 角度偏移
-    short wire_sequence; // 线序
-    float Rs;            // 定子电阻
-    float Ls;            // 定子电感
-    float Psi_f;         // 永磁体磁链
-    float Ke;            // 反电动势常数
-    float J;             // 转动惯量
-    float B;             // 摩擦系数
+    u8 pole_pairs; // 极对数
+    float Rs;      // 定子电阻
+    float Ld;
+    float Lq;
+    float Psi_f; // 永磁体磁链
+    float Ke;    // 反电动势常数
+    float J;     // 转动惯量
+    float B;     // 摩擦系数
 
     float dt;  // 控制周期
     float Udc; // 电压

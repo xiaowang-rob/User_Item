@@ -5,6 +5,7 @@
 #include "encoder.h"
 #include "string.h"
 #include "smo.h"
+#include "tune.h"
 #include "loop_control.h"
 #include "drive_parameters.h"
 #include "filter.h"
@@ -53,13 +54,14 @@ void _motor_init(tParameter param)
     Motor.offset_angle = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
     Motor.Rs = param.motor_rs;
-    Motor.Ls = param.motor_ls;
+    Motor.Ld = param.motor_ld;
+    Motor.Lq = param.motor_lq;
     Motor.Psi_f = param.motor_psif;
     Motor.Ke = param.motor_ke;
     Motor.J = param.motor_j;
     Motor.B = param.motor_b;
     fSMO_Init(Motor);
-    fParamTuneReset();
+    fMotorParamTune_Init();
 }
 
 // 滤波器初始化
@@ -95,6 +97,7 @@ void fFOC_CoreReset(void)
     _FocValReset();
     fLoopReset();
     fSMO_Reset();
+    fMotorParamTune_Reset();
     if (foc_mode.runmode == POSITION_MODE)
         fTraj_Reset(foc_val.pos_fb);
     else if (foc_mode.runmode == SPEED_MODE)
@@ -206,7 +209,7 @@ void fFOC_ValueUpdate(void)
     {
         fEncoderMainLoopTask(); // 编码器主循环
         foc_val.theta_mech = fGetEncoderAngle_ABS();
-        foc_val.theta_elec = foc_val.theta_mech * Motor.pole_pairs - Motor.offset_angle;
+        foc_val.theta_elec = (foc_val.theta_mech - Motor.offset_angle) * Motor.pole_pairs;
         foc_val.theta_elec = Motor.Wire_sequence * fNormalizeAngle_0_2pi(foc_val.theta_elec);
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.pos_fb = fGetEncoderAngle_INC();
@@ -234,80 +237,72 @@ void fFOC_ValueUpdate(void)
 // 使能后执行：按模式运行对应控制环
 void fFOC_MainLoopTask(void)
 {
-    if (foc_mode.OPEN_LOOP_enable)
-    {
-        foc_val.theta_openloop += foc_val.omega_openloop * Tcon;
-        foc_val.theta_openloop = fNormalizeAngle_0_2pi(foc_val.theta_openloop);
-        foc_val.theta_elec = foc_val.theta_openloop;
-        voltage_control();
-    }
-    else
-    {
-        switch (foc_mode.sensor_mode)
-        {
-        case ENCODER_CONTROL: // 编码器闭环控制
-            switch (foc_mode.runmode)
-            {
-            case SPEED_MODE:
-                speed_loop_run();
-                if (foc_mode.weak_mag)
-                    weak_mag_loop_run();
-            case CURRENT_MODE:
-                current_loop_run();
-                voltage_control();
-                break;
-            case POSITION_MODE:
-                position_loop_run();
-                speed_loop_run();
-                current_loop_run();
-                voltage_control();
-                break;
-            default:
-                break;
-            }
-            break;
-        case SENSORLESS_CONTROL: // 无感控制
-            switch (foc_mode.runmode)
-            {
-            case CURRENT_MODE:
-                current_loop_run();
-                voltage_control();
-                break;
-            case SPEED_MODE:
-                speed_loop_run();
-                current_loop_run();
-                voltage_control();
-                break;
-            default:
-                break;
-            }
-            break;
-        case MERGE_CONTROL:
-            switch (foc_mode.runmode)
-            {
-            case SPEED_MODE:
-                speed_loop_run();
-                if (foc_mode.weak_mag)
-                    weak_mag_loop_run();
-            case CURRENT_MODE:
-                current_loop_run();
-                voltage_control();
-                break;
 
-            case POSITION_MODE:
-                position_loop_run();
-                speed_loop_run();
-                current_loop_run();
-                voltage_control();
-                break;
-            default:
-                break;
-            }
+    switch (foc_mode.sensor_mode)
+    {
+    case ENCODER_CONTROL: // 编码器闭环控制
+        switch (foc_mode.runmode)
+        {
+        case SPEED_MODE:
+            speed_loop_run();
+            if (foc_mode.weak_mag)
+                weak_mag_loop_run();
+        case CURRENT_MODE:
+            current_loop_run();
+            voltage_control();
+            break;
+        case POSITION_MODE:
+            position_loop_run();
+            speed_loop_run();
+            current_loop_run();
+            voltage_control();
             break;
         default:
             break;
         }
+        break;
+    case SENSORLESS_CONTROL: // 无感控制
+        switch (foc_mode.runmode)
+        {
+        case CURRENT_MODE:
+            current_loop_run();
+            voltage_control();
+            break;
+        case SPEED_MODE:
+            speed_loop_run();
+            current_loop_run();
+            voltage_control();
+            break;
+        default:
+            break;
+        }
+        break;
+    case MERGE_CONTROL:
+        switch (foc_mode.runmode)
+        {
+        case SPEED_MODE:
+            speed_loop_run();
+            if (foc_mode.weak_mag)
+                weak_mag_loop_run();
+        case CURRENT_MODE:
+            current_loop_run();
+            voltage_control();
+            break;
+
+        case POSITION_MODE:
+            position_loop_run();
+            speed_loop_run();
+            current_loop_run();
+            voltage_control();
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
     }
+
     fSvpwmRun(foc_val.Ualpha, foc_val.Ubeta);
     fSamplePointCalibration();
 }
@@ -315,12 +310,6 @@ void fFOC_MainLoopTask(void)
 // 设置各环指令值
 void fFOC_SetTargetValue(float *value)
 {
-    if (foc_mode.OPEN_LOOP_enable)
-    {
-        foc_val.uq = value[0];
-        foc_val.ud = value[1];
-        return;
-    }
     switch (foc_mode.runmode)
     {
     case CURRENT_MODE:
@@ -335,7 +324,7 @@ void fFOC_SetTargetValue(float *value)
         if (foc_mode.pvt_mode)
             fTraj_SetRate(value[1]);
         break;
-    default: // IDLE 未使能 不能设置目标值
+    default: // IDLE 可以直接设置ualpha和ubeta
         break;
     }
 }
@@ -343,7 +332,7 @@ void fFOC_SetTargetValue(float *value)
 // 参数自动校准
 bool fAutoCalibrationUpdate(void)
 {
-    if (PARAM_TUNE_COMPLETE == fParamTuneUpdate(foc_val))
+    if (TUNE_STATE_COMPLETE == fMotorParamTune_Update(foc_val))
     {
         fFOC_CoreInit();
         return true;
@@ -356,7 +345,12 @@ void fFOC_SetUalphaBeta(float Ualpha, float Ubeta)
     foc_val.Ualpha = Ualpha;
     foc_val.Ubeta = Ubeta;
 }
-
+// 设置 dq 电流
+void fFOC_SetIdIq(float id, float iq)
+{
+    foc_val.id_ref = id;
+    foc_val.iq_ref = iq;
+}
 // 设置编码器零点偏移
 void fSetThetaOffset(float thetaoffset)
 {
@@ -368,24 +362,16 @@ void fSetWireSequence(int wire_sequence)
 {
     Motor.Wire_sequence = wire_sequence;
 }
-// 电角度开环控制
-void fOpenLoopEnable(bool enable)
+
+// 控制轨迹规划启动
+void fTraj_Start(bool en)
 {
-    foc_mode.OPEN_LOOP_enable = enable;
+    if (en)
+        _trajectory_init(g_Param);
+    else
+        fTraj_Disable();
 }
 
-//  设置开环初始电角度
-void fSetOpendLoopTheta(float theta_elec)
-{
-    foc_val.omega_openloop = 0.0f;
-    foc_val.theta_openloop = theta_elec;
-}
-
-// 设置开环旋转电角速度
-void fSetOpendLoopOmega(float omega_elec)
-{
-    foc_val.omega_openloop = omega_elec;
-}
 // 切换传感模式
 void fFOC_SetSensorMode(eSensorMode mode)
 {

@@ -1463,6 +1463,11 @@
               <FileType>1</FileType>
               <FilePath>..\FOC\Src\control\hfi.c</FilePath>
             </File>
+            <File>
+              <FileName>tune.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FOC\Src\control\tune.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -2,7 +2,7 @@
 # 参数映射表 - 对应下位机参数索引
 # ==============================
 class Pidx:
-    # u8 类型参数
+    # u8 类型参数 (0-11)
     SENSOR_MODE          = 0
     RUN_MODE             = 1
     CAN_MODE             = 2
@@ -16,47 +16,47 @@ class Pidx:
     FREQ_SPEED_LOOP      = 10
     FREQ_POSITION_LOOP   = 11
 
-    # u32 类型参数
+    # u32 类型参数 (12)
     CAN_ID               = 12
 
-    # float 类型参数
+    # float 类型参数 (13-47)
     F_PWM                = 13
     F_CURRENT_LOOP       = 14
     F_SPEED_LOOP         = 15
     F_POSITION_LOOP      = 16
     THETA_OFFSET         = 17
-    MOTOR_RS             = 18
-    MOTOR_LS             = 19
-    MOTOR_PSIF           = 20
-    MOTOR_KE             = 21
-    MOTOR_J              = 22
-    MOTOR_B              = 23
-    KP_CURRENT           = 24
-    KI_CURRENT           = 25
-    KP_WEAKMAG           = 26
-    KI_WEAKMAG           = 27
-    KP_SPEED             = 28
-    KI_SPEED             = 29
-    KP_POSITION          = 30
-    KI_POSITION          = 31
-    KD_POSITION          = 32
-    LIMIT_CURRENT        = 33
-    LIMIT_SPEED          = 34
-    LIMIT_POSITION_MIN   = 35
-    LIMIT_POSITION_MAX   = 36
-    TOLERANCE_TIME       = 37
-    TOLERANCE_VOLTAGE    = 38
-    TOLERANCE_CURRENT    = 39
-    TOLERANCE_SPEED      = 40
-    TOLERANCE_POSITION   = 41
+    MOTOR_KV             = 18
+    MOTOR_RS             = 19  
+    MOTOR_Ld             = 20  
+    MOTOR_Lq             = 21  
+    MOTOR_PSIF           = 22  
+    MOTOR_KE             = 23  
+    MOTOR_J              = 24  
+    MOTOR_B              = 25  
+    KP_CURRENT           = 26  
+    KI_CURRENT           = 27  
+    KP_WEAKMAG           = 28  
+    KI_WEAKMAG           = 29  
+    KP_SPEED             = 30  
+    KI_SPEED             = 31  
+    KP_POSITION          = 32  
+    KI_POSITION          = 33  
+    KD_POSITION          = 34  
+    LIMIT_CURRENT        = 35  
+    LIMIT_SPEED          = 36  
+    LIMIT_POSITION_MIN   = 37  
+    LIMIT_POSITION_MAX   = 38  
+    TOLERANCE_TIME       = 39  
+    TOLERANCE_VOLTAGE    = 40  
+    TOLERANCE_CURRENT    = 41  
+    TOLERANCE_SPEED      = 42  
+    TOLERANCE_POSITION   = 43  
+    TRAJ_MAX_RATE        = 44  
+    TRAJ_MAX_ACC         = 45  
+    TRAJ_MAX_JERK        = 46  
+    TRAJ_TOLERANCE       = 47  
 
-    TRAJ_MAX_RATE        = 42
-    TRAJ_MAX_ACC         = 43
-    TRAJ_MAX_JERK        = 44
-    TRAJ_TOLERANCE       = 45
-
-    NUM_OF_PARAM         = 46
-
+    NUM_OF_PARAM         = 48 
 
 # ============================
 # 日志映射表 - 对应下位机日志索引
@@ -249,8 +249,10 @@ class Data_UI_Map:
             Pidx.F_SPEED_LOOP:         parameter_page.f_speed_loop,
             Pidx.F_POSITION_LOOP:      parameter_page.f_position_loop,
             Pidx.THETA_OFFSET:         parameter_page.offsetangle_input,
+            Pidx.MOTOR_KV:             parameter_page.motor_KV_input,
             Pidx.MOTOR_RS:             parameter_page.motor_resistance_input,
-            Pidx.MOTOR_LS:             parameter_page.motor_inductance_input,
+            Pidx.MOTOR_Ld:             parameter_page.motor_Ld_input,
+            Pidx.MOTOR_Lq:             parameter_page.motor_Lq_input,
             Pidx.MOTOR_PSIF:           parameter_page.motor_psif_input,
             Pidx.MOTOR_KE:             parameter_page.motor_Ke_input,
             Pidx.MOTOR_J:              parameter_page.motor_J_input,
