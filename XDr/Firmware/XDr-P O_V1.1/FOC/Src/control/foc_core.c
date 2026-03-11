@@ -23,7 +23,7 @@ static float _ialpha_temp, _ibeta_temp;
 
 static tFirstOrderLagFilter _omega_filter;
 
-#define CCURRENT_FILTER_alpha 0.4f
+#define CCURRENT_FILTER_alpha 0.5f
 #define SPEED_FILTER_alpha 0.2f
 
 // 启动器初始化
@@ -141,72 +141,15 @@ void Current_reconstruction(void)
     foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, _ibeta_temp);
 }
 
-// todo:待完善 无感FOC（SMO）：获取电压/电流/角度/速度
-void foc_senless_get_vito(void)
-{
-}
-
-// 电压开环控制
-void voltage_control(void)
-{
-    fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
-}
-
-// 电流环运行
-void current_loop_run(void)
-{
-    if (!loop_con.fd.current_update)
-        return;
-    foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-    foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-}
-
-// 速度环运行
-void speed_loop_run(void)
-{
-    if (!loop_con.fd.speed_update)
-        return;
-    if (foc_mode.runmode == SPEED_MODE)
-    {
-        tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tspd);
-        foc_val.omega_ref = traj_out.value;
-    }
-    foc_val.iq_ref = fSpeedLoopUpdate(foc_val.omega_ref, foc_val.omega_fb);
-}
-
-// 弱磁控制
-void weak_mag_loop_run(void)
-{
-    if (!loop_con.fd.speed_update)
-        return;
-    if (foc_val.omega_fb > 30.0f)
-        foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
-    else
-        foc_val.id_ref = 0;
-}
-
-// 位置环
-void position_loop_run(void)
-{
-    if (!loop_con.fd.position_update)
-        return;
-    if (foc_mode.runmode == POSITION_MODE)
-    {
-        tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tpos);
-        foc_val.pos_ref = traj_out.value;
-    }
-    foc_val.omega_ref = fPositionRelLoopUpdate(foc_val.pos_ref, foc_val.pos_fb);
-}
-// 功能使能矩阵
-
 void fFOC_ValueUpdate(void)
 {
     fFrequencyDivisionUpdate();
     fAdcGetVoltage(&Motor.Udc);
     Current_reconstruction();
 
-    if (foc_mode.Encoder_enable)
+    switch (foc_mode.sensor_mode)
     {
+    case ENCODER_CONTROL:       // 获取编码器数据
         fEncoderMainLoopTask(); // 编码器主循环
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = (foc_val.theta_mech - Motor.offset_angle) * Motor.pole_pairs;
@@ -214,92 +157,56 @@ void fFOC_ValueUpdate(void)
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.omega_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderOmega());
-    }
-    if (foc_mode.SMO_enable)
-    {
-        // SMO 主循环
-        fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
-        // if (startup_machine.change_flag)
-        // {
-        //     foc_val.theta_elec = smo_get_theta();
-        // }
-        // else
-        // {
-        //     if (foc_val.omega_ref > 0.1f)
-        //         foc_val.iq_ref = startup_machine.openloop_iq;
-        //     foc_val.theta_elec += startup_machine.openloop_omega * Tcon;
-        //     foc_val.theta_elec = fNormalizeAngle02pi(foc_val.theta_elec);
-        // }
+        break;
 
-        foc_val.omega_fb = fSMO_GetOmega();
+    case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
+        fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
+        break;
+    case MERGE_CONTROL:
+
+        break;
+    default:
+        break;
     }
 }
 // 使能后执行：按模式运行对应控制环
 void fFOC_MainLoopTask(void)
 {
 
-    switch (foc_mode.sensor_mode)
+    switch (foc_mode.runmode)
     {
-    case ENCODER_CONTROL: // 编码器闭环控制
-        switch (foc_mode.runmode)
-        {
-        case SPEED_MODE:
-            speed_loop_run();
-            if (foc_mode.weak_mag)
-                weak_mag_loop_run();
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
-            break;
-        case POSITION_MODE:
-            position_loop_run();
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
-            break;
-        default:
-            break;
-        }
-        break;
-    case SENSORLESS_CONTROL: // 无感控制
-        switch (foc_mode.runmode)
-        {
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
-            break;
-        case SPEED_MODE:
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
-            break;
-        default:
-            break;
-        }
-        break;
-    case MERGE_CONTROL:
-        switch (foc_mode.runmode)
-        {
-        case SPEED_MODE:
-            speed_loop_run();
-            if (foc_mode.weak_mag)
-                weak_mag_loop_run();
-        case CURRENT_MODE:
-            current_loop_run();
-            voltage_control();
-            break;
+    case POSITION_MODE:
+        if (!loop_con.fd.position_update)
+            return;
 
-        case POSITION_MODE:
-            position_loop_run();
-            speed_loop_run();
-            current_loop_run();
-            voltage_control();
-            break;
-        default:
-            break;
+        tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tpos);
+        foc_val.pos_ref = traj_out.value;
+        foc_val.omega_ref = fPositionRelLoopUpdate(foc_val.pos_ref, foc_val.pos_fb);
+    case SPEED_MODE:
+        if (!loop_con.fd.speed_update)
+            return;
+        if (foc_mode.runmode == SPEED_MODE)
+        {
+            tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tspd);
+            foc_val.omega_ref = traj_out.value;
         }
+        foc_val.iq_ref = fSpeedLoopUpdate(foc_val.omega_ref, foc_val.omega_fb);
+        if (foc_mode.weak_mag)
+        {
+            if (foc_val.omega_fb > 30.0f) // todo:改为判断其电压饱和
+                foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
+            else
+                foc_val.id_ref = 0;
+        }
+    case CURRENT_MODE:
+        if (!loop_con.fd.current_update)
+            return;
+        foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
+        foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
-    default:
+
+    default: // 开环模式
         break;
     }
 
@@ -363,36 +270,11 @@ void fSetWireSequence(int wire_sequence)
     Motor.Wire_sequence = wire_sequence;
 }
 
-// 控制轨迹规划启动
-void fTraj_Start(bool en)
-{
-    if (en)
-        _trajectory_init(g_Param);
-    else
-        fTraj_Disable();
-}
-
 // 切换传感模式
 void fFOC_SetSensorMode(eSensorMode mode)
 {
     fFOC_CoreReset();
     foc_mode.sensor_mode = mode;
-    foc_mode.OPEN_LOOP_enable = false;
-    switch (foc_mode.sensor_mode)
-    {
-    case ENCODER_CONTROL:
-        foc_mode.Encoder_enable = true;
-        foc_mode.SMO_enable = false;
-        break;
-    case SENSORLESS_CONTROL:
-        foc_mode.SMO_enable = true;
-        foc_mode.Encoder_enable = false;
-        break;
-    default: // 融合模式
-        foc_mode.Encoder_enable = true;
-        foc_mode.SMO_enable = true;
-        break;
-    }
 }
 // 切换控制模式
 void fFOC_SetRunMode(eRunMode mode)

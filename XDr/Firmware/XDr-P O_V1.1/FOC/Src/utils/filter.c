@@ -125,14 +125,14 @@ int fMedianFilter(tMedianFilter *filter, int new_value)
  * @param buffer 数据缓冲区指针
  * @param size 缓冲区大小
  */
-void fMovingAverageInit(tMovingAverageFilter *filter, int *buffer, int size)
+void fMovingAverageInit(tMovingAverageFilter *filter, float32_t *buffer, int size)
 {
     filter->buffer = buffer;
     filter->size = size;
     filter->index = 0;
     filter->sum = 0;
     filter->is_full = 0;
-    memset(buffer, 0, size * sizeof(int));
+    memset(buffer, 0, size * sizeof(float32_t));
 }
 
 /**
@@ -141,7 +141,7 @@ void fMovingAverageInit(tMovingAverageFilter *filter, int *buffer, int size)
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-int fMovingAverageFilter(tMovingAverageFilter *filter, int new_value)
+float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value)
 {
     // 减去即将被替换的值（如果缓冲区已满）
     if (filter->is_full)

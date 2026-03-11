@@ -9,13 +9,13 @@ typedef enum
     NO_FAULT,
     FLASH_OFFLINE,           // 闪存离线
     TUNING_TIMEOUT,          // 整定超时
-    POLE_PAIRS_MISMATCH,     // 极对数不匹配
-    MOTOR_PARAM_FAULT,       // 电机参数异常
+    MOTOR_PARAM_INVALID,     // 电机参数异常
+    TUNING_FAULT,            // 整定失败
     OVER_VOLTAGE,            // 过压
     LOW_VOLTAGE,             // 低电压
     OVER_CURRENT,            // 过流
     CAN_INIT_FAULT,          // CAN初始化失败
-    CAN_COMMUNICATION_FAULT, // CAN通信失败
+    CAN_COMMUNICATION_FAULT, // CAN通信异常
 
 } eFault;
 typedef enum

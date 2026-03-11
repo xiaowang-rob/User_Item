@@ -8,16 +8,16 @@ void fStatusFeedbackMainLoop()
     switch (g_foc.state)
     {
     case FOC_AUTO_TUNE:
-        fRGB_Breathe(MAGENTA); // 粉色
+        fRGB_Breathe(TIFFANY_BLUE);
         break;
     case FOC_IDLE:
-        fRGB_Breathe(BLUE); // 蓝色
+        fRGB_Breathe(KLEIN_BLUE);
         break;
     case FOC_RUNNING:
-        fRGB_Breathe(GREEN); // 绿色
+        fRGB_Breathe(MARS_GREEN);
         break;
     case FOC_FAULT:
-        fRGB_Breathe(RED); // 红色
+        fRGB_Breathe(CHINA_RED);
         break;
     default:
         break;
@@ -62,5 +62,5 @@ void fStatusFeedbackMainLoop()
 }
 void fSystemFaultFeedback()
 {
-    fRGB_Breathe(WHITE); // 白色
+    fRGB_Breathe(ORANGE);
 }

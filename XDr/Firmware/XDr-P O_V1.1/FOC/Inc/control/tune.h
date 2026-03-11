@@ -57,7 +57,6 @@ typedef enum
 {
     TUNE_FAULT_NONE = 0,
     TUNE_FAULT_TIMEOUT,
-    TUNE_FAULT_OVERCURRENT,
     TUNE_FAULT_PARAM_INVALID,
     TUNE_FAULT_SIGNAL_WEAK,
     TUNE_FAULT_MECH_LOCKED,
@@ -76,12 +75,13 @@ typedef struct
     // 电阻整定上下文
     struct
     {
-        float target_i[2];
+        float i_target;
         float v_meas[2];
         float i_meas[2];
-        u16 sample_cnt[2];
+        float v_cmd;
+        u16 hold_cnt;
+        u16 step_ticks;
         u8 step;
-        float v_cmd_last;
     } rs_ctx;
 
     // 电感整定上下文
@@ -90,7 +90,7 @@ typedef struct
         float v_inj;
         float di_dt_sum[2][2];
         u16 cnt[2][2];
-        float i_peak[2][2];
+        float i_sum[2][2];
         bool axis;
         u16 inject_period;
         u16 inject_cnt;

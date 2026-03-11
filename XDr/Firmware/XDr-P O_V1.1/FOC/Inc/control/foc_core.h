@@ -17,7 +17,7 @@ typedef enum
     CURRENT_MODE,
     SPEED_MODE,
     POSITION_MODE, // 增量式控制
-    IDLE_LOOP,
+    OPEN_LOOP,
 } eRunMode;
 
 typedef struct
@@ -27,9 +27,6 @@ typedef struct
     u8 pvt_mode;
     u8 weak_mag;
     eTrajType trajectory_mode;
-    bool Encoder_enable;
-    bool SMO_enable;
-    bool OPEN_LOOP_enable;
 } tFOC_Mode;
 
 typedef struct
@@ -86,7 +83,6 @@ void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fFOC_SetIdIq(float id, float iq);
 void fSetThetaOffset(float thetaoffset);
 void fSetWireSequence(int wire_sequence);
-void fTraj_Start(bool en);
 
 // 主要函数
 

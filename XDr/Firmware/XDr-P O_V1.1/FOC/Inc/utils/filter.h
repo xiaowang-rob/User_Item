@@ -27,15 +27,15 @@ int fMedianFilter(tMedianFilter *filter, int new_value);
 /* 滑动平均滤波法 */
 typedef struct
 {
-    int *buffer; // 数据缓冲区
-    int size;    // 缓冲区大小
-    int index;   // 当前索引
-    int sum;     // 当前和
-    int is_full; // 缓冲区是否已满
+    float32_t *buffer; // 数据缓冲区
+    int size;          // 缓冲区大小
+    int index;         // 当前索引
+    float32_t sum;     // 当前和
+    int is_full;       // 缓冲区是否已满
 } tMovingAverageFilter;
 
-void fMovingAverageInit(tMovingAverageFilter *filter, int *buffer, int size);
-int fMovingAverageFilter(tMovingAverageFilter *filter, int new_value);
+void fMovingAverageInit(tMovingAverageFilter *filter, float32_t *buffer, int size);
+float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value);
 
 /* 加权滑动平均滤波法 */
 typedef struct

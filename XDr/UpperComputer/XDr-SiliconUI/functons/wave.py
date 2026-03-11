@@ -94,6 +94,22 @@ class WaveformWidget(QWidget):
             rateLimit=60,
             slot=self._on_mouse_hover
         )
+        # ========== 最大/最小值指示线 ==========
+        # 创建淡淡的虚线水平线，用于指示Y轴数据的最大/最小值
+        self.max_line = pg.InfiniteLine(
+            angle=0,  # 0度=水平线
+            movable=False,
+            pen=pg.mkPen(color=(255, 255, 255, 80), width=1, style=Qt.DashLine)
+        )
+        self.min_line = pg.InfiniteLine(
+            angle=0,
+            movable=False,
+            pen=pg.mkPen(color=(255, 255, 255, 80), width=1, style=Qt.DashLine)
+        )    
+        self.plot_widget.addItem(self.max_line)
+        self.plot_widget.addItem(self.min_line)
+        self.max_line.hide() 
+        self.min_line.hide()
     
     def set_auto_x_scale(self, state):
         """设置X轴自动缩放状态"""                                                                                   
@@ -181,18 +197,32 @@ class WaveformWidget(QWidget):
         all_data = []
         for wave in self.wave_data:
             if wave:
-                # 关键修复：过滤非有限值
                 valid_data = [y for y in wave if np.isfinite(y)]
                 if valid_data:
                     all_data.extend(valid_data)
         
         if not all_data:
+            self.max_line.hide()
+            self.min_line.hide()
             return
         
         min_val = min(all_data)
         max_val = max(all_data)
         margin = (max_val - min_val) * 0.1 if max_val != min_val else 1
         self.plot_widget.setYRange(min_val - margin, max_val + margin)
+        
+        # ========== 更新最大/最小值指示线 ==========
+        # 仅在自动缩放启用时更新并显示指示线
+        if self.auto_y:
+            self.max_line.setPos(max_val)
+            self.min_line.setPos(min_val)
+            # 避免极小范围时线条重叠
+            if abs(max_val - min_val) > 1e-6:
+                self.max_line.show()
+                self.min_line.show()
+            else:
+                self.max_line.hide()
+                self.min_line.hide()
     
     def auto_scale_x_axis(self):
         """X轴自动缩放 - 保持最近200个点可见"""
@@ -253,6 +283,9 @@ class WaveformWidget(QWidget):
         for i in range(5):
             self.curves[i].setData([], [])
             self.value_labels[i].setVisible(False)
+        # 隐藏最大/最小值指示线
+        self.max_line.hide()
+        self.min_line.hide()
     
     def set_auto_x_scale(self, enable: bool):
         """设置X轴自动缩放状态"""

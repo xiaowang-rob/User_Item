@@ -72,8 +72,11 @@ void fProManagerMainLoop()
         case TUNE_FAULT_TIMEOUT:
             g_pro_manager.fault = TUNING_TIMEOUT;
             break;
+        case TUNE_FAULT_PARAM_INVALID:
+            g_pro_manager.fault = MOTOR_PARAM_INVALID;
+            break;
         default:
-            g_pro_manager.fault = MOTOR_PARAM_FAULT;
+            g_pro_manager.fault = TUNING_FAULT;
             break;
         }
         g_pro_manager.fault_flag = true;
@@ -133,8 +136,8 @@ void fProManagerMainLoop()
         }
     }
     //  4编码器状态检测
-    if (g_foc.core->foc_mode->sensor_mode == ENCODER_CONTROL)
-    { // 有感模式启动编码器判断
+    if (g_foc.core->foc_mode->sensor_mode != SENSORLESS_CONTROL)
+    { // 有感模式和混合模式启动编码器判断
         if (g_pro_manager.drive_state->encoder_state != ONLINE && g_pro_manager.drive_state->encoder_state != RUNNING)
         {
             g_pro_manager.warning_flag = true;

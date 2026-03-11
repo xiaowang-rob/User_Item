@@ -122,21 +122,19 @@ class ComPort(QObject):
         if current_devices == self._current_ports:
             return
         
-        # 保存当前选中的设备
+        # 保存当前选中的设备（用于恢复选中状态）
         combo = self.comport_list
         current_index = combo.currentIndex()
         selected_device = None
         if current_index >= 0 and len(self._port_devices) > current_index:
             selected_device = self._port_devices[current_index]
         
-        # 重建列表
-        combo.clear()
-        self._port_devices = []
-        self._port_is_bl = []
-        self._matched_ports = []  # 【关键】每次刷新清空匹配列表
-        
+        # ========== 分类收集端口信息 ==========
         vid = DEVICE_CONFIG['vendor_id'].upper()
         devices = DEVICE_CONFIG['devices']
+        
+        new_ports = []      # 新发现的设备（优先显示）
+        existing_ports = [] # 已知的设备
         
         for port in ports_info:
             device_name = port.device
@@ -163,22 +161,53 @@ class ComPort(QObject):
                 if matched_pid:
                     break
             
-            # 【关键】将匹配到的设备存入列表，供自动连接直接使用
-            if matched_pid:
-                self._matched_ports.append(device_name)
-            
+            # 构建显示文本
             if matched_pid and device_info:
                 display_text = f"{device_name} ({device_info['name']})"
             else:
                 display_text = device_name
             
-            combo.addItem(display_text)
-            self._port_devices.append(device_name)
-            self._port_is_bl.append(is_bl_pid)
+            # 分类存储
+            port_entry = {
+                'device': device_name,
+                'display': display_text,
+                'is_bl': is_bl_pid,
+                'matched': matched_pid is not None
+            }
+            
+            if device_name in self._current_ports:
+                existing_ports.append(port_entry)
+            else:
+                new_ports.append(port_entry)
         
+        # ========== 重建 combo 列表：新设备优先 ==========
+        combo.clear()
+        self._port_devices = []
+        self._port_is_bl = []
+        self._matched_ports = []
+        
+        # 先添加新发现的设备（放在最前面）
+        for entry in new_ports:
+            combo.addItem(entry['display'])
+            self._port_devices.append(entry['device'])
+            self._port_is_bl.append(entry['is_bl'])
+            if entry['matched']:
+                self._matched_ports.append(entry['device'])
+        
+        # 再添加已知设备
+        for entry in existing_ports:
+            combo.addItem(entry['display'])
+            self._port_devices.append(entry['device'])
+            self._port_is_bl.append(entry['is_bl'])
+            if entry['matched']:
+                self._matched_ports.append(entry['device'])
+        
+        # ========== 恢复选中状态 ==========
+        # 优先选中之前选中的设备（无论新旧）
         if selected_device and selected_device in self._port_devices:
             combo.setCurrentIndex(self._port_devices.index(selected_device))
         elif combo.count() > 0:
+            # 否则默认选中第一个（通常是新设备）
             combo.setCurrentIndex(0)
         
         self._current_ports = current_devices
@@ -186,8 +215,8 @@ class ComPort(QObject):
         # 尝试自动连接
         if self._auto_connect_enabled and not self.is_connected:
             print(f"[调试] 自动连接启用，尝试连接，端口数={len(ports_info)}")
-            self._try_auto_connect()  # 不再传递 ports_info
-            
+            self._try_auto_connect()
+        
         if not self.is_connected:
             self._update_ui_state()
 

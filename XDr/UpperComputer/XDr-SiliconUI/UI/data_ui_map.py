@@ -186,8 +186,8 @@ class Midx:
         "无故障",
         "闪存离线",
         "整定超时",
-        "极对数不匹配",
-        "电机参数异常",
+        "整定参数异常",
+        "整定失败",
         "过压",
         "低电压",
         "过流",
@@ -206,7 +206,7 @@ class Midx:
     data_select        = [
         "NONE",
         "温度", "Vbus", "VOL_U", "VOL_V", "VOL_W", "VOL_q", "VOL_d",
-        "CUR_U", "CUR_V", "CUR_W", "CUR_q", "CUR_d", "CUR_q_ref", "CUR_d_ref",
+        "I_U", "I_V", "I_W", "I_q", "I_d", "I_q_ref", "I_d_ref",
         "SPE", "SPE_ref", "THE_elec", "THE_mech",
         "POS", "POS_ref"
     ]

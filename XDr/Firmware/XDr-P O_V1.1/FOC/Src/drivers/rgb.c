@@ -21,12 +21,14 @@ static const uint8_t SINE_TABLE[64] = {
 const tRGBColor RED = {255, 0, 0};
 const tRGBColor GREEN = {0, 255, 0};
 const tRGBColor BLUE = {0, 0, 255};
-const tRGBColor SKY = {0, 255, 255};
-const tRGBColor MAGENTA = {255, 0, 220};
-const tRGBColor YELLOW = {128, 216, 0};
-const tRGBColor ORANGE = {127, 106, 0};
-const tRGBColor BLACK = {0, 0, 0};
-const tRGBColor WHITE = {255, 255, 255};
+
+const tRGBColor CHINA_RED = {230, 0, 0};        // 中国红
+const tRGBColor KLEIN_BLUE = {0, 47, 167};      // 克莱因蓝
+const tRGBColor MARS_GREEN = {0, 140, 140};     // 马尔斯绿
+const tRGBColor PRUSSIAN_BLUE = {0, 49, 83};    // 普鲁士蓝
+const tRGBColor TIFFANY_BLUE = {129, 216, 208}; // 蒂夫尼蓝
+const tRGBColor SKY = {35, 235, 185};           // 青绿
+const tRGBColor ORANGE = {232, 88, 39};         // 品红
 
 #define WS2812_BITS_PER_LED (24u)
 #define WS2812_RESET_BITS (100u)
@@ -160,11 +162,6 @@ void fRGB_Breathe(tRGBColor Color)
     }
 }
 
-void fRGB_Stop(void)
-{
-    breath_active = false;
-    fRGB_SetAllColor(BLACK);
-}
 
 /* ========== GPIO LED ========== */
 void fLED_CanTogglePin(void)
