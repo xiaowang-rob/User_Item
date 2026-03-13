@@ -53,12 +53,12 @@ typedef struct
     float Rs;           // 定子电阻
     float Ld;           // 定子电感
     float Lq;
-    float Psi_f;          // 永磁体磁链
-    float Ke;             // 反电动势常数
-    float J;              // 转动惯量
-    float B;              // 摩擦系数
-    int8_t Wire_sequence; // 线序 +1-正线序 -1-反线序
-    u8 pole_pairs;        // 极对数
+    float Psi_f;        // 永磁体磁链
+    float Ke;           // 反电动势常数
+    float J;            // 转动惯量
+    float B;            // 摩擦系数
+    bool Wire_sequence; // 线序 true-正线序 false-反线序
+    u8 pole_pairs;      // 极对数
 } tMotor;
 
 typedef struct
@@ -82,7 +82,7 @@ bool fAutoCalibrationUpdate();
 void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fFOC_SetIdIq(float id, float iq);
 void fSetThetaOffset(float thetaoffset);
-void fSetWireSequence(int wire_sequence);
+void fSetWireSequence(bool wire_sequence);
 
 // 主要函数
 

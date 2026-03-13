@@ -14,9 +14,8 @@ typedef enum
     VOLTAGE_q,
     VOLTAGE_d,
 
-    CURRENT_U,
-    CURRENT_V,
-    CURRENT_W,
+    CURRENT_alpha,
+    CURRENT_beta,
     CURRENT_q,
     CURRENT_d,
     CURRENT_q_ref,

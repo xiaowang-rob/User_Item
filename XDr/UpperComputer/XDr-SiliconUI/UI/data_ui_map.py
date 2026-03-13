@@ -102,19 +102,18 @@ class Didx:
     VOLTAGE_W          = 8
     VOLTAGE_q          = 9
     VOLTAGE_d          = 10
-    CURRENT_U          = 11
-    CURRENT_V          = 12
-    CURRENT_W          = 13
-    CURRENT_q          = 14
-    CURRENT_d          = 15
-    CURRENT_q_ref      = 16
-    CURRENT_d_ref      = 17
-    SPEED              = 18
-    SPEED_ref          = 19
-    THETA_elec         = 20
-    THETA_mech         = 21
-    POSITION           = 22
-    POSITION_ref       = 23
+    CURRENT_alpha      = 11
+    CURRENT_beta       = 12
+    CURRENT_q          = 13  
+    CURRENT_d          = 14  
+    CURRENT_q_ref      = 15  
+    CURRENT_d_ref      = 16  
+    SPEED              = 17  
+    SPEED_ref          = 18  
+    THETA_elec         = 19  
+    THETA_mech         = 20  
+    POSITION           = 21  
+    POSITION_ref       = 22  
 
 
 # ============================
@@ -206,7 +205,7 @@ class Midx:
     data_select        = [
         "NONE",
         "温度", "Vbus", "VOL_U", "VOL_V", "VOL_W", "VOL_q", "VOL_d",
-        "I_U", "I_V", "I_W", "I_q", "I_d", "I_q_ref", "I_d_ref",
+        "I_α", "I_β", "I_q", "I_d", "I_q_ref", "I_d_ref",
         "SPE", "SPE_ref", "THE_elec", "THE_mech",
         "POS", "POS_ref"
     ]

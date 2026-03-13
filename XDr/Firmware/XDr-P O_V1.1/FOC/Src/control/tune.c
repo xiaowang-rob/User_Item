@@ -8,8 +8,8 @@
 tMotorParams motor_params = {0};
 tTuneContext g_tune_ctx = {0};
 
-tMovingAverageFilter ls_di_dt_filter = {0};
-float ls_di_dt_filter_buf[3];
+tFirstOrderLagFilter rs_i_filter = {0};
+#define rS_I_FILTER_ALPHA 0.3f
 
 /* ================================= 整定参数配置 ================================= */
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
@@ -17,13 +17,14 @@ float ls_di_dt_filter_buf[3];
 #define MS_TO_TICK(ms) ((u16)((ms) * 20.0f))
 
 // 电阻整定 (滞环电流控制 + 滤波 + 差分)
+#define RS_TIMEOUT_TICKS 10000  // 整定超时时间 (500ms)
 #define RS_I_TARGET_1 2.0f      // 第一点目标电流 (A)
 #define RS_I_TARGET_2 6.0f      // 第二点目标电流 (A)
 #define RS_HYST_BAND 1.5f       // 滞环带宽 ±1.5A
 #define RS_V_LIMIT 2.0f         // 电压输出限幅 (V)
 #define RS_V_HOLD_MAX_TICKS 5   // 误差带内保持最大周期数 (防静差)
 #define RS_V_STEP_MIN 0.01f     // 保持超时后微调步长 (V)
-#define RS_STEADY_ERR_THR 0.2f  // 稳态电流误差阈值 (A)
+#define RS_STEADY_ERR_THR 0.1f  // 稳态电流误差阈值 (A)
 #define RS_STEADY_TICKS 150     // 稳态持续周期数 (7.5ms@20kHz)
 #define RS_TRACK_TIMEOUT 800    // 单点跟踪超时 (40ms)
 #define RS_MIN_DELTA_I 2.0f     // 最小电流变化量 (A)
@@ -32,21 +33,25 @@ float ls_di_dt_filter_buf[3];
 #define RS_DEADTIME_VCOMP 0.04f // 死区补偿电压 (V)
 
 // 电感整定
-#define LS_INJECT_FREQ_HZ 5000
+#define LS_TIMEOUT_TICKS 10000 // 整定超时时间 (500ms)
+#define LS_INJECT_FREQ_HZ 1000
+#define LS_V_HOLD_MAX_TICKS 100
 #define LS_V_START 0.2f
-#define LS_V_MAX 1.0f
-#define LS_I_LIMIT 5.0f
+#define LS_V_MAX 0.8f
+#define LS_I_LIMIT 4.0f
 #define LS_MIN_DI_DT 300.0f // 最小信噪比要求
 #define LS_MAX_DI_DT 60000.0f
 #define LS_RANGE_MIN 20e-6f
 #define LS_RANGE_MAX 300e-6f
 
 // 角度偏移 (开环强励磁)
-#define THETA_VOLT_AMP 1.0f   // 强励磁电压幅值 (V)
-#define THETA_OMEGA_MAX 0.05f // 静止判断阈值 (rad/s)
-#define THETA_STEADY_WIN 500  // 静止等待时间 (25ms)
+#define THETA_TIMEOUT_TICKS 10000 // 整定超时时间 (500ms)
+#define THETA_VOLT_AMP 0.4f       // 强励磁电压幅值 (V)
+#define THETA_DELTA_MAX 0.01f     // 静止判断阈值 (rad)
+#define THETA_STEADY_WIN 1000     // 静止等待时间 (50ms)
 
 // 线序
+#define WS_TIMEOUT_TICKS 100000 // 整定超时时间 (5s)
 #define WS_VF_FREQ 3.0f
 #define WS_VF_AMP 1.5f
 #define WS_DURATION_TICKS MS_TO_TICK(500)
@@ -73,7 +78,7 @@ void fMotorParamTune_ForceSave(void)
     g_Param.motor_j = motor_params.J;
     g_Param.motor_b = motor_params.B;
     g_Param.motor_polepairs = motor_params.pole_pairs;
-    g_Param.motor_wire_sequence = motor_params.wire_sequence > 0 ? 1 : 0;
+    g_Param.motor_wire_sequence = motor_params.wire_sequence ? 0 : 1;
     g_Param.theta_offset = motor_params.theta_offset;
 }
 
@@ -81,7 +86,8 @@ void fMotorParamTune_ForceSave(void)
 // todo:后续添加无感整定，跳过角度偏移和极对数整定，用电角度和电角速度控制，直接用HFI、SMO做精准的控制
 void fMotorParamTune_Init()
 {
-    fMotorParamTune_Reset();
+
+    memset(&g_tune_ctx, 0, sizeof(tTuneContext));
 
     motor_params.KV = g_Param.motor_kv;
     motor_params.Rs = g_Param.motor_rs;
@@ -89,7 +95,8 @@ void fMotorParamTune_Init()
     motor_params.Lq = g_Param.motor_lq;
     motor_params.pole_pairs = g_Param.motor_polepairs;
     motor_params.dt = Tcon;
-    motor_params.wire_sequence = 1;
+    motor_params.wire_sequence = true;
+    fSetWireSequence(motor_params.wire_sequence);
 
     // 标记未整定
     motor_params.Rs_valid = false;
@@ -101,26 +108,23 @@ void fMotorParamTune_Init()
     motor_params.mech_valid = false;
 
     // 滤波器初始化
-    fMovingAverageInit(&ls_di_dt_filter, ls_di_dt_filter_buf, 4);
+    fFirstOrderLagInit(&rs_i_filter, rS_I_FILTER_ALPHA, 0);
 }
 
-void fMotorParamTune_Reset(void)
+void fMotorParamTune_Reset()
 {
-    g_tune_ctx.state = TUNE_STATE_IDLE;
     g_tune_ctx.fault = TUNE_FAULT_NONE;
-    g_tune_ctx.tick_count = 0;
-    g_tune_ctx.timeout_tick = 0;
-    // 其他变量在状态切换时初始化，这里不重复清零
+    g_tune_ctx.state = TUNE_STATE_INIT;
 }
-
 /* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
 
 static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
 
+    float i_alpha = fFirstOrderLagFilter(&rs_i_filter, i_alpha_fb);
     //===滞环电流控制===
-    float err = ctx->rs_ctx.i_target - i_alpha_fb;
+    float err = ctx->rs_ctx.i_target - i_alpha;
     if (FABSF(err) > RS_HYST_BAND)
     {
         // 误差带外 → 输出电压粗调
@@ -139,16 +143,11 @@ static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
         }
     }
     //===死区前馈===
-    float v_dead_comp = (i_alpha_fb > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
+    float v_dead_comp = (i_alpha > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
     float v_out = CLAMP(ctx->rs_ctx.v_cmd + v_dead_comp, -RS_V_LIMIT, RS_V_LIMIT);
-    // 跟踪超时
-        if (++ctx->rs_ctx.step_ticks > RS_TRACK_TIMEOUT)
-        {
-            ctx->fault = TUNE_FAULT_TIMEOUT;
-            return true;
-        }
+
     // 稳态判断
-    float i_err = FABSF(i_alpha_fb - ctx->rs_ctx.i_target);
+    float i_err = FABSF(i_alpha - ctx->rs_ctx.i_target);
     if (i_err < RS_STEADY_ERR_THR)
     {
         if (++ctx->tick_count >= RS_STEADY_TICKS)
@@ -157,7 +156,7 @@ static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
             if (ctx->rs_ctx.step == 0)
             {
                 // 记录第一点
-                ctx->rs_ctx.i_meas[0] = i_alpha_fb;
+                ctx->rs_ctx.i_meas[0] = i_alpha;
                 ctx->rs_ctx.v_meas[0] = v_out; // 记录实际输出电压
 
                 // 切换到第二点
@@ -175,7 +174,7 @@ static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
             else
             {
                 // 记录第二点
-                ctx->rs_ctx.i_meas[1] = i_alpha_fb;
+                ctx->rs_ctx.i_meas[1] = i_alpha;
                 ctx->rs_ctx.v_meas[1] = v_out;
 
                 // === 5. 差分计算电阻 ===
@@ -200,6 +199,7 @@ static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
                 }
 
                 params->Rs_valid = true;
+                fFOC_SetUalphaBeta(0, 0);
                 return true; // 辨识完成
             }
         }
@@ -215,84 +215,88 @@ static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
 
     return false; // 辨识进行中
 }
-
 /* ================================= 电感整定（alpha beta轴方波注入） ================================= */
-static bool _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams *params)
+static bool
+_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams *params)
 {
 
     tTuneContext *ctx = &g_tune_ctx;
 
-    // 自适应注入电压 (每 100 ticks 调整一次)
-    if (ctx->tick_count % 100 == 0)
+    // 自适应注入电压 调整到反馈电流合适
+    if (!ctx->ls_ctx.ready)
     {
-        float i_meas = ctx->ls_ctx.axis ? i_beta : i_alpha;
-        float i_abs = FABSF(i_meas);
+        float i_meas = (FABSF(i_alpha) + FABSF(i_beta)) * 0.5f;
 
         // 迟滞区间: 20%~80% of LS_I_LIMIT
-        if (i_abs < LS_I_LIMIT * 0.2f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
+        if (i_meas < LS_I_LIMIT * 0.2f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
         {
             ctx->ls_ctx.v_inj += 0.1f;
+            ctx->tick_count = 0;
         }
-        else if (i_abs > LS_I_LIMIT * 0.8f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
+        else if (i_meas > LS_I_LIMIT * 0.8f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
         {
             ctx->ls_ctx.v_inj -= 0.1f;
+            ctx->tick_count = 0;
         }
+        else
+        {
+            if (ctx->tick_count > LS_V_HOLD_MAX_TICKS)
+            {
+                ctx->ls_ctx.ready = true;
+                ctx->tick_count = 0;
+                fFOC_SetUalphaBeta(0, 0);
+                return false;
+            }
+        }
+        fFOC_SetUalphaBeta(ctx->ls_ctx.v_inj, ctx->ls_ctx.v_inj);
+        return false; // 未完成
     }
 
+    // 反转极性
     if (++ctx->ls_ctx.inject_cnt >= ctx->ls_ctx.inject_period)
     {
         ctx->ls_ctx.inject_cnt = 0;
         ctx->temp_flag[0] = !ctx->temp_flag[0]; // 注入极性翻转
     }
-
-    // 施加电压 + 电流保护
+    // 施加电压
     float v_cmd = ctx->temp_flag[0] ? ctx->ls_ctx.v_inj : -ctx->ls_ctx.v_inj;
-    float i_meas = ctx->ls_ctx.axis ? i_beta : i_alpha;
-    if (FABSF(i_meas) > LS_I_LIMIT)
-        v_cmd *= 0.5f; // 紧急降电压
-
-    if (!ctx->ls_ctx.axis)
-        fFOC_SetUalphaBeta(v_cmd, 0);
-    else
-        fFOC_SetUalphaBeta(0, v_cmd);
+    fFOC_SetUalphaBeta(v_cmd, v_cmd);
 
     if (ctx->ls_ctx.inject_cnt == 0)
     {
-        float *i_prev = ctx->ls_ctx.axis ? &ctx->temp_val[2] : &ctx->temp_val[0];
-        float di = i_meas - *i_prev;
-        float dt_actual = ctx->ls_ctx.inject_period * params->dt; // = 100μs
-        float di_dt = di / dt_actual;
-        // float di_dt = fMovingAverageFilter(&ls_di_dt_filter, di / params->dt);
+        float di_alpha = i_alpha - ctx->temp_val[0];
+        float di_beta = i_beta - ctx->temp_val[1];
+        float dt_actual = ctx->ls_ctx.inject_period * params->dt;
+        float di_dt_alpha = di_alpha / dt_actual;
+        float di_dt_beta = di_beta / dt_actual;
         // 记录有效样本
-        u8 axis = ctx->ls_ctx.axis ? 1 : 0;
         u8 half = ctx->temp_flag[0] ? 1 : 0;
 
-        if (FABSF(v_cmd) > ctx->ls_ctx.v_inj * 0.8f &&
-            FABSF(di_dt) > LS_MIN_DI_DT &&
-            FABSF(di_dt) < LS_MAX_DI_DT)
+        if (FABSF(v_cmd) > ctx->ls_ctx.v_inj * 0.9f)
         {
-            ctx->ls_ctx.di_dt_sum[axis][half] += di_dt;
-            ctx->ls_ctx.cnt[axis][half]++;
-            ctx->ls_ctx.i_sum[axis][half] += FABSF(i_meas);
+            // 记录alpha轴
+            if (FABSF(di_dt_alpha) > LS_MIN_DI_DT &&
+                FABSF(di_dt_alpha) < LS_MAX_DI_DT)
+            {
+                ctx->ls_ctx.di_dt_sum[0][half] += di_dt_alpha;
+                ctx->ls_ctx.cnt[0][half]++;
+                ctx->ls_ctx.i_sum[0][half] += i_alpha;
+            }
+            if (FABSF(di_dt_beta) > LS_MIN_DI_DT &&
+                FABSF(di_dt_beta) < LS_MAX_DI_DT)
+            {
+                ctx->ls_ctx.di_dt_sum[1][half] += di_dt_beta;
+                ctx->ls_ctx.cnt[1][half]++;
+                ctx->ls_ctx.i_sum[1][half] += i_beta;
+            }
         }
-        *i_prev = i_meas;
+        ctx->temp_val[0] = i_alpha;
+        ctx->temp_val[1] = i_beta;
     }
 
     // 完成判断
-    if (ctx->tick_count >= 2000) // 100ms
+    if (ctx->tick_count >= 4000)
     {
-        if (!ctx->ls_ctx.axis)
-        {
-            // alpha 完成，切 beta
-            ctx->ls_ctx.axis = true;
-            ctx->tick_count = 0;
-            // 重置 beta 统计
-            ctx->ls_ctx.di_dt_sum[1][0] = ctx->ls_ctx.di_dt_sum[1][1] = 0;
-            ctx->ls_ctx.cnt[1][0] = ctx->ls_ctx.cnt[1][1] = 0;
-            ctx->ls_ctx.i_sum[1][0] = ctx->ls_ctx.i_sum[1][1] = 0;
-            return false;
-        }
-
         // 计算电感
         float L_alpha = 0, L_beta = 0;
         bool alpha_ok = (ctx->ls_ctx.cnt[0][0] >= 20 && ctx->ls_ctx.cnt[0][1] >= 20);
@@ -303,9 +307,12 @@ static bool _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, t
             float avg_di_dt = (FABSF(ctx->ls_ctx.di_dt_sum[0][0] / ctx->ls_ctx.cnt[0][0]) +
                                FABSF(ctx->ls_ctx.di_dt_sum[0][1] / ctx->ls_ctx.cnt[0][1])) *
                               0.5f;
-            float i_avg = (ctx->ls_ctx.i_sum[0][0] / ctx->ls_ctx.cnt[0][0] +
-                           ctx->ls_ctx.i_sum[0][1] / ctx->ls_ctx.cnt[0][1]) *
-                          0.5f;
+            // float i_avg = (ctx->ls_ctx.i_sum[0][0] / ctx->ls_ctx.cnt[0][0] +
+            //                ctx->ls_ctx.i_sum[0][1] / ctx->ls_ctx.cnt[0][1]) *
+            //               0.5f;
+            float i_avg_0 = FABSF(ctx->ls_ctx.i_sum[0][0] / ctx->ls_ctx.cnt[0][0]);
+            float i_avg_1 = FABSF(ctx->ls_ctx.i_sum[0][1] / ctx->ls_ctx.cnt[0][1]);
+            float i_avg = (i_avg_0 + i_avg_1) * 0.5f;
             float v_comp = ctx->ls_ctx.v_inj - params->Rs * i_avg; // 电阻压降补偿
             L_alpha = v_comp / (avg_di_dt + 1e-6f);
         }
@@ -315,9 +322,12 @@ static bool _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, t
             float avg_di_dt = (FABSF(ctx->ls_ctx.di_dt_sum[1][0] / ctx->ls_ctx.cnt[1][0]) +
                                FABSF(ctx->ls_ctx.di_dt_sum[1][1] / ctx->ls_ctx.cnt[1][1])) *
                               0.5f;
-            float i_avg = (ctx->ls_ctx.i_sum[1][0] / ctx->ls_ctx.cnt[1][0] +
-                           ctx->ls_ctx.i_sum[1][1] / ctx->ls_ctx.cnt[1][1]) *
-                          0.5f;
+            float i_avg_0 = FABSF(ctx->ls_ctx.i_sum[1][0] / ctx->ls_ctx.cnt[1][0]);
+            float i_avg_1 = FABSF(ctx->ls_ctx.i_sum[1][1] / ctx->ls_ctx.cnt[1][1]);
+            float i_avg = (i_avg_0 + i_avg_1) * 0.5f;
+            // float i_avg = (ctx->ls_ctx.i_sum[1][0] / ctx->ls_ctx.cnt[1][0] +
+            //                ctx->ls_ctx.i_sum[1][1] / ctx->ls_ctx.cnt[1][1]) *
+            //               0.5f;
             float v_comp = ctx->ls_ctx.v_inj - params->Rs * i_avg;
             L_beta = v_comp / (avg_di_dt + 1e-6f);
         }
@@ -357,31 +367,28 @@ static bool _tune_ThetaOffset(float theta_mech, tMotorParams *params)
     tTuneContext *ctx = &g_tune_ctx;
 
     // 稳态检测：机械角速度接近 0
-    if (FABSF(theta_mech - ctx->temp_val[0]) < THETA_OMEGA_MAX)
+    float theta_delta = fNormalizeAngle_pi_pi(theta_mech - ctx->temp_val[0]);
+    if (FABSF(theta_delta) < THETA_DELTA_MAX)
     {
         ctx->theta_ctx.valid_cnt++;
         if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN)
         {
-            ctx->theta_ctx.theta_sum += theta_mech * 0.01f; // 滑动平均
-            if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 2)
+            ctx->theta_ctx.theta_sum += theta_mech; // 滑动平均
+            if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 2 - 1)
                 ctx->theta_ctx.steady_flag = true;
         }
     }
     else
     {
-        // 非稳态：衰减计数
-        if (ctx->theta_ctx.valid_cnt > 10)
-            ctx->theta_ctx.valid_cnt -= 10;
-        else
-            ctx->theta_ctx.valid_cnt = 0;
+        ctx->theta_ctx.valid_cnt = 0;
         ctx->theta_ctx.theta_sum = 0;
     }
     ctx->temp_val[0] = theta_mech;
 
     // 多周期验证
-    if (ctx->theta_ctx.steady_flag && ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 3)
+    if (ctx->theta_ctx.steady_flag)
     {
-        float offset = ctx->theta_ctx.theta_sum / (THETA_STEADY_WIN * 3 * 0.01f);
+        float offset = ctx->theta_ctx.theta_sum / THETA_STEADY_WIN;
         offset = fNormalizeAngle_pi_pi(offset);
 
         params->theta_offset = offset;
@@ -431,6 +438,7 @@ static bool _tune_WireSequence(tFOC_val foc_val, tMotorParams *params)
         ctx->wire_ctx.enc_start = (s32)(foc_val.theta_mech * 1000);
         ctx->wire_ctx.step = 3;
         ctx->wire_ctx.step_start_tick = g_tune_ctx.tick_count;
+        fSetWireSequence(false); // 反转线序
         break;
 
     case 3: // 反向开环拖动
@@ -454,12 +462,12 @@ static bool _tune_WireSequence(tFOC_val foc_val, tMotorParams *params)
     case 4: // 判断线序
         if (ctx->wire_ctx.enc_delta_fwd > WS_ENC_DELTA_MIN && ctx->wire_ctx.enc_delta_rev < -WS_ENC_DELTA_MIN)
         {
-            params->wire_sequence = 1; // 正序
+            params->wire_sequence = true; // 正序
             ctx->wire_ctx.step = 5;
         }
         else if (ctx->wire_ctx.enc_delta_fwd < -WS_ENC_DELTA_MIN && ctx->wire_ctx.enc_delta_rev > WS_ENC_DELTA_MIN)
         {
-            params->wire_sequence = -1; // 反序
+            params->wire_sequence = false; // 反序
             ctx->wire_ctx.step = 5;
         }
         else
@@ -468,7 +476,7 @@ static bool _tune_WireSequence(tFOC_val foc_val, tMotorParams *params)
             return true;
         }
         break;
-
+    case 5: // 完成
         params->wire_valid = true;
         return true;
     }
@@ -532,6 +540,10 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
 
     switch (ctx->state)
     {
+    case TUNE_STATE_INIT:
+        fMotorParamTune_Init();
+        ctx->state = TUNE_STATE_IDLE;
+        break;
     case TUNE_STATE_IDLE:
         fFOC_SetSensorMode(ENCODER_CONTROL);
         fFOC_SetRunMode(OPEN_LOOP);
@@ -543,6 +555,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         ctx->temp_val[1] = 0;
         ctx->tick_count = 0;
 
+        ctx->timeout_tick = RS_TIMEOUT_TICKS;
         ctx->state = TUNE_STATE_RS;
         break;
 
@@ -558,7 +571,6 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             // 电阻完成：初始化电感整定上下文
             ctx->ls_ctx.inject_period = fpwm / LS_INJECT_FREQ_HZ / 2;
             ctx->ls_ctx.v_inj = LS_V_START;
-            ctx->ls_ctx.axis = false;
             ctx->ls_ctx.inject_cnt = 0;
             for (int i = 0; i < 2; i++)
                 for (int j = 0; j < 2; j++)
@@ -569,6 +581,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 }
             ctx->tick_count = 0;
 
+            ctx->timeout_tick = LS_TIMEOUT_TICKS;
             ctx->state = TUNE_STATE_LS;
         }
         break;
@@ -576,6 +589,9 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
     case TUNE_STATE_LS:
         if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, params))
         {
+            // 电阻上下文复位
+            ctx->rs_ctx.step_ticks = 0;
+
             if (ctx->fault != TUNE_FAULT_NONE)
             {
                 ctx->state = TUNE_STATE_FAULT;
@@ -592,6 +608,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
 
             fFOC_SetUalphaBeta(THETA_VOLT_AMP, 0);
 
+            ctx->timeout_tick = THETA_TIMEOUT_TICKS;
             ctx->state = TUNE_STATE_THETA_OFFSET;
         }
         break;
@@ -613,6 +630,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->wire_ctx.enc_delta_rev = 0;
             ctx->tick_count = 0;
 
+            ctx->timeout_tick = WS_TIMEOUT_TICKS;
             ctx->state = TUNE_STATE_WIRE_SEQ;
         }
         break;
@@ -628,7 +646,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             fSetWireSequence(motor_params.wire_sequence);
             // 线序完成：初始化极对数上下文
             // todo:这里切换为混合模式，使用编码器和HFI的值来确定极对数
-            ctx->pole_ctx.omega_ref = 200.0f;
+
             ctx->pole_ctx.sum_ratio = 0;
             ctx->pole_ctx.valid_cnt = 0;
             ctx->pole_ctx.steady_flag = false;

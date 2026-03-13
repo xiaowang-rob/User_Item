@@ -46,14 +46,11 @@ void fStreamDataGet(Data_stream_e stream, float *data)
     case VOLTAGE_d:
         *data = g_foc.core->foc_val->ud;
         break;
-    case CURRENT_U:
-        *data = g_foc.core->foc_val->Iu;
+    case CURRENT_alpha:
+        *data = g_foc.core->foc_val->Ialpha;
         break;
-    case CURRENT_V:
-        *data = g_foc.core->foc_val->Iv;
-        break;
-    case CURRENT_W:
-        *data = g_foc.core->foc_val->Iw;
+    case CURRENT_beta:
+        *data = g_foc.core->foc_val->Ibeta;
         break;
     case CURRENT_q:
         *data = g_foc.core->foc_val->iq_fb;
@@ -92,9 +89,9 @@ void fStreamDataGet(Data_stream_e stream, float *data)
 
 void fStreamDataPrepare(Data_stream_e stream, u8 index, u8 *data, bool _tx)
 {
-    fStreamDataGet(stream, (float*)&txdata_queue[index * 4]);
+    fStreamDataGet(stream, (float *)&txdata_queue[index * 4]);
     if (_tx)
     {
-        memcpy(data, txdata_queue, (index+1) * 4);
+        memcpy(data, txdata_queue, (index + 1) * 4);
     }
 }

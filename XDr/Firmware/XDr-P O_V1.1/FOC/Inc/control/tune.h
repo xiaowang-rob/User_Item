@@ -20,13 +20,12 @@ typedef struct
     float B; // 摩擦系数 (N·m·s/rad)
 
     // 配置参数
-    u8 pole_pairs;       // 极对数
-    short wire_sequence; // 线序：1=正序，-1=反序
-    float theta_offset;  // 编码器角度偏移 (rad)
+    u8 pole_pairs;      // 极对数
+    bool wire_sequence; // 线序：true=正序，false=反序
+    float theta_offset; // 编码器角度偏移 (rad)
 
     // 系统参数
-    float Udc; // 母线电压 (V)
-    float dt;  // 控制周期 (s)
+    float dt; // 控制周期 (s)
 
     // 有效性标志
     bool Rs_valid;
@@ -41,7 +40,8 @@ typedef struct
 /* ================================= 整定状态枚举 ================================= */
 typedef enum
 {
-    TUNE_STATE_IDLE = 0,
+    TUNE_STATE_INIT = 0,
+    TUNE_STATE_IDLE,
     TUNE_STATE_RS,
     TUNE_STATE_LS,
     TUNE_STATE_THETA_OFFSET,
@@ -91,7 +91,7 @@ typedef struct
         float di_dt_sum[2][2];
         u16 cnt[2][2];
         float i_sum[2][2];
-        bool axis;
+        bool ready;
         u16 inject_period;
         u16 inject_cnt;
     } ls_ctx;
@@ -159,10 +159,9 @@ extern tTuneContext g_tune_ctx;
 
 /* ================================= 公共接口 ================================= */
 void fMotorParamTune_Init();
-void fMotorParamTune_Reset(void);
+void fMotorParamTune_Reset();
 eTuneState fMotorParamTune_Update(tFOC_val foc_val);
 u8 fMotorParamTune_GetProgress(void);
 eTuneFault fMotorParamTune_GetFault(void);
-void fMotorParamTune_ForceSave(void);
 
 #endif /* __TUNE_H */

@@ -61,7 +61,7 @@ class ComPort(QObject):
         
         self._last_status_time = 0.0
         self._connect_time = 0.0
-        self._status_timeout = 5.0
+        self._status_timeout = 8.0
 
         self.packet_valid.connect(self.mw.data_process.handle_received_data)
         self.connection_lost.connect(self._on_connection_lost_ui)

@@ -16,8 +16,8 @@ tSvpwm svpwm = {0};
 void fSvpwmInit(float Vbus)
 {
     memset(&svpwm, 0, sizeof(tSvpwm));
-
     svpwm.k = MATH_SQRT3 * (float)ticpwm / Vbus;
+    DISABLE_PWM();
 }
 
 __STATIC_INLINE void pwm_out()
@@ -170,9 +170,11 @@ void fSvpwmRun(float ualpha, float ubeta)
     }
 
     // 计算中心对齐 PWM 的比较值（CCR = (上升沿 + 下降沿) / 2）
+
     svpwm.ticu = (u16)tu;
     svpwm.ticv = (u16)tv;
     svpwm.ticw = (u16)tw;
+
     // 更新比较值
     pwm_out();
 }
@@ -291,6 +293,7 @@ void fSvpwmSetVbus(float Vbus)
 {
     svpwm.k = MATH_SQRT3 * ticpwm / Vbus;
 }
+
 u8 fSvpwmGetSector()
 {
     return svpwm.sector;

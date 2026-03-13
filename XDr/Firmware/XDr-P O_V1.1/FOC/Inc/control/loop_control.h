@@ -26,7 +26,7 @@ typedef struct
 typedef struct
 {
     float kp, ki;
-    u8 enable_integral;
+    float dt;
     float integral, integral_limit;
     float output_limit, output;
 } tPI;
@@ -34,11 +34,18 @@ typedef struct
 // PID控制器（含微分滤波）
 typedef struct
 {
-    float kp, ki, kd;
-    u8 enable_integral;
-    float last_error, integral, integral_limit;
-    float derivative, last_derivative, derivative_limit, derivative_filter;
-    float output_limit, output;
+    float dt;               // 时间间隔（秒）
+    float kp;               // 比例系数（离散域）
+    float ki;               // 积分系数（离散域 = Ki_cont * Ts）
+    float kd;               // 微分系数（离散域 = Kd_cont / Ts）
+    float integral;         // 积分累加项
+    float last_error;       // 上一次误差
+    float derivative;       // 滤波后的微分值
+    float output;           // 当前输出（速度指令）
+    float output_limit;     // 输出限幅（最大速度 ±rad/s）
+    float integral_limit;   // 积分项限幅
+    float derivative_limit; // 微分项限幅
+    float alpha;            // 微分滤波系数 (0.1~0.3)
 } tPID;
 
 typedef struct

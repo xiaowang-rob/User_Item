@@ -17,14 +17,14 @@ tMotor Motor = {0};
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .motor = &Motor};
 
 /* 滤波器实例 */
-static tFirstOrderLagFilter _ialpha_filter;
-static tFirstOrderLagFilter _ibeta_filter;
-static float _ialpha_temp, _ibeta_temp;
+static tFirstOrderLagFilter _id_filter;
+static tFirstOrderLagFilter _iq_filter;
+static float _id_temp, _iq_temp;
 
 static tFirstOrderLagFilter _omega_filter;
 
-#define CCURRENT_FILTER_alpha 0.5f
-#define SPEED_FILTER_alpha 0.2f
+#define CCURRENT_FILTER_alpha 0.13f
+#define SPEED_FILTER_alpha 0.1f
 
 // 启动器初始化
 void _trajectory_init(tParameter param)
@@ -50,7 +50,7 @@ void _mode_init(tParameter param)
 // 电机参数初始化
 void _motor_init(tParameter param)
 {
-    Motor.Wire_sequence = param.motor_wire_sequence == 0 ? 1 : -1;
+    Motor.Wire_sequence = param.motor_wire_sequence == 0;
     Motor.offset_angle = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
     Motor.Rs = param.motor_rs;
@@ -61,14 +61,13 @@ void _motor_init(tParameter param)
     Motor.J = param.motor_j;
     Motor.B = param.motor_b;
     fSMO_Init(Motor);
-    fMotorParamTune_Init();
 }
 
 // 滤波器初始化
 void _filter_init(void)
 {
-    fFirstOrderLagInit(&_ialpha_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
-    fFirstOrderLagInit(&_ibeta_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
+    fFirstOrderLagInit(&_id_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
+    fFirstOrderLagInit(&_iq_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
     fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.omega_fb);
 }
 
@@ -94,10 +93,10 @@ void _FocValReset(void)
 // FOC 复位
 void fFOC_CoreReset(void)
 {
+    fMotorParamTune_Reset();
     _FocValReset();
     fLoopReset();
     fSMO_Reset();
-    fMotorParamTune_Reset();
     if (foc_mode.runmode == POSITION_MODE)
         fTraj_Reset(foc_val.pos_fb);
     else if (foc_mode.runmode == SPEED_MODE)
@@ -135,10 +134,10 @@ void Current_reconstruction(void)
         wi = foc_val.Iw;
         break;
     }
-
-    fClarkTransform(ui, vi, wi, &_ialpha_temp, &_ibeta_temp);
-    foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, _ialpha_temp);
-    foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, _ibeta_temp);
+    if (Motor.Wire_sequence)
+        fClarkTransform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
+    else
+        fClarkTransform(vi, ui, wi, &foc_val.Ibeta, &foc_val.Ialpha);
 }
 
 void fFOC_ValueUpdate(void)
@@ -153,8 +152,10 @@ void fFOC_ValueUpdate(void)
         fEncoderMainLoopTask(); // 编码器主循环
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = (foc_val.theta_mech - Motor.offset_angle) * Motor.pole_pairs;
-        foc_val.theta_elec = Motor.Wire_sequence * fNormalizeAngle_0_2pi(foc_val.theta_elec);
-        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
+        foc_val.theta_elec = fNormalizeAngle_0_2pi(foc_val.theta_elec) * (Motor.Wire_sequence ? 1 : -1);
+        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &_id_temp, &_iq_temp);
+        foc_val.id_fb = fFirstOrderLagFilter(&_id_filter, _id_temp);
+        foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.omega_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderOmega());
         break;
@@ -264,8 +265,8 @@ void fSetThetaOffset(float thetaoffset)
     Motor.offset_angle = thetaoffset;
 }
 
-// 设置电机线序
-void fSetWireSequence(int wire_sequence)
+// 设置电机线序 true 正向 false 反向
+void fSetWireSequence(bool wire_sequence)
 {
     Motor.Wire_sequence = wire_sequence;
 }

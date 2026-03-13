@@ -105,13 +105,9 @@ void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
 
     // 计算校准后的电流值（确保非负）
-    float raw_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
-    float raw_v = (float)(g_adc1_buffer[1] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_v);
-    float raw_w = (float)(g_adc1_buffer[2] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_w);
-
-    g_cur_u = (raw_u > 0) ? raw_u : 0;
-    g_cur_v = (raw_v > 0) ? raw_v : 0;
-    g_cur_w = (raw_w > 0) ? raw_w : 0;
+    g_cur_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
+    g_cur_v = (float)(g_adc1_buffer[1] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_v);
+    g_cur_w = (float)(g_adc1_buffer[2] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_w);
 
     *ui = g_cur_u;
     *vi = g_cur_v;
