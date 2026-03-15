@@ -3,10 +3,6 @@ import threading
 import time
 from UI.data_ui_map import (
     Pidx,Cidx,Midx,
-    rad_per_sec_to_rpm,
-    rpm_to_rad_per_sec,
-    rad_to_deg,
-    deg_to_rad,
     )
 
 class ParameterManager:
@@ -39,7 +35,7 @@ class ParameterManager:
                     if idx < Pidx.CAN_ID:
                         match idx:
                             # 下拉列表
-                            case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                            case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
                                 val = lineedit.currentIndex()
                                                                 
                             # 数字输入框
@@ -90,7 +86,7 @@ class ParameterManager:
         if index < Pidx.CAN_ID:
             match index:
                 # 下拉列表
-                case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.MOTOR_WIRE_SEQUENCE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
                     self.param_map[index].setCurrentIndex(data)    
                     if index in self.param_show_map:
                         self.param_show_map[index].setText(self.param_map[index].currentText())

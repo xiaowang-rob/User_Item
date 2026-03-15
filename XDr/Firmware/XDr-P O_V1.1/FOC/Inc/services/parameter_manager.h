@@ -17,8 +17,7 @@ typedef enum
     PVT_MODE,       // PVT 模式
     TRAJ_TYPE,      // 轨迹规划类型
 
-    MOTOR_WIRE_SEQUENCE, // 电机线圈顺序 0-正线 1-反线
-    MOTOR_POLEPAIRS,     // 电机转子对数
+    MOTOR_POLEPAIRS, // 电机极对数
 
     FREQ_CURRENT_LOOP,  // 电流环分频系数
     FREQ_SPEED_LOOP,    // 速度环分频系数
@@ -83,8 +82,8 @@ typedef struct
     u8 sensor_mode;
     u8 run_mode;
 
-    u8 motor_wire_sequence; // 电机线圈顺序 0-正线 1-反线
     u8 motor_polepairs;
+    bool theta_elec_offset;
 
     u8 freq_current_loop;  // 电流环分频系数
     u8 freq_speed_loop;    // 速度环分频系数

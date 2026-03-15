@@ -43,6 +43,7 @@ void fProManagerReset()
     g_pro_manager.warning_flag = false;
     g_pro_manager.fault = NO_FAULT;
     g_pro_manager.warning = NO_WARNING;
+		g_pro_manager.log_done = false;
     fFOC_Init();
 }
 // 保护主循环
@@ -121,7 +122,7 @@ void fProManagerMainLoop()
     }
 
     // 2 速度检测
-    if (_ToleranceCheck(g_foc.core->foc_val->omega_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
+    if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
     {
         g_pro_manager.warning = OVER_SPEED;
         g_pro_manager.warning_flag = true;
@@ -149,7 +150,7 @@ void fProManagerMainLoop()
         }
     }
     //   B错误处理--日志模块还得优化
-    if (g_pro_manager.fault_flag || g_pro_manager.warning_flag)
+    if ((g_pro_manager.fault_flag || g_pro_manager.warning_flag)&&!g_pro_manager.log_done)
     {
         fLogDataSave();
         fFOC_StateUpdate(FOC_FAULT);

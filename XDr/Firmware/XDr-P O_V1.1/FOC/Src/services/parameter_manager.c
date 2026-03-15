@@ -37,9 +37,6 @@ void fParamSet(eParameter para, u8 *value)
         g_Param.traj_type = *(u8 *)value;
         break;
 
-    case MOTOR_WIRE_SEQUENCE:
-        g_Param.motor_wire_sequence = *(u8 *)value;
-        break;
     case MOTOR_POLEPAIRS:
         g_Param.motor_polepairs = *(u8 *)value;
         break;
@@ -192,11 +189,6 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         break;
     case TRAJ_TYPE:
         *(u8 *)value = g_Param.traj_type;
-        *len = sizeof(u8);
-        break;
-
-    case MOTOR_WIRE_SEQUENCE:
-        *(u8 *)value = g_Param.motor_wire_sequence;
         *len = sizeof(u8);
         break;
 
@@ -397,8 +389,8 @@ bool fParamInit()
         g_Param.sensor_mode = 0;  // 运行模式
         g_Param.run_mode = 0;     // 环模式
 
-        g_Param.motor_wire_sequence = 0; // 电机线圈顺序
-        g_Param.motor_polepairs = 14;    // 电机转子对数
+        g_Param.motor_polepairs = 14; // 电机转子对数
+        g_Param.theta_elec_offset = false;
 
         g_Param.freq_current_loop = 1;
         g_Param.freq_speed_loop = 4;
@@ -413,8 +405,8 @@ bool fParamInit()
         g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
         g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 
-        g_Param.theta_offset = 0.453290999f; // 角度补偿
-        g_Param.motor_kv = 0.00;
+        g_Param.theta_offset = 0.0f; // 角度补偿
+        g_Param.motor_kv = 100;
         g_Param.motor_rs = 0.0218206495f; // 电阻Rs 50mΩ3.062550.0218206495
         g_Param.motor_lq = 0.00003f;      // 电感Ls 30μH
         g_Param.motor_ld = 0.00003f;
@@ -434,9 +426,9 @@ bool fParamInit()
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
         g_Param.limit_current = 30.0f;                      // 电流限幅 50A
-        g_Param.limit_omega = fRpmToRad(500.0f);            // 速度限幅 3000 RPM (假设转换后)
-        g_Param.limit_position_min = fDegToRad(-100000.0f); // 最小位置限制 -10000度 (弧度)
-        g_Param.limit_position_max = fDegToRad(100000.0f);  // 最大位置限制 10000度 (弧度)
+        g_Param.limit_omega = 500.0f;            // 速度限幅 3000 RPM (假设转换后)
+        g_Param.limit_position_min = -100000.0f; // 最小位置限制 -10000度 (弧度)
+        g_Param.limit_position_max = 100000.0f;  // 最大位置限制 10000度 (弧度)
         g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1秒
         g_Param.tolerance_voltage = 1.2f;                   // 电压容忍度 1.2
         g_Param.tolerance_current = 1.1f;                   // 电流容忍度 1.1

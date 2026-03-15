@@ -2,7 +2,7 @@
 # 参数映射表 - 对应下位机参数索引
 # ==============================
 class Pidx:
-    # u8 类型参数 (0-11)
+    # u8 类型参数 (0-10)
     SENSOR_MODE          = 0
     RUN_MODE             = 1
     CAN_MODE             = 2
@@ -10,53 +10,52 @@ class Pidx:
     VAGUE_PID_MODE       = 4
     PVT_MODE             = 5
     TRAJ_TYPE            = 6
-    MOTOR_WIRE_SEQUENCE  = 7
-    MOTOR_POLEPAIRS      = 8
-    FREQ_CURRENT_LOOP    = 9
-    FREQ_SPEED_LOOP      = 10
-    FREQ_POSITION_LOOP   = 11
+    MOTOR_POLEPAIRS      = 7
+    FREQ_CURRENT_LOOP    = 8
+    FREQ_SPEED_LOOP      = 9
+    FREQ_POSITION_LOOP   = 10
 
-    # u32 类型参数 (12)
-    CAN_ID               = 12
+    # u32 类型参数 (11)
+    CAN_ID               = 11
 
-    # float 类型参数 (13-47)
-    F_PWM                = 13
-    F_CURRENT_LOOP       = 14
-    F_SPEED_LOOP         = 15
-    F_POSITION_LOOP      = 16
-    THETA_OFFSET         = 17
-    MOTOR_KV             = 18
-    MOTOR_RS             = 19  
-    MOTOR_Ld             = 20  
-    MOTOR_Lq             = 21  
-    MOTOR_PSIF           = 22  
-    MOTOR_KE             = 23  
-    MOTOR_J              = 24  
-    MOTOR_B              = 25  
-    KP_CURRENT           = 26  
-    KI_CURRENT           = 27  
-    KP_WEAKMAG           = 28  
-    KI_WEAKMAG           = 29  
-    KP_SPEED             = 30  
-    KI_SPEED             = 31  
-    KP_POSITION          = 32  
-    KI_POSITION          = 33  
-    KD_POSITION          = 34  
-    LIMIT_CURRENT        = 35  
-    LIMIT_SPEED          = 36  
-    LIMIT_POSITION_MIN   = 37  
-    LIMIT_POSITION_MAX   = 38  
-    TOLERANCE_TIME       = 39  
-    TOLERANCE_VOLTAGE    = 40  
-    TOLERANCE_CURRENT    = 41  
-    TOLERANCE_SPEED      = 42  
-    TOLERANCE_POSITION   = 43  
-    TRAJ_MAX_RATE        = 44  
-    TRAJ_MAX_ACC         = 45  
-    TRAJ_MAX_JERK        = 46  
-    TRAJ_TOLERANCE       = 47  
+    # float 类型参数 (12-46)
+    F_PWM                = 12
+    F_CURRENT_LOOP       = 13
+    F_SPEED_LOOP         = 14
+    F_POSITION_LOOP      = 15
+    THETA_OFFSET         = 16
+    MOTOR_KV             = 17
+    MOTOR_RS             = 18  
+    MOTOR_Ld             = 19  
+    MOTOR_Lq             = 20  
+    MOTOR_PSIF           = 21  
+    MOTOR_KE             = 22  
+    MOTOR_J              = 23  
+    MOTOR_B              = 24  
+    KP_CURRENT           = 25  
+    KI_CURRENT           = 26  
+    KP_WEAKMAG           = 27  
+    KI_WEAKMAG           = 28  
+    KP_SPEED             = 29  
+    KI_SPEED             = 30  
+    KP_POSITION          = 31  
+    KI_POSITION          = 32  
+    KD_POSITION          = 33  
+    LIMIT_CURRENT        = 34  
+    LIMIT_SPEED          = 35  
+    LIMIT_POSITION_MIN   = 36  
+    LIMIT_POSITION_MAX   = 37  
+    TOLERANCE_TIME       = 38  
+    TOLERANCE_VOLTAGE    = 39  
+    TOLERANCE_CURRENT    = 40  
+    TOLERANCE_SPEED      = 41  
+    TOLERANCE_POSITION   = 42  
+    TRAJ_MAX_RATE        = 43  
+    TRAJ_MAX_ACC         = 44  
+    TRAJ_MAX_JERK        = 45  
+    TRAJ_TOLERANCE       = 46  
 
-    NUM_OF_PARAM         = 48 
+    NUM_OF_PARAM         = 47
 
 # ============================
 # 日志映射表 - 对应下位机日志索引
@@ -233,7 +232,6 @@ class Data_UI_Map:
             Pidx.PVT_MODE:             parameter_page.PVT_mode_input,
             Pidx.TRAJ_TYPE:             parameter_page.TRAJ_mode_input,
 
-            Pidx.MOTOR_WIRE_SEQUENCE:  parameter_page.motor_WireSequence_input,
             Pidx.MOTOR_POLEPAIRS:      parameter_page.motor_polepairs_input,
             Pidx.FREQ_CURRENT_LOOP:    parameter_page.freq_current_loop,
             Pidx.FREQ_SPEED_LOOP:      parameter_page.freq_speed_loop,
@@ -324,12 +322,3 @@ class Data_UI_Map:
             Lidx.target_position:      log_page.target_position,
         }
 
-def rad_to_deg(rad):
-    return rad * 180 / 3.141592653589793
-def deg_to_rad(deg):
-    return deg * 3.141592653589793 / 180
-
-def rpm_to_rad_per_sec(rpm):
-    return rpm * 2 * 3.141592653589793 / 60
-def rad_per_sec_to_rpm(rad_per_sec):
-    return rad_per_sec * 60 / (2 * 3.141592653589793)

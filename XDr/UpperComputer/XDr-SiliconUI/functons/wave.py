@@ -5,10 +5,6 @@ from PyQt5.QtGui import QFont
 import numpy as np
 from UI.data_ui_map import (
     Cidx,Didx,
-    rad_per_sec_to_rpm,
-    rpm_to_rad_per_sec,
-    rad_to_deg,
-    deg_to_rad,
     )
 
 class WaveformWidget(QWidget):
@@ -490,13 +486,6 @@ class Wave:
             data: 数值或数值列表
         """
         id_index=index%len(self.channel_index)
-        match (self.showindex[id_index]+3):
-            case Didx.SPEED|Didx.SPEED_ref:
-                val=rad_per_sec_to_rpm(data)
-            case Didx.THETA_elec|Didx.THETA_mech|Didx.POSITION|Didx.POSITION_ref:
-                val=rad_to_deg(data)
-            case _:
-                val=data
         if id_index < len(self.channel_index):
-            self.add_data(self.channel_index[id_index], val)
+            self.add_data(self.channel_index[id_index], data)
         #print("index:",index,"id:",id_index,"数据id",self.showindex[id_index]+3,"通道",self.channel_index[id_index],"值",val)

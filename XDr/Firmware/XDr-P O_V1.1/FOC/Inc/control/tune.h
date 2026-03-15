@@ -20,8 +20,8 @@ typedef struct
     float B; // 摩擦系数 (N·m·s/rad)
 
     // 配置参数
-    u8 pole_pairs;      // 极对数
-    bool wire_sequence; // 线序：true=正序，false=反序
+    u8 pole_pairs; // 极对数
+    bool theta_elec_need_180;
     float theta_offset; // 编码器角度偏移 (rad)
 
     // 系统参数
@@ -31,7 +31,6 @@ typedef struct
     bool Rs_valid;
     bool L_valid;
     bool offset_valid;
-    bool wire_valid;
     bool pole_valid;
     bool psi_valid;
     bool mech_valid;
@@ -45,7 +44,6 @@ typedef enum
     TUNE_STATE_RS,
     TUNE_STATE_LS,
     TUNE_STATE_THETA_OFFSET,
-    TUNE_STATE_WIRE_SEQ,
     TUNE_STATE_POLE_PAIRS,
     TUNE_STATE_PSI_F,
     TUNE_STATE_JB,
@@ -105,19 +103,6 @@ typedef struct
         u8 hist_idx;
         bool steady_flag;
     } theta_ctx;
-
-    // 线序上下文
-    struct
-    {
-        u8 step;
-        u32 step_start_tick;
-        u32 wait_ticks;
-        s32 enc_start;
-        s32 enc_delta_fwd;
-        s32 enc_delta_rev;
-        u8 test_iter;
-        bool enc_ready;
-    } wire_ctx;
 
     // 极对数上下文
     struct

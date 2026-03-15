@@ -303,21 +303,13 @@ class ParameterPage():
         Title_motor.setAlignment(Qt.AlignBottom)
         Title_motor.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)        
 
-        self.motor_WireSequence_input=SiCapsuleComboBox()
-        self.motor_WireSequence_input.setTitle("三相线序")
-        self.motor_WireSequence_input.setEditable(False)
-        self.motor_WireSequence_input.setFixedHeight(36)
-        self.motor_WireSequence_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.motor_WireSequence_input.setTitleFixedWidth(title_W)
-        self.motor_WireSequence_input.addItem("正线序")
-        self.motor_WireSequence_input.addItem("逆线序")
 
         self.offsetangle_input=SiCapsuleLineEdit()
         self.offsetangle_input.resize(all_W,40)
         self.offsetangle_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.offsetangle_input.setTitleFixedWidth(title_W) 
         self.offsetangle_input.setAlignment(Qt.AlignCenter) 
-        self.offsetangle_input.setTitle("偏转角度/rad")
+        self.offsetangle_input.setTitle("偏转角度/°")
         self.offsetangle_input.setText("0")
 
         self.motor_polepairs_input=SiCapsuleLineEdit()
@@ -398,7 +390,6 @@ class ParameterPage():
 
         motor_layout.addWidget(Title_motor)
         motor_layout.addWidget(self.offsetangle_input)
-        motor_layout.addWidget(self.motor_WireSequence_input)
         motor_layout.addWidget(self.motor_polepairs_input)
         motor_layout.addWidget(self.motor_KV_input)
         motor_layout.addWidget(self.motor_resistance_input)
@@ -495,7 +486,7 @@ class ParameterPage():
         self.limit_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.limit_speed.setTitleFixedWidth(drive_title_W) 
         self.limit_speed.setAlignment(Qt.AlignCenter) 
-        self.limit_speed.setTitle("速度限幅/rad/s")
+        self.limit_speed.setTitle("速度限幅/rpm")
         self.limit_speed.setText("1000")
 
         self.min_position=SiCapsuleLineEdit()
@@ -503,7 +494,7 @@ class ParameterPage():
         self.min_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.min_position.setTitleFixedWidth(drive_title_W) 
         self.min_position.setAlignment(Qt.AlignCenter) 
-        self.min_position.setTitle("最小位置/rad")
+        self.min_position.setTitle("最小位置/°")
         self.min_position.setText("-10000")
 
         self.max_position=SiCapsuleLineEdit()
@@ -511,7 +502,7 @@ class ParameterPage():
         self.max_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.max_position.setTitleFixedWidth(drive_title_W) 
         self.max_position.setAlignment(Qt.AlignCenter) 
-        self.max_position.setTitle("最大位置/rad")
+        self.max_position.setTitle("最大位置/°")
         self.max_position.setText("10000")
 
         self.tolerance_time=SiCapsuleLineEdit()

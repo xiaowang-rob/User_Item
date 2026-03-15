@@ -7,7 +7,7 @@
 
 /* 数学常量定义 */
 #define MATH_PI 3.1415926535f
-#define MATH_2PI 6.283185307f
+#define MATH_2PI 6.2831853f
 #define MATH_SQRT3 1.732050807f
 #define MATH_SQRT3_2 0.8660254035f
 #define MATH_INSQRT3 0.5773502693f
@@ -18,22 +18,7 @@ u32 HAL_GetTick_us(void);
 float fSqrt(float x);
 
 // 内联函数--小函数 经常调用
-static inline float fRadToRpm(float rad)
-{
-    return rad * 9.549296748f;
-}
-static inline float fRpmToRad(float rpm)
-{
-    return rpm / 9.549296748f;
-}
-static inline float fDegToRad(float deg)
-{
-    return deg * 0.017453293f;
-}
-static inline float fRadToDeg(float rad)
-{
-    return rad * 57.29577951f;
-}
+
 // 快速限幅
 static inline float CLAMP(float val, float min, float max)
 {
@@ -55,24 +40,24 @@ static inline u32 fFastRoundf(float x)
     return (u32)(x + 0.5f);
 }
 
-// 将角度标准化到 [0, 2π) 范围
-static inline float fNormalizeAngle_0_2pi(float angle)
+// 将角度标准化到 [0, 360) 范围
+static inline float fNormalizeAngle_0_360(float angle)
 {
-    angle = fmodf(angle, MATH_2PI);
+    angle = fmodf(angle, 360);
     if (angle < 0.0f)
     {
-        angle += MATH_2PI;
+        angle += 360;
     }
     return angle;
 }
 // 将角度标准化到[-π, π]范围
-static inline float fNormalizeAngle_pi_pi(float angle)
+static inline float fNormalizeAngle_180(float angle)
 {
     /* 利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] */
-    angle = fmodf(angle + MATH_PI, MATH_2PI);
+    angle = fmodf(angle + 180, 360);
     if (angle < 0.0f)
-        angle += MATH_2PI;
-    return angle - MATH_PI;
+        angle += 360;
+    return angle - 180;
 }
 
 /**
@@ -101,14 +86,13 @@ static inline void fInvClarkTransform(float alpha, float beta, float *ia, float 
 /**
  * @brief Park 变换 (αβ → dq)
  * @param alpha, beta: αβ 轴分量
- * @param angle: 电角度（弧度）
+ * @param angle: 电角度（角度）
  * @param d, q: 输出的 dq 轴分量
  */
 static inline void fParkTransform(float alpha, float beta, float angle, float *d, float *q)
 {
     float sin_theta, cos_theta;
-    sin_theta = arm_sin_f32(angle);
-    cos_theta = arm_cos_f32(angle);
+    arm_sin_cos_f32(angle, &sin_theta, &cos_theta);
 
     *d = alpha * cos_theta + beta * sin_theta;
     *q = -alpha * sin_theta + beta * cos_theta;
@@ -116,14 +100,13 @@ static inline void fParkTransform(float alpha, float beta, float angle, float *d
 /**
  * @brief Park 反变换 (dq → αβ)
  * @param d, q: dq 轴分量
- * @param angle: 电角度（弧度）
+ * @param angle: 电角度（角度）
  * @param alpha, beta: 输出的 αβ 轴分量
  */
 static inline void fInvParkTransform(float d, float q, float angle, float *alpha, float *beta)
 {
     float sin_theta, cos_theta;
-    sin_theta = arm_sin_f32(angle);
-    cos_theta = arm_cos_f32(angle);
+    arm_sin_cos_f32(angle, &sin_theta, &cos_theta);
     *alpha = d * cos_theta - q * sin_theta;
     *beta = d * sin_theta + q * cos_theta;
 }

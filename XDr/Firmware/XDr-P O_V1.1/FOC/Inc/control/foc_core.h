@@ -40,25 +40,25 @@ typedef struct
     float iq_fb, id_fb;
     float ud, uq;
     float Ualpha, Ubeta;
-    float omega_ref;
-    float omega_fb;
+    float rpm_ref;
+    float rpm_fb;
     float pos_ref;
     float pos_fb;
 } tFOC_val;
 
 typedef struct
 {
-    float Udc;          // 直流母线电压
-    float offset_angle; // 偏移角度
-    float Rs;           // 定子电阻
-    float Ld;           // 定子电感
+    float Udc;         // 直流母线电压
+    float mech_offect; // 机械偏移角度
+    float Rs;          // 定子电阻
+    float Ld;          // 定子电感
     float Lq;
-    float Psi_f;        // 永磁体磁链
-    float Ke;           // 反电动势常数
-    float J;            // 转动惯量
-    float B;            // 摩擦系数
-    bool Wire_sequence; // 线序 true-正线序 false-反线序
-    u8 pole_pairs;      // 极对数
+    float Psi_f;         // 永磁体磁链
+    float Ke;            // 反电动势常数
+    float J;             // 转动惯量
+    float B;             // 摩擦系数
+    u8 pole_pairs;       // 极对数
+    bool elec_PI_offset; // 电角度180°偏差
 } tMotor;
 
 typedef struct
@@ -81,8 +81,7 @@ bool fAutoCalibrationUpdate();
 // 辅助整定 函数
 void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fFOC_SetIdIq(float id, float iq);
-void fSetThetaOffset(float thetaoffset);
-void fSetWireSequence(bool wire_sequence);
+void fSetThetaOffset(float thetaoffset, bool elec_offset);
 
 // 主要函数
 

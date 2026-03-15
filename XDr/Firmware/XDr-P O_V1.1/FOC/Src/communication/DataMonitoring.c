@@ -65,10 +65,10 @@ void fStreamDataGet(Data_stream_e stream, float *data)
         *data = g_foc.core->foc_val->id_ref;
         break;
     case SPEED:
-        *data = g_foc.core->foc_val->omega_fb;
+        *data = g_foc.core->foc_val->rpm_fb;
         break;
     case SPEED_ref:
-        *data = g_foc.core->foc_val->omega_ref;
+        *data = g_foc.core->foc_val->rpm_ref;
         break;
     case THETA_elec:
         *data = g_foc.core->foc_val->theta_elec;

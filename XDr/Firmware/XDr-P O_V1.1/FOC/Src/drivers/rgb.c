@@ -24,7 +24,7 @@ const tRGBColor BLUE = {0, 0, 255};
 
 const tRGBColor CHINA_RED = {230, 0, 0};        // 中国红
 const tRGBColor KLEIN_BLUE = {0, 47, 167};      // 克莱因蓝
-const tRGBColor MARS_GREEN = {0, 140, 140};     // 马尔斯绿
+const tRGBColor MARS_GREEN = {6, 128, 67};      // 绿
 const tRGBColor PRUSSIAN_BLUE = {0, 49, 83};    // 普鲁士蓝
 const tRGBColor TIFFANY_BLUE = {129, 216, 208}; // 蒂夫尼蓝
 const tRGBColor SKY = {35, 235, 185};           // 青绿
@@ -161,7 +161,6 @@ void fRGB_Breathe(tRGBColor Color)
         breath_idx++;
     }
 }
-
 
 /* ========== GPIO LED ========== */
 void fLED_CanTogglePin(void)

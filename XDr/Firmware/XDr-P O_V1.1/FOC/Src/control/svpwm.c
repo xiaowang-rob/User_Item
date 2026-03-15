@@ -29,6 +29,7 @@ __STATIC_INLINE void pwm_out()
 
 void ENABLE_PWM()
 {
+    PWM_POWER_ON();
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
@@ -36,17 +37,16 @@ void ENABLE_PWM()
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
-    PWM_POWER_ON();
 }
 void DISABLE_PWM()
 {
+    PWM_POWER_OFF();
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_3);
-    PWM_POWER_OFF();
 }
 void PWM_POWER_ON()
 {
@@ -182,95 +182,59 @@ void fSvpwmRun(float ualpha, float ubeta)
 u8 change_Index = 0;
 void fSamplePointCalibration()
 {
+    u16 tic_ref; // 当前扇区的参考相计数
+
+    // 根据扇区确定参考相，并保存tic值
     switch (svpwm.sector)
     {
     case 0:
     case 7:
         change_Index = 1;
+        tic_ref = 0; // 零矢量时不采样，直接返回
         break;
     case 1:
     case 4:
-        if (svpwm.ticu > ticTd + ticTn)
-        {
-            if (change_Index != 1)
-                change_Index = 1;
-            else
-                return;
-        }
-        else if (all_sdc > 2 * svpwm.ticu)
-        {
-            if (change_Index != 3)
-                change_Index = 3;
-            else
-                return;
-        }
-        else
-        {
-            if (change_Index != 2)
-                change_Index = 2;
-            else
-                return;
-        }
-        break;
+        tic_ref = svpwm.ticu;
+        goto evaluate;
     case 2:
     case 5:
-        if (svpwm.ticv > ticTd + ticTn)
-        {
-            if (change_Index != 1)
-                change_Index = 1;
-            else
-                return;
-        }
-        else if (all_sdc > 2 * svpwm.ticv)
-        {
-            if (change_Index != 3)
-                change_Index = 3;
-            else
-                return;
-        }
-        else
-        {
-            if (change_Index != 2)
-                change_Index = 2;
-            else
-                return;
-        }
-        break;
+        tic_ref = svpwm.ticv;
+        goto evaluate;
     default: // 3,6
-        if (svpwm.ticw > ticTd + ticTn)
-        {
-            if (change_Index != 1)
-                change_Index = 1;
-            else
-                return;
-        }
-        else if (all_sdc > 2 * svpwm.ticw)
-        {
-            if (change_Index != 3)
-                change_Index = 3;
-            else
-                return;
-        }
-        else
-        {
-            if (change_Index != 2)
-                change_Index = 2;
-            else
-                return;
-        }
-        break;
+        tic_ref = svpwm.ticw;
+        goto evaluate;
     }
 
+evaluate:
+    // 根据参考相占空比判断调制深度
+    if (tic_ref > ticTd + ticTn)
+    {
+        change_Index = 1; // 低调制
+    }
+    else if (all_sdc > 2 * tic_ref)
+    {
+        change_Index = 3; // 高调制
+    }
+    else
+    {
+        change_Index = 2; // 中调制
+    }
+
+    // 设置ADC采样触发点
     switch (change_Index)
     {
-    case 1: // 低调制 25us开始采样
-        fAdcSampleChange(ticpwm - 50);
+    case 1:
+        fAdcSampleChange(ticpwm - 2);
         break;
-    case 2: // 中调制 u相高打开前 ts（采样时间）开始采样
-        fAdcSampleChange(svpwm.ticu + ticTs);
+    case 2:
+        fAdcSampleChange(tic_ref + ticTs);
         break;
-    case 3: // 高调制 u相高开启之后 ts tn 开始采样
-        fAdcSampleChange(svpwm.ticu - ticTd - ticTn);
+    case 3:
+        // 确保减后不溢出（可根据实际需求加限幅）
+        if (tic_ref >= ticTd + ticTn)
+            fAdcSampleChange(tic_ref - ticTd - ticTn);
+        else
+            fAdcSampleChange(0);
         break;
     default:
         break;

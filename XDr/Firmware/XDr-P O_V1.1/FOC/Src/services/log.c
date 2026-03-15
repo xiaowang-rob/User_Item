@@ -35,10 +35,10 @@ void fLogDataSave(void)
     Log.Id = g_foc.core->foc_val->id_fb;
     Log.Id_ref = g_foc.core->foc_val->id_ref;
     Log.Iq_ref = g_foc.core->foc_val->iq_ref;
-    Log.speed = fRadToRpm(g_foc.core->foc_val->omega_fb);
-    Log.speed_ref = fRadToRpm(g_foc.core->foc_val->omega_ref);
-    Log.position = fRadToDeg(g_foc.core->foc_val->pos_fb);
-    Log.position_ref = fRadToDeg(g_foc.core->foc_val->pos_ref);
+    Log.speed = g_foc.core->foc_val->rpm_fb;
+    Log.speed_ref = g_foc.core->foc_val->rpm_ref;
+    Log.position = g_foc.core->foc_val->pos_fb;
+    Log.position_ref = g_foc.core->foc_val->pos_ref;
     Log.run_mode = g_foc.core->foc_mode->runmode;
     Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
     Log.fault = (eFault)g_pro_manager.fault;

@@ -50,9 +50,9 @@ void _mode_init(tParameter param)
 // 电机参数初始化
 void _motor_init(tParameter param)
 {
-    Motor.Wire_sequence = param.motor_wire_sequence == 0;
-    Motor.offset_angle = param.theta_offset;
+    Motor.mech_offect = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
+    Motor.elec_PI_offset = param.theta_elec_offset;
     Motor.Rs = param.motor_rs;
     Motor.Ld = param.motor_ld;
     Motor.Lq = param.motor_lq;
@@ -68,7 +68,7 @@ void _filter_init(void)
 {
     fFirstOrderLagInit(&_id_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
     fFirstOrderLagInit(&_iq_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
-    fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.omega_fb);
+    fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.rpm_fb);
 }
 
 // FOC核心初始化
@@ -100,7 +100,7 @@ void fFOC_CoreReset(void)
     if (foc_mode.runmode == POSITION_MODE)
         fTraj_Reset(foc_val.pos_fb);
     else if (foc_mode.runmode == SPEED_MODE)
-        fTraj_Reset(foc_val.omega_fb);
+        fTraj_Reset(foc_val.rpm_fb);
 }
 
 // 电流重构：根据扇区将线电流转换为相电流
@@ -134,10 +134,7 @@ void Current_reconstruction(void)
         wi = foc_val.Iw;
         break;
     }
-    if (Motor.Wire_sequence)
-        fClarkTransform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
-    else
-        fClarkTransform(vi, ui, wi, &foc_val.Ibeta, &foc_val.Ialpha);
+    fClarkTransform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
 }
 
 void fFOC_ValueUpdate(void)
@@ -151,13 +148,13 @@ void fFOC_ValueUpdate(void)
     case ENCODER_CONTROL:       // 获取编码器数据
         fEncoderMainLoopTask(); // 编码器主循环
         foc_val.theta_mech = fGetEncoderAngle_ABS();
-        foc_val.theta_elec = (foc_val.theta_mech - Motor.offset_angle) * Motor.pole_pairs;
-        foc_val.theta_elec = fNormalizeAngle_0_2pi(foc_val.theta_elec) * (Motor.Wire_sequence ? 1 : -1);
+        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
+        foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &_id_temp, &_iq_temp);
         foc_val.id_fb = fFirstOrderLagFilter(&_id_filter, _id_temp);
         foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
         foc_val.pos_fb = fGetEncoderAngle_INC();
-        foc_val.omega_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderOmega());
+        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
         break;
 
     case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
@@ -178,32 +175,33 @@ void fFOC_MainLoopTask(void)
     {
     case POSITION_MODE:
         if (!loop_con.fd.position_update)
-            return;
+            break;
 
         tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tpos);
         foc_val.pos_ref = traj_out.value;
-        foc_val.omega_ref = fPositionRelLoopUpdate(foc_val.pos_ref, foc_val.pos_fb);
+        foc_val.rpm_ref = fPositionRelLoopUpdate(foc_val.pos_ref, foc_val.pos_fb);
     case SPEED_MODE:
         if (!loop_con.fd.speed_update)
-            return;
+            break;
         if (foc_mode.runmode == SPEED_MODE)
         {
             tTraj_Out traj_out = fTraj_Update(loop_con.fd.Tspd);
-            foc_val.omega_ref = traj_out.value;
+            foc_val.rpm_ref = traj_out.value;
         }
-        foc_val.iq_ref = fSpeedLoopUpdate(foc_val.omega_ref, foc_val.omega_fb);
+        foc_val.iq_ref = fSpeedLoopUpdate(foc_val.rpm_ref, foc_val.rpm_fb);
         if (foc_mode.weak_mag)
         {
-            if (foc_val.omega_fb > 30.0f) // todo:改为判断其电压饱和
+            if (foc_val.rpm_fb > 30.0f) // todo:改为判断其电压饱和
                 foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
             else
                 foc_val.id_ref = 0;
         }
     case CURRENT_MODE:
         if (!loop_con.fd.current_update)
-            return;
+            break;
         foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-        foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        // foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        foc_val.ud = foc_val.id_ref;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 
@@ -260,15 +258,10 @@ void fFOC_SetIdIq(float id, float iq)
     foc_val.iq_ref = iq;
 }
 // 设置编码器零点偏移
-void fSetThetaOffset(float thetaoffset)
+void fSetThetaOffset(float thetaoffset, bool elec_offset)
 {
-    Motor.offset_angle = thetaoffset;
-}
-
-// 设置电机线序 true 正向 false 反向
-void fSetWireSequence(bool wire_sequence)
-{
-    Motor.Wire_sequence = wire_sequence;
+    Motor.mech_offect = thetaoffset;
+    Motor.elec_PI_offset = elec_offset;
 }
 
 // 切换传感模式
@@ -287,12 +280,12 @@ void fFOC_SetRunMode(eRunMode mode)
 // 强制刹车
 bool fFOC_Shutdown(void)
 {
-    if (fabsf(foc_val.omega_fb) < 0.1f)
+    if (fabsf(foc_val.rpm_fb) < 0.1f)
         return true;
     // todo:完善不同模式下的停机方式
     if (foc_mode.runmode != SPEED_MODE)
         fFOC_SetRunMode(SPEED_MODE);
-    float omega_shutdown = -foc_val.omega_fb * 0.5f;
+    float omega_shutdown = -foc_val.rpm_fb * 0.5f;
     fFOC_SetTargetValue(&omega_shutdown);
     return false;
 }

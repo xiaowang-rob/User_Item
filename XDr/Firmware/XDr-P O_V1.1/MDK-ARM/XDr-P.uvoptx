@@ -235,6 +235,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>loop_con</ItemText>
         </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_com_state</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

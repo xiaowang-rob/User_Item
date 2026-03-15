@@ -53,7 +53,7 @@ void PI_init(tPI *pi, float kp, float ki, float output_limit, float dt)
     pi->kp = kp;
     pi->dt = dt;
     pi->ki = ki * dt;
-    pi->integral_limit = output_limit * 0.8f;
+    pi->integral_limit = output_limit / pi->ki * 0.9f;
 
     pi->output_limit = output_limit;
 }
@@ -185,9 +185,9 @@ float fWeakMagLoopUpdate(float ud, float uq)
 }
 
 // 速度环
-float fSpeedLoopUpdate(float omega_ref, float omega_fb)
+float fSpeedLoopUpdate(float speed_ref, float speed_fb)
 {
-    return PI_update(&loop_con.PI_speed, omega_ref, omega_fb);
+    return PI_update(&loop_con.PI_speed, speed_ref, speed_fb);
 }
 
 // 相对位置环（带指令限幅）

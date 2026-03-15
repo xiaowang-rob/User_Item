@@ -38,25 +38,17 @@ tFirstOrderLagFilter rs_i_filter = {0};
 #define LS_V_HOLD_MAX_TICKS 100
 #define LS_V_START 0.2f
 #define LS_V_MAX 0.8f
-#define LS_I_LIMIT 4.0f
-#define LS_MIN_DI_DT 300.0f // 最小信噪比要求
+#define LS_I_LIMIT 3.0f
+#define LS_MIN_DI_DT 100.0f // 最小信噪比要求
 #define LS_MAX_DI_DT 60000.0f
 #define LS_RANGE_MIN 20e-6f
 #define LS_RANGE_MAX 300e-6f
 
 // 角度偏移 (开环强励磁)
-#define THETA_TIMEOUT_TICKS 10000 // 整定超时时间 (500ms)
-#define THETA_VOLT_AMP 0.4f       // 强励磁电压幅值 (V)
-#define THETA_DELTA_MAX 0.01f     // 静止判断阈值 (rad)
-#define THETA_STEADY_WIN 1000     // 静止等待时间 (50ms)
-
-// 线序
-#define WS_TIMEOUT_TICKS 100000 // 整定超时时间 (5s)
-#define WS_VF_FREQ 3.0f
-#define WS_VF_AMP 1.5f
-#define WS_DURATION_TICKS MS_TO_TICK(500)
-#define WS_WAIT_STOP_TICKS MS_TO_TICK(300)
-#define WS_ENC_DELTA_MIN 50
+#define THETA_TIMEOUT_TICKS 20000 // 整定超时时间 (1000ms)
+#define THETA_VOLT_AMP 0.6f       // 强励磁电压幅值 (V)
+#define THETA_DELTA_MAX 0.05f      // 静止判断阈值 (°)
+#define THETA_STEADY_WIN 2000     // 静止等待时间 (100ms)
 
 /* ================================= 辅助函数 ================================= */
 static inline u32 _tune_elapsed_ticks(u32 start_tick)
@@ -78,8 +70,8 @@ void fMotorParamTune_ForceSave(void)
     g_Param.motor_j = motor_params.J;
     g_Param.motor_b = motor_params.B;
     g_Param.motor_polepairs = motor_params.pole_pairs;
-    g_Param.motor_wire_sequence = motor_params.wire_sequence ? 0 : 1;
     g_Param.theta_offset = motor_params.theta_offset;
+    g_Param.theta_elec_offset = motor_params.theta_elec_need_180;
 }
 
 /* ================================= 初始化与重置 ================================= */
@@ -95,14 +87,11 @@ void fMotorParamTune_Init()
     motor_params.Lq = g_Param.motor_lq;
     motor_params.pole_pairs = g_Param.motor_polepairs;
     motor_params.dt = Tcon;
-    motor_params.wire_sequence = true;
-    fSetWireSequence(motor_params.wire_sequence);
 
     // 标记未整定
     motor_params.Rs_valid = false;
     motor_params.L_valid = false;
     motor_params.offset_valid = false;
-    motor_params.wire_valid = false;
     motor_params.pole_valid = false;
     motor_params.psi_valid = false;
     motor_params.mech_valid = false;
@@ -361,124 +350,101 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
     return false; // 进行中
 }
 
-/* ================================= 角度偏移整定 (开环强励磁) ================================= */
-static bool _tune_ThetaOffset(float theta_mech, tMotorParams *params)
+bool _tune_ThetaOffset(float theta_mech, float pos, tMotorParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
 
-    // 稳态检测：机械角速度接近 0
-    float theta_delta = fNormalizeAngle_pi_pi(theta_mech - ctx->temp_val[0]);
-    if (FABSF(theta_delta) < THETA_DELTA_MAX)
+    // 步骤0：α轴定位（施加 Uα 电压）
+    if (ctx->theta_ctx.hist_idx == 0)
     {
-        ctx->theta_ctx.valid_cnt++;
-        if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN)
+        // 稳态检测：机械角速度接近0
+        float theta_delta = fNormalizeAngle_180(theta_mech - ctx->temp_val[0]);
+        if (FABSF(theta_delta) < THETA_DELTA_MAX)
         {
-            ctx->theta_ctx.theta_sum += theta_mech; // 滑动平均
-            if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 2 - 1)
-                ctx->theta_ctx.steady_flag = true;
-        }
-    }
-    else
-    {
-        ctx->theta_ctx.valid_cnt = 0;
-        ctx->theta_ctx.theta_sum = 0;
-    }
-    ctx->temp_val[0] = theta_mech;
-
-    // 多周期验证
-    if (ctx->theta_ctx.steady_flag)
-    {
-        float offset = ctx->theta_ctx.theta_sum / THETA_STEADY_WIN;
-        offset = fNormalizeAngle_pi_pi(offset);
-
-        params->theta_offset = offset;
-        params->offset_valid = true;
-        return true;
-    }
-    return false; // 进行中
-}
-
-/* ================================= 线序整定 (正反开环测试) ================================= */
-static bool _tune_WireSequence(tFOC_val foc_val, tMotorParams *params)
-{
-    tTuneContext *ctx = &g_tune_ctx;
-
-    switch (ctx->wire_ctx.step)
-    {
-    case 0:                                                         // 初始化：记录起始机械角度
-        ctx->wire_ctx.enc_start = (s32)(foc_val.theta_mech * 1000); // 放大便于整数比较
-        ctx->wire_ctx.step = 1;
-        ctx->wire_ctx.step_start_tick = g_tune_ctx.tick_count;
-        break;
-
-    case 1: // 正向开环拖动
-        if (_tune_elapsed_ticks(ctx->wire_ctx.step_start_tick) < WS_DURATION_TICKS)
-        {
-            float elapsed_ms = TICK_TO_MS(_tune_elapsed_ticks(ctx->wire_ctx.step_start_tick));
-            float angle = 2.0f * MATH_PI * WS_VF_FREQ * elapsed_ms * 0.001f;
-            float Valpha = WS_VF_AMP * cosf(angle);
-            float Vbeta = WS_VF_AMP * sinf(angle);
-            fFOC_SetUalphaBeta(Valpha, Vbeta);
+            ctx->theta_ctx.valid_cnt++;
+            if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN)
+            {
+                ctx->theta_ctx.theta_sum += theta_mech;
+                if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 2 - 1)
+                {
+                    ctx->theta_ctx.steady_flag = true;
+                }
+            }
         }
         else
         {
-            // 拖动结束，记录正向角度变化
-            s32 enc_now = (s32)(foc_val.theta_mech * 1000);
-            ctx->wire_ctx.enc_delta_fwd = enc_now - ctx->wire_ctx.enc_start;
-            ctx->wire_ctx.step = 2;
-            ctx->wire_ctx.step_start_tick = g_tune_ctx.tick_count;
-            ctx->wire_ctx.wait_ticks = WS_WAIT_STOP_TICKS;
+            ctx->theta_ctx.valid_cnt = 0;
+            ctx->theta_ctx.theta_sum = 0;
         }
-        break;
+        ctx->temp_val[0] = theta_mech;
 
-    case 2: // 等待静止
-        if (_tune_elapsed_ticks(ctx->wire_ctx.step_start_tick) < ctx->wire_ctx.wait_ticks)
-            break;
-        // 记录反向拖动前的角度
-        ctx->wire_ctx.enc_start = (s32)(foc_val.theta_mech * 1000);
-        ctx->wire_ctx.step = 3;
-        ctx->wire_ctx.step_start_tick = g_tune_ctx.tick_count;
-        fSetWireSequence(false); // 反转线序
-        break;
-
-    case 3: // 反向开环拖动
-        if (_tune_elapsed_ticks(ctx->wire_ctx.step_start_tick) < WS_DURATION_TICKS)
+        // α轴定位完成
+        if (ctx->theta_ctx.steady_flag)
         {
-            float elapsed_ms = TICK_TO_MS(_tune_elapsed_ticks(ctx->wire_ctx.step_start_tick));
-            float angle = -2.0f * MATH_PI * WS_VF_FREQ * elapsed_ms * 0.001f; // 反向
-            float Valpha = WS_VF_AMP * cosf(angle);
-            float Vbeta = WS_VF_AMP * sinf(angle);
-            fFOC_SetUalphaBeta(Valpha, Vbeta);
+            float offset = ctx->theta_ctx.theta_sum / THETA_STEADY_WIN;
+            offset = fNormalizeAngle_180(offset);
+            ctx->theta_ctx.offset_hist[0] = offset; // 保存α轴偏移
+
+            ctx->theta_ctx.offset_hist[1] = pos; // 保存alpha轴位置
+
+            // 重置状态，准备β轴定位
+            ctx->theta_ctx.steady_flag = false;
+            ctx->theta_ctx.valid_cnt = 0;
+            ctx->theta_ctx.theta_sum = 0;
+            ctx->temp_val[0] = theta_mech;
+            ctx->theta_ctx.hist_idx = 1;
+
+            fFOC_SetUalphaBeta(0, THETA_VOLT_AMP);
+        }
+        return false;
+    }
+    // 步骤1：β轴定位（施加 Uβ 电压）
+    else if (ctx->theta_ctx.hist_idx == 1)
+    {
+        // 稳态检测
+        float theta_delta = fNormalizeAngle_180(theta_mech - ctx->temp_val[0]);
+        if (FABSF(theta_delta) < THETA_DELTA_MAX)
+        {
+            ctx->theta_ctx.valid_cnt++;
+            if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN)
+            {
+                if (ctx->theta_ctx.valid_cnt >= THETA_STEADY_WIN * 2 - 1)
+                {
+                    ctx->theta_ctx.steady_flag = true;
+                }
+            }
         }
         else
         {
-            // 记录反向角度变化
-            s32 enc_now = (s32)(foc_val.theta_mech * 1000);
-            ctx->wire_ctx.enc_delta_rev = enc_now - ctx->wire_ctx.enc_start;
-            ctx->wire_ctx.step = 4;
+            ctx->theta_ctx.valid_cnt = 0;
+            ctx->theta_ctx.theta_sum = 0;
         }
-        break;
+        ctx->temp_val[0] = theta_mech;
 
-    case 4: // 判断线序
-        if (ctx->wire_ctx.enc_delta_fwd > WS_ENC_DELTA_MIN && ctx->wire_ctx.enc_delta_rev < -WS_ENC_DELTA_MIN)
+        // β轴定位完成
+        if (ctx->theta_ctx.steady_flag)
         {
-            params->wire_sequence = true; // 正序
-            ctx->wire_ctx.step = 5;
-        }
-        else if (ctx->wire_ctx.enc_delta_fwd < -WS_ENC_DELTA_MIN && ctx->wire_ctx.enc_delta_rev > WS_ENC_DELTA_MIN)
-        {
-            params->wire_sequence = false; // 反序
-            ctx->wire_ctx.step = 5;
-        }
-        else
-        {
-            ctx->fault = TUNE_FAULT_MECH_LOCKED;
+            ctx->theta_ctx.offset_hist[2] = pos; // 保存beta轴位置
+
+            // 计算机械角度差（β - α）
+            float diff_mech = fNormalizeAngle_180(ctx->theta_ctx.offset_hist[2] - ctx->theta_ctx.offset_hist[1]);
+
+            // 判断转动方向：正差为正向转动，负差为反向转动
+            if (diff_mech > 0)
+            {
+                motor_params.theta_elec_need_180 = false; // 正向，不需要加180°
+            }
+            else
+            {
+                motor_params.theta_elec_need_180 = true;
+            }
+            params->theta_offset = ctx->theta_ctx.offset_hist[0];
+            params->offset_valid = true;
+            ctx->theta_ctx.hist_idx = 0;
+
             return true;
         }
-        break;
-    case 5: // 完成
-        params->wire_valid = true;
-        return true;
+        return false;
     }
     return false;
 }
@@ -614,7 +580,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_STATE_THETA_OFFSET:
-        if (_tune_ThetaOffset(foc_val.theta_mech, params))
+        if (_tune_ThetaOffset(foc_val.theta_mech,foc_val.pos_fb, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -622,29 +588,9 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 break;
             }
 
-            fSetThetaOffset(motor_params.theta_offset); // 应用于目前计算
+            fSetThetaOffset(motor_params.theta_offset, motor_params.theta_elec_need_180); // 应用于目前计算
 
-            // 角度完成：初始化线序上下文
-            ctx->wire_ctx.step = 0;
-            ctx->wire_ctx.enc_delta_fwd = 0;
-            ctx->wire_ctx.enc_delta_rev = 0;
-            ctx->tick_count = 0;
-
-            ctx->timeout_tick = WS_TIMEOUT_TICKS;
-            ctx->state = TUNE_STATE_WIRE_SEQ;
-        }
-        break;
-
-    case TUNE_STATE_WIRE_SEQ:
-        if (_tune_WireSequence(foc_val, params))
-        {
-            if (ctx->fault != TUNE_FAULT_NONE)
-            {
-                ctx->state = TUNE_STATE_FAULT;
-                break;
-            }
-            fSetWireSequence(motor_params.wire_sequence);
-            // 线序完成：初始化极对数上下文
+            // 角度偏移完成：初始化极对数上下文
             // todo:这里切换为混合模式，使用编码器和HFI的值来确定极对数
 
             ctx->pole_ctx.sum_ratio = 0;
