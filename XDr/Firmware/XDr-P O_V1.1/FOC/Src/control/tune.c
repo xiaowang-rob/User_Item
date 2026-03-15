@@ -34,11 +34,12 @@ tFirstOrderLagFilter rs_i_filter = {0};
 
 // 电感整定
 #define LS_TIMEOUT_TICKS 10000 // 整定超时时间 (500ms)
-#define LS_INJECT_FREQ_HZ 1000
+#define LS_INJECT_FREQ_HZ 2500
 #define LS_V_HOLD_MAX_TICKS 100
 #define LS_V_START 0.2f
 #define LS_V_MAX 0.8f
 #define LS_I_LIMIT 3.0f
+#define LS_I_STEP_MIN 0.04f
 #define LS_MIN_DI_DT 100.0f // 最小信噪比要求
 #define LS_MAX_DI_DT 60000.0f
 #define LS_RANGE_MIN 20e-6f
@@ -47,7 +48,7 @@ tFirstOrderLagFilter rs_i_filter = {0};
 // 角度偏移 (开环强励磁)
 #define THETA_TIMEOUT_TICKS 20000 // 整定超时时间 (1000ms)
 #define THETA_VOLT_AMP 0.6f       // 强励磁电压幅值 (V)
-#define THETA_DELTA_MAX 0.05f      // 静止判断阈值 (°)
+#define THETA_DELTA_MAX 0.05f     // 静止判断阈值 (°)
 #define THETA_STEADY_WIN 2000     // 静止等待时间 (100ms)
 
 /* ================================= 辅助函数 ================================= */
@@ -247,20 +248,59 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
         ctx->ls_ctx.inject_cnt = 0;
         ctx->temp_flag[0] = !ctx->temp_flag[0]; // 注入极性翻转
     }
+    else
+    { // 跟踪峰值电流和峰值周期 非反转周期
+
+        if (ctx->temp_flag[0])
+        {                          // 注入极性为正 电流正向增加
+            if (ctx->temp_flag[1]) // 是否继续跟随峰值
+            {
+                ctx->ls_ctx.ts_cnt[0]++;
+                if (i_alpha - ctx->ls_ctx.ipeak[0] < LS_I_STEP_MIN)
+                    ctx->temp_flag[1] = false;
+                ctx->ls_ctx.ipeak[0] = i_alpha;
+            }
+            if (ctx->temp_flag[2])
+            {
+                ctx->ls_ctx.ts_cnt[1]++;
+                if (i_beta - ctx->ls_ctx.ipeak[1] < LS_I_STEP_MIN)
+                    ctx->temp_flag[2] = false;
+                ctx->ls_ctx.ipeak[1] = i_beta;
+            }
+        }
+        else
+        {                          // 注入极性为负 电流反向增加
+            if (ctx->temp_flag[1]) // 是否继续跟随峰值
+            {
+                ctx->ls_ctx.ts_cnt[0]++;
+                if (i_alpha - ctx->ls_ctx.ipeak[0] > -LS_I_STEP_MIN)
+                    ctx->temp_flag[1] = false;
+                ctx->ls_ctx.ipeak[0] = i_alpha;
+            }
+            if (ctx->temp_flag[2])
+            {
+                ctx->ls_ctx.ts_cnt[1]++;
+                if (i_beta - ctx->ls_ctx.ipeak[1] > -LS_I_STEP_MIN)
+                    ctx->temp_flag[2] = false;
+                ctx->ls_ctx.ipeak[1] = i_beta;
+            }
+        }
+    }
     // 施加电压
     float v_cmd = ctx->temp_flag[0] ? ctx->ls_ctx.v_inj : -ctx->ls_ctx.v_inj;
     fFOC_SetUalphaBeta(v_cmd, v_cmd);
 
+    // 记录初始电流 和 终止电流
     if (ctx->ls_ctx.inject_cnt == 0)
     {
-        float di_alpha = i_alpha - ctx->temp_val[0];
-        float di_beta = i_beta - ctx->temp_val[1];
-        float dt_actual = ctx->ls_ctx.inject_period * params->dt;
-        float di_dt_alpha = di_alpha / dt_actual;
-        float di_dt_beta = di_beta / dt_actual;
+
+        float di_alpha = ctx->ls_ctx.ipeak[0] - ctx->temp_val[0];
+        float di_beta = ctx->ls_ctx.ipeak[1] - ctx->temp_val[1];
+        float di_dt_alpha = di_alpha / (ctx->ls_ctx.ts_cnt[0] * params->dt);
+        float di_dt_beta = di_beta / (ctx->ls_ctx.ts_cnt[1] * params->dt);
+
         // 记录有效样本
         u8 half = ctx->temp_flag[0] ? 1 : 0;
-
         if (FABSF(v_cmd) > ctx->ls_ctx.v_inj * 0.9f)
         {
             // 记录alpha轴
@@ -269,18 +309,26 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
             {
                 ctx->ls_ctx.di_dt_sum[0][half] += di_dt_alpha;
                 ctx->ls_ctx.cnt[0][half]++;
-                ctx->ls_ctx.i_sum[0][half] += i_alpha;
+                ctx->ls_ctx.i_sum[0][half] += ctx->ls_ctx.ipeak[0];
             }
             if (FABSF(di_dt_beta) > LS_MIN_DI_DT &&
                 FABSF(di_dt_beta) < LS_MAX_DI_DT)
             {
                 ctx->ls_ctx.di_dt_sum[1][half] += di_dt_beta;
                 ctx->ls_ctx.cnt[1][half]++;
-                ctx->ls_ctx.i_sum[1][half] += i_beta;
+                ctx->ls_ctx.i_sum[1][half] += ctx->ls_ctx.ipeak[1];
             }
         }
         ctx->temp_val[0] = i_alpha;
         ctx->temp_val[1] = i_beta;
+
+        // 复位峰值跟踪
+        ctx->temp_flag[1] = true;
+        ctx->temp_flag[2] = true;
+        ctx->ls_ctx.ipeak[0] = i_alpha;
+        ctx->ls_ctx.ipeak[1] = i_beta;
+        ctx->ls_ctx.ts_cnt[0] = 0;
+        ctx->ls_ctx.ts_cnt[1] = 0;
     }
 
     // 完成判断
@@ -580,7 +628,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_STATE_THETA_OFFSET:
-        if (_tune_ThetaOffset(foc_val.theta_mech,foc_val.pos_fb, params))
+        if (_tune_ThetaOffset(foc_val.theta_mech, foc_val.pos_fb, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {

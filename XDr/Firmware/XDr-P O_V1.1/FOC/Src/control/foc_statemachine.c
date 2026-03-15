@@ -3,6 +3,7 @@
 #include "math_fast.h"
 #include "parameter_manager.h"
 #include "encoder.h"
+#include "adc_dr.h"
 
 FOC_t g_foc = {.core = &foc_core, .loop_con = &loop_con, .smo = &smo, .tun = &g_tune_ctx, .svpwm = &svpwm};
 
@@ -44,9 +45,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // FOC 主初始化函数
 void fFOC_Init()
 {
-    g_foc.state = FOC_IDLE;
+    fFOC_CoreInit();
+    g_foc.core->foc_mode->runmode = OPEN_LOOP;
+    g_foc.state = FOC_ENABLE;
+    fCurrentCalibrationStart();
+    while (!fAdcIsCalibrated())
+        ;
+    g_foc.state = FOC_DISABLE;
     fFOC_CoreInit();
 }
+
 // FOC 主循环函数
 void fFOC_StateMachineMainLoop()
 {

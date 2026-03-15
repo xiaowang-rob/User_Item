@@ -5,6 +5,8 @@
 
 /* 函数声明 */
 void fAdcDrInit(void);
+void fCurrentCalibrationStart();
+bool fAdcIsCalibrated();
 void fAdc2Sample(void);
 void fAdcGetCurrent(float *ui, float *vi, float *wi);
 void fAdcSampleChange(u16 compare);

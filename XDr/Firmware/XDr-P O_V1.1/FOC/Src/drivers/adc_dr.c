@@ -9,13 +9,13 @@
 static const float ADC_VAL_TO_CUR_FACTOR = 3.3f * rate_CurrentSample / 4095.0f;
 static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * rate_VoltageSample / 255.0f;
 /* ADC采样相关变量 */
-static bool g_calibration_flag = false;
+static bool calibration_flag = false;
 
 static float g_cur_zero_u = 0;
 static float g_cur_zero_v = 0;
 static float g_cur_zero_w = 0;
 
-static u16 g_sample_counter = 0;
+static u16 sample_counter = 0;
 static float g_u_sum = 0;
 static float g_v_sum = 0;
 static float g_w_sum = 0;
@@ -51,24 +51,16 @@ static const u8 g_adc_to_temp[255] = {
 static u32 sample_time_prev_ms = 0;
 static u8 g_temp_index = 0;
 
-/**
- * @brief ADC转换完成回调函数
- * @param hadc ADC句柄指针
- */
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    if (hadc->Instance == ADC1)
-    {
-        if (!g_calibration_flag)
-        {
-            g_cur_zero_u += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[0] * 0.001;
-            g_cur_zero_v += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[1] * 0.001;
-            g_cur_zero_w += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[2] * 0.001;
-            if (++g_sample_counter >= 1000)
-                g_calibration_flag = true;
-        }
-    }
-}
+// /**
+//  * @brief ADC转换完成回调函数
+//  * @param hadc ADC句柄指针
+//  */
+// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+// {
+//     if (hadc->Instance == ADC1)
+//     {
+//     }
+// }
 
 /**
  * @brief ADC数据采集初始化
@@ -80,10 +72,17 @@ void fAdcDrInit(void)
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)g_adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)g_adc2_buffer, 4);
-    while (!g_calibration_flag)
-        HAL_Delay(1);
 }
 
+void fCurrentCalibrationStart()
+{
+    calibration_flag = true;
+}
+
+bool fAdcIsCalibrated()
+{
+    return !calibration_flag;
+}
 /**
  * @brief ADC2采样触发
  */
@@ -103,15 +102,24 @@ void fAdc2Sample(void)
  */
 void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
+    if (calibration_flag)
+    {
+        g_cur_zero_u += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[0] * 0.001;
+        g_cur_zero_v += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[1] * 0.001;
+        g_cur_zero_w += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[2] * 0.001;
+        if (++sample_counter >= 1000)
+            calibration_flag = false;
+    }
+    else
+    { // 计算校准后的电流值
+        g_cur_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
+        g_cur_v = (float)(g_adc1_buffer[1] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_v);
+        g_cur_w = (float)(g_adc1_buffer[2] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_w);
 
-    // 计算校准后的电流值（确保非负）
-    g_cur_u = (float)(g_adc1_buffer[0] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_u);
-    g_cur_v = (float)(g_adc1_buffer[1] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_v);
-    g_cur_w = (float)(g_adc1_buffer[2] * ADC_VAL_TO_CUR_FACTOR - g_cur_zero_w);
-
-    *ui = g_cur_u;
-    *vi = g_cur_v;
-    *wi = g_cur_w;
+        *ui = g_cur_u;
+        *vi = g_cur_v;
+        *wi = g_cur_w;
+    }
 }
 
 /**

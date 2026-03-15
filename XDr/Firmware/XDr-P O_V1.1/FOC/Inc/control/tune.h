@@ -87,6 +87,8 @@ typedef struct
     {
         float v_inj;
         float di_dt_sum[2][2];
+        float ts_cnt[2];
+        float ipeak[2];
         u16 cnt[2][2];
         float i_sum[2][2];
         bool ready;

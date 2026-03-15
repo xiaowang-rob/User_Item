@@ -25,7 +25,7 @@ bool _SystemInitEvent(void)
     fCommunicateInit();
     fProManagerInit();
     fLogInit();
-    fAdcDrInit();
+    fAdcDrInit(); // 这里就启动了foc的定时器
     fFOC_Init();
 
     return true;

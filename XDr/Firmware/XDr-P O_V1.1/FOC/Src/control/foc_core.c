@@ -24,7 +24,7 @@ static float _id_temp, _iq_temp;
 static tFirstOrderLagFilter _omega_filter;
 
 #define CCURRENT_FILTER_alpha 0.13f
-#define SPEED_FILTER_alpha 0.1f
+#define SPEED_FILTER_alpha 0.05f
 
 // 启动器初始化
 void _trajectory_init(tParameter param)
@@ -200,7 +200,7 @@ void fFOC_MainLoopTask(void)
         if (!loop_con.fd.current_update)
             break;
         foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-        // foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
         foc_val.ud = foc_val.id_ref;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
