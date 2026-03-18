@@ -223,32 +223,37 @@
         <Ww>
           <count>14</count>
           <WinNumber>1</WinNumber>
-          <ItemText>L_alpha</ItemText>
+          <ItemText>loop_con</ItemText>
         </Ww>
         <Ww>
           <count>15</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ls_ts,0x0A</ItemText>
+          <ItemText>g_com_state</ItemText>
         </Ww>
         <Ww>
           <count>16</count>
           <WinNumber>1</WinNumber>
-          <ItemText>loop_con</ItemText>
+          <ItemText>valid,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>17</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_com_state</ItemText>
+          <ItemText>encoder,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>18</count>
           <WinNumber>1</WinNumber>
-          <ItemText>calibration_flag</ItemText>
+          <ItemText>reg03_data</ItemText>
         </Ww>
         <Ww>
           <count>19</count>
           <WinNumber>1</WinNumber>
-          <ItemText>g_adc1_buffer</ItemText>
+          <ItemText>reg04_data</ItemText>
+        </Ww>
+        <Ww>
+          <count>20</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>uwTick</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

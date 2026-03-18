@@ -154,7 +154,7 @@ void fProManagerMainLoop()
     {
         fLogDataSave();
         fFOC_StateUpdate(FOC_FAULT);
-        fLogDataWrite();
+//        fLogDataWrite();
         g_pro_manager.log_done = true;
     }
 }

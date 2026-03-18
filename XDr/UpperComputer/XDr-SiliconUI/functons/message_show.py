@@ -99,6 +99,9 @@ def send_custom_message(
     container.addWidget(content_widget)
     container.addPlaceholder(16)
 
+    content_widget._close = message_box.closeLater
+    
+
     # 调整大小以适应内容
     message_box.adjustSize()
 

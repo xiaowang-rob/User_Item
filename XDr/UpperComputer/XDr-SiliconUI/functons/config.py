@@ -21,6 +21,8 @@ class Pconfig:
         self.config_dir = "configs"
         os.makedirs(self.config_dir, exist_ok=True)
 
+        self._current_msg_widget = None
+
         self.combo_config = self.mw.top_area.config_file
 
         self.load_config_but=self.mw.top_area.load_config
@@ -50,6 +52,8 @@ class Pconfig:
         layout = QVBoxLayout(input_widget)
         layout.setContentsMargins(20, 15, 20, 15)
         layout.setSpacing(15)
+
+        self._current_msg_widget = input_widget
 
         name_input = SiLabeledLineEdit()
         name_input.setTitle("配置名")
@@ -107,8 +111,12 @@ class Pconfig:
             index = self.combo_config.findText(display_name)
             if index >= 0:
                 self.combo_config.setCurrentIndex(index)
-                
+
+            if self._current_msg_widget and hasattr(self._current_msg_widget, '_close'):
+                self._current_msg_widget._close()
+                self._current_msg_widget = None          
             send_simple_message(MSG_TYPE_SUCCESS,f"配置“{display_name}”保存成功",True,800)
+
         except Exception as e:
             send_simple_message(MSG_TYPE_ERROR, f"保存失败：{str(e)}", True, 1000 )
 
@@ -140,8 +148,12 @@ class Pconfig:
             index = self.combo_config.findText(display_name_clean)
             if index >= 0:
                 self.combo_config.setCurrentIndex(index)
-                
+
+            if self._current_msg_widget and hasattr(self._current_msg_widget, '_close'):
+                self._current_msg_widget._close()
+                self._current_msg_widget = None              
             send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name_clean}”覆盖成功", True, 800)
+
         except Exception as e:
             send_simple_message(MSG_TYPE_ERROR, f"覆盖失败：{str(e)}", True, 1000)
 
@@ -161,7 +173,13 @@ class Pconfig:
         try:
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump({"params": self.mw.param_manager.param_list}, f, indent=4)
+
+            if self._current_msg_widget and hasattr(self._current_msg_widget, '_close'):
+                self._current_msg_widget._close()
+                self._current_msg_widget = None 
+            
             send_simple_message(MSG_TYPE_SUCCESS, f"配置“{display_name}”已覆盖", True, 800)
+
         except Exception as e:
             send_simple_message(MSG_TYPE_ERROR, f"覆盖失败：{str(e)}", True, 1000)
 

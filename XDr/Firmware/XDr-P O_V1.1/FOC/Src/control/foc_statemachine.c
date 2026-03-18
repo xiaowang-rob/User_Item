@@ -47,11 +47,15 @@ void fFOC_Init()
 {
     fFOC_CoreInit();
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
-    g_foc.state = FOC_ENABLE;
-    fCurrentCalibrationStart();
-    while (!fAdcIsCalibrated())
-        ;
-    g_foc.state = FOC_DISABLE;
+    if (g_calibration_flag)
+    {
+        g_foc.state = FOC_ENABLE;
+        while (g_calibration_flag)
+            ;
+        g_foc.state = FOC_DISABLE;
+    }
+    else
+        g_foc.state = FOC_IDLE;
     fFOC_CoreInit();
 }
 

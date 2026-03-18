@@ -24,7 +24,7 @@ static float _id_temp, _iq_temp;
 static tFirstOrderLagFilter _omega_filter;
 
 #define CCURRENT_FILTER_alpha 0.13f
-#define SPEED_FILTER_alpha 0.05f
+#define SPEED_FILTER_alpha 0.04f
 
 // 启动器初始化
 void _trajectory_init(tParameter param)
@@ -60,7 +60,7 @@ void _motor_init(tParameter param)
     Motor.Ke = param.motor_ke;
     Motor.J = param.motor_j;
     Motor.B = param.motor_b;
-    fSMO_Init(Motor);
+    fSMO_Init(&Motor);
 }
 
 // 滤波器初始化
@@ -145,8 +145,7 @@ void fFOC_ValueUpdate(void)
 
     switch (foc_mode.sensor_mode)
     {
-    case ENCODER_CONTROL:       // 获取编码器数据
-        fEncoderMainLoopTask(); // 编码器主循环
+    case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
@@ -155,12 +154,22 @@ void fFOC_ValueUpdate(void)
         foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
+        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
         break;
 
     case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
         fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
         break;
     case MERGE_CONTROL:
+        fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
+        foc_val.theta_mech = fGetEncoderAngle_ABS();
+        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
+        foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
+        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &_id_temp, &_iq_temp);
+        foc_val.id_fb = fFirstOrderLagFilter(&_id_filter, _id_temp);
+        foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
+        foc_val.pos_fb = fGetEncoderAngle_INC();
+        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
 
         break;
     default:

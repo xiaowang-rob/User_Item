@@ -7,6 +7,7 @@
 #include "adc_dr.h"
 #include "flashDr.h"
 #include "rgb.h"
+#include "encoder.h"
 
 eSystemStatus system_status = SYSTEM_INIT;
 
@@ -52,6 +53,8 @@ void SystemStateMachine_MainLoop(void)
             fSystemStateUpdata(SYSTEM_ERROR);
         break;
     case SYSTEM_RUNNING:
+				//	编码器主循环
+				fEncoderMainLoopTask();
         // 通讯层运行
         fCommunicateMainLoop();
         // 控制层由定时器驱动

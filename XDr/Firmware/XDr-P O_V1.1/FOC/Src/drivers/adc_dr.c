@@ -9,7 +9,7 @@
 static const float ADC_VAL_TO_CUR_FACTOR = 3.3f * rate_CurrentSample / 4095.0f;
 static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * rate_VoltageSample / 255.0f;
 /* ADC采样相关变量 */
-static bool calibration_flag = false;
+volatile bool g_calibration_flag = true;
 
 static float g_cur_zero_u = 0;
 static float g_cur_zero_v = 0;
@@ -74,15 +74,7 @@ void fAdcDrInit(void)
     HAL_ADC_Start_DMA(&hadc2, (u32 *)g_adc2_buffer, 4);
 }
 
-void fCurrentCalibrationStart()
-{
-    calibration_flag = true;
-}
 
-bool fAdcIsCalibrated()
-{
-    return !calibration_flag;
-}
 /**
  * @brief ADC2采样触发
  */
@@ -102,13 +94,13 @@ void fAdc2Sample(void)
  */
 void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
-    if (calibration_flag)
+    if (g_calibration_flag)
     {
         g_cur_zero_u += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[0] * 0.001;
         g_cur_zero_v += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[1] * 0.001;
         g_cur_zero_w += (float)ADC_VAL_TO_CUR_FACTOR * g_adc1_buffer[2] * 0.001;
         if (++sample_counter >= 1000)
-            calibration_flag = false;
+            g_calibration_flag = false;
     }
     else
     { // 计算校准后的电流值

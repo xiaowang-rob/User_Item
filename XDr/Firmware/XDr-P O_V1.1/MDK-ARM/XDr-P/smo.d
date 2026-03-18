@@ -35,5 +35,4 @@
   ..\FOC\Inc\utils\trajectory.h ..\FOC\Inc\utils\math_fast.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\drivers\encoder.h \
-  ..\FOC\Config\device.h ..\Core\Inc\spi.h
+  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\utils\filter.h

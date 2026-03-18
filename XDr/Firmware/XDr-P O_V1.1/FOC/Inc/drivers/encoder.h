@@ -16,12 +16,15 @@ typedef struct
 {
     eEncoderState_DMA state;
     float angle_abs;
-    float angle_last;
-    float angle_inc;
-    float angle_inc_last;
-    float omega;
+    float omega_rpm;
+    float pos;
+    u16 angle_raw;
+    u16 angle_raw_last;
+    u16 pos_offset;
+
     u32 last_time;
     int num_turns;
+    int num_turns_last;
 } tEncoder;
 
 #if ENcoder == 1 // MT6816
