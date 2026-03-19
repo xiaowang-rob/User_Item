@@ -18,6 +18,7 @@ class DataProcess:
         try:
             match cmd_id:
                 case Cidx.UC_CONNECT:  # UC连接成功 返回系统参数
+                    print("状态包接收成功")
                     byte_len=int(len(data)/4)+3
                     if byte_len == 6:#已经连接 则接收状态并反馈
                         self.mw.comport.update_status_time()

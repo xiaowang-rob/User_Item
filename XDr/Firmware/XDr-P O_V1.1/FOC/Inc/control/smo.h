@@ -39,6 +39,8 @@ typedef struct
     // === 观测器配置 ===
     tSMO_Config cfg;
 
+    u8 Ts_tick;
+
     // === 电流观测状态 ===
     float i_alpha_hat;
     float i_beta_hat;
@@ -69,7 +71,5 @@ void fSMO_MainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 // === 数据获取 (内联零开销) ===
 __STATIC_INLINE float fSMO_GetThetaDeg(void) { return smo.theta_elec; }
 __STATIC_INLINE float fSMO_GetOmegaElec(void) { return smo.omega_elec; }
-
-
 
 #endif // __SMO_H

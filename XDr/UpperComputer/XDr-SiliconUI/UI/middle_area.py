@@ -1,5 +1,5 @@
 from siui.components.widgets.navigation_bar import SiNavigationBarH
-from PyQt5.QtWidgets import  QHBoxLayout
+from PyQt5.QtWidgets import  QHBoxLayout,QVBoxLayout
 from siui.components.button import SiPushButtonRefactor
 from PyQt5.QtCore import Qt
 
@@ -28,6 +28,18 @@ class MiddleArea:
         self.navegation_bar.indexChanged.connect(self.mw.ui.stackedWidget.setCurrentIndex)
         self.navegation_bar._on_index_changed(0)
 
+        button_layout = QVBoxLayout(self.cmdbutton_area)
+        button_layout.setContentsMargins(0, 0, 0, 0)  # 无内边距
+        button_layout.setSpacing(12) 
+
+        self.reset_button=SiPushButtonRefactor()
+        self.reset_button.setText("FOC复位")
+        self.reset_button.adjustSize()
+
+        self.system_reset_button=SiPushButtonRefactor()
+        self.system_reset_button.setText("系统复位")
+        self.system_reset_button.adjustSize()
+
         self.ENable_button=SiPushButtonRefactor()
         self.ENable_button.setText("使能")
         self.ENable_button.adjustSize()
@@ -36,9 +48,6 @@ class MiddleArea:
         self.DEnable_button.setText("失能")
         self.DEnable_button.adjustSize()
 
-        self.reset_button=SiPushButtonRefactor()
-        self.reset_button.setText("复位")
-        self.reset_button.adjustSize()
 
         self.tunningstart_button=SiPushButtonRefactor()
         self.tunningstart_button.setText("开始整定")
@@ -53,15 +62,40 @@ class MiddleArea:
         self.protectreset_button.adjustSize()
 
 
-        button_layout = QHBoxLayout(self.cmdbutton_area)
-        button_layout.setContentsMargins(24, 0, 12, 0)  # 无内边距
-        button_layout.setSpacing(16)  # 按钮间距
-        button_layout.addWidget(self.ENable_button)
-        button_layout.addWidget(self.DEnable_button)
-        button_layout.addWidget(self.reset_button)
-        button_layout.addWidget(self.tunningstart_button)
-        button_layout.addWidget(self.brake_button)
-        button_layout.addWidget(self.protectreset_button)
+        self.pos_set_zero_button=SiPushButtonRefactor()
+        self.pos_set_zero_button.setText("设置零点")
+        self.pos_set_zero_button.adjustSize()
+
+        self.pos_set_max_button=SiPushButtonRefactor()
+        self.pos_set_max_button.setText("设置最大位置")
+        self.pos_set_max_button.adjustSize()
+
+        self.pos_set_min_button=SiPushButtonRefactor()
+        self.pos_set_min_button.setText("设置最小位置")
+        self.pos_set_min_button.adjustSize()
+
+        up_button_layout = QHBoxLayout()
+        up_button_layout.setContentsMargins(0, 0, 0, 0)  # 无内边距
+        up_button_layout.setSpacing(32)  # 按钮间距
+
+        up_button_layout.addWidget(self.reset_button)
+        up_button_layout.addWidget(self.ENable_button)
+        up_button_layout.addWidget(self.DEnable_button)
+        up_button_layout.addWidget(self.tunningstart_button)
+        up_button_layout.addWidget(self.protectreset_button)
+
+        down_button_layout = QHBoxLayout()
+        down_button_layout.setContentsMargins(0, 0, 0, 0)  # 无内边距
+        down_button_layout.setSpacing(32)  # 按钮间距
+
+        down_button_layout.addWidget(self.system_reset_button)
+        down_button_layout.addWidget(self.pos_set_zero_button)
+        down_button_layout.addWidget(self.pos_set_max_button)
+        down_button_layout.addWidget(self.pos_set_min_button)
+        down_button_layout.addWidget(self.brake_button)
+
+        button_layout.addLayout(up_button_layout)
+        button_layout.addLayout(down_button_layout)
 
 
 

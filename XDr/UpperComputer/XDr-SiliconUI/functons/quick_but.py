@@ -37,14 +37,12 @@ class QuickBut:
         self.foc_protectreset.clicked.connect(self.protectreset_button_clicked)
 
 
-        self.MIN_val_input=self.mw.control_page.MIN_value
         self.MAX_val_input=self.mw.control_page.MAX_value
         self.value_slider=self.mw.control_page.value_slider
         self.target_val_input=self.mw.control_page.target_value
         self.write_val_button=self.mw.control_page.write_value_button
         self.target_show=self.mw.control_page.control_target_show
 
-        self.MIN_val_input.textChanged.connect(self.MIN_value_changed)
         self.MAX_val_input.textChanged.connect(self.MAX_value_changed)
         self.value_slider.valueChanged.connect(self.value_slider_changed)
         self.write_val_button.clicked.connect(self.write_value)
@@ -75,24 +73,14 @@ class QuickBut:
 
 
     def value_slider_mapping(self, rel_value):
-        min_val=float(self.MIN_val_input.text())
         max_val=float(self.MAX_val_input.text())
-        return int((rel_value/1000)*(max_val-min_val)+min_val)
+        return int((rel_value/1000)*max_val)
 
-    def MIN_value_changed(self, text):
-        try:
-            val=float(text)
-            if val>0:
-                self.MIN_val_input.setText(str(0))
-                return
-
-            self.target_val_input.setText(str(0))
-            self.value_slider.setValue(self.value_slider_mapping(0))
-        except (ValueError, TypeError):
-            self.MIN_val_input.setText(str(0))
     def MAX_value_changed(self, text):
+        if text == "-":
+            return
         try:
-            val=float(text)
+            val=abs(float(text))
             if val<1:
                 self.MAX_val_input.setText(str(10))
                 return
@@ -102,21 +90,18 @@ class QuickBut:
             self.MAX_val_input.setText(str(10))
 
     def value_slider_changed(self, value):
-        val=float(value/1000)*(float(self.MAX_val_input.text())-float(self.MIN_val_input.text()))+float(self.MIN_val_input.text())
+        val=float(value/1000)*float(self.MAX_val_input.text())
         val=float(f"{val:.3g}")
         self.value_slider.setText(str(val))
         self.target_val_input.setText(str(val))
         self.send_val_ref()
 
     def write_value(self):
-        min_val=float(self.MIN_val_input.text())
         max_val=float(self.MAX_val_input.text())
         target_val=float(self.target_val_input.text())
-        if target_val<min_val:
-            target_val=min_val
-        if target_val>max_val:
+        if abs(target_val)>abs(max_val):
             target_val=max_val
-        self.value_slider.setValue(int((target_val-min_val)/(max_val-min_val)*1000))
+        self.value_slider.setValue(int(abs(target_val)/abs(max_val)*1000))
         self.target_val_input.setText(str(f"{target_val:.3g}"))
         self.send_val_ref()
 

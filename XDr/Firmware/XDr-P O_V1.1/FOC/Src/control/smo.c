@@ -3,9 +3,15 @@
 #include "drive_parameters.h"
 #include "filter.h"
 
+#define SMO_DTICK 4
+#define SMO_FREQ fpwm / SMO_DTICK
+
+#define CURRENT_ALPHA 0.25f
 #define EMF_ALPHA 0.07f
 #define OMEGA_ALPHA 0.01f
 
+tFirstOrderLagFilter I_alpha_lpf;
+tFirstOrderLagFilter I_beta_lpf;
 tFirstOrderLagFilter emf_alpha_lpf;
 tFirstOrderLagFilter emf_beta_lpf;
 
@@ -52,13 +58,15 @@ void fSMO_Init(tMotor *motor)
     smo.Ld = motor->Ld;
     smo.Lq = motor->Lq;
     smo.Psi_f = motor->Psi_f;
-    smo.dt = Tcon;
+    smo.dt = Tcon * SMO_DTICK;
 
     smo.cfg = SMO_DEFAULT_CFG;
     fSMO_Precompute(&smo);
     fSMO_Reset();
 
     // 滤波器初始化
+    fFirstOrderLagInit(&I_alpha_lpf, CURRENT_ALPHA, 0.0f);
+    fFirstOrderLagInit(&I_beta_lpf, CURRENT_ALPHA, 0.0f);
     fFirstOrderLagInit(&emf_alpha_lpf, EMF_ALPHA, 0.0f);
     fFirstOrderLagInit(&emf_beta_lpf, EMF_ALPHA, 0.0f);
     fFirstOrderLagInit(&omega_lpf, OMEGA_ALPHA, 0.0f);
@@ -84,11 +92,19 @@ void fSMO_SetConfig(tSMO_Config *cfg)
 void fSMO_MainLoop(float v_alpha, float v_beta,
                    float i_alpha, float i_beta)
 {
+    // 空闲时刻对电流进行滤波
+
+    float i_alpha_filt = fFirstOrderLagFilter(&I_alpha_lpf, i_alpha);
+    float i_beta_filt = fFirstOrderLagFilter(&I_beta_lpf, i_beta);
+
+    if (smo.Ts_tick++ < SMO_DTICK)
+        return;
+    smo.Ts_tick = 0;
 
     // === 步骤 1：电流观测器 ===
 #if SMO_USE_CURRENT_OBSERVER
-    float i_err_alpha = i_alpha - smo.i_alpha_hat;
-    float i_err_beta = i_beta - smo.i_beta_hat;
+    float i_err_alpha = i_alpha_filt - smo.i_alpha_hat;
+    float i_err_beta = i_beta_filt - smo.i_beta_hat;
     i_err_alpha = CLAMP(i_err_alpha, -2.0f, 2.0f);
     i_err_beta = CLAMP(i_err_beta, -2.0f, 2.0f);
 
@@ -108,12 +124,12 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     smo.e_beta = k_slm * tanhf(i_err_beta / smo.cfg.delta);
 #else
     // 测试模式：直接用反馈电流估算反电动势
-    smo.e_alpha = v_alpha - smo.Rs * i_alpha;
-    smo.e_beta = v_beta - smo.Rs * i_beta;
+    smo.e_alpha = v_alpha - smo.Rs * i_alpha_filt;
+    smo.e_beta = v_beta - smo.Rs * i_beta_filt;
     smo.e_alpha = CLAMP(smo.e_alpha, -smo.cfg.emf_max, smo.cfg.emf_max);
     smo.e_beta = CLAMP(smo.e_beta, -smo.cfg.emf_max, smo.cfg.emf_max);
-    smo.i_alpha_hat = i_alpha;
-    smo.i_beta_hat = i_beta;
+    smo.i_alpha_hat = i_alpha_filt;
+    smo.i_beta_hat = i_beta_filt;
 #endif
 
     // === 步骤 2：自适应增益 ===

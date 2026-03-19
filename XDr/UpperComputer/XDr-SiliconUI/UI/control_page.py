@@ -123,6 +123,7 @@ class ControlPage():
 
         self.MIN_value=SiLabeledLineEdit()
         self.MIN_value.setTitle("min")
+        self.MIN_value.setReadOnly(True)
         self.MIN_value.setText(str(0))
         self.MIN_value.setAlignment(Qt.AlignCenter)
         self.MIN_value.adjustSize() 
