@@ -8,7 +8,7 @@
 #include "system_statemachine.h"
 
 tDeviceStatus g_device_status = {.encoder_state = ONLINE};
-tProtectionManager g_pro_manager = {0};
+tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
 // 容忍度检测
 bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)
 {
@@ -28,13 +28,16 @@ void fProManagerInit()
     g_pro_manager.maxomega = g_Param.limit_omega;
     g_pro_manager.minposition = g_Param.limit_position_min;
     g_pro_manager.maxposition = g_Param.limit_position_max;
-    g_pro_manager.tolerance_time_ms = g_Param.tolerance_time * 1000;
+    g_pro_manager.tolerance_time_ms = g_Param.tolerance_time;
     g_pro_manager.tolerance_voltage = g_Param.tolerance_voltage;
     g_pro_manager.tolerance_current = g_Param.tolerance_current;
     g_pro_manager.tolerance_speed = g_Param.tolerance_speed;
     g_pro_manager.tolerance_position = g_Param.tolerance_position;
-    g_pro_manager.com_state = &g_com_state;
-    g_pro_manager.drive_state = &g_device_status;
+}
+void fProSetLimitPosition(float min_position, float max_position)
+{
+    g_pro_manager.minposition = min_position;
+    g_pro_manager.maxposition = max_position;
 }
 // 保护程序复位
 void fProManagerReset()
@@ -43,7 +46,7 @@ void fProManagerReset()
     g_pro_manager.warning_flag = false;
     g_pro_manager.fault = NO_FAULT;
     g_pro_manager.warning = NO_WARNING;
-		g_pro_manager.log_done = false;
+    g_pro_manager.log_done = false;
     fFOC_Init();
 }
 // 保护主循环
@@ -150,11 +153,11 @@ void fProManagerMainLoop()
         }
     }
     //   B错误处理--日志模块还得优化
-    if ((g_pro_manager.fault_flag || g_pro_manager.warning_flag)&&!g_pro_manager.log_done)
+    if ((g_pro_manager.fault_flag || g_pro_manager.warning_flag) && !g_pro_manager.log_done)
     {
         fLogDataSave();
         fFOC_StateUpdate(FOC_FAULT);
-//        fLogDataWrite();
+        //        fLogDataWrite();
         g_pro_manager.log_done = true;
     }
 }

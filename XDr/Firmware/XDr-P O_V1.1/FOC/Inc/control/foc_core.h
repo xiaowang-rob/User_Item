@@ -32,6 +32,7 @@ typedef struct
 typedef struct
 {
     float Iu, Iv, Iw;
+    float Ialpha_im, Ibeta_im;
     float Ialpha, Ibeta;
     float theta_elec;
     float theta_mech;
@@ -88,5 +89,6 @@ void fSetThetaOffset(float thetaoffset, bool elec_offset);
 void fFOC_SetTargetValue(float *value);
 void fFOC_SetSensorMode(eSensorMode mode);
 void fFOC_SetRunMode(eRunMode mode);
-
+void fFOC_SetZeroPOS();
+void fFOC_SetLimitPOS();
 #endif // __FOC_CORE_H

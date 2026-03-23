@@ -60,120 +60,120 @@ void PWM_POWER_OFF()
 }
 void fSvpwmRun(float ualpha, float ubeta)
 {
+    // 反clark变换，不是标准的，只是为了方便判断扇区
     float U1 = ubeta;
-    float U2 = MATH_SQRT3_2 * ualpha - 0.5 * ubeta;
+    float U2 = MATH_SQRT3_2 * ualpha - 0.5f * ubeta;
     float U3 = -U2 - ubeta;
+
     u8 A = U1 > 0;
     u8 B = U2 > 0;
     u8 C = U3 > 0;
     u8 vN = 4 * C + 2 * B + A;
-    float Tx, Ty, Tzero; // Tx:第一相作用时间 Ty:第二相作用时间 Tzero:零向量作用时间
+
+    // 计算三相电压时间分量，超前当前转子三轴90°，定子的三轴需要输出的电压，转化为计数值
+    float X = svpwm.k * U1;
+    float Y = svpwm.k * U3;
+    float Z = svpwm.k * U2;
+
+    float T1, T2, T0; // T1:第一相作用时间 T2:第二相作用时间 T0:零向量作用时间
+    // 分配时间和扇区（扇区是转子的扇区）
     switch (vN)
     {
     case 0:               // Zero vector (all negative)
     case 7:               // Zero vector (all positive)
         svpwm.sector = 0; // Use special sector 0
-        Tx = 0;
-        Ty = 0;
+        T1 = 0;
+        T2 = 0;
         break;
     case 1:
-        svpwm.sector = 2;
-        Tx = -svpwm.k * U2;
-        Ty = -svpwm.k * U3;
+        svpwm.sector = 2; //+--
+        T1 = -Y;
+        T2 = -Z;
         break;
     case 2:
-        svpwm.sector = 6;
-        Tx = -svpwm.k * U3;
-        Ty = -svpwm.k * U1;
+        svpwm.sector = 6; //--+
+        T1 = -X;
+        T2 = -Y;
         break;
     case 3:
-        svpwm.sector = 1;
-        Tx = svpwm.k * U2;
-        Ty = svpwm.k * U1;
+        svpwm.sector = 1; //+-+
+        T1 = X;
+        T2 = Z;
         break;
     case 4:
-        svpwm.sector = 4;
-        Tx = -svpwm.k * U1;
-        Ty = -svpwm.k * U2;
+        svpwm.sector = 4; //-+-
+        T1 = -Z;
+        T2 = -X;
         break;
     case 5:
-        svpwm.sector = 3;
-        Tx = svpwm.k * U1;
-        Ty = svpwm.k * U3;
+        svpwm.sector = 3; //++-
+        T1 = Y;
+        T2 = X;
         break;
     case 6:
-        svpwm.sector = 5;
-        Tx = svpwm.k * U3;
-        Ty = svpwm.k * U2;
+        svpwm.sector = 5; //-++
+        T1 = Z;
+        T2 = Y;
         break;
     default:
         break;
     }
 
-    if (Tx + Ty > ticpwm)
+    if (T1 + T2 > ticpwm)
     {
-        Tx = Tx * ticpwm / (Tx + Ty);
-        Ty = Ty * ticpwm / (Tx + Ty);
-        Tzero = 0;
+        float ratio = ticpwm / (T1 + T2);
+        T1 *= ratio;
+        T2 *= ratio;
+        T0 = 0;
     }
     else
     {
-        Tzero = ticpwm - Tx - Ty;
+        T0 = ticpwm - T1 - T2;
     }
     // 以七段式开关序列方式输出--更小的电流纹波和中心对称性（5段 可以减小开关次数）
 
-    float t0 = Tzero / 2;   // V0作用起点零向量（0，0，0）
-    float t1 = ticpwm - t0; // V1作用
-    float t2 = t1 - Tx;     // V2作用
-    float t3 = t2 - Ty;     // V3作用
-
-    float tu = t3; // 默认全低
-    float tv = t3;
-    float tw = t3;
+    float t0 = T0 * 0.5f; // V0作用起点零向量（0，0，0）
+    float t1 = t0 + T1;   // V1作用
+    float t2 = t1 + T2;   // V2作用
 
     switch (svpwm.sector)
     {
-    case 0: // V0(000)
-        tu = 0;
-        tv = 0;
-        tw = 0;
-        break;
     case 1: // V1(100), V2(110)
-        tu = t1;
-        tv = t2;
+        svpwm.ticu = (u16)t2;
+				svpwm.ticv = (u16)t1;
+        svpwm.ticw = (u16)t0;
         break;
     case 2: // V2(110), V3(010)
-        tv = t1;
-        tu = t2;
+        svpwm.ticu = (u16)t1;
+        svpwm.ticv = (u16)t2;
+        svpwm.ticw = (u16)t0;
         break;
     case 3: // V3(010), V4(011)
-        tv = t1;
-        tw = t2;
+        svpwm.ticu = (u16)t0;
+        svpwm.ticv = (u16)t2;
+				svpwm.ticw = (u16)t1;
         break;
     case 4: // V4(011), V5(001)
-        tw = t1;
-        tv = t2;
+        svpwm.ticu = (u16)t0;
+        svpwm.ticv = (u16)t1;
+        svpwm.ticw = (u16)t2;
         break;
     case 5: // V5(001), V6(101)
-        tw = t1;
-        tu = t2;
+				svpwm.ticu = (u16)t1;
+        svpwm.ticv = (u16)t0;
+        svpwm.ticw = (u16)t2;
         break;
     case 6: // V6(101), V1(100)
-        tu = t1;
-        tw = t2;
+        svpwm.ticu = (u16)t2;
+        svpwm.ticv = (u16)t0;
+        svpwm.ticw = (u16)t1;
         break;
-    default:         // (1,1,1)
-        tu = ticpwm; //
-        tv = ticpwm;
-        tw = ticpwm;
+    default: // (1,1,1)
+        svpwm.ticu = (u16)t0;
+        svpwm.ticv = (u16)t0;
+        svpwm.ticw = (u16)t0;
         break;
     }
-
-    // 计算中心对齐 PWM 的比较值（CCR = (上升沿 + 下降沿) / 2）
-
-    svpwm.ticu = (u16)tu;
-    svpwm.ticv = (u16)tv;
-    svpwm.ticw = (u16)tw;
 
     // 更新比较值
     pwm_out();
@@ -189,18 +189,18 @@ void fSamplePointCalibration()
     {
     case 0:
     case 7:
-        change_Index = 1;
-        tic_ref = 0; // 零矢量时不采样，直接返回
+        tic_ref = ticpwm/2; 
+				goto evaluate;
         break;
     case 1:
-    case 4:
+    case 6:
         tic_ref = svpwm.ticu;
         goto evaluate;
     case 2:
-    case 5:
+    case 3:
         tic_ref = svpwm.ticv;
         goto evaluate;
-    default: // 3,6
+    default: // 45
         tic_ref = svpwm.ticw;
         goto evaluate;
     }
@@ -224,10 +224,12 @@ evaluate:
     switch (change_Index)
     {
     case 1:
-        fAdcSampleChange(ticpwm - 2);
+//        fAdcSampleChange(ticpwm - 1);
+				fAdcSampleChange(tic_ref - ticTs);
         break;
     case 2:
-        fAdcSampleChange(tic_ref + ticTs);
+//        fAdcSampleChange(tic_ref + ticTs);
+		fAdcSampleChange(tic_ref - ticTs);
         break;
     case 3:
         // 确保减后不溢出（可根据实际需求加限幅）

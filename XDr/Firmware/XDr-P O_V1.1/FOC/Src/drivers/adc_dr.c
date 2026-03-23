@@ -55,19 +55,21 @@ static u8 g_temp_index = 0;
 //  * @brief ADC转换完成回调函数
 //  * @param hadc ADC句柄指针
 //  */
-// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-// {
-//     if (hadc->Instance == ADC1)
-//     {
-//     }
-// }
+ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+ {
+			return;
+     if (hadc->Instance == ADC1)
+     {
+
+     }
+ }
 
 /**
  * @brief ADC数据采集初始化
  */
 void fAdcDrInit(void)
 {
-    fAdcSampleChange(2090);
+    fAdcSampleChange(2098);
     HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)g_adc1_buffer, 3);

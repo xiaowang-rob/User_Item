@@ -29,15 +29,18 @@ void fStreamDataGet(Data_stream_e stream, float *data)
         *data = g_foc.core->motor->Udc;
         break;
     case VOLTAGE_U:
-        temp_val = fGetVoltage_u();
+//        temp_val = fGetVoltage_u();
+		temp_val =g_foc.core->foc_val->Iu;
         memcpy(data, &temp_val, 4);
         break;
     case VOLTAGE_V:
-        temp_val = fGetVoltage_v();
+//        temp_val = fGetVoltage_v();
+		temp_val =g_foc.core->foc_val->Iv;
         memcpy(data, &temp_val, 4);
         break;
     case VOLTAGE_W:
-        temp_val = fGetVoltage_w();
+//        temp_val = fGetVoltage_w();
+		temp_val =g_foc.core->foc_val->Iw;
         memcpy(data, &temp_val, 4);
         break;
     case VOLTAGE_q:

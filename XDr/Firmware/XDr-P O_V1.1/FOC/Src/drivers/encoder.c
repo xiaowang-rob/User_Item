@@ -4,6 +4,11 @@
 #include "spi.h"
 #include "math_fast.h"
 
+volatile u32 encoder_ts_us=0;
+u32 time_zero;
+
+
+
 /* ========== 全局变量 ========== */
 static u16 reg03_cmd = 0x83ff;
 volatile static u16 reg03_data = 0;
@@ -16,6 +21,7 @@ static volatile u16 reg04_data_shadow = 0;
 
 static bool first_run = true;
 static u8 valid = 0;
+static u8 rubbish_data_tic = 0;
 
 volatile static tEncoder encoder = {0};
 
@@ -131,6 +137,10 @@ static void ENCODER_ProcessData(void)
     // 角度计算
     encoder.angle_abs = (float)encoder.angle_raw * 0.02197265625f; // 2^14 = 16384
 
+		u32 cur_time=HAL_GetTick_us();
+		encoder_ts_us=cur_time-time_zero;
+		time_zero=cur_time;
+		
     if (first_run)
     {
         encoder.angle_raw_last = encoder.angle_raw;
@@ -140,7 +150,11 @@ static void ENCODER_ProcessData(void)
         encoder.omega_rpm = 0;
         encoder.pos = 0;
         encoder.last_time = current_time;
-        first_run = false;
+        if (rubbish_data_tic++ > 3)
+        {
+            rubbish_data_tic = 0;
+            first_run = false;
+        }
     }
     else
     { // 增量角度计算
@@ -291,6 +305,7 @@ float fGetEncoderRPM(void) { return encoder.omega_rpm; }
 
 void fSetEncoderAngleZero(void)
 {
+		encoder.pos=0;
     encoder.pos_offset = encoder.angle_raw;
     encoder.num_turns = 0;
     encoder.num_turns_last = 0;

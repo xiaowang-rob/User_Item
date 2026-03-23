@@ -30,6 +30,7 @@ class DataProcess:
                                 self.mw.data_show.set_status(i, struct.unpack('<f', data[(i-3)*4:(i-2)*4])[0])
                         self.mw.data_show.show_status()
                         self.mw.comport.send_packet(Cidx.UC_CONNECT, bytes()) 
+                        print("状态包反馈发送成功")
                     else:
                         # 解析 system_message 字符串，按逗号分隔
                         sys_msg_in=data.decode()

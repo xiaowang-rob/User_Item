@@ -116,6 +116,15 @@ void _frame_data_deal()
             fStreamDataGet((Data_stream_e)data_id, (float *)com_frame.txdata);
             fCAN_SendData(com_frame.txdata, 4);
             break;
+        case CMD_SYSTEM_RESET:
+            NVIC_SystemReset();
+            break;
+        case CMD_SET_ZERO_POS:
+            fFOC_SetZeroPOS(); // 以当前位置为0点
+            break;
+        case CMD_SET_LIMIT_POS:
+            fFOC_SetLimitPOS();
+            break;
         default:
             break;
         }
@@ -185,7 +194,12 @@ void _frame_data_deal()
             case CMD_STREAM_SET: // 除了状态位清除检测值
                 com_frame.stream_num = 0;
                 break;
-
+            case CMD_SET_ZERO_POS:
+                fFOC_SetZeroPOS(); // 以当前位置为0点
+                break;
+            case CMD_SET_LIMIT_POS:
+                fFOC_SetLimitPOS(); // 以当前位置为极限位置
+                break;
             case CMD_SYSTEM_RESET: // 系统复位
                 NVIC_SystemReset();
                 break;

@@ -66,13 +66,10 @@ class MiddleArea:
         self.pos_set_zero_button.setText("设置零点")
         self.pos_set_zero_button.adjustSize()
 
-        self.pos_set_max_button=SiPushButtonRefactor()
-        self.pos_set_max_button.setText("设置最大位置")
-        self.pos_set_max_button.adjustSize()
+        self.pos_set_limit_button=SiPushButtonRefactor()
+        self.pos_set_limit_button.setText("设置极限位置")
+        self.pos_set_limit_button.adjustSize()
 
-        self.pos_set_min_button=SiPushButtonRefactor()
-        self.pos_set_min_button.setText("设置最小位置")
-        self.pos_set_min_button.adjustSize()
 
         up_button_layout = QHBoxLayout()
         up_button_layout.setContentsMargins(0, 0, 0, 0)  # 无内边距
@@ -90,8 +87,7 @@ class MiddleArea:
 
         down_button_layout.addWidget(self.system_reset_button)
         down_button_layout.addWidget(self.pos_set_zero_button)
-        down_button_layout.addWidget(self.pos_set_max_button)
-        down_button_layout.addWidget(self.pos_set_min_button)
+        down_button_layout.addWidget(self.pos_set_limit_button)
         down_button_layout.addWidget(self.brake_button)
 
         button_layout.addLayout(up_button_layout)

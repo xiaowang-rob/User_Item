@@ -574,7 +574,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_STATE_RS:
-        if (_tune_Rs(foc_val.Ialpha, params))
+        if (_tune_Rs(foc_val.Ialpha_im, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -601,7 +601,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_STATE_LS:
-        if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, params))
+        if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha_im, foc_val.Ibeta_im, params))
         {
             // 电阻上下文复位
             ctx->rs_ctx.step_ticks = 0;

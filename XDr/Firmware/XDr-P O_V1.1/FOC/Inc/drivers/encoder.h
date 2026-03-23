@@ -40,4 +40,5 @@ float fGetEncoderAngle_ABS(void);
 float fGetEncoderAngle_INC(void);
 float fGetEncoderRPM(void);
 
+void fSetEncoderAngleZero(void);
 #endif /* __ENCODER_H */

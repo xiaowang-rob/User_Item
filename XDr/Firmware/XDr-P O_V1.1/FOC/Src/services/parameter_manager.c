@@ -429,7 +429,7 @@ bool fParamInit()
         g_Param.limit_omega = 500.0f;            // 速度限幅 3000 RPM (假设转换后)
         g_Param.limit_position_min = -100000.0f; // 最小位置限制 -10000度 (弧度)
         g_Param.limit_position_max = 100000.0f;  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1秒
+        g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1ms
         g_Param.tolerance_voltage = 1.2f;                   // 电压容忍度 1.2
         g_Param.tolerance_current = 1.1f;                   // 电流容忍度 1.1
         g_Param.tolerance_speed = 1.1f;                     // 速度容忍度 1.1

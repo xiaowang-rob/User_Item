@@ -58,4 +58,6 @@ void fProManagerInit();
 void fProManagerReset();
 void fProManagerMainLoop();
 
+void fProSetLimitPosition(float min_position, float max_position);
+
 #endif /* __PROTECTION_MANAGER_H */

@@ -47,6 +47,8 @@ void fFOC_Init()
 {
     fFOC_CoreInit();
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
+	  g_foc.foc_enable = false;
+    DISABLE_PWM();
     if (g_calibration_flag)
     {
         g_foc.state = FOC_ENABLE;

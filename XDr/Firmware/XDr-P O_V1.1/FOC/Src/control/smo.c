@@ -94,17 +94,14 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
 {
     // 空闲时刻对电流进行滤波
 
-    float i_alpha_filt = fFirstOrderLagFilter(&I_alpha_lpf, i_alpha);
-    float i_beta_filt = fFirstOrderLagFilter(&I_beta_lpf, i_beta);
-
     if (smo.Ts_tick++ < SMO_DTICK)
         return;
     smo.Ts_tick = 0;
 
     // === 步骤 1：电流观测器 ===
 #if SMO_USE_CURRENT_OBSERVER
-    float i_err_alpha = i_alpha_filt - smo.i_alpha_hat;
-    float i_err_beta = i_beta_filt - smo.i_beta_hat;
+    float i_err_alpha = i_alpha - smo.i_alpha_hat;
+    float i_err_beta = i_beta - smo.i_beta_hat;
     i_err_alpha = CLAMP(i_err_alpha, -2.0f, 2.0f);
     i_err_beta = CLAMP(i_err_beta, -2.0f, 2.0f);
 
@@ -124,12 +121,12 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
     smo.e_beta = k_slm * tanhf(i_err_beta / smo.cfg.delta);
 #else
     // 测试模式：直接用反馈电流估算反电动势
-    smo.e_alpha = v_alpha - smo.Rs * i_alpha_filt;
-    smo.e_beta = v_beta - smo.Rs * i_beta_filt;
+    smo.e_alpha = v_alpha - smo.Rs * i_alpha;
+    smo.e_beta = v_beta - smo.Rs * i_beta;
     smo.e_alpha = CLAMP(smo.e_alpha, -smo.cfg.emf_max, smo.cfg.emf_max);
     smo.e_beta = CLAMP(smo.e_beta, -smo.cfg.emf_max, smo.cfg.emf_max);
-    smo.i_alpha_hat = i_alpha_filt;
-    smo.i_beta_hat = i_beta_filt;
+    smo.i_alpha_hat = i_alpha;
+    smo.i_beta_hat = i_beta;
 #endif
 
     // === 步骤 2：自适应增益 ===

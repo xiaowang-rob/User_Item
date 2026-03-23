@@ -38,4 +38,7 @@
   ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\drivers\encoder.h \
   ..\FOC\Config\device.h ..\Core\Inc\spi.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\loop_control.h \
-  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\utils\filter.h
+  ..\FOC\Config\drive_parameters.h ..\FOC\Inc\utils\filter.h \
+  ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h

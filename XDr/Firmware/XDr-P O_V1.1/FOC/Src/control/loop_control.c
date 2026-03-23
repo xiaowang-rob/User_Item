@@ -143,7 +143,7 @@ void fLoopControlInit(tParameter param, float Vmax)
     fFrequencyDivisionInit(param.freq_current_loop, param.freq_speed_loop, param.freq_position_loop);
     loop_con.max_Vs = Vmax;
     PI_init(&loop_con.PI_iq, param.kp_current, param.ki_current, Vmax, loop_con.fd.Tcur);
-    PI_init(&loop_con.PI_id, param.kp_current, param.ki_current, Vmax, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_id, param.kp_current/2, param.ki_current/2, Vmax, loop_con.fd.Tcur);
     PI_init(&loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current, loop_con.fd.Tspd);
     PI_init(&loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current, loop_con.fd.Tspd);
     PID_init(&loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega, loop_con.fd.Tpos);

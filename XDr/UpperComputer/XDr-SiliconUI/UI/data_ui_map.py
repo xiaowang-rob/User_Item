@@ -137,6 +137,8 @@ class Cidx:
     CMD_MODE_SET       = 0x22
     CMD_STREAM_GET     = 0x23
     CMD_STREAM_SET     = 0x25
+    CMD_SET_ZERO_POS   = 0x26
+    CMD_SET_LIMIT_POS  = 0x27
 
     CMD_SYSTEM_RESET   = 0x30   #系统复位
     CMD_BL_CONNECT     = 0x3f   #连接BL设备

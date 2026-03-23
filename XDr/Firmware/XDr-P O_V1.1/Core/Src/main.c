@@ -78,10 +78,8 @@ void SystemClock_Config(void);
 int main(void)
 {
 
-  /* USER CODE BEGIN 1 */ 
-//  SCB->CPACR |= (3UL << 20) | (3UL << 22); // Enable CP10 and CP11 for full access
-//  __DSB();                                 // 数据同步屏障
-//  __ISB();   	// 指令同步屏障
+  /* USER CODE BEGIN 1 */
+
 	
 	  /* 告诉 CPU，中断向量表不在 0x08000000，而在 0x08004000 */
   /* 0x08004000 是你的 App 起始地址，需与 CubeMX 设置一致 */

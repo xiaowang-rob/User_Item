@@ -20,10 +20,12 @@
 #define PARAM_READ 0x03  // 参数读取
 #define PARAM_SAVE 0x04  // 参数保存
 
-#define CMD_REFVALUE_SET 0x21 // 参考值设置
-#define CMD_MODE_SET 0x22     // 模式设置
-#define CMD_STREAM_GET 0x23   // 监测值获取 单个值直接获取
-#define CMD_STREAM_SET 0x25   // 要连续传输的数据流设置
+#define CMD_REFVALUE_SET 0x21  // 目标值设置
+#define CMD_MODE_SET 0x22      // 模式设置
+#define CMD_STREAM_GET 0x23    // 监测值获取 单个值直接获取
+#define CMD_STREAM_SET 0x25    // 要连续传输的数据流设置
+#define CMD_SET_ZERO_POS 0x26  // 设置零点
+#define CMD_SET_LIMIT_POS 0x27 // 设置极限位置
 
 #define CMD_SYSTEM_RESET 0x30 // 系统复位
 

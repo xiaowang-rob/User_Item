@@ -9,6 +9,7 @@
 #include "loop_control.h"
 #include "drive_parameters.h"
 #include "filter.h"
+#include "protection_manager.h"
 
 tFOC_Mode foc_mode = {0};
 tFOC_val foc_val = {0};
@@ -17,9 +18,8 @@ tMotor Motor = {0};
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .motor = &Motor};
 
 /* 滤波器实例 */
-static tFirstOrderLagFilter _id_filter;
-static tFirstOrderLagFilter _iq_filter;
-static float _id_temp, _iq_temp;
+static tFirstOrderLagFilter _ialpha_filter;
+static tFirstOrderLagFilter _ibeta_filter;
 
 static tFirstOrderLagFilter _omega_filter;
 
@@ -66,8 +66,8 @@ void _motor_init(tParameter param)
 // 滤波器初始化
 void _filter_init(void)
 {
-    fFirstOrderLagInit(&_id_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
-    fFirstOrderLagInit(&_iq_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
+    fFirstOrderLagInit(&_ialpha_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
+    fFirstOrderLagInit(&_ibeta_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
     fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.rpm_fb);
 }
 
@@ -130,11 +130,13 @@ void Current_reconstruction(void)
         break;
     default:
         ui = foc_val.Iu;
-        vi = foc_val.Iv;
-        wi = foc_val.Iw;
+        vi = -foc_val.Iv;
+        wi = -foc_val.Iw;
         break;
     }
-    fClarkTransform(ui, vi, wi, &foc_val.Ialpha, &foc_val.Ibeta);
+    fClarkTransform(ui, vi, wi, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+    foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, foc_val.Ialpha_im);
+    foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, foc_val.Ibeta_im);
 }
 
 void fFOC_ValueUpdate(void)
@@ -149,9 +151,7 @@ void fFOC_ValueUpdate(void)
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
-        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &_id_temp, &_iq_temp);
-        foc_val.id_fb = fFirstOrderLagFilter(&_id_filter, _id_temp);
-        foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
+
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
         foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
@@ -165,9 +165,7 @@ void fFOC_ValueUpdate(void)
         foc_val.theta_mech = fGetEncoderAngle_ABS();
         foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
-        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &_id_temp, &_iq_temp);
-        foc_val.id_fb = fFirstOrderLagFilter(&_id_filter, _id_temp);
-        foc_val.iq_fb = fFirstOrderLagFilter(&_iq_filter, _iq_temp);
+
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
 
@@ -208,9 +206,11 @@ void fFOC_MainLoopTask(void)
     case CURRENT_MODE:
         if (!loop_con.fd.current_update)
             break;
-        foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-        foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-        foc_val.ud = foc_val.id_ref;
+        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
+        //foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
+        //foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+				foc_val.uq =foc_val.iq_ref;//调试
+				foc_val.ud=0;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 
@@ -297,4 +297,17 @@ bool fFOC_Shutdown(void)
     float omega_shutdown = -foc_val.rpm_fb * 0.5f;
     fFOC_SetTargetValue(&omega_shutdown);
     return false;
+}
+void fFOC_SetZeroPOS()
+{
+    fSetEncoderAngleZero();
+}
+void fFOC_SetLimitPOS()
+{
+    if (foc_val.pos_fb > 0)
+        g_Param.limit_position_max = foc_val.pos_fb;
+    else
+        g_Param.limit_position_min = foc_val.pos_fb;
+    fFOC_CoreInit();
+    fProSetLimitPosition(g_Param.limit_position_min, g_Param.limit_position_max);
 }
