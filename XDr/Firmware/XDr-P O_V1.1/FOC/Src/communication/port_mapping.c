@@ -360,7 +360,7 @@ void _stream_data_trans()
         { // 数据发送
             if (com_frame.stream_num == 0)
                 return;
-            bool txflag = (11 - _datanum) < com_frame.stream_num;
+            bool txflag = _datanum >= 12 / com_frame.stream_num * com_frame.stream_num - 1;
             fStreamDataPrepare(com_frame.data_id_index[_datanum % com_frame.stream_num], _datanum, com_frame.txdata, txflag);
             _datanum++;
             if (txflag)

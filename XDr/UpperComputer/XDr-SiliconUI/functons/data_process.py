@@ -18,11 +18,9 @@ class DataProcess:
         try:
             match cmd_id:
                 case Cidx.UC_CONNECT:  # UC连接成功 返回系统参数
-                    print("状态包接收成功")
+                    self.mw.comport.update_status_time()
                     byte_len=int(len(data)/4)+3
-                    if byte_len == 6:#已经连接 则接收状态并反馈
-                        self.mw.comport.update_status_time()
-                        
+                    if byte_len == 6:#已经连接 则接收状态并反馈    
                         for i in range(byte_len):
                             if i < 4:
                                 self.mw.data_show.set_status(i, data[i])
@@ -30,7 +28,7 @@ class DataProcess:
                                 self.mw.data_show.set_status(i, struct.unpack('<f', data[(i-3)*4:(i-2)*4])[0])
                         self.mw.data_show.show_status()
                         self.mw.comport.send_packet(Cidx.UC_CONNECT, bytes()) 
-                        print("状态包反馈发送成功")
+
                     else:
                         # 解析 system_message 字符串，按逗号分隔
                         sys_msg_in=data.decode()
@@ -78,6 +76,7 @@ class DataProcess:
                     self.mw.param_manager.add_param(idx, data[1:])
                 case Cidx.CMD_STREAM_SET:  # 监控值返回
                     byte_len=int(len(data)/4)
+                    print(f"float数量: {byte_len}")
                     for i in range(byte_len):
                         self.mw.wave.add_data_by_index(i,struct.unpack('<f',data[i*4:(i+1)*4])[0])
                     return
