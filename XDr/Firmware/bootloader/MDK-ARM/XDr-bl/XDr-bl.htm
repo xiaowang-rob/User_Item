@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\XDr-bl\XDr-bl.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\XDr-bl\XDr-bl.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Sun Mar  8 11:18:32 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Fri Mar 27 17:59:03 2026
 <BR><P>
 <H3>Maximum Stack Usage =        424 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1156,7 +1156,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[100]"></a>LED_Process</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, led.o(.text.LED_Process))
+<P><STRONG><a name="[100]"></a>LED_Process</STRONG> (Thumb, 52 bytes, Stack size 8 bytes, led.o(.text.LED_Process))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = LED_Process &rArr; _LED_Update
 </UL>
 <BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -1166,7 +1166,7 @@ Global Symbols
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[ff]"></a>LED_SetState</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, led.o(.text.LED_SetState))
+<P><STRONG><a name="[ff]"></a>LED_SetState</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, led.o(.text.LED_SetState))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = LED_SetState &rArr; _LED_Update
 </UL>
 <BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -1225,8 +1225,8 @@ Global Symbols
 <P><STRONG><a name="[1e]"></a>PendSV_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_it.o(.text.PendSV_Handler))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(RESET)
 </UL>
-<P><STRONG><a name="[112]"></a>Process_Upgrade_Cmd</STRONG> (Thumb, 292 bytes, Stack size 16 bytes, main.o(.text.Process_Upgrade_Cmd))
-<BR><BR>[Stack]<UL><LI>Max Depth = 112 + Unknown Stack Size
+<P><STRONG><a name="[112]"></a>Process_Upgrade_Cmd</STRONG> (Thumb, 288 bytes, Stack size 24 bytes, main.o(.text.Process_Upgrade_Cmd))
+<BR><BR>[Stack]<UL><LI>Max Depth = 120 + Unknown Stack Size
 <LI>Call Chain = Process_Upgrade_Cmd &rArr; Flash_Erase_App &rArr; HAL_FLASHEx_Erase &rArr; OUTLINED_FUNCTION_0 &rArr; FLASH_WaitForLastOperation
 </UL>
 <BR>[Calls]<UL><LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Clear_Upgrade_Flag
@@ -1875,7 +1875,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f405xx.o(RESET)
 </UL>
-<P><STRONG><a name="[7d]"></a>main</STRONG> (Thumb, 208 bytes, Stack size 256 bytes, main.o(.text.main))
+<P><STRONG><a name="[7d]"></a>main</STRONG> (Thumb, 204 bytes, Stack size 256 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 424 + Unknown Stack Size
 <LI>Call Chain = main &rArr; SystemClock_Config &rArr; HAL_RCC_ClockConfig &rArr; HAL_RCC_GetSysClockFreq &rArr; __aeabi_uldivmod
 </UL>

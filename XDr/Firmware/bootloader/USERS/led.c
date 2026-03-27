@@ -39,6 +39,8 @@ void LED_Init(void)
 /* ========== 设置状态 ========== */
 void LED_SetState(LedState_t state)
 {
+		if(state==g_led_state)
+			return;
     g_led_state = state;
     g_led_timer = HAL_GetTick();
     g_led_toggle = 1;
@@ -46,7 +48,7 @@ void LED_SetState(LedState_t state)
     /* 立即更新显示 */
     _LED_Update();
 }
-volatile static uint8_t _tic = 0;
+volatile static uint16_t _tic = 0;
 /* ========== 主循环中调用，非阻塞 ========== */
 void LED_Process(void)
 {
@@ -61,7 +63,7 @@ void LED_Process(void)
         break;
 
     case LED_SUCCESS: /* 同步慢闪 - 400ms */
-        interval = 600;
+        interval = 500;
         break;
 
     case LED_ERROR: /* 交替快闪 - 100ms */
@@ -69,13 +71,8 @@ void LED_Process(void)
         break;
 
     case LED_WRITING: /* 同步闪烁 */
-        if (_tic++ > 200)
-        {
-            g_led_toggle = !g_led_toggle;
-            _tic = 0;
-            _LED_Update();
-        }
-        return;
+				interval = 100;
+				break;
     default:
         return;
     }

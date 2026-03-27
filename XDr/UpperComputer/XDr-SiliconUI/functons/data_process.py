@@ -76,7 +76,6 @@ class DataProcess:
                     self.mw.param_manager.add_param(idx, data[1:])
                 case Cidx.CMD_STREAM_SET:  # 监控值返回
                     byte_len=int(len(data)/4)
-                    print(f"float数量: {byte_len}")
                     for i in range(byte_len):
                         self.mw.wave.add_data_by_index(i,struct.unpack('<f',data[i*4:(i+1)*4])[0])
                     return

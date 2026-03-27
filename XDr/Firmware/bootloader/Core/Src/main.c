@@ -164,7 +164,6 @@ int main(void)
         {
           if (result == FEEDBACK_OK)
           {
-            LED_SetState(LED_SUCCESS);
             for (int i = 0; i < 200; i++)
             {
               HAL_Delay(10);
@@ -174,7 +173,7 @@ int main(void)
           }
           else
           {
-            /* 跳转失败 - 全灭或同步快闪表示严重错误 */
+            /* 跳转失败  */
             LED_SetState(LED_ERROR);
           }
         }
@@ -502,7 +501,7 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
     uint16_t checksum = 0;
     for (int i = 0; i < firmware_info[2]; i++)
     {
-      checksum += firmware_info[i];
+      checksum += firmware_info[i+3];
     }
     firmware_info[3 + firmware_info[2]] = (uint8_t)checksum & 0xff;
     firmware_info[4 + firmware_info[2]] = 0x0D;
@@ -533,7 +532,6 @@ uint8_t Process_Upgrade_Cmd(uint8_t cmd, uint8_t *data, uint16_t len)
     break;
 
   case CMD_IAP_WRITE_FLASH: /* 写入 Flash */
-
     upgrade_addr = (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
                    ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
     if (upgrade_addr < 0x08004000 || upgrade_addr >= 0x080FFFFF)

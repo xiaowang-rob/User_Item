@@ -270,15 +270,13 @@ class IAP_downloader(QObject):
         
         self.file_select_button.clicked.connect(self._handle_file_select)
         
-        # 兼容普通按钮和自定义长按按钮
-        if hasattr(self.download_start_button, 'longPressed'):
-            self.download_start_button.longPressed.connect(self._handle_start_download)
-        else:
-            self.download_start_button.clicked.connect(self._handle_start_download)
+        self.download_start_button.longPressed.connect(self._handle_start_download)
+        self.download_start_button.clicked.connect(self._handle_force_download)
 
         self._iap_worker = None
         self._selected_file = None
         self.bl_mode_ready = False
+        self.force_download_tic=0
 
     def set_current_version(self, version: str):
         """设置当前固件版本"""
@@ -298,7 +296,7 @@ class IAP_downloader(QObject):
         """验证固件兼容性"""
         old_name = self._clean_version_string(current_version_str)
         if not old_name:
-            return False, "未知设备版本", ""
+            return False, "未知设备版本，如果要强制烧录固件，请自行确认硬件版本后先三击<开始升级>按钮，再长按进行强制烧录", ""
 
         new_name = os.path.basename(new_file_path)
         if new_name.lower().endswith('.bin'):
@@ -325,8 +323,13 @@ class IAP_downloader(QObject):
             self.new_bootloader_input.setText(f"{name} ({size/1024:.1f}KB)")
             send_simple_message(MSG_TYPE_SUCCESS, f"✓ 已选择：{name}", True, 1500)
     
+    def _handle_force_download(self):
+        """强制下载"""
+        self.force_download_tic+=1
+
     def _handle_start_download(self):
         """开始下载按钮"""
+
         if not self._selected_file:
             send_simple_message(MSG_TYPE_WARNING, "请先选择固件文件", True, 2000)
             return
@@ -339,14 +342,16 @@ class IAP_downloader(QObject):
             current_version_text, self._selected_file
         )
 
-        if not is_compat:
-            if not old_prefix:
-                msg = "⚠ 无法获取当前设备版本信息\n请确认设备型号是否与固件匹配"
-            else:
-                msg = f"⚠ 该固件与设备不适配\n\n期望前缀：{old_prefix}\n文件前缀：{new_prefix}\n\n请确认固件型号是否正确"
-            send_simple_message(MSG_TYPE_WARNING, msg, True, 4000)
-            return
-
+        if self.force_download_tic<2:
+            self.force_download_tic=0
+            if not is_compat:
+                if not old_prefix:
+                    msg = "⚠ 无法获取当前设备版本信息\n请确认设备型号是否与固件匹配"
+                else:
+                    msg = f"⚠ 该固件与设备不适配\n\n期望前缀：{old_prefix}\n文件前缀：{new_prefix}\n\n请确认固件型号是否正确"
+                send_simple_message(MSG_TYPE_WARNING, msg, True, 4000)
+                return
+        self.force_download_tic=0
         msg = f"接下来会烧录以下固件\n📄 文件：{os.path.basename(self._selected_file)}\n\n⚠ 升级过程中请勿断开 USB 或重启设备！"
         send_simple_message(MSG_TYPE_WARNING, msg, True, 2000)
         

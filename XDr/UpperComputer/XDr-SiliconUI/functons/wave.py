@@ -489,8 +489,4 @@ class Wave:
         if id_index < len(self.channel_index):
             self.add_data(self.channel_index[id_index], data)
 
-        print("index:",index,"id:",id_index,"数据id",self.showindex[id_index]+3,"通道",self.channel_index[id_index],"数据",data)
-        points = [len(wave) for wave in self.waveform_widget.wave_data]
-        if len(set(points)) > 1:  # 如果点数不一致
-            print(f"Warning: 通道点数不一致: {points}")
         
