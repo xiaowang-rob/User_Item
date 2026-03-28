@@ -114,13 +114,6 @@ class LogPage():
         self.run_mode.setAlignment(Qt.AlignCenter)
         self.run_mode.setTitle("运行模式")
 
-        self.usb_status = SiCapsuleLineEdit()
-        self.usb_status.setReadOnly(True)
-        self.usb_status.resize(all_W, 40)
-        self.usb_status.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.usb_status.setTitleFixedWidth(title_W)
-        self.usb_status.setAlignment(Qt.AlignCenter)
-        self.usb_status.setTitle("USB状态")
 
         self.can_status = SiCapsuleLineEdit()
         self.can_status.setReadOnly(True)
@@ -130,13 +123,6 @@ class LogPage():
         self.can_status.setAlignment(Qt.AlignCenter)
         self.can_status.setTitle("CAN状态")
 
-        self.flash_status = SiCapsuleLineEdit()
-        self.flash_status.setReadOnly(True)
-        self.flash_status.resize(all_W, 40)
-        self.flash_status.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.flash_status.setTitleFixedWidth(title_W)
-        self.flash_status.setAlignment(Qt.AlignCenter)
-        self.flash_status.setTitle("闪存状态")
 
         self.encode_status = SiCapsuleLineEdit()
         self.encode_status.setReadOnly(True)
@@ -266,9 +252,7 @@ class LogPage():
         log_show_layout1.addWidget(self.warning)
         log_show_layout1.addWidget(self.sensor_mode)
         log_show_layout1.addWidget(self.run_mode)
-        log_show_layout1.addWidget(self.usb_status)
         log_show_layout1.addWidget(self.can_status)
-        log_show_layout1.addWidget(self.flash_status)
         log_show_layout1.addWidget(self.encode_status)
 
         log_show_layout2.addWidget(self.voltage)

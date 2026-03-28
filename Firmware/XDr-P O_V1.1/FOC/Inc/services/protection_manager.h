@@ -37,7 +37,6 @@ typedef struct
     eWarning warning;
     bool fault_flag;
     bool warning_flag;
-    bool log_done;
     float maxcurrent;
     float maxomega;
     float minposition;

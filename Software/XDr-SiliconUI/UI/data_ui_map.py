@@ -61,29 +61,29 @@ class Pidx:
 # 日志映射表 - 对应下位机日志索引
 # ============================
 class Lidx:
-    num                = 0   # 序号
-    time               = 1   # 发生时间
-    fault              = 2   # 错误
-    warning            = 3   # 警告
-    sensor_mode        = 4   # 感应模式
-    run_mode           = 5   # 运行模式
-    usb_status         = 6   # USB状态
-    can_status         = 7   # CAN状态
-    flash_status       = 8   # 闪存状态
-    encode_status      = 9   # 编码状态
-    voltage            = 10  # 电压
-    temperature        = 11  # 温度
-    iu                 = 12  # 相电流 U
-    iv                 = 13  # 相电流 V
-    iw                 = 14  # 相电流 W
-    id                 = 15  # d轴电流
-    id_ref             = 16  # d轴电流参考值
-    iq                 = 17  # q轴电流
-    iq_ref             = 18  # q轴电流参考值
-    speed              = 19  # 速度
-    target_speed       = 20  # 目标速度
-    position           = 21  # 位置
-    target_position    = 22  # 目标位置
+    num = 0 # 序号
+    time = 1 # 发生时间
+    fault = 2 # 错误
+    warning = 3 # 警告
+    sensor_mode = 4 # 感应模式
+    run_mode = 5 # 运行模式
+    can_status = 6 # CAN状态 
+    encode_status = 7 # 编码状态 
+    voltage = 8 # 电压 
+    temperature = 9 # 温度 
+    iu = 10 # 相电流 U 
+    iv = 11 # 相电流 V 
+    iw = 12 # 相电流 W 
+    id = 13 # d轴电流 
+    id_ref = 14 # d轴电流参考值 
+    iq = 15 # q轴电流 
+    iq_ref = 16 # q轴电流参考值 
+    speed = 17 # 速度 
+    target_speed = 18 # 目标速度 
+    position = 19 # 位置 
+    target_position = 20 # 目标位置 
+
+    log_num = 21 # 日志数量
 
 
 # ============================
@@ -305,9 +305,7 @@ class Data_UI_Map:
             Lidx.warning:              log_page.warning,
             Lidx.sensor_mode:          log_page.sensor_mode,
             Lidx.run_mode:             log_page.run_mode,
-            Lidx.usb_status:           log_page.usb_status,
             Lidx.can_status:           log_page.can_status,
-            Lidx.flash_status:         log_page.flash_status,
             Lidx.encode_status:        log_page.encode_status,
             Lidx.voltage:              log_page.voltage,
             Lidx.temperature:          log_page.temperature,

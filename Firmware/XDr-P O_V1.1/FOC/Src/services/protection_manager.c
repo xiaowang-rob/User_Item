@@ -23,7 +23,6 @@ void fProManagerInit()
     g_pro_manager.warning = NO_WARNING;
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;
-    g_pro_manager.log_done = false;
     g_pro_manager.maxcurrent = g_Param.limit_current;
     g_pro_manager.maxomega = g_Param.limit_omega;
     g_pro_manager.minposition = g_Param.limit_position_min;
@@ -46,7 +45,6 @@ void fProManagerReset()
     g_pro_manager.warning_flag = false;
     g_pro_manager.fault = NO_FAULT;
     g_pro_manager.warning = NO_WARNING;
-    g_pro_manager.log_done = false;
     fFOC_Init();
 }
 // 保护主循环
@@ -90,7 +88,7 @@ void fProManagerMainLoop()
     {
         if (g_foc.core->motor->Udc > MAX_Voltage)
             g_pro_manager.fault = OVER_VOLTAGE;
-        else
+        else if (g_foc.state == RUNNING) // 运行时再监测低压
             g_pro_manager.fault = LOW_VOLTAGE;
         g_pro_manager.fault_flag = true;
     }
@@ -153,11 +151,10 @@ void fProManagerMainLoop()
         }
     }
     //   B错误处理--日志模块还得优化
-    if ((g_pro_manager.fault_flag || g_pro_manager.warning_flag) && !g_pro_manager.log_done)
+    if (g_pro_manager.fault_flag || g_pro_manager.warning_flag)
     {
         fLogDataSave();
         fFOC_StateUpdate(FOC_FAULT);
-        //        fLogDataWrite();
-        g_pro_manager.log_done = true;
+        fLogDataWrite();
     }
 }

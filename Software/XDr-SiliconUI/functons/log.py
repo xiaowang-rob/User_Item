@@ -61,11 +61,9 @@ class LogManager:
         self.log_map[Lidx.warning].setText(Midx.warning_state[int(self.logs[index][Lidx.warning])])
         self.log_map[Lidx.sensor_mode].setText(Midx.sensor_mode[int(self.logs[index][Lidx.sensor_mode])])
         self.log_map[Lidx.run_mode].setText(Midx.run_mode[int(self.logs[index][Lidx.run_mode])])
-        self.log_map[Lidx.usb_status].setText(Midx.drive_state[int(self.logs[index][Lidx.usb_status])])
         self.log_map[Lidx.can_status].setText(Midx.drive_state[int(self.logs[index][Lidx.can_status])])
-        self.log_map[Lidx.flash_status].setText(Midx.drive_state[int(self.logs[index][Lidx.flash_status])])
         self.log_map[Lidx.encode_status].setText(Midx.drive_state[int(self.logs[index][Lidx.encode_status])])
-        for i in range(10, 23):
+        for i in range(Lidx.voltage, Lidx.log_num):
             val=str(f"{self.logs[index][i]:.3f}")
             self.log_map[i].setText(val)
 

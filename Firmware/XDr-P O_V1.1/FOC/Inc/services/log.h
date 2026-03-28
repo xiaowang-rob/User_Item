@@ -9,6 +9,9 @@
 #define Log_Sector_start 0
 #define Log_start_addr (u32)(LOG_Block * 0x00010000 + Log_Sector_start * 0x00001000)
 
+#define Log_Index_Sector_start 2
+#define Log_Index_start_addr (u32)(LOG_Block * 0x00010000 + Log_Index_Sector_start * 0x00001000)
+
 typedef struct
 {
     u32 log_addr;
@@ -45,7 +48,7 @@ typedef struct
 
 void fLogInit(void);
 void fLogDataSave(void);
-bool fLogDataWrite(void);
+void fLogDataWrite(void);
 bool fLogReadFlash(u8 *data, u8 *len);
 void fLogErase();
 
