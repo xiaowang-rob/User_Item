@@ -15,7 +15,6 @@
 /* 函数声明 */
 // 一般函数--大型函数 不经常调用
 u32 HAL_GetTick_us(void);
-float fSqrt(float x);
 
 // 内联函数--小函数 经常调用
 
@@ -25,12 +24,12 @@ static inline float CLAMP(float val, float min, float max)
     return (val < min) ? min : ((val > max) ? max : val);
 }
 // 快速绝对值
-__STATIC_FORCEINLINE float FABSF(float x)
+static inline float FABSF(float x)
 {
     return __builtin_fabsf(x);
 }
 // 快速符号函数
-__STATIC_FORCEINLINE float FSIGN(float x)
+static inline float FSIGN(float x)
 {
     return (x > 0.0f) - (x < 0.0f); // 分支消除
 }

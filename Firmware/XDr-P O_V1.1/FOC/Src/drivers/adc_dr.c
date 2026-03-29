@@ -16,9 +16,6 @@ static float g_cur_zero_v = 0;
 static float g_cur_zero_w = 0;
 
 static u16 sample_counter = 0;
-static float g_u_sum = 0;
-static float g_v_sum = 0;
-static float g_w_sum = 0;
 
 static float g_cur_u = 0;
 static float g_cur_v = 0;
@@ -55,14 +52,13 @@ static u8 g_temp_index = 0;
 //  * @brief ADC转换完成回调函数
 //  * @param hadc ADC句柄指针
 //  */
- void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
- {
-			return;
-     if (hadc->Instance == ADC1)
-     {
-
-     }
- }
+// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+// {
+//     return;
+//     if (hadc->Instance == ADC1)
+//     {
+//     }
+// }
 
 /**
  * @brief ADC数据采集初始化
@@ -75,7 +71,6 @@ void fAdcDrInit(void)
     HAL_ADC_Start_DMA(&hadc1, (u32 *)g_adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)g_adc2_buffer, 4);
 }
-
 
 /**
  * @brief ADC2采样触发

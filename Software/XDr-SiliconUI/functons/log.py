@@ -47,7 +47,7 @@ class LogManager:
         self.logs.append(new_log)
         index=new_log[Lidx.num]
 
-        item = QListWidgetItem("第  "+str(index)+"  条日志")
+        item = QListWidgetItem("第  "+str(index+1)+"  条日志")
         item.setData(Qt.UserRole, index)  # 存储序号到 item
         self.loglist.addItem(item)
         

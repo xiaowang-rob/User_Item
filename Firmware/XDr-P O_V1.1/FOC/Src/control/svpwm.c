@@ -58,6 +58,7 @@ void PWM_POWER_OFF()
     HAL_GPIO_WritePin(POWER12V_GPIOx, POWER12V_GPIOx_PIN, GPIO_PIN_RESET);
     svpwm.power_flag = false;
 }
+
 void fSvpwmRun(float ualpha, float ubeta)
 {
     // 反clark变换，不是标准的，只是为了方便判断扇区
@@ -140,7 +141,7 @@ void fSvpwmRun(float ualpha, float ubeta)
     {
     case 1: // V1(100), V2(110)
         svpwm.ticu = (u16)t2;
-				svpwm.ticv = (u16)t1;
+        svpwm.ticv = (u16)t1;
         svpwm.ticw = (u16)t0;
         break;
     case 2: // V2(110), V3(010)
@@ -151,7 +152,7 @@ void fSvpwmRun(float ualpha, float ubeta)
     case 3: // V3(010), V4(011)
         svpwm.ticu = (u16)t0;
         svpwm.ticv = (u16)t2;
-				svpwm.ticw = (u16)t1;
+        svpwm.ticw = (u16)t1;
         break;
     case 4: // V4(011), V5(001)
         svpwm.ticu = (u16)t0;
@@ -159,7 +160,7 @@ void fSvpwmRun(float ualpha, float ubeta)
         svpwm.ticw = (u16)t2;
         break;
     case 5: // V5(001), V6(101)
-				svpwm.ticu = (u16)t1;
+        svpwm.ticu = (u16)t1;
         svpwm.ticv = (u16)t0;
         svpwm.ticw = (u16)t2;
         break;
@@ -189,8 +190,8 @@ void fSamplePointCalibration()
     {
     case 0:
     case 7:
-        tic_ref = ticpwm/2; 
-				goto evaluate;
+        tic_ref = ticpwm / 2;
+        goto evaluate;
         break;
     case 1:
     case 6:
@@ -224,12 +225,12 @@ evaluate:
     switch (change_Index)
     {
     case 1:
-//        fAdcSampleChange(ticpwm - 1);
-				fAdcSampleChange(tic_ref - ticTs);
+        //        fAdcSampleChange(ticpwm - 1);
+        fAdcSampleChange(tic_ref - ticTs);
         break;
     case 2:
-//        fAdcSampleChange(tic_ref + ticTs);
-		fAdcSampleChange(tic_ref - ticTs);
+        //        fAdcSampleChange(tic_ref + ticTs);
+        fAdcSampleChange(tic_ref - ticTs);
         break;
     case 3:
         // 确保减后不溢出（可根据实际需求加限幅）

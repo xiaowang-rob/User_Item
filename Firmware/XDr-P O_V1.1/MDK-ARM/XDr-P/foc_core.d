@@ -41,4 +41,4 @@
   ..\FOC\Config\drive_parameters.h ..\FOC\Inc\utils\filter.h \
   ..\FOC\Inc\services\protection_manager.h \
   ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
-  ..\FOC\Inc\communication\DataMonitoring.h
+  ..\FOC\Inc\communication\DataMonitoring.h ..\FOC\Inc\control\hfi.h

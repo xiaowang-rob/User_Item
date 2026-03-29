@@ -11,7 +11,7 @@
 
 eSystemStatus system_status = SYSTEM_INIT;
 
-bool _SystemInitEvent(void)
+static bool _SystemInitEvent(void)
 {
     /*
     这里的顺序不能乱，因为里面有一些初始化函数，如果顺序不对，会导致一些变量没有初始化，导致程序出错
@@ -53,8 +53,8 @@ void SystemStateMachine_MainLoop(void)
             fSystemStateUpdata(SYSTEM_ERROR);
         break;
     case SYSTEM_RUNNING:
-				//	编码器主循环
-				fEncoderMainLoopTask();
+        //	编码器主循环
+        fEncoderMainLoopTask();
         // 通讯层运行
         fCommunicateMainLoop();
         // 控制层由定时器驱动

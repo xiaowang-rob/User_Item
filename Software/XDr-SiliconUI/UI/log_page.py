@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout,QListWidget
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from siui.components.button import (
     SiLongPressButtonRefactor,
     SiPushButtonRefactor,
@@ -42,6 +43,7 @@ class LogPage():
 
         
         self.log_list = QListWidget()
+        self.log_list.setFont(QFont("Microsoft YaHei", 18))
         self.log_list.setStyleSheet("""
             background-color: #332E38;
             border-radius: 12px;  

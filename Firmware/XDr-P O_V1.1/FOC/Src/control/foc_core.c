@@ -10,6 +10,7 @@
 #include "drive_parameters.h"
 #include "filter.h"
 #include "protection_manager.h"
+#include "hfi.h"
 
 tFOC_Mode foc_mode = {0};
 tFOC_val foc_val = {0};
@@ -27,7 +28,7 @@ static tFirstOrderLagFilter _omega_filter;
 #define SPEED_FILTER_alpha 0.04f
 
 // 启动器初始化
-void _trajectory_init(tParameter param)
+static void _trajectory_init(tParameter param)
 {
     tTraj_Config traj_cfg;
     traj_cfg.max_rate = param.traj_max_rate;
@@ -39,7 +40,7 @@ void _trajectory_init(tParameter param)
 }
 
 // 模式初始化
-void _mode_init(tParameter param)
+static void _mode_init(tParameter param)
 {
     fFOC_SetSensorMode(param.sensor_mode);
     foc_mode.runmode = param.run_mode;
@@ -48,7 +49,7 @@ void _mode_init(tParameter param)
 }
 
 // 电机参数初始化
-void _motor_init(tParameter param)
+static void _motor_init(tParameter param)
 {
     Motor.mech_offect = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
@@ -60,11 +61,10 @@ void _motor_init(tParameter param)
     Motor.Ke = param.motor_ke;
     Motor.J = param.motor_j;
     Motor.B = param.motor_b;
-    fSMO_Init(&Motor);
 }
 
 // 滤波器初始化
-void _filter_init(void)
+static void _filter_init(void)
 {
     fFirstOrderLagInit(&_ialpha_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
     fFirstOrderLagInit(&_ibeta_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
@@ -81,11 +81,13 @@ void fFOC_CoreInit(void)
     _trajectory_init(g_Param);
     fFOC_CoreReset();
     _mode_init(g_Param);
+			HFI_Init();
+	    fSMO_Init(&Motor);	
     _filter_init();
 }
 
 // 重置FOC中间变量
-void _FocValReset(void)
+static inline void _FocValReset(void)
 {
     memset(&foc_val, 0, sizeof(tFOC_val));
 }
@@ -104,7 +106,7 @@ void fFOC_CoreReset(void)
 }
 
 // 电流重构：根据扇区将线电流转换为相电流
-void Current_reconstruction(void)
+static inline void _Current_reconstruction(void)
 {
     float ui, vi, wi;
     fAdcGetCurrent(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
@@ -143,7 +145,7 @@ void fFOC_ValueUpdate(void)
 {
     fFrequencyDivisionUpdate();
     fAdcGetVoltage(&Motor.Udc);
-    Current_reconstruction();
+    _Current_reconstruction();
 
     switch (foc_mode.sensor_mode)
     {
@@ -158,7 +160,14 @@ void fFOC_ValueUpdate(void)
         break;
 
     case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
-        fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
+//        if (0 != HFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
+//        { // todo:使能之后 直接跑电压环
+//            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
+//            break;
+//        }
+        // todo:这里以电角速度划分区间：低速纯HFI HFI+SMO过渡 高速SMO
+        HFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
+        // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
         break;
     case MERGE_CONTROL:
         fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
@@ -198,7 +207,7 @@ void fFOC_MainLoopTask(void)
         foc_val.iq_ref = fSpeedLoopUpdate(foc_val.rpm_ref, foc_val.rpm_fb);
         if (foc_mode.weak_mag)
         {
-            if (foc_val.rpm_fb > 30.0f) // todo:改为判断其电压饱和
+            if (foc_val.rpm_fb > 70)
                 foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
             else
                 foc_val.id_ref = 0;
@@ -207,10 +216,10 @@ void fFOC_MainLoopTask(void)
         if (!loop_con.fd.current_update)
             break;
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
-        //foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-        //foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-				foc_val.uq =foc_val.iq_ref;//调试
-				foc_val.ud=0;
+        // foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
+        // foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        foc_val.uq = foc_val.iq_ref; // 调试
+        foc_val.ud = 0;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 
@@ -218,7 +227,7 @@ void fFOC_MainLoopTask(void)
         break;
     }
 
-    fSvpwmRun(foc_val.Ualpha, foc_val.Ubeta);
+    fSvpwmRun(foc_val.Ualpha + foc_val.Ualpha_hfi, foc_val.Ubeta + foc_val.Ubeta_hfi);
     fSamplePointCalibration();
 }
 
@@ -291,17 +300,18 @@ bool fFOC_Shutdown(void)
 {
     if (fabsf(foc_val.rpm_fb) < 0.1f)
         return true;
-    // todo:完善不同模式下的停机方式
     if (foc_mode.runmode != SPEED_MODE)
         fFOC_SetRunMode(SPEED_MODE);
     float omega_shutdown = -foc_val.rpm_fb * 0.5f;
     fFOC_SetTargetValue(&omega_shutdown);
     return false;
 }
+// 设置位置零点
 void fFOC_SetZeroPOS()
 {
     fSetEncoderAngleZero();
 }
+// 设置限位位置
 void fFOC_SetLimitPOS()
 {
     if (foc_val.pos_fb > 0)

@@ -41,6 +41,7 @@ typedef struct
     float iq_fb, id_fb;
     float ud, uq;
     float Ualpha, Ubeta;
+    float Ualpha_hfi, Ubeta_hfi;
     float rpm_ref;
     float rpm_fb;
     float pos_ref;

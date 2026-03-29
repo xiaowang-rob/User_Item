@@ -10,7 +10,7 @@
 tDeviceStatus g_device_status = {.encoder_state = ONLINE};
 tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
 // 容忍度检测
-bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)
+static bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)
 {
     if (value > max_value * tolerance || value < min_value / tolerance)
         return true;

@@ -50,10 +50,12 @@ void fStreamDataGet(Data_stream_e stream, float *data)
         *data = g_foc.core->foc_val->ud;
         break;
     case CURRENT_alpha:
-        *data = g_foc.core->foc_val->Ialpha;
+        //*data = g_foc.core->foc_val->Ialpha;
+		*data = g_foc.core->foc_val->Ualpha_hfi;
         break;
     case CURRENT_beta:
-        *data = g_foc.core->foc_val->Ibeta;
+        //*data = g_foc.core->foc_val->Ibeta;
+		*data = g_foc.core->foc_val->Ubeta_hfi;
         break;
     case CURRENT_q:
         *data = g_foc.core->foc_val->iq_fb;
