@@ -93,6 +93,8 @@ static void ENCODER_StartReg4Read(void)
 /* ========== 数据处理 ========== */
 static void ENCODER_ProcessData(void)
 {
+    g_device_status.encoder_state = RUNNING;
+
     u32 current_time = HAL_GetTick();
     u32 time_diff = current_time - encoder.last_time;
 
@@ -102,10 +104,6 @@ static void ENCODER_ProcessData(void)
         g_device_status.encoder_state = OFFLINE;
         encoder.state = ENCODER_STATE_START_READ;
         return;
-    }
-    else if (g_device_status.encoder_state == OFFLINE)
-    {
-        g_device_status.encoder_state = RUNNING;
     }
     // 奇偶校验
     bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
@@ -129,7 +127,6 @@ static void ENCODER_ProcessData(void)
     else
     {
         valid = CLAMP(valid - 1, 0, 110);
-        g_device_status.encoder_state = RUNNING;
     }
 
     // 解析 14 位角度值

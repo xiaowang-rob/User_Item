@@ -161,7 +161,14 @@ void fRGB_Breathe(tRGBColor Color)
         breath_idx++;
     }
 }
-
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == RGB_PWM_GET_HTIM.Instance)
+    {
+        dma_done = true;
+        HAL_TIM_PWM_Stop_DMA(htim, RGB_PWM_CHANNEL1);
+    }
+}
 /* ========== GPIO LED ========== */
 void fLED_CanTogglePin(void)
 {
@@ -181,35 +188,44 @@ void fLED_Show(eLED_State can_state, eLED_State encoder_state)
     uint32_t now = HAL_GetTick();
     uint32_t elapsed = now - led_base_time;
 
-    if (elapsed >= 500)
+    if (elapsed >= 300)
     {
-        switch (can_state)
+        if (!half_blink_flag)
         {
-        case LED_OFF:
-            HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
-            break;
-        case LED_ON:
-            HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
-            break;
-        default:
-            fLED_CanTogglePin();
-            break;
+            if (can_state == LED_FAST_BLINK)
+                fLED_CanTogglePin();
+            if (encoder_state == LED_FAST_BLINK)
+                fLED_EncoderTogglePin();
+            half_blink_flag = true;
         }
-        led_base_time = now;
-        half_blink_flag = false;
-    }
-
-    if (encoder_state == LED_FAST_BLINK && elapsed >= 200 && !half_blink_flag)
-    {
-        fLED_EncoderTogglePin();
-        half_blink_flag = true;
-    }
-}
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == RGB_PWM_GET_HTIM.Instance)
-    {
-        dma_done = true;
-        HAL_TIM_PWM_Stop_DMA(htim, RGB_PWM_CHANNEL1);
+        if (elapsed > 600)
+        {
+            switch (can_state)
+            {
+            case LED_OFF:
+                HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_RESET);
+                break;
+            case LED_ON:
+                HAL_GPIO_WritePin(LED_CANrx_GPIOx, LED_CANrx_GPIOx_PIN, GPIO_PIN_SET);
+                break;
+            default:
+                fLED_CanTogglePin();
+                break;
+            }
+            switch (encoder_state)
+            {
+            case LED_OFF:
+                HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_RESET);
+                break;
+            case LED_ON:
+                HAL_GPIO_WritePin(LED_ENCODER_GPIOx, LED_ENCODER_GPIOx_PIN, GPIO_PIN_SET);
+                break;
+            default:
+                fLED_EncoderTogglePin();
+                break;
+            }
+            led_base_time = now;
+            half_blink_flag = false;
+        }
     }
 }

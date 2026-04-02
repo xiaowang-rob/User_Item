@@ -22,12 +22,14 @@ const u8 failure = FEEDBACK_ERROR;
 static u8 Noresponse_tic = 0; // 无响应次数
 static bool system_message_send_flag = false;
 
+// 通讯层初始化
 void fCommunicateInit()
 {
     fCAN_PortInit(g_Param.can_id, g_Param.sw_canqueue);
     fUartPortInit();
     g_com_state.Host_port = NONE_port;
 }
+// 上位机发送 缓存中的数据
 void fHostComputer_send()
 {
     if (com_frame.com_port == UART_port)
@@ -39,9 +41,10 @@ void fHostComputer_send()
         com_frame.stream_num = 0;
     }
 }
+// 参数发送
 static bool param_send_flag = false;
 static u8 param_index = 0;
-void _all_params_send()
+static inline void _all_params_send()
 {
     fParamGet((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
@@ -54,16 +57,17 @@ void _all_params_send()
         param_send_flag = false;
     }
 }
+// 日志发送
 static bool log_send_flag = false;
-void _all_log_send()
+static inline void _all_log_send()
 {
     if (fLogReadFlash(com_frame.txdata, &com_frame.txdatalen))
         log_send_flag = false;
     else
         fHostComputer_send();
 }
-
-void _status_send()
+// 状态发送
+static inline void _status_send()
 {
     com_frame.cmd_id = UC_connect;
     if (system_message_send_flag == false)
@@ -93,7 +97,7 @@ void _status_send()
 static u8 data_id = 0;
 static float value_ref[2];
 // 命令解析
-void _frame_data_deal()
+static void _frame_data_deal()
 {
     if (com_frame.com_port == CAN_port)
     {

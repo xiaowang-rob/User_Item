@@ -19,7 +19,7 @@ MT6816---1
 #define RGB_PWM_GET_HTIM (htim4)
 #define RGB_PWM_CHANNEL1 TIM_CHANNEL_2
 #define Pixel_NUM 2 // RGB数量宏定义
-#define CODE_1 (75) 
+#define CODE_1 (75)
 #define CODE_0 (35)
 
 #define LED_ENCODER_GPIOx GPIOD
@@ -35,6 +35,7 @@ MT6816---1
 #define POWER12V_GPIOx GPIOB
 #define POWER12V_GPIOx_PIN GPIO_PIN_11
 
+// 外设状态
 typedef enum
 {
     OFFLINE,

@@ -35,6 +35,7 @@ void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
 {
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
+    g_device_status.can_state = ONLINE;
 
     /* 配置CAN过滤器 */
     CAN_FilterTypeDef sFilterConfig;
@@ -59,10 +60,6 @@ void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
         g_device_status.can_state = OFFLINE;
-    }
-    else
-    {
-        g_device_status.can_state = ONLINE;
     }
 
     /* 启动CAN外设 */
@@ -106,6 +103,7 @@ void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE)
 
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
+    g_device_status.can_state = ONLINE;
 
     /* 配置CAN过滤器（参数同初始化函数） */
     CAN_FilterTypeDef sFilterConfig;
@@ -128,10 +126,6 @@ void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE)
     if (HAL_CAN_ConfigFilter(&hcan2, &sFilterConfig) != HAL_OK)
     {
         g_device_status.can_state = OFFLINE;
-    }
-    else
-    {
-        g_device_status.can_state = ONLINE;
     }
 
     /* 重启CAN外设 */
@@ -168,6 +162,8 @@ void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE)
  */
 bool fCAN_SendData(u8 *msg, u8 len)
 {
+    g_device_status.can_state = RUNNING;
+
     u8 i = 0;
     u8 message[8];                    // 本地发送缓冲区（CAN数据帧最大8字节）
     u32 TxMailbox;                    // 实际使用的发送邮箱编号
@@ -231,6 +227,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     /* 从FIFO0读取消息 */
     if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &CAN_RxHeader, RxData) == HAL_OK)
     {
+        g_device_status.can_state = RUNNING;
         /* 仅处理匹配本节点ID的标准数据帧 */
         if (CAN_RxHeader.StdId == can.id)
         {
@@ -261,16 +258,11 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     {
         /* 接收失败：增加错误计数 */
         can.err_count += 5;
-    }
-
-    /* 根据错误计数更新设备状态 */
-    if (can.err_count >= 50)
-    {
-        g_device_status.can_state = RUN_ERROR;
-    }
-    else
-    {
-        g_device_status.can_state = RUNNING;
+        /* 根据错误计数更新设备状态 */
+        if (can.err_count >= 50)
+        {
+            g_device_status.can_state = RUN_ERROR;
+        }
     }
 }
 

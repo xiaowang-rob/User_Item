@@ -27,6 +27,8 @@
 #define CMD_SET_ZERO_POS 0x26  // 设置零点
 #define CMD_SET_LIMIT_POS 0x27 // 设置极限位置
 
+#define CMD_HANDSHAKE 0x28 // CAN握手
+
 #define CMD_SYSTEM_RESET 0x30 // 系统复位
 
 #define CMD_IAP_ENTER 0x31 // 进入IAP模式 进入开始固件烧录确认

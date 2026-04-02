@@ -50,10 +50,10 @@ void fStatusFeedbackMainLoop()
         encoder_state = LED_ON;
         break;
     case RUN_ERROR:
-        encoder_state = LED_SLOW_BLINK;
+        encoder_state = LED_FAST_BLINK;
         break;
     case RUNNING:
-        encoder_state = LED_FAST_BLINK;
+        encoder_state = LED_SLOW_BLINK;
         break;
     default:
         break;

@@ -7,7 +7,7 @@
 时间用ms
 */
 #define Description "XDr-P"
-#define VERSION "O_V1.1_260328"
+#define VERSION "O_V1.1_260331"
 #define AUTHOR "xiaowang"
 #define MAX_CURRENT_string "100"
 #define Voltage_string "20-30"
