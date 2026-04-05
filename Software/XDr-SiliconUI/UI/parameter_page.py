@@ -353,7 +353,7 @@ class ParameterPage():
         self.motor_polepairs_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.motor_polepairs_input.setTitleFixedWidth(title_W) 
         self.motor_polepairs_input.setAlignment(Qt.AlignCenter) 
-        self.motor_polepairs_input.setTitle("电机极数")
+        self.motor_polepairs_input.setTitle("电机极对数")
         self.motor_polepairs_input.setText("7")
 
         self.motor_KV_input=SiCapsuleLineEdit()
@@ -455,7 +455,7 @@ class ParameterPage():
         self.f_pwm.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.f_pwm.setTitleFixedWidth(drive_title_W) 
         self.f_pwm.setAlignment(Qt.AlignCenter) 
-        self.f_pwm.setTitle("PWM频率/Hz")
+        self.f_pwm.setTitle("基频/Hz")
         self.f_pwm.setText("20000")
 
         self.f_current_loop=SiCapsuleLineEdit()
