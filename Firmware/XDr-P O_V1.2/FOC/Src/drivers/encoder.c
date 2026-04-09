@@ -130,7 +130,7 @@ static void ENCODER_ProcessData(void)
     }
 
     // 解析 14 位角度值
-    encoder.angle_raw = data_bits >> 1;
+    encoder.angle_raw = (data_bits >> 1);
     // 角度计算
     encoder.angle_abs = (float)encoder.angle_raw * 0.02197265625f; // 2^14 = 16384
 

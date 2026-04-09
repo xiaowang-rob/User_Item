@@ -81,8 +81,8 @@ void fFOC_CoreInit(void)
     _trajectory_init(g_Param);
     fFOC_CoreReset();
     _mode_init(g_Param);
-			HFI_Init();
-	    fSMO_Init(&Motor);	
+    HFI_Init();
+    fSMO_Init(&Motor);
     _filter_init();
 }
 
@@ -109,34 +109,63 @@ void fFOC_CoreReset(void)
 static inline void _Current_reconstruction(void)
 {
     float ui, vi, wi;
-    fAdcGetCurrent(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
+    // fAdcGetCurrent(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
+    // switch (fSvpwmGetSector())
+    // {
+    // case 1:
+    // case 6:
+    //     ui = -foc_val.Iv - foc_val.Iw;
+    //     vi = foc_val.Iv;
+    //     wi = foc_val.Iw;
+    //     break;
+    // case 2:
+    // case 3:
+    //     ui = foc_val.Iu;
+    //     vi = -foc_val.Iu - foc_val.Iw;
+    //     wi = foc_val.Iw;
+    //     break;
+    // case 4:
+    // case 5:
+    //     ui = foc_val.Iu;
+    //     vi = foc_val.Iv;
+    //     wi = -foc_val.Iu - foc_val.Iv;
+    //     break;
+    // default:
+    //     ui = foc_val.Iu;
+    //     vi = foc_val.Iv;
+    //     wi = foc_val.Iw;
+    //     break;
+    // }
+    //  fClarkTransform(ui, vi, wi, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+
+    fAdcGetCurrent(&ui, &vi, &wi);
     switch (fSvpwmGetSector())
     {
     case 1:
     case 6:
-        ui = foc_val.Iv + foc_val.Iw;
-        vi = -foc_val.Iv;
-        wi = -foc_val.Iw;
+        foc_val.Iu = vi + wi;
+        foc_val.Iv = -vi;
+        foc_val.Iw = -wi;
         break;
     case 2:
     case 3:
-        ui = -foc_val.Iu;
-        vi = foc_val.Iu + foc_val.Iw;
-        wi = -foc_val.Iw;
+        foc_val.Iu = -ui;
+        foc_val.Iv = ui + wi;
+        foc_val.Iw = -wi;
         break;
     case 4:
     case 5:
-        ui = -foc_val.Iu;
-        vi = -foc_val.Iv;
-        wi = foc_val.Iu + foc_val.Iv;
+        foc_val.Iu = -ui;
+        foc_val.Iv = -vi;
+        foc_val.Iw = ui + vi;
         break;
     default:
-        ui = foc_val.Iu;
-        vi = -foc_val.Iv;
-        wi = -foc_val.Iw;
+        foc_val.Iu = ui;
+        foc_val.Iv = vi;
+        foc_val.Iw = wi;
         break;
     }
-    fClarkTransform(ui, vi, wi, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+    fClarkTransform(foc_val.Iu, foc_val.Iv, foc_val.Iw, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
     foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, foc_val.Ialpha_im);
     foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, foc_val.Ibeta_im);
 }
@@ -160,11 +189,11 @@ void fFOC_ValueUpdate(void)
         break;
 
     case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
-//        if (0 != HFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
-//        { // todo:使能之后 直接跑电压环
-//            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
-//            break;
-//        }
+                             //        if (0 != HFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
+                             //        { // todo:使能之后 直接跑电压环
+                             //            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
+                             //            break;
+                             //        }
         // todo:这里以电角速度划分区间：低速纯HFI HFI+SMO过渡 高速SMO
         HFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
         // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);

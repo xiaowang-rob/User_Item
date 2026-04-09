@@ -19,11 +19,16 @@ static u16 ADC_VAL_ZERO_U = 0;
 static u16 ADC_VAL_ZERO_V = 0;
 static u16 ADC_VAL_ZERO_W = 0;
 
-static u16 sample_counter = 0;
+volatile static u16 sample_counter = 0;
 
 static u16 adc1_buffer[3];
 static u8 adc2_buffer[2];
 
+volatile static bool is_adc_init = false;
+static float Vbus = 0;
+static float Tempture = 0;
+
+// clang-format off
 /* 温度转换查找表 */
 static const uint8_t g_adc_to_temp[256] = {
 120, 120, 120, 120, 120, 120, 120, 120, 120, 115, 110, 106, 102,  99,  96,  93,
@@ -42,6 +47,7 @@ static const uint8_t g_adc_to_temp[256] = {
   9,   9,   9,   9,   9,   9,   8,   8,   8,   8,   8,   8,   8,   8,   7,   7,
   7,   7,   7,   7,   7,   7,   7,   6,   6,   6,   6,   6,   6,   6,   6,   6,
   5,   5,   5,   5,   5,   5,   5,   5,   5,   4,   4,   4,   4,   4,   4,   4,};
+// clang-format on
 
 static u32 sample_time_prev_ms = 0;
 
@@ -49,13 +55,16 @@ static u32 sample_time_prev_ms = 0;
 //  * @brief ADC转换完成回调函数
 //  * @param hadc ADC句柄指针
 //  */
-// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-// {
-//     return;
-//     if (hadc->Instance == ADC1)
-//     {
-//     }
-// }
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC2)
+    {
+        Vbus = adc2_buffer[0] * ADC_VAL_TO_VOL_FACTOR;
+        u8 adc_eq = adc2_buffer[1] * 24.0f / (Vbus - 0.3f) + 0.5f;
+        Tempture = g_adc_to_temp[adc_eq];
+        is_adc_init = true;
+    }
+}
 
 /**
  * @brief ADC数据采集初始化
@@ -66,7 +75,9 @@ void fAdcDrInit(void)
     HAL_TIM_Base_Start_IT(&htim8);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)adc1_buffer, 3);
-    HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 4);
+    HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
+    while (!is_adc_init)
+        ;
 }
 
 /**
@@ -77,7 +88,7 @@ void fAdc2Sample(void)
     if (HAL_GetTick() - sample_time_prev_ms < TEMP_VBUS_TS_MS)
         return;
     sample_time_prev_ms = HAL_GetTick();
-    HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 4);
+    HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
 }
 
 /**
@@ -90,10 +101,10 @@ void fAdcGetCurrent(float *ui, float *vi, float *wi)
 {
     if (g_calibration_flag)
     {
-        adc_zero_u += (float)adc1_buffer[0] * 0.001;
-        adc_zero_v += (float)adc1_buffer[1] * 0.001;
-        adc_zero_w += (float)adc1_buffer[2] * 0.001;
-        if (++sample_counter >= 1000)
+        adc_zero_u += (float)adc1_buffer[0] * 0.01;
+        adc_zero_v += (float)adc1_buffer[1] * 0.01;
+        adc_zero_w += (float)adc1_buffer[2] * 0.01;
+        if (++sample_counter >= 100)
         {
             ADC_VAL_ZERO_U = (u16)(adc_zero_u + 0.5f);
             ADC_VAL_ZERO_V = (u16)(adc_zero_v + 0.5f);
@@ -104,6 +115,7 @@ void fAdcGetCurrent(float *ui, float *vi, float *wi)
             sample_counter = 0;
             g_calibration_flag = false;
         }
+        *ui = *vi = *wi = 0.0f;
     }
     else
     { // 计算校准后的电流值
@@ -128,7 +140,7 @@ void fAdcSampleChange(u16 compare)
  */
 void fAdcGetVoltage(float *voltage)
 {
-    *voltage = adc2_buffer[0] * ADC_VAL_TO_VOL_FACTOR;
+    *voltage = Vbus;
 }
 
 /**
@@ -140,6 +152,5 @@ void fAdcGetVoltage(float *voltage)
  */
 void fAdcGetTemp(float *temperature)
 {
-    u8 adc_eq = adc2_buffer[1] * 24.0f / ADC_VAL_TO_VOL_FACTOR / adc2_buffer[0];
-    *temperature = g_adc_to_temp[adc_eq];
+    *temperature = Tempture;
 }

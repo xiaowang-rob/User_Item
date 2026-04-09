@@ -47,17 +47,9 @@ void fFOC_Init()
 {
     fFOC_CoreInit();
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
-	  g_foc.foc_enable = false;
+    g_foc.foc_enable = false;
     DISABLE_PWM();
-    if (g_calibration_flag)
-    {
-        g_foc.state = FOC_ENABLE;
-        while (g_calibration_flag)
-            ;
-        g_foc.state = FOC_DISABLE;
-    }
-    else
-        g_foc.state = FOC_IDLE;
+    g_foc.state = FOC_IDLE;
     fFOC_CoreInit();
 }
 
@@ -85,6 +77,7 @@ void fFOC_StateMachineMainLoop()
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
+        g_calibration_flag = true;
         fFOC_CoreReset();
         ENABLE_PWM();
         fFOC_StateUpdate(FOC_RUNNING);

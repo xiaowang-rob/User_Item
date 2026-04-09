@@ -18,18 +18,20 @@ void fSvpwmInit(float Vbus)
     memset(&svpwm, 0, sizeof(tSvpwm));
     svpwm.k = MATH_SQRT3 * (float)ticpwm / Vbus;
     DISABLE_PWM();
+
+    PWM_POWER_ON();
 }
 
 __STATIC_INLINE void pwm_out()
 {
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticu);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, svpwm.ticw);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, svpwm.ticv);
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticw);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, svpwm.ticu);
 }
 
 void ENABLE_PWM()
 {
-    PWM_POWER_ON();
+    //    PWM_POWER_ON();
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
@@ -40,7 +42,7 @@ void ENABLE_PWM()
 }
 void DISABLE_PWM()
 {
-    PWM_POWER_OFF();
+    //    PWM_POWER_OFF();
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_3);

@@ -37,7 +37,7 @@ MT6816---1
 
 /*USB cs pin*/
 #define USB_CS_GPIOx GPIOA
-#define USB_CS_GPIOx_PIN GPIO_PIN_14
+#define USB_CS_GPIOx_PIN GPIO_PIN_8
 
 // 外设状态
 typedef enum

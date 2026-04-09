@@ -87,10 +87,15 @@ void fProManagerMainLoop()
     if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
     {
         if (g_foc.core->motor->Udc > MAX_Voltage)
+        {
             g_pro_manager.fault = OVER_VOLTAGE;
+            g_pro_manager.fault_flag = true;
+        }
         else if (g_foc.state == RUNNING) // 运行时再监测低压
+        {
             g_pro_manager.fault = LOW_VOLTAGE;
-        g_pro_manager.fault_flag = true;
+            g_pro_manager.fault_flag = true;
+        }
     }
     // 3.电流过大
     if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
