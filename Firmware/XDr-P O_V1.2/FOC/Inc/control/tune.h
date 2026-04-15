@@ -79,6 +79,7 @@ typedef struct
         float v_cmd;
         u16 hold_cnt;
         u16 step_ticks;
+        u8 tick_step;
         u8 step;
     } rs_ctx;
 

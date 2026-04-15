@@ -19,12 +19,18 @@ tMotor Motor = {0};
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .motor = &Motor};
 
 /* 滤波器实例 */
+static tFirstOrderLagFilter _i_u_filter;
+static tFirstOrderLagFilter _i_v_filter;
+static tFirstOrderLagFilter _i_w_filter;
+
 static tFirstOrderLagFilter _ialpha_filter;
 static tFirstOrderLagFilter _ibeta_filter;
 
 static tFirstOrderLagFilter _omega_filter;
 
-#define CCURRENT_FILTER_alpha 0.13f
+#define CURRENT_ORIGIN_FILTER_alpha 0.36f
+
+#define CURRENT_FILTER_alpha 0.6f
 #define SPEED_FILTER_alpha 0.04f
 
 // 启动器初始化
@@ -66,8 +72,12 @@ static void _motor_init(tParameter param)
 // 滤波器初始化
 static void _filter_init(void)
 {
-    fFirstOrderLagInit(&_ialpha_filter, CCURRENT_FILTER_alpha, foc_val.Ialpha);
-    fFirstOrderLagInit(&_ibeta_filter, CCURRENT_FILTER_alpha, foc_val.Ibeta);
+    fFirstOrderLagInit(&_i_u_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iu);
+    fFirstOrderLagInit(&_i_v_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iv);
+    fFirstOrderLagInit(&_i_w_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iw);
+
+    fFirstOrderLagInit(&_ialpha_filter, CURRENT_FILTER_alpha, foc_val.Ialpha);
+    fFirstOrderLagInit(&_ibeta_filter, CURRENT_FILTER_alpha, foc_val.Ibeta);
     fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.rpm_fb);
 }
 
@@ -139,6 +149,9 @@ static inline void _Current_reconstruction(void)
     //  fClarkTransform(ui, vi, wi, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
 
     fAdcGetCurrent(&ui, &vi, &wi);
+    ui = fFirstOrderLagFilter(&_i_u_filter, ui);
+    vi = fFirstOrderLagFilter(&_i_v_filter, vi);
+    wi = fFirstOrderLagFilter(&_i_w_filter, wi);
     switch (fSvpwmGetSector())
     {
     case 1:
@@ -166,6 +179,9 @@ static inline void _Current_reconstruction(void)
         break;
     }
     fClarkTransform(foc_val.Iu, foc_val.Iv, foc_val.Iw, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+
+    // foc_val.Ialpha = foc_val.Ialpha_im;
+    // foc_val.Ibeta = foc_val.Ibeta_im;
     foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, foc_val.Ialpha_im);
     foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, foc_val.Ibeta_im);
 }
@@ -245,10 +261,10 @@ void fFOC_MainLoopTask(void)
         if (!loop_con.fd.current_update)
             break;
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
-        // foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
-        // foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-        foc_val.uq = foc_val.iq_ref; // 调试
-        foc_val.ud = 0;
+        foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
+        foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
+        //       foc_val.uq = foc_val.iq_ref; // 调试
+        //       foc_val.ud = 0;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 

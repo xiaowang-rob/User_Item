@@ -8,34 +8,34 @@
 tMotorParams motor_params = {0};
 tTuneContext g_tune_ctx = {0};
 
-tFirstOrderLagFilter rs_i_filter = {0};
-#define rS_I_FILTER_ALPHA 0.3f
-
 /* ================================= 整定参数配置 ================================= */
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
 #define TICK_TO_MS(tick) ((tick) * 0.05f)
 #define MS_TO_TICK(ms) ((u16)((ms) * 20.0f))
 
+#define TUNE_WAIT_TICKS MS_TO_TICK(1000) // 先静止等待时间 (1s)
+
 // 电阻整定 (滞环电流控制 + 滤波 + 差分)
-#define RS_TIMEOUT_TICKS 10000  // 整定超时时间 (500ms)
-#define RS_I_TARGET_1 2.0f      // 第一点目标电流 (A)
-#define RS_I_TARGET_2 6.0f      // 第二点目标电流 (A)
-#define RS_HYST_BAND 1.5f       // 滞环带宽 ±1.5A
-#define RS_V_LIMIT 2.0f         // 电压输出限幅 (V)
-#define RS_V_HOLD_MAX_TICKS 5   // 误差带内保持最大周期数 (防静差)
-#define RS_V_STEP_MIN 0.01f     // 保持超时后微调步长 (V)
-#define RS_STEADY_ERR_THR 0.1f  // 稳态电流误差阈值 (A)
-#define RS_STEADY_TICKS 150     // 稳态持续周期数 (7.5ms@20kHz)
-#define RS_TRACK_TIMEOUT 800    // 单点跟踪超时 (40ms)
-#define RS_MIN_DELTA_I 2.0f     // 最小电流变化量 (A)
-#define RS_RANGE_MIN 0.02f      // 电阻合理下限 (Ω)
-#define RS_RANGE_MAX 0.5f       // 电阻合理上限 (Ω)
-#define RS_DEADTIME_VCOMP 0.04f // 死区补偿电压 (V)
+#define RS_FREQ_F 10                     // 电阻整定分频系数
+#define RS_TIMEOUT_TICKS MS_TO_TICK(500) // 整定超时时间 (500ms)
+#define RS_I_TARGET_1 3.0f               // 第一点目标电流 (A)
+#define RS_I_TARGET_2 7.0f               // 第二点目标电流 (A)
+#define RS_HYST_BAND 2.0f                // 滞环带宽 ±1.5A
+#define RS_V_LIMIT 2.0f                  // 电压输出限幅 (V)
+#define RS_V_HOLD_MAX_TICKS 5            // 误差带内保持最大周期数 (防静差)
+#define RS_V_STEP_MIN 0.01f              // 保持超时后微调步长 (V)
+#define RS_STEADY_ERR_THR 0.4f           // 稳态电流误差阈值 (A)
+#define RS_STEADY_TICKS MS_TO_TICK(7)    // 稳态持续周期数 (7ms@20kHz)
+#define RS_TRACK_TIMEOUT MS_TO_TICK(40)  // 单点跟踪超时 (40ms)
+#define RS_MIN_DELTA_I 2.0f              // 最小电流变化量 (A)
+#define RS_RANGE_MIN 0.02f               // 电阻合理下限 (Ω)
+#define RS_RANGE_MAX 0.5f                // 电阻合理上限 (Ω)
+#define RS_DEADTIME_VCOMP 0.04f          // 死区补偿电压 (V)
 
 // 电感整定
-#define LS_TIMEOUT_TICKS 10000 // 整定超时时间 (500ms)
+#define LS_TIMEOUT_TICKS MS_TO_TICK(500) // 整定超时时间 (500ms)
 #define LS_INJECT_FREQ_HZ 2500
-#define LS_V_HOLD_MAX_TICKS 100
+#define LS_V_HOLD_MAX_TICKS 100 //
 #define LS_V_START 0.2f
 #define LS_V_MAX 0.8f
 #define LS_I_LIMIT 3.0f
@@ -46,10 +46,10 @@ tFirstOrderLagFilter rs_i_filter = {0};
 #define LS_RANGE_MAX 300e-6f
 
 // 角度偏移 (开环强励磁)
-#define THETA_TIMEOUT_TICKS 20000 // 整定超时时间 (1000ms)
-#define THETA_VOLT_AMP 0.6f       // 强励磁电压幅值 (V)
-#define THETA_DELTA_MAX 0.05f     // 静止判断阈值 (°)
-#define THETA_STEADY_WIN 2000     // 静止等待时间 (100ms)
+#define THETA_TIMEOUT_TICKS MS_TO_TICK(1000) // 整定超时时间 (1000ms)
+#define THETA_VOLT_AMP 0.6f                  // 强励磁电压幅值 (V)
+#define THETA_DELTA_MAX 0.05f                // 静止判断阈值 (°)
+#define THETA_STEADY_WIN MS_TO_TICK(100)     // 静止等待时间 (100ms)
 
 /* ================================= 辅助函数 ================================= */
 static inline u32 _tune_elapsed_ticks(u32 start_tick)
@@ -96,9 +96,6 @@ void fMotorParamTune_Init()
     motor_params.pole_valid = false;
     motor_params.psi_valid = false;
     motor_params.mech_valid = false;
-
-    // 滤波器初始化
-    fFirstOrderLagInit(&rs_i_filter, rS_I_FILTER_ALPHA, 0);
 }
 
 void fMotorParamTune_Reset()
@@ -108,11 +105,13 @@ void fMotorParamTune_Reset()
 }
 /* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
 
-static bool _tune_Rs(float i_alpha_fb, tMotorParams *params)
+static bool _tune_Rs(float i_alpha, tMotorParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
 
-    float i_alpha = fFirstOrderLagFilter(&rs_i_filter, i_alpha_fb);
+    if (ctx->rs_ctx.tick_step++ < RS_FREQ_F)
+        return false; // 跳过不整定
+    ctx->rs_ctx.tick_step = 0;
     //===滞环电流控制===
     float err = ctx->rs_ctx.i_target - i_alpha;
     if (FABSF(err) > RS_HYST_BAND)
@@ -559,6 +558,8 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         ctx->state = TUNE_STATE_IDLE;
         break;
     case TUNE_STATE_IDLE:
+        if (ctx->tick_count++ < TUNE_WAIT_TICKS)
+            break;
         fFOC_SetSensorMode(ENCODER_CONTROL);
         fFOC_SetRunMode(OPEN_LOOP);
         // 准备工作：初始化电阻整定上下文
@@ -574,7 +575,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_STATE_RS:
-        if (_tune_Rs(foc_val.Ialpha_im, params))
+        if (_tune_Rs(foc_val.Ialpha, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -611,7 +612,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 ctx->state = TUNE_STATE_FAULT;
                 break;
             }
-            // todo:如果开启自适应PID，这里对电流环PI进行调节
+            // todo:这里对电流环PI进行调节
 
             // 电感完成：初始化角度偏移上下文
             ctx->theta_ctx.theta_sum = 0;

@@ -57,51 +57,17 @@ void fProManagerMainLoop()
     if (g_pro_manager.fault_flag)
         return;
 
-    // A监管保护
-    // 错误：
     // 驱动状态--flash一定得是ONLINE
     if (g_pro_manager.drive_state->flash_state != ONLINE)
     {
         g_pro_manager.fault = FLASH_OFFLINE;
         g_pro_manager.fault_flag = true;
     }
-    // 1.整定
-    if (g_foc.tun->fault != TUNE_FAULT_NONE)
+
+    // 过压不可取
+    if (g_foc.core->motor->Udc > MAX_Voltage)
     {
-        switch (g_foc.tun->fault)
-        {
-            // todo:还有很多错误待扩充
-        case TUNE_FAULT_TIMEOUT:
-            g_pro_manager.fault = TUNING_TIMEOUT;
-            break;
-        case TUNE_FAULT_PARAM_INVALID:
-            g_pro_manager.fault = MOTOR_PARAM_INVALID;
-            break;
-        default:
-            g_pro_manager.fault = TUNING_FAULT;
-            break;
-        }
-        g_pro_manager.fault_flag = true;
-    }
-    // 2.电压异常
-    if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
-    {
-        if (g_foc.core->motor->Udc > MAX_Voltage)
-        {
-            g_pro_manager.fault = OVER_VOLTAGE;
-            g_pro_manager.fault_flag = true;
-        }
-        else if (g_foc.state == RUNNING) // 运行时再监测低压
-        {
-            g_pro_manager.fault = LOW_VOLTAGE;
-            g_pro_manager.fault_flag = true;
-        }
-    }
-    // 3.电流过大
-    if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
-        _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
-    {
-        g_pro_manager.fault = OVER_CURRENT;
+        g_pro_manager.fault = OVER_VOLTAGE;
         g_pro_manager.fault_flag = true;
     }
 
@@ -118,30 +84,6 @@ void fProManagerMainLoop()
         }
         g_pro_manager.fault_flag = true;
     }
-
-    // 警告：
-    // 1温度过高
-    if (g_pro_manager.temperature > MAX_Temperature)
-    {
-        g_pro_manager.warning = OVER_TEMPERATURE;
-        g_pro_manager.warning_flag = true;
-    }
-
-    // 2 速度检测
-    if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
-    {
-        g_pro_manager.warning = OVER_SPEED;
-        g_pro_manager.warning_flag = true;
-    }
-    // 3位置检测 位置模式下监测
-    if (g_foc.core->foc_mode->runmode == POSITION_MODE)
-    {
-        if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
-        {
-            g_pro_manager.warning = OVER_POSITION;
-            g_pro_manager.warning_flag = true;
-        }
-    }
     //  4编码器状态检测
     if (g_foc.core->foc_mode->sensor_mode != SENSORLESS_CONTROL)
     { // 有感模式和混合模式启动编码器判断
@@ -155,6 +97,91 @@ void fProManagerMainLoop()
                 g_pro_manager.warning = ENCODER_OFFLINE;
         }
     }
+    // 失能保护
+    if (!g_foc.foc_enable)
+    {
+
+        // 3.电流过大
+        if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
+            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
+        {
+            g_pro_manager.fault = OVER_CURRENT;
+            g_pro_manager.fault_flag = true;
+        }
+
+        // 警告：
+        // 1温度过高
+        if (g_pro_manager.temperature > MAX_Temperature)
+        {
+            g_pro_manager.warning = OVER_TEMPERATURE;
+            g_pro_manager.warning_flag = true;
+        }
+    }
+    else // 使能保护
+    {
+        // 1.整定
+        if (g_foc.tun->fault != TUNE_FAULT_NONE)
+        {
+            switch (g_foc.tun->fault)
+            {
+                // todo:还有很多错误待扩充
+            case TUNE_FAULT_TIMEOUT:
+                g_pro_manager.fault = TUNING_TIMEOUT;
+                break;
+            case TUNE_FAULT_PARAM_INVALID:
+                g_pro_manager.fault = MOTOR_PARAM_INVALID;
+                break;
+            default:
+                g_pro_manager.fault = TUNING_FAULT;
+                break;
+            }
+            g_pro_manager.fault_flag = true;
+        }
+        // 2.电压异常
+        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
+        {
+            if (g_foc.core->motor->Udc > MAX_Voltage)
+            {
+                g_pro_manager.fault = OVER_VOLTAGE;
+                g_pro_manager.fault_flag = true;
+            }
+            else
+            {
+                g_pro_manager.fault = LOW_VOLTAGE;
+                g_pro_manager.fault_flag = true;
+            }
+        }
+        // 3.电流过大
+        if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
+            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
+        {
+            g_pro_manager.fault = OVER_CURRENT;
+            g_pro_manager.fault_flag = true;
+        }
+        // 1温度过高
+        if (g_pro_manager.temperature > MAX_Temperature)
+        {
+            g_pro_manager.warning = OVER_TEMPERATURE;
+            g_pro_manager.warning_flag = true;
+        }
+
+        // 2 速度检测
+        if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
+        {
+            g_pro_manager.warning = OVER_SPEED;
+            g_pro_manager.warning_flag = true;
+        }
+        // 3位置检测 位置模式下监测
+        if (g_foc.core->foc_mode->runmode == POSITION_MODE)
+        {
+            if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+            {
+                g_pro_manager.warning = OVER_POSITION;
+                g_pro_manager.warning_flag = true;
+            }
+        }
+    }
+
     //   B错误处理--日志模块还得优化
     if (g_pro_manager.fault_flag || g_pro_manager.warning_flag)
     {

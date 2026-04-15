@@ -50,6 +50,8 @@ class DataProcess:
 
                         # 用换行符连接所有行
                         self.mw.system_message = "\n".join(formatted_lines)
+
+                        self.mw.comport.confirm_device_handshake()
                     return
                 case Cidx.LOG_GET:  # 日志读取返回
                     self.mw.log.add_log(data)
