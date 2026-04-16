@@ -90,7 +90,6 @@ static void ENCODER_StartReg4Read(void)
     encoder.state = ENCODER_STATE_WAIT_LOW;
 }
 
-
 /* ========== 数据处理 ========== */
 static void ENCODER_ProcessData(void)
 {
@@ -131,7 +130,8 @@ static void ENCODER_ProcessData(void)
     }
 
     // 解析 14 位角度值
-    encoder.angle_raw = (data_bits >> 1);
+//   encoder.angle_raw = 16383-(data_bits >> 1);
+		encoder.angle_raw = (data_bits >> 1);
 
     // 角度计算
     encoder.angle_abs = (float)encoder.angle_raw * 0.02197265625f; // 2^14 = 16384
@@ -303,6 +303,7 @@ void fEncoderMainLoopTask(void)
 float fGetEncoderAngle_ABS(void) { return encoder.angle_abs; }
 float fGetEncoderAngle_INC(void) { return encoder.pos; }
 float fGetEncoderRPM(void) { return encoder.omega_rpm; }
+int fGetEncoderNumTurns(void) { return encoder.num_turns; }
 
 void fSetEncoderAngleZero(void)
 {

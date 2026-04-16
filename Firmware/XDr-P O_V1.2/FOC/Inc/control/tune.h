@@ -4,9 +4,67 @@
 #include "main.h"
 #include "foc_core.h"
 
+/* ================================= 整定参数配置 ================================= */
+// 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
+
+#define TICK_TO_MS(tick) ((tick) * 0.05f)
+#define MS_TO_TICK(ms) ((u16)((ms) * 20.0f))
+
+#define TUNE_WAIT_TICKS MS_TO_TICK(1000) // 先静止等待时间 (1s)
+
+// 电阻整定 (滞环电流控制 + 滤波 + 差分)
+#define RS_FREQ_F 10                      // 电阻整定分频系数
+#define RS_TIMEOUT_TICKS MS_TO_TICK(2000) // 整定超时时间 (500ms)
+#define RS_I_TARGET_1 3.0f                // 第一点目标电流 (A)
+#define RS_I_TARGET_2 7.0f                // 第二点目标电流 (A)
+#define RS_HYST_BAND 2.0f                 // 滞环带宽 ±1.5A
+#define RS_V_LIMIT 2.0f                   // 电压输出限幅 (V)
+#define RS_V_HOLD_MAX_TICKS 5             // 误差带内保持最大周期数 (防静差)
+#define RS_V_STEP_MIN 0.01f               // 保持超时后微调步长 (V)
+#define RS_STEADY_ERR_THR 0.4f            // 稳态电流误差阈值 (A)
+#define RS_STEADY_TICKS MS_TO_TICK(7)     // 稳态持续周期数 (7ms@20kHz)
+#define RS_TRACK_TIMEOUT MS_TO_TICK(40)   // 单点跟踪超时 (40ms)
+#define RS_MIN_DELTA_I 2.0f               // 最小电流变化量 (A)
+#define RS_RANGE_MIN 0.02f                // 电阻合理下限 (Ω)
+#define RS_RANGE_MAX 0.5f                 // 电阻合理上限 (Ω)
+#define RS_DEADTIME_VCOMP 0.04f           // 死区补偿电压 (V)
+
+// 电感整定
+#define LS_TIMEOUT_TICKS MS_TO_TICK(500)  // 整定超时时间 (500ms)
+#define LS_INJECT_FREQ_HZ 2500            // 注入频率 (Hz)
+#define LS_V_HOLD_MAX_TICKS MS_TO_TICK(5) // 自适应注入电压最大保持时间
+#define LS_SAMPLE_TIME_ms MS_TO_TICK(200) // 采样时间 (200ms)
+#define LS_V_START 0.2f                   // 起始电压 (V)
+#define LS_V_MAX 0.8f                     // 最大电压 (V)
+#define LS_I_LIMIT 3.0f                   // 电流限幅 (A)
+#define LS_I_STEP_MIN 0.04f               // 保持超时后微调步长 (A)
+#define LS_MIN_DI_DT 100.0f               // 最小信噪比要求
+#define LS_MAX_DI_DT 60000.0f             // 最大信噪比要求
+#define LS_RANGE_MIN 20e-6f               // 电感合理下限(H)
+#define LS_RANGE_MAX 300e-6f              // 电感合理上限 (H)
+
+// 编码器校准
+#define EC_FREQ_F 10                // 编码器校准分频系数
+#define EC_ALIGN_ms MS_TO_TICK(500) // 编码器校准等待时间
+#define EC_OPEN_LOOP_OMEGA 840.0f   // 开环角速度 (°/s) 对应 7极对数 20rpm 14极对数 10rpm
+#define EC_OPEN_LOOP_UQ_MIN 0.6f    // 起始最小施加uq
+#define EC_OPEN_LOOP_UQ_MAX 2.0f    // 起始最大施加uq
+#define EC_OPEN_LOOP_UQ_STEP 0.01f  // 施加uq步长
+
+#define EC_FIT_MAX_ERROR 100.0f // 最大拟合误差
+#define EC_MIN_POLE_PAIRS 1     // 最小极对数
+#define EC_MAX_POLE_PAIRS 16    // 最大极对数
+
+// 角度偏移 (开环强励磁)
+#define THETA_TIMEOUT_TICKS MS_TO_TICK(1000) // 整定超时时间 (1000ms)
+#define THETA_VOLT_AMP 0.6f                  // 强励磁电压幅值 (V)
+#define THETA_DELTA_MAX 0.05f                // 静止判断阈值 (°)
+#define THETA_STEADY_WIN MS_TO_TICK(100)     // 静止等待时间 (100ms)
 /* ================================= 电机参数结构(独立存储) ================================= */
 typedef struct
 {
+    // 系统参数
+    float dt; // 控制周期 (s)
     // 电气参数
     float KV;    // 电压转化器增益 (V/V)
     float Rs;    // 定子电阻(Ω)
@@ -20,18 +78,15 @@ typedef struct
     float B; // 摩擦系数 (N·m·s/rad)
 
     // 配置参数
-    u8 pole_pairs; // 极对数
-    bool theta_elec_need_180;
     float theta_offset; // 编码器角度偏移 (rad)
-
-    // 系统参数
-    float dt; // 控制周期 (s)
+    u8 pole_pairs;      // 极对数
+    bool direction;     // 转动方向 (true:逆 false 顺)
+    bool theta_elec_need_180;
 
     // 有效性标志
     bool Rs_valid;
     bool L_valid;
-    bool offset_valid;
-    bool pole_valid;
+    bool encoder_valid;
     bool psi_valid;
     bool mech_valid;
 } tMotorParams;
@@ -43,8 +98,7 @@ typedef enum
     TUNE_STATE_IDLE,
     TUNE_STATE_RS,
     TUNE_STATE_LS,
-    TUNE_STATE_THETA_OFFSET,
-    TUNE_STATE_POLE_PAIRS,
+    TUNE_STATE_ENCODER,
     TUNE_STATE_PSI_F,
     TUNE_STATE_JB,
     TUNE_STATE_COMPLETE,
@@ -67,8 +121,9 @@ typedef struct
     // 通用状态
     eTuneState state;
     eTuneFault fault;
-    u32 tick_count;
-    u32 timeout_tick;
+    u8 freq_tick;     // 频率计数
+    u32 steady_tick;  // 稳态计数
+    u32 timeout_tick; // 超时计数
 
     // 电阻整定上下文
     struct
@@ -79,7 +134,6 @@ typedef struct
         float v_cmd;
         u16 hold_cnt;
         u16 step_ticks;
-        u8 tick_step;
         u8 step;
     } rs_ctx;
 
@@ -100,12 +154,30 @@ typedef struct
     // 角度偏移上下文
     struct
     {
-        float theta_sum;
-        u16 valid_cnt;
-        float offset_hist[3];
-        u8 hist_idx;
-        bool steady_flag;
-    } theta_ctx;
+        float theta_elec;
+        float v_out;
+
+        float theta_e_acc;    // 连续电角度
+        float theta_e_raw;    // 上一次电角度
+        float theta_m_unwrap; // 解包后的连续机械角度
+        float theta_m_start;  // 起始机械角度
+
+        float k[2];
+        float b[2];
+        float err[2];
+
+        float sum_m[2];  // Σθ_m
+        float sum_e[2];  // Σθ_e
+        float sum_me[2]; // Σ(θ_m·θ_e)
+        float sum_mm[2]; // Σ(θ_m²)
+
+        u16 cnt[2]; // 采样点数
+
+        bool forward_done;
+        bool backward_done;
+        u8 step; // 0对齐 1正向 2反向 3拟合计算 4完成
+
+    } encoder_ctx;
 
     // 极对数上下文
     struct

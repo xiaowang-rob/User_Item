@@ -255,6 +255,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>T_hfi,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>21</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>_theta_e_buf</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>

@@ -1516,7 +1516,7 @@ I (..\FOC\Config\protocol.h)(0x69CB398A)
 I (..\Core\Inc\can.h)(0x69C7B61A)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
-F (..\FOC\Src\communication\DataMonitoring.c)(0x69D7AA93)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/datamonitoring.o -MMD)
+F (..\FOC\Src\communication\DataMonitoring.c)(0x69E0EF62)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/datamonitoring.o -MMD)
 I (..\FOC\Inc\communication\DataMonitoring.h)(0x69C7B61A)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
@@ -1552,15 +1552,15 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Inc\services\protection_manager.h)(0x69D26D31)
 I (..\FOC\Config\device.h)(0x69D337B6)
@@ -1608,15 +1608,15 @@ I (..\FOC\Inc\communication\DataMonitoring.h)(0x69C7B61A)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
 I (..\FOC\Inc\services\log.h)(0x69C7C16B)
@@ -1708,8 +1708,8 @@ I (..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_core.h)(0x68D7ABB8)
 I (..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h)(0x68D7ABB8)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
-F (..\FOC\Src\control\foc_core.c)(0x69DF995D)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/foc_core.o -MMD)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
+F (..\FOC\Src\control\foc_core.c)(0x69E0F9C0)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/foc_core.o -MMD)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
 I (..\Core\Inc\stm32f4xx_hal_conf.h)(0x69C7B61A)
@@ -1743,18 +1743,18 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\drivers\adc_dr.h)(0x69D26428)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
-I (..\FOC\Inc\drivers\encoder.h)(0x69C7B61A)
+I (..\FOC\Inc\drivers\encoder.h)(0x69E0E35D)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
 I (..\FOC\Inc\utils\filter.h)(0x69C7B61A)
@@ -1763,7 +1763,7 @@ I (..\FOC\Inc\communication\port_mapping.h)(0x69C7B61A)
 I (..\FOC\Config\protocol.h)(0x69CB398A)
 I (..\FOC\Inc\communication\DataMonitoring.h)(0x69C7B61A)
 I (..\FOC\Inc\control\hfi.h)(0x69C91F7E)
-F (..\FOC\Src\control\foc_statemachine.c)(0x69D64B1B)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/foc_statemachine.o -MMD)
+F (..\FOC\Src\control\foc_statemachine.c)(0x69E0CDBF)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/foc_statemachine.o -MMD)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
@@ -1798,18 +1798,18 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\Core\Inc\tim.h)(0x69C7B61A)
-I (..\FOC\Inc\drivers\encoder.h)(0x69C7B61A)
+I (..\FOC\Inc\drivers\encoder.h)(0x69E0E35D)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
 I (..\FOC\Inc\drivers\adc_dr.h)(0x69D26428)
@@ -1848,7 +1848,7 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
@@ -1888,8 +1888,8 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
@@ -1979,8 +1979,8 @@ I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
-F (..\FOC\Src\control\tune.c)(0x69DF9F89)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/tune.o -MMD)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+F (..\FOC\Src\control\tune.c)(0x69E0FB71)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/tune.o -MMD)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
 I (..\Core\Inc\stm32f4xx_hal_conf.h)(0x69C7B61A)
@@ -2014,19 +2014,19 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
-I (..\FOC\Inc\drivers\encoder.h)(0x69C7B61A)
+I (..\FOC\Inc\drivers\encoder.h)(0x69E0E35D)
 I (..\FOC\Config\device.h)(0x69D337B6)
 I (..\Core\Inc\spi.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\filter.h)(0x69C7B61A)
-F (..\FOC\Src\drivers\encoder.c)(0x69DDD4D8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/encoder.o -MMD)
-I (..\FOC\Inc\drivers\encoder.h)(0x69C7B61A)
+F (..\FOC\Src\drivers\encoder.c)(0x69E0EF57)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/encoder.o -MMD)
+I (..\FOC\Inc\drivers\encoder.h)(0x69E0E35D)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
 I (..\Core\Inc\stm32f4xx_hal_conf.h)(0x69C7B61A)
@@ -2228,15 +2228,15 @@ I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 F (..\FOC\Src\services\parameter_manager.c)(0x69C7B61A)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/parameter_manager.o -MMD)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\Core\Inc\main.h)(0x69D25C72)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h)(0x68D7ABB9)
 I (..\Core\Inc\stm32f4xx_hal_conf.h)(0x69C7B61A)
@@ -2272,14 +2272,14 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
 I (..\FOC\Inc\drivers\flashDr.h)(0x69C7B61A)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Inc\services\protection_manager.h)(0x69D26D31)
 I (..\FOC\Config\device.h)(0x69D337B6)
@@ -2330,8 +2330,8 @@ I (..\Core\Inc\spi.h)(0x69C7B61A)
 I (..\FOC\Inc\communication\port_mapping.h)(0x69C7B61A)
 I (..\FOC\Config\protocol.h)(0x69CB398A)
 I (..\FOC\Inc\communication\DataMonitoring.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
@@ -2340,7 +2340,7 @@ I (..\FOC\Config\drive_parameters.h)(0x69DDDC55)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Inc\services\log.h)(0x69C7C16B)
 I (..\FOC\Inc\drivers\adc_dr.h)(0x69D26428)
@@ -2381,15 +2381,15 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Inc\drivers\rgb.h)(0x69C7B61A)
 I (..\FOC\Config\device.h)(0x69D337B6)
@@ -2434,15 +2434,15 @@ I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h)(0x68D7ABB9)
 I (..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\foc_statemachine.h)(0x69C7B61A)
-I (..\FOC\Inc\control\foc_core.h)(0x69C91FCC)
-I (..\FOC\Inc\services\parameter_manager.h)(0x69C7B61A)
+I (..\FOC\Inc\control\foc_core.h)(0x69E0F9D0)
+I (..\FOC\Inc\services\parameter_manager.h)(0x69E0E5FC)
 I (..\FOC\Inc\utils\trajectory.h)(0x69C7B61A)
 I (..\FOC\Inc\utils\math_fast.h)(0x69C7CC8E)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x68DB7FE4)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x68D7ABB9)
 I (..\FOC\Inc\control\loop_control.h)(0x69C7B61A)
 I (..\FOC\Inc\control\smo.h)(0x69C7B61A)
-I (..\FOC\Inc\control\tune.h)(0x69DF9D34)
+I (..\FOC\Inc\control\tune.h)(0x69E0FB0D)
 I (..\FOC\Inc\control\svpwm.h)(0x69C7B61A)
 I (..\FOC\Inc\services\status_feedback.h)(0x69C7B61A)
 I (..\FOC\Inc\services\log.h)(0x69C7C16B)
@@ -2455,7 +2455,7 @@ I (..\FOC\Inc\communication\DataMonitoring.h)(0x69C7B61A)
 I (..\FOC\Inc\drivers\adc_dr.h)(0x69D26428)
 I (..\FOC\Inc\drivers\flashDr.h)(0x69C7B61A)
 I (..\FOC\Inc\drivers\rgb.h)(0x69C7B61A)
-I (..\FOC\Inc\drivers\encoder.h)(0x69C7B61A)
+I (..\FOC\Inc\drivers\encoder.h)(0x69E0E35D)
 F (..\FOC\Src\services\App_IAP.c)(0x69DDD69A)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc -I ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I ../Drivers/CMSIS/Include -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc -I ../FOC/Config -I ../FOC/Inc/communication -I ../FOC/Inc/control -I ../FOC/Inc/drivers -I ../FOC/Inc/services -I ../FOC/Inc/utils -I ../Middlewares/ST/ARM/DSP/Inc-I./RTE/_XDr-P-IC:/App/Pro/Keil/ARM/ARM/CMSIS/6.2.0/CMSIS/Core/Include-D__UVISION_VERSION="541" -DSTM32F405xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F405xx -DARM_MATH_CM4 -D__DEBUG__-o ./xdr-p/app_iap.o -MMD)
 I (..\FOC\Inc\services\App_IAP.h)(0x69C7B61A)
 I (..\Core\Inc\main.h)(0x69D25C72)

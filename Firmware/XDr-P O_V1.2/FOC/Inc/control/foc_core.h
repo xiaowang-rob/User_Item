@@ -60,6 +60,7 @@ typedef struct
     float J;             // 转动惯量
     float B;             // 摩擦系数
     u8 pole_pairs;       // 极对数
+    bool forward_dir;    // 正转方向
     bool elec_PI_offset; // 电角度180°偏差
 } tMotor;
 
@@ -83,7 +84,7 @@ bool fAutoCalibrationUpdate();
 // 辅助整定 函数
 void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fFOC_SetIdIq(float id, float iq);
-void fSetThetaOffset(float thetaoffset, bool elec_offset);
+void fSetThetaOffset(float thetaoffset);
 
 // 主要函数
 

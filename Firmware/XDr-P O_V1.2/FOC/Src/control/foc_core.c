@@ -60,6 +60,7 @@ static void _motor_init(tParameter param)
     Motor.mech_offect = param.theta_offset;
     Motor.pole_pairs = param.motor_polepairs;
     Motor.elec_PI_offset = param.theta_elec_offset;
+    Motor.forward_dir = param.forward_dir;
     Motor.Rs = param.motor_rs;
     Motor.Ld = param.motor_ld;
     Motor.Lq = param.motor_lq;
@@ -196,7 +197,9 @@ void fFOC_ValueUpdate(void)
     {
     case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = fGetEncoderAngle_ABS();
-        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
+        // foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
+        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs * (Motor.forward_dir ? 1 : -1) + (Motor.elec_PI_offset ? 180 : 0);
+        //		 foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs;
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
 
         foc_val.pos_fb = fGetEncoderAngle_INC();
@@ -321,10 +324,9 @@ void fFOC_SetIdIq(float id, float iq)
     foc_val.iq_ref = iq;
 }
 // 设置编码器零点偏移
-void fSetThetaOffset(float thetaoffset, bool elec_offset)
+void fSetThetaOffset(float thetaoffset)
 {
     Motor.mech_offect = thetaoffset;
-    Motor.elec_PI_offset = elec_offset;
 }
 
 // 切换传感模式

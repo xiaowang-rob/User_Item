@@ -39,6 +39,7 @@ void fEncoderMainLoopTask(void);
 float fGetEncoderAngle_ABS(void);
 float fGetEncoderAngle_INC(void);
 float fGetEncoderRPM(void);
+int fGetEncoderNumTurns(void);
 
 void fSetEncoderAngleZero(void);
 #endif /* __ENCODER_H */

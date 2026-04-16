@@ -84,6 +84,7 @@ typedef struct
 
     u8 motor_polepairs;
     bool theta_elec_offset;
+    bool forward_dir;
 
     u8 freq_current_loop;  // 电流环分频系数
     u8 freq_speed_loop;    // 速度环分频系数

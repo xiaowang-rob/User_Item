@@ -64,8 +64,10 @@ void fFOC_StateMachineMainLoop()
     case FOC_AUTO_TUNE:
         if (!g_foc.foc_enable)
         {
-            ENABLE_PWM();
+            g_calibration_flag = true;
             g_foc.foc_enable = true;
+            fFOC_CoreReset();
+            ENABLE_PWM();
         }
         if (fAutoCalibrationUpdate())
             fFOC_StateUpdate(FOC_DISABLE);
