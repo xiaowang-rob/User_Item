@@ -197,9 +197,7 @@ void fFOC_ValueUpdate(void)
     {
     case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = fGetEncoderAngle_ABS();
-        // foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs * (Motor.forward_dir ? 1 : -1) + (Motor.elec_PI_offset ? 180 : 0);
-        //		 foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs;
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
 
         foc_val.pos_fb = fGetEncoderAngle_INC();
@@ -266,8 +264,8 @@ void fFOC_MainLoopTask(void)
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-        //       foc_val.uq = foc_val.iq_ref; // 调试
-        //       foc_val.ud = 0;
+//               foc_val.uq = foc_val.iq_ref; // 调试
+//               foc_val.ud = 0;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 

@@ -379,6 +379,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
 }
 
 // 编码器校准
+static const float THETA_STEP = EC_OPEN_LOOP_OMEGA * Tcon * EC_FREQ_F;
 bool _tune_encoder(float theta_m, tMotorParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
@@ -389,15 +390,19 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
 
     // 临时变量声明
     float v_alpha = 0, v_beta = 0;
-    float theta_step = 0;
     bool finish = false;
 
     // 2. 状态机跳转
     switch (ctx->encoder_ctx.step)
     {
-
-    // === STATE 0: 直流预对齐 (Align)===
+        // === STATE 0: 确定要施加的合理电压===
     case 0:
+
+        ctx->encoder_ctx.step = 1;
+        break;
+
+    // === STATE 1: 直流预对齐 (Align)===
+    case 1:
         // 施加 alpha 轴电压，将转子拉至电气 0 度
         ctx->encoder_ctx.v_out = EC_OPEN_LOOP_UQ_MIN;
         fInvParkTransform(ctx->encoder_ctx.v_out, 0, 0, &v_alpha, &v_beta);
@@ -412,26 +417,26 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
             ctx->encoder_ctx.theta_e_acc = 0.0f;
             ctx->encoder_ctx.theta_e_raw = 0.0f;
             if (!ctx->encoder_ctx.forward_done)
-                ctx->encoder_ctx.step = 1; // 进入正向扫描
+                ctx->encoder_ctx.step = 2; // 进入正向扫描
             else if (!ctx->encoder_ctx.backward_done)
-                ctx->encoder_ctx.step = 2; // 进入反向扫描
+                ctx->encoder_ctx.step = 3; // 进入反向扫描
             else
-                ctx->encoder_ctx.step = 3; // 进入方向校准
+                ctx->encoder_ctx.step = 4; // 进入方向校准
         }
         break;
     // === STATE 1/2: 开环扫描 (正向/反向)  ===
-    case 1: // Forward
-    case 2: // Reverse
+    case 2: // Forward
+    case 3: // Reverse
     {
         // 2.1 计算电角度增量
-        theta_step = EC_OPEN_LOOP_OMEGA * Tcon * EC_FREQ_F;
-        if (ctx->encoder_ctx.step == 2)
-            theta_step = -theta_step; // 反向取负
-        ctx->encoder_ctx.theta_e_acc += theta_step;
+        if (ctx->encoder_ctx.step == 3)
+            ctx->encoder_ctx.theta_e_acc -= THETA_STEP; // 反向取负
+        else
+            ctx->encoder_ctx.theta_e_acc += THETA_STEP;
         ctx->encoder_ctx.theta_elec = fNormalizeAngle_0_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
 
-        // 2.2 施加开环电压 (Id=0, Iq=v_out)
-        fInvParkTransform(0.0f, ctx->encoder_ctx.v_out, ctx->encoder_ctx.theta_elec, &v_alpha, &v_beta);
+        // 2.2 施加开环电压 对应角度的ud
+        fInvParkTransform(ctx->encoder_ctx.v_out, 0.0f, ctx->encoder_ctx.theta_elec, &v_alpha, &v_beta);
         fFOC_SetUalphaBeta(v_alpha, v_beta);
 
         ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
@@ -441,34 +446,36 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         {
             ctx->encoder_ctx.theta_e_raw = ctx->encoder_ctx.theta_e_acc;
 
-            ctx->encoder_ctx.sum_m[ctx->encoder_ctx.step - 1] += ctx->encoder_ctx.theta_m_unwrap;
-            ctx->encoder_ctx.sum_e[ctx->encoder_ctx.step - 1] += ctx->encoder_ctx.theta_e_acc;
-            ctx->encoder_ctx.sum_me[ctx->encoder_ctx.step - 1] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_e_acc;
-            ctx->encoder_ctx.sum_mm[ctx->encoder_ctx.step - 1] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_m_unwrap;
-            ctx->encoder_ctx.cnt[ctx->encoder_ctx.step - 1]++;
+            ctx->encoder_ctx.sum_m[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap;
+            ctx->encoder_ctx.sum_e[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_e_acc;
+            ctx->encoder_ctx.sum_me[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_e_acc;
+            ctx->encoder_ctx.sum_mm[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_m_unwrap;
+            ctx->encoder_ctx.cnt[ctx->encoder_ctx.step - 2]++;
         }
 
         // 2.5 扫描结束判断
         if (FABSF(ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start) > 361.0f)
         {
             // 执行拟合
-            if (ctx->encoder_ctx.step == 1)
-            {                              // 正向完成，保存结果并启动反向
-                ctx->encoder_ctx.step = 0; // 切到重新对齐0度
+            if (ctx->encoder_ctx.step == 2)
+            { // 正向完成，保存结果并启动反向
+
                 ctx->encoder_ctx.forward_done = true;
+                ctx->encoder_ctx.step = 1; // 切到重新对齐0度
                 ctx->steady_tick = 0;
             }
             else
-            {                              // 反向完成，进入计算
-                ctx->encoder_ctx.step = 0; // 切拟合计算
+            { // 反向完成，进入计算
+
                 ctx->encoder_ctx.backward_done = true;
+                ctx->encoder_ctx.step = 1; // 切方向校准
                 ctx->steady_tick = 0;
             }
         }
         break;
     }
         // === STATE 3: 方向校准 ===
-    case 3:
+    case 4:
     {
         // 施加 beta 轴电压，将转子拉至电气 90度
         ctx->encoder_ctx.v_out = EC_OPEN_LOOP_UQ_MIN;
@@ -481,9 +488,9 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
             // 记录起始点
             ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
             if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start > 5.0f)
-                motor_params.theta_elec_need_180 = false;
-            else if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start < -5.0f)
                 motor_params.theta_elec_need_180 = true;
+            else if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start < -5.0f)
+                motor_params.theta_elec_need_180 = false;
             else
             {
                 params->encoder_valid = false;
@@ -492,12 +499,12 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
                 ctx->encoder_ctx.step = 0; // 失败复位
                 return true;
             }
-            ctx->encoder_ctx.step = 4; // 进入拟合
+            ctx->encoder_ctx.step = 5; // 进入拟合
         }
         break;
     }
-        // === STATE 4: 参数解算 (Fit) ===
-    case 4:
+        // === STATE 5: 参数解算 (Fit) ===
+    case 5:
     {
         _fit_from_sums(ctx->encoder_ctx.sum_m[0], ctx->encoder_ctx.sum_e[0],
                        ctx->encoder_ctx.sum_me[0], ctx->encoder_ctx.sum_mm[0],
@@ -534,14 +541,16 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         params->direction = (ctx->encoder_ctx.k[0] > 0) ? true : false;
 
         // 4.5 计算零位偏移 (截距平均，抵消负载角)
-        params->theta_offset = fNormalizeAngle_0_360((ctx->encoder_ctx.b[0] + ctx->encoder_ctx.b[1]) * 0.5f);
+        float o_est_f = -(ctx->encoder_ctx.b[0] / ctx->encoder_ctx.k[0]);
+        float o_est_b = -(ctx->encoder_ctx.b[1] / ctx->encoder_ctx.k[1]);
+        params->theta_offset = fNormalizeAngle_0_360((o_est_f + o_est_b) * 0.5f);
 
-        ctx->encoder_ctx.step = 5; // 进入完成态
+        ctx->encoder_ctx.step = 6; // 进入完成态
         break;
     }
 
-    // === STATE 5: 完成 (Done) ===
-    case 5:
+    // === STATE 6: 完成 (Done) ===
+    case 6:
         fFOC_SetUalphaBeta(0, 0); // 停机
         params->encoder_valid = true;
         return true; // 返回 true 表示流程结束
@@ -657,6 +666,8 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             // todo:这里对电流环PI进行调节
 
             // 电感完成：初始化编码器校准上下文
+
+            fSetEncoderAngleZero(); // 编码器圈数归零
             ctx->encoder_ctx.theta_elec = 0;
             ctx->encoder_ctx.v_out = 0;
             ctx->encoder_ctx.forward_done = false;
@@ -679,8 +690,8 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 ctx->state = TUNE_STATE_FAULT;
                 break;
             }
-						//todo:写入参数
-//            fSetThetaOffset(motor_params.theta_offset, motor_params.theta_elec_need_180); // 应用于目前计算
+            // todo:写入参数
+            //            fSetThetaOffset(motor_params.theta_offset, motor_params.theta_elec_need_180); // 应用于目前计算
 
             //  极对数完成：初始化磁链上下文
             ctx->psi_ctx.sum_e_mag = 0;

@@ -45,12 +45,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 // FOC 主初始化函数
 void fFOC_Init()
 {
-    fFOC_CoreInit();
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
     g_foc.foc_enable = false;
     DISABLE_PWM();
     g_foc.state = FOC_IDLE;
     fFOC_CoreInit();
+    // 校准电流零点
+    g_foc.state = FOC_ENABLE;
+    g_calibration_flag = true;
+    while (g_calibration_flag)
+        ;
+    g_foc.state = FOC_DISABLE;
 }
 
 // FOC 主循环函数
@@ -64,7 +69,6 @@ void fFOC_StateMachineMainLoop()
     case FOC_AUTO_TUNE:
         if (!g_foc.foc_enable)
         {
-            g_calibration_flag = true;
             g_foc.foc_enable = true;
             fFOC_CoreReset();
             ENABLE_PWM();
@@ -79,7 +83,6 @@ void fFOC_StateMachineMainLoop()
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
-        g_calibration_flag = true;
         fFOC_CoreReset();
         ENABLE_PWM();
         fFOC_StateUpdate(FOC_RUNNING);
@@ -101,6 +104,7 @@ void fFOC_StateMachineMainLoop()
         {
             g_foc.foc_enable = false;
             DISABLE_PWM();
+            PWM_POWER_OFF();
         }
         break;
     default:
