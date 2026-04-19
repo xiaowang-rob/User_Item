@@ -58,7 +58,7 @@ void fSMO_Init(tMotor *motor)
     smo.Ld = motor->Ld;
     smo.Lq = motor->Lq;
     smo.Psi_f = motor->Psi_f;
-    smo.dt = Tcon * SMO_DTICK;
+    smo.dt = T_CON * SMO_DTICK;
 
     smo.cfg = SMO_DEFAULT_CFG;
     fSMO_Precompute(&smo);
@@ -114,8 +114,8 @@ void fSMO_MainLoop(float v_alpha, float v_beta,
 
     smo.i_alpha_hat += di_alpha * smo.dt;
     smo.i_beta_hat += di_beta * smo.dt;
-    smo.i_alpha_hat = CLAMP(smo.i_alpha_hat, -MAX_Current, MAX_Current);
-    smo.i_beta_hat = CLAMP(smo.i_beta_hat, -MAX_Current, MAX_Current);
+    smo.i_alpha_hat = CLAMP(smo.i_alpha_hat, -MAX_CURRENT, MAX_CURRENT);
+    smo.i_beta_hat = CLAMP(smo.i_beta_hat, -MAX_CURRENT, MAX_CURRENT);
 
     smo.e_alpha = k_slm * tanhf(i_err_alpha / smo.cfg.delta);
     smo.e_beta = k_slm * tanhf(i_err_beta / smo.cfg.delta);

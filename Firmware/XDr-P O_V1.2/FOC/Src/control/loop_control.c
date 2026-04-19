@@ -12,7 +12,7 @@ void fFrequencyDivisionInit(u8 fd_cur, u8 fd_speed, u8 fd_pos)
     loop_con.fd.current_update_steps = fd_cur;
     loop_con.fd.speed_update_steps = fd_speed;
     loop_con.fd.position_update_steps = fd_pos;
-    loop_con.fd.Tcur = Tpwm * loop_con.fd.current_update_steps;
+    loop_con.fd.Tcur = T_PWM * loop_con.fd.current_update_steps;
     loop_con.fd.Tspd = loop_con.fd.Tcur * loop_con.fd.speed_update_steps;
     loop_con.fd.Tpos = loop_con.fd.Tspd * loop_con.fd.position_update_steps;
 }

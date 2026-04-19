@@ -13,13 +13,14 @@ USB、串口、CAN 端口映射
 #include "string.h"
 #include "App_IAP.h"
 
+
 tCOM_Frame com_frame;
 tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
 
-const u8 execute = FEEDBACK_OK;
-const u8 failure = FEEDBACK_ERROR;
+const u8 EXECUTE = FEEDBACK_OK;
+const u8 FAILURE = FEEDBACK_ERROR;
 
-static u8 Noresponse_tic = 0; // 无响应次数
+static u8 no_response_tic = 0; // 无响应次数
 static bool system_message_send_flag = false;
 
 // 通讯层初始化
@@ -74,7 +75,7 @@ static inline void _status_send()
     if (system_message_send_flag == false)
     {
         com_frame.txdata[0] = '\0';
-        strcat((char *)com_frame.txdata, DRIVE_DESC_str);
+        strcat((char *)com_frame.txdata, DRIVE_MESSAGE);
         com_frame.txdatalen = strlen((char *)com_frame.txdata);
         system_message_send_flag = true;
     }
@@ -86,8 +87,8 @@ static inline void _status_send()
         com_frame.txdatalen = 12;
     }
     fHostComputer_send();
-    Noresponse_tic++;
-    if (Noresponse_tic > 10)
+    no_response_tic++;
+    if (no_response_tic > 10)
     {
         g_com_state.Host_port = NONE_port;
         system_message_send_flag = false;
@@ -143,7 +144,7 @@ static void _frame_data_deal()
             case UC_connect:
                 if (g_com_state.Host_port != NONE_port)
                 {
-                    Noresponse_tic = 0;
+                    no_response_tic = 0;
                 }
                 else
                 {
@@ -178,21 +179,21 @@ static void _frame_data_deal()
                 break;
             case LOG_ERASE:
                 fLogErase();
-                com_frame.txdata[0] = execute;
+                com_frame.txdata[0] = EXECUTE;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
             case PARAM_ERASE:
                 fParamErase();
-                com_frame.txdata[0] = execute;
+                com_frame.txdata[0] = EXECUTE;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
             case PARAM_SAVE: // 一键保存
                 if (fParamSave())
-                    com_frame.txdata[0] = execute;
+                    com_frame.txdata[0] = EXECUTE;
                 else
-                    com_frame.txdata[0] = failure;
+                    com_frame.txdata[0] = FAILURE;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
@@ -211,9 +212,9 @@ static void _frame_data_deal()
 
             case CMD_IAP_ENTER:
                 if (fApp_JumpToBootloader())
-                    com_frame.txdata[0] = execute;
+                    com_frame.txdata[0] = EXECUTE;
                 else
-                    com_frame.txdata[0] = failure;
+                    com_frame.txdata[0] = FAILURE;
                 com_frame.txdatalen = 1;
                 fHostComputer_send();
                 break;
@@ -337,7 +338,7 @@ void _stream_data_trans()
     // 参数发送
     if (param_send_flag)
     {
-        if (_time_ms - _time_prev_ms < DATA_stream_T)
+        if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
         _all_params_send();
         _time_prev_ms = HAL_GetTick();
@@ -346,7 +347,7 @@ void _stream_data_trans()
     // 日志发送
     if (log_send_flag)
     {
-        if (_time_ms - _time_prev_ms < DATA_stream_T)
+        if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
         _all_log_send();
         _time_prev_ms = HAL_GetTick();
@@ -355,13 +356,13 @@ void _stream_data_trans()
 
     if (g_com_state.Host_port != NONE_port)
     { // 上位机连接状态下
-        if ((_time_ms - _state_prev_ms > STATE_stream_T))
+        if ((_time_ms - _state_prev_ms > T_STATE_STREAM))
         { // 状态发送
             _status_send();
             _state_prev_ms = _time_ms;
             _time_prev_ms = _time_ms;
         }
-        else if ((_time_ms - _time_prev_ms > DATA_stream_T))
+        else if ((_time_ms - _time_prev_ms > T_DATA_STREAM))
         { // 数据发送
             if (com_frame.stream_num == 0)
                 return;
@@ -382,7 +383,7 @@ void _stream_data_trans()
     { // vofa端口
         if (com_frame.stream_num == 0)
             return;
-        if ((_time_ms - _time_prev_ms < DATA_stream_T))
+        if ((_time_ms - _time_prev_ms < T_DATA_STREAM))
             return;
         _time_prev_ms = _time_ms;
         for (u8 i = 0; i < com_frame.stream_num; i++)

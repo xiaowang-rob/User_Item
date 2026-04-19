@@ -6,8 +6,8 @@
 
 /* ADC相关配置定义 */
 
-static const float ADC_VAL_TO_CUR_FACTOR = 3.3f * rate_CurrentSample / 4095.0f;
-static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * rate_VoltageSample / 255.0f;
+static const float ADC_VAL_TO_CUR_FACTOR = 3.3f *  RATE_CURRENT_SAMPLE/ 4095.0f;
+static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * RATE_VOLTAGE_SAMPLE / 255.0f;
 /* ADC采样相关变量 */
 volatile bool g_calibration_flag = false;
 

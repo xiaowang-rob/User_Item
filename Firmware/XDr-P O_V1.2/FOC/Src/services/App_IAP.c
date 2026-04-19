@@ -1,5 +1,8 @@
 #include "App_IAP.h"
 #include "drive_parameters.h"
+#include "string.h"
+
+//const char FIRM_VERSION[]=PROD_NAME "-" PROD_SERIES " " FUN_V "_" FIRM_V "_" BUILD_DATE_STR;
 /**
  * @brief 等待 Flash 空闲并清除错误标志（F405 专用）
  */
@@ -60,7 +63,8 @@ bool fApp_JumpToBootloader(void)
     _Flash_WaitReady(100);
 
     /* 4. 写入升级标志-用硬件版本号标记 */
-    u8 upgrade_flag[24] = Description " " VERSION;
+    u8 upgrade_flag[24];
+//		strcat((char *)upgrade_flag, FIRM_VERSION);
     u32 *p_word = (uint32_t *)upgrade_flag;
     for (uint8_t i = 0; i < 6; i++) // 24 字节 = 6 个 WORD
     {

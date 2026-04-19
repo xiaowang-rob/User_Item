@@ -69,7 +69,7 @@ void fMotorParamTune_Init()
     motor_params.Ld = g_Param.motor_ld;
     motor_params.Lq = g_Param.motor_lq;
     motor_params.pole_pairs = g_Param.motor_polepairs;
-    motor_params.dt = Tcon;
+    motor_params.dt = T_CON;
 
     // 标记未整定
     motor_params.Rs_valid = false;
@@ -379,7 +379,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
 }
 
 // 编码器校准
-static const float THETA_STEP = EC_OPEN_LOOP_OMEGA * Tcon * EC_FREQ_F;
+static const float THETA_STEP = EC_OPEN_LOOP_OMEGA * T_CON * EC_FREQ_F;
 bool _tune_encoder(float theta_m, tMotorParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
@@ -390,21 +390,65 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
 
     // 临时变量声明
     float v_alpha = 0, v_beta = 0;
-    bool finish = false;
 
     // 2. 状态机跳转
     switch (ctx->encoder_ctx.step)
     {
         // === STATE 0: 确定要施加的合理电压===
     case 0:
-
-        ctx->encoder_ctx.step = 1;
+        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
+        switch (ctx->encoder_ctx.test_step)
+        {
+        case 0:
+            fInvParkTransform(ctx->encoder_ctx.v_out, 0, 0, &v_alpha, &v_beta);
+            fFOC_SetUalphaBeta(v_alpha, v_beta);
+            if (ctx->steady_tick >= EC_ALIGN_ms)
+            {
+                ctx->steady_tick = 0;
+                ctx->encoder_ctx.theta_m_start = ctx->encoder_ctx.theta_m_unwrap;
+                ctx->encoder_ctx.test_step = 1;
+            }
+            break;
+        case 1:
+            fInvParkTransform(ctx->encoder_ctx.v_out, 0, 180.0f, &v_alpha, &v_beta);
+            fFOC_SetUalphaBeta(v_alpha, v_beta);
+            if (ctx->steady_tick >= EC_ALIGN_ms)
+            {
+                ctx->steady_tick = 0;
+                ctx->encoder_ctx.delta_theta[0] = FABSF(ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start);
+                ctx->encoder_ctx.theta_m_start = ctx->encoder_ctx.theta_m_unwrap;
+                ctx->encoder_ctx.test_step = 2;
+            }
+            break;
+        case 2:
+            fInvParkTransform(ctx->encoder_ctx.v_out, 0, 0.0f, &v_alpha, &v_beta);
+            fFOC_SetUalphaBeta(v_alpha, v_beta);
+            if (ctx->steady_tick >= EC_ALIGN_ms)
+            {
+                ctx->steady_tick = 0;
+                ctx->encoder_ctx.delta_theta[1] = FABSF(ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start);
+                ctx->encoder_ctx.theta_m_start = ctx->encoder_ctx.theta_m_unwrap;
+                ctx->encoder_ctx.test_step = 3;
+            }
+            break;
+        case 3:
+            if (ctx->encoder_ctx.delta_theta[0] < 9.0f || ctx->encoder_ctx.delta_theta[1] < 9.0f)
+            {
+                ctx->encoder_ctx.v_out += EC_OPEN_LOOP_UQ_STEP;
+                ctx->encoder_ctx.v_out = CLAMP(ctx->encoder_ctx.v_out, EC_OPEN_LOOP_UQ_MIN, EC_OPEN_LOOP_UQ_MAX);
+                ctx->encoder_ctx.test_step = 0;
+                break;
+            }
+            ctx->encoder_ctx.test_step = 0;
+            ctx->encoder_ctx.step = 1;
+            break;
+        }
         break;
 
     // === STATE 1: 直流预对齐 (Align)===
     case 1:
         // 施加 alpha 轴电压，将转子拉至电气 0 度
-        ctx->encoder_ctx.v_out = EC_OPEN_LOOP_UQ_MIN;
+
         fInvParkTransform(ctx->encoder_ctx.v_out, 0, 0, &v_alpha, &v_beta);
         fFOC_SetUalphaBeta(v_alpha, v_beta);
 
@@ -636,7 +680,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             }
 
             // 电阻完成：初始化电感整定上下文
-            ctx->ls_ctx.inject_period = fpwm / LS_INJECT_FREQ_HZ / 2;
+            ctx->ls_ctx.inject_period = F_PWM / LS_INJECT_FREQ_HZ / 2;
             ctx->ls_ctx.v_inj = LS_V_START;
             ctx->ls_ctx.inject_cnt = 0;
             for (int i = 0; i < 2; i++)
@@ -664,7 +708,10 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 break;
             }
             // todo:这里对电流环PI进行调节
-
+            float fn = 1 / (MATH_2PI * params->Ld / params->Rs);
+            float wc = MATH_2PI * 0.7f * (2 * fn < g_Param.f_current_loop / 10 ? 2 * fn : g_Param.f_current_loop / 10);
+            params->Kp = wc * params->Ld;
+            params->Ki = wc * params->Rs;
             // 电感完成：初始化编码器校准上下文
 
             fSetEncoderAngleZero(); // 编码器圈数归零
@@ -676,6 +723,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->steady_tick = 0;
 
             fFOC_SetUalphaBeta(0, 0);
+            ctx->encoder_ctx.v_out = EC_OPEN_LOOP_UQ_MIN;
 
             ctx->timeout_tick = 0;
             ctx->state = TUNE_STATE_ENCODER;

@@ -26,7 +26,7 @@ static const float32_t lpf_coeffs[5] = {
 /**
  * @brief HFI模块初始化
  */
-void HFI_Init()
+void fHFI_Init()
 {
     // 1. 状态清零
     hfi_handle.theta_e = 0.0f;        // 电气角度 [degree]
@@ -38,12 +38,6 @@ void HFI_Init()
     hfi_handle.inj_signal = 1.0f; // 注入信号极性 (+1/-1)
     hfi_handle.detect_state = 1;  // 初始位置辨识标志
 
-    // 2. 计算注入信号半周期计数
-    // 原理: 方波频率 = InjFreq, 每半周期切换一次极性以产生高频激励
-    // 公式: T_half_ticks = f_pwm / (f_inj * 2)
-    hfi_handle.inj_period_ticks = (uint32_t)(HFI_CTRL_FREQ_HZ / (HFI_INJ_FREQ_HZ * 2.0f));
-    if (hfi_handle.inj_period_ticks < 1)
-        hfi_handle.inj_period_ticks = 1; // 防止除零或过小
     hfi_handle.inj_counter = 0;
 
     // 3. 初始化速度滤波器
@@ -76,14 +70,20 @@ void HFI_Init()
 volatile static u32 T_hfi = 0;
 static u32 T_zero = 0;
 #endif
-void HFI_Step(float32_t ialpha, float32_t ibeta, float32_t *u_alpha_h, float32_t *u_beta_h)
+
+const u8 inj_period_ticks = HFI_CTRL_FREQ_HZ / (HFI_INJ_FREQ_HZ * 2.0f);
+void fHFI_Step(float32_t ialpha, float32_t ibeta, float32_t *u_alpha_h, float32_t *u_beta_h)
 {
+
+    // 分频
+    if (hfi_handle.freq_ticks++ < HFI_CTRL_FREQ_TICKS)
+        return;
+    hfi_handle.freq_ticks = 0;
     /*=========================================================================
      * Step 1: 更新注入信号 (脉振方波)
      * 原理: s_inj = (-1)^k, 频率 = HFI_INJ_FREQ_HZ
      *=========================================================================*/
-    hfi_handle.inj_counter++;
-    if (hfi_handle.inj_counter >= hfi_handle.inj_period_ticks)
+    if (hfi_handle.inj_counter++ >= inj_period_ticks)
     {
 #ifdef __DEBUG__
         if (hfi_handle.inj_signal > 0)
@@ -237,8 +237,8 @@ void HFI_Step(float32_t ialpha, float32_t ibeta, float32_t *u_alpha_h, float32_t
  *   - 需保证调用频率 = HFI_CTRL_FREQ_HZ
  */
 static uint16_t detect_timer = 0;
-int8_t HFI_DetectInitialPosition(float32_t ialpha, float32_t ibeta,
-                                 float32_t *ud, float32_t *uq)
+int8_t fHFI_DetectInitialPosition(float32_t ialpha, float32_t ibeta,
+                                  float32_t *ud, float32_t *uq)
 {
 
     // 状态机实现，适应定时器周期性调用
@@ -331,10 +331,20 @@ int8_t HFI_DetectInitialPosition(float32_t ialpha, float32_t ibeta,
  * @brief 重置初始位置辨识状态
  * @note 在需要重新进行极性辨识时调用
  */
-void HFI_ResetInitialPosition(void)
+void fHFI_ResetInitialPosition(void)
 {
     hfi_handle.detect_state = 1;
     fButterworthFilter_Reset(&speed_lpf_inst);
     // 外部函数无法直接访问HFI_DetectInitialPosition的静态变量
     // 如需重置，建议在HFI_DetectInitialPosition中添加重置参数
+}
+// 获取电角速度
+float32_t fHFI_GetOmegaElec(void)
+{
+    return hfi_handle.omega_filtered;
+}
+// 获取电角度
+float32_t fHFI_GetThetaElec(void)
+{
+    return hfi_handle.theta_e;
 }

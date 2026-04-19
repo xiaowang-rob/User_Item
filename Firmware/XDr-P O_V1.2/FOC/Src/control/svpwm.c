@@ -6,9 +6,9 @@
 #include "device.h"
 #include "adc_dr.h"
 // mos管 死区 采样 造势时间
-const u16 ticTs = Tsample_us * ticpwm / (Tpwm * 1000000);
-const u16 ticTd = Tdeath_us * ticpwm / (Tpwm * 1000000);
-const u16 ticTn = Tnoise_us * ticpwm / (Tpwm * 1000000);
+const u16 ticTs = T_SAMPLE_us * TIC_PWM / (T_PWM * 1000000);
+const u16 ticTd = T_DEATH_us * TIC_PWM / (T_PWM * 1000000);
+const u16 ticTn = T_NOISE_us * TIC_PWM / (T_PWM * 1000000);
 const u16 all_sdc = ticTs + ticTd + ticTn; // 总计数值
 
 tSvpwm svpwm = {0};
@@ -16,7 +16,7 @@ tSvpwm svpwm = {0};
 void fSvpwmInit(float Vbus)
 {
     memset(&svpwm, 0, sizeof(tSvpwm));
-    svpwm.k = MATH_SQRT3 * (float)ticpwm / Vbus;
+    svpwm.k = MATH_SQRT3 * (float)TIC_PWM / Vbus;
     DISABLE_PWM();
 
     PWM_POWER_ON();
@@ -122,16 +122,16 @@ void fSvpwmRun(float ualpha, float ubeta)
         break;
     }
 
-    if (T1 + T2 > ticpwm)
+    if (T1 + T2 > TIC_PWM)
     {
-        float ratio = ticpwm / (T1 + T2);
+        float ratio = TIC_PWM / (T1 + T2);
         T1 *= ratio;
         T2 *= ratio;
         T0 = 0;
     }
     else
     {
-        T0 = ticpwm - T1 - T2;
+        T0 = TIC_PWM - T1 - T2;
     }
     // 以七段式开关序列方式输出--更小的电流纹波和中心对称性（5段 可以减小开关次数）
 
@@ -192,7 +192,7 @@ void fSamplePointCalibration()
     {
     case 0:
     case 7:
-        tic_ref = ticpwm / 2;
+        tic_ref = TIC_PWM / 2;
         goto evaluate;
         break;
     case 1:
@@ -260,7 +260,7 @@ float fGetVoltage_w()
 
 void fSvpwmSetVbus(float Vbus)
 {
-    svpwm.k = MATH_SQRT3 * ticpwm / Vbus;
+    svpwm.k = MATH_SQRT3 * TIC_PWM / Vbus;
 }
 
 u8 fSvpwmGetSector()

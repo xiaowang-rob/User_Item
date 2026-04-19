@@ -92,7 +92,7 @@ void fFOC_CoreInit(void)
     _trajectory_init(g_Param);
     fFOC_CoreReset();
     _mode_init(g_Param);
-    HFI_Init();
+    fHFI_Init();
     fSMO_Init(&Motor);
     _filter_init();
 }
@@ -206,14 +206,24 @@ void fFOC_ValueUpdate(void)
         break;
 
     case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
-                             //        if (0 != HFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
-                             //        { // todo:使能之后 直接跑电压环
-                             //            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
-                             //            break;
-                             //        }
+
+        //        if (0 != fHFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
+        //        { // todo:使能之后 直接跑电压环
+        //            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
+        //            break;
+        //        }
         // todo:这里以电角速度划分区间：低速纯HFI HFI+SMO过渡 高速SMO
-        HFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
+        fHFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
         // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
+
+        foc_val.theta_elec = fHFI_GetThetaElec();
+        // todo:做累加电角度才能反馈真实的机械角速度和位置
+        // foc_val.theta_mech =
+        // foc_val.pos_fb =
+
+        // foc_val.rpm_fb = fHFI_GetOmegaElec() / Motor.pole_pairs;
+        foc_val.rpm_fb = fHFI_GetOmegaElec(); // 先让他等于电角速度
+        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
         break;
     case MERGE_CONTROL:
         fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
@@ -264,8 +274,8 @@ void fFOC_MainLoopTask(void)
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
         foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
-//               foc_val.uq = foc_val.iq_ref; // 调试
-//               foc_val.ud = 0;
+        //               foc_val.uq = foc_val.iq_ref; // 调试
+        //               foc_val.ud = 0;
         fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
         break;
 

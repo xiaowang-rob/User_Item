@@ -1,6 +1,11 @@
 #ifndef __PROTOCOL_H
 #define __PROTOCOL_H
 
+#include "main.h"
+
+extern const u8 EXECUTE;
+extern const u8 FAILURE;
+
 /***********CMD ID***********/
 #define UC_connect 0xf0    // 上位机连接
 #define UC_disconnect 0xfe // 上位机断开

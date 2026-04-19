@@ -58,7 +58,4 @@ typedef struct
 
 extern tDeviceStatus g_device_status;
 
-extern const u8 execute;
-extern const u8 failure;
-
 #endif

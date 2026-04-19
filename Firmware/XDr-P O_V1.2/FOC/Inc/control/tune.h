@@ -45,11 +45,12 @@
 
 // 编码器校准
 #define EC_FREQ_F 10                // 编码器校准分频系数
-#define EC_ALIGN_ms MS_TO_TICK(500) // 编码器校准等待时间
+#define EC_ALIGN_ms MS_TO_TICK(300) // 编码器校准等待时间
 #define EC_OPEN_LOOP_OMEGA 840.0f   // 开环角速度 (°/s) 对应 7极对数 20rpm 14极对数 10rpm
-#define EC_OPEN_LOOP_UQ_MIN 0.6f    // 起始最小施加uq
-#define EC_OPEN_LOOP_UQ_MAX 2.0f    // 起始最大施加uq
-#define EC_OPEN_LOOP_UQ_STEP 0.01f  // 施加uq步长
+
+#define EC_OPEN_LOOP_UQ_MIN 0.4f  // 起始最小施加uq
+#define EC_OPEN_LOOP_UQ_MAX 2.0f  // 起始最大施加uq
+#define EC_OPEN_LOOP_UQ_STEP 0.2f // 施加uq步长
 
 #define EC_FIT_MAX_ERROR 100.0f // 最大拟合误差
 #define EC_MIN_POLE_PAIRS 1     // 最小极对数
@@ -76,6 +77,9 @@ typedef struct
     // 机械参数
     float J; // 转动惯量 (kg·m²)
     float B; // 摩擦系数 (N·m·s/rad)
+
+    float Kp;
+    float Ki;
 
     // 配置参数
     float theta_offset; // 编码器角度偏移 (rad)
@@ -161,6 +165,7 @@ typedef struct
         float theta_e_raw;    // 上一次电角度
         float theta_m_unwrap; // 解包后的连续机械角度
         float theta_m_start;  // 起始机械角度
+        float delta_theta[2];
 
         float k[2];
         float b[2];
@@ -175,6 +180,7 @@ typedef struct
 
         bool forward_done;
         bool backward_done;
+        u8 test_step;
         u8 step; // 0对齐 1正向 2反向 3拟合计算 4完成
 
     } encoder_ctx;

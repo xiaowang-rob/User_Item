@@ -42,7 +42,7 @@ void fParamSet(eParameter para, u8 *value)
         break;
     case FREQ_CURRENT_LOOP:
         g_Param.freq_current_loop = *(u8 *)value;
-        g_Param.f_current_loop = (float)fpwm / g_Param.freq_current_loop;
+        g_Param.f_current_loop = (float)F_PWM / g_Param.freq_current_loop;
         break;
     case FREQ_SPEED_LOOP:
         g_Param.freq_speed_loop = *(u8 *)value;
@@ -217,7 +217,7 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
 
     // float类型参数
     case f_PWM:
-        *(float *)value = fpwm;
+        *(float *)value = F_PWM;
         *len = sizeof(float);
         break;
     case f_CURRENT_LOOP:
@@ -400,8 +400,8 @@ bool fParamInit()
         g_Param.can_id = 1; // CAN ID
 
         // 初始化float类型参数
-        g_Param.f_pwm = fpwm;
-        g_Param.f_current_loop = (float)fpwm / g_Param.freq_current_loop;
+        g_Param.f_pwm = F_PWM;
+        g_Param.f_current_loop = (float)F_PWM / g_Param.freq_current_loop;
         g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
         g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 

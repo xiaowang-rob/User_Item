@@ -95,10 +95,11 @@ class ComPort(QObject):
             self._lock.unlock()
 
     def _update_ui_state(self):
+        print(f"is_connected={self.is_connected}, _pending_handshake={self._pending_handshake}")
         btn = self.connect_but
-        if self._pending_handshake:
-            btn.setText("蓝牙握手中...")
-        elif self.is_connected:
+        if hasattr(btn, 'setValue'): 
+            btn.setValue("断开" if self.is_connected  else "连接")
+        if self.is_connected:
             btn.setText("已连接")
         else:
             port = self.comport_list.currentText()
@@ -107,13 +108,12 @@ class ComPort(QObject):
             self.comport_list.setEnabled(True)
             return # 未连接时直接返回，不执行下方已连接的逻辑
         
-        if hasattr(btn, 'setValue'): 
-            btn.setValue("断开" if (self.is_connected or self._pending_handshake) else "连接")
+
         btn.setChecked(True)
         self.comport_list.setEnabled(False)
 
     def _refresh_ports(self):
-        if self.is_connected or self._pending_handshake:
+        if self.is_connected:
             return
 
         ports_info = serial.tools.list_ports.comports()
@@ -174,14 +174,14 @@ class ComPort(QObject):
             combo.setCurrentIndex(0)
             
         # 自动连接
-        if self._auto_connect_enabled and not self.is_connected and not self._pending_handshake:
+        if self._auto_connect_enabled and not self.is_connected :
             self._try_auto_connect()
             
-        if not self.is_connected and not self._pending_handshake:
+        if not self.is_connected:
             self._update_ui_state()
 
     def _try_auto_connect(self):
-        if not self._auto_connect_enabled or self.is_connected or self._pending_handshake:
+        if not self._auto_connect_enabled or self.is_connected:
             return
         # 直接通过 _port_types 过滤已知有线设备
         for i, p_type in enumerate(self._port_types):
@@ -272,7 +272,7 @@ class ComPort(QObject):
             return False
 
     def disconnect(self, manual=True):
-        if not self.is_connected and not self.serial_port and not self._pending_handshake:
+        if not self.is_connected and not self.serial_port:
             if manual:
                 self._auto_connect_enabled = False
                 self._update_ui_state()
@@ -371,12 +371,12 @@ class ComPort(QObject):
                     print(f"[串口] 发送线程异常：{e}")
 
     def _handle_connection_lost(self, reason, is_physical=False):
-        if not self.is_connected and not self._pending_handshake:
+        if not self.is_connected:
             return
         
         self._lock.lock()
         try:
-            if self.is_connected or self._pending_handshake:
+            if self.is_connected:
                 self.is_connected = False
                 print(f"[串口] 连接断开：{reason}")
                 
@@ -402,7 +402,7 @@ class ComPort(QObject):
         send_simple_message(msg_type, text, show_once, duration)
 
     def _monitor_connection(self):
-        if not self.is_connected or self._pending_handshake:
+        if not self.is_connected:
             return
         if not self.serial_port or not self.serial_port.is_open:
             self._handle_connection_lost("物理连接断开", is_physical=True)
@@ -420,7 +420,7 @@ class ComPort(QObject):
         self._last_status_time = time.time()
 
     def send_packet(self, cmd_id, data_bytes):
-        if not self.is_connected or self._pending_handshake:
+        if not self.is_connected:
             return False
         if not isinstance(cmd_id, int) or not (0 <= cmd_id <= 255):
             raise ValueError("cmd_id 必须是 0-255 的整数")

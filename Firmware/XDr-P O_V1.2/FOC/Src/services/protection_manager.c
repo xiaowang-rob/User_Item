@@ -65,7 +65,7 @@ void fProManagerMainLoop()
     }
 
     // 过压不可取
-    if (g_foc.core->motor->Udc > MAX_Voltage)
+    if (g_foc.core->motor->Udc > MAX_VOLTAGE)
     {
         g_pro_manager.fault = OVER_VOLTAGE;
         g_pro_manager.fault_flag = true;
@@ -102,7 +102,7 @@ void fProManagerMainLoop()
     {
 
         // 3.电流过大
-        if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
+        if (g_foc.core->foc_val->Iu > MAX_CURRENT || g_foc.core->foc_val->Iv > MAX_CURRENT || g_foc.core->foc_val->Iw > MAX_CURRENT ||
             _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
         {
             g_pro_manager.fault = OVER_CURRENT;
@@ -111,7 +111,7 @@ void fProManagerMainLoop()
 
         // 警告：
         // 1温度过高
-        if (g_pro_manager.temperature > MAX_Temperature)
+        if (g_pro_manager.temperature > MAX_TEMPERATURE)
         {
             g_pro_manager.warning = OVER_TEMPERATURE;
             g_pro_manager.warning_flag = true;
@@ -138,9 +138,9 @@ void fProManagerMainLoop()
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
-        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_Voltage, MIN_Voltage, g_pro_manager.tolerance_voltage))
+        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_VOLTAGE, MIN_VOLTAGE, g_pro_manager.tolerance_voltage))
         {
-            if (g_foc.core->motor->Udc > MAX_Voltage)
+            if (g_foc.core->motor->Udc > MAX_VOLTAGE)
             {
                 g_pro_manager.fault = OVER_VOLTAGE;
                 g_pro_manager.fault_flag = true;
@@ -152,14 +152,14 @@ void fProManagerMainLoop()
             }
         }
         // 3.电流过大
-        if (g_foc.core->foc_val->Iu > MAX_Current || g_foc.core->foc_val->Iv > MAX_Current || g_foc.core->foc_val->Iw > MAX_Current ||
+        if (g_foc.core->foc_val->Iu > MAX_CURRENT || g_foc.core->foc_val->Iv > MAX_CURRENT || g_foc.core->foc_val->Iw > MAX_CURRENT ||
             _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
         {
             g_pro_manager.fault = OVER_CURRENT;
             g_pro_manager.fault_flag = true;
         }
         // 1温度过高
-        if (g_pro_manager.temperature > MAX_Temperature)
+        if (g_pro_manager.temperature > MAX_TEMPERATURE)
         {
             g_pro_manager.warning = OVER_TEMPERATURE;
             g_pro_manager.warning_flag = true;

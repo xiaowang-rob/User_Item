@@ -84,7 +84,7 @@ void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
     }
 
     /* 初始化完成后发送执行指令 */
-    fCAN_SendData((u8 *)&execute, 1);
+    fCAN_SendData((u8 *)&EXECUTE, 1);
 }
 
 /**
