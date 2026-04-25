@@ -36,12 +36,13 @@ class DataProcess:
                             sys_msg=""
                         else:
                             sys_msg=''.join(c for c in sys_msg_in if 32 <= ord(c) <= 126).strip()
+                        print(f"系统消息: {sys_msg}")
                         parts = sys_msg.split(',')
                         version = parts[0].strip()+" "+parts[1].strip()
                         self.mw.IAP.set_current_version(version)
                         # 定义字段标签（项目名称）
-                        labels = ["设备名称", "版本", "作者", "最大电流", "输入电压", "最大温度"]
-                        units=["","","","A","V","°C"]
+                        labels = ["设备名称", "版本", "作者", "基频" , "电流环频率" , "速度环频率" , "位置环频率" , "最大电流", "输入电压", "最大温度"]
+                        units=["","","","Hz","Hz","Hz","Hz","A","V","°C"]
                         # 构建带标签的多行字符串
                         formatted_lines = []
                         for i, label in enumerate(labels):
@@ -51,6 +52,7 @@ class DataProcess:
                         # 用换行符连接所有行
                         self.mw.system_message = "\n".join(formatted_lines)
 
+                        #todo:这里蓝牙握手要改
                         self.mw.comport.confirm_device_handshake()
                     return
                 case Cidx.LOG_GET:  # 日志读取返回

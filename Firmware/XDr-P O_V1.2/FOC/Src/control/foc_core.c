@@ -19,19 +19,21 @@ tMotor Motor = {0};
 tFOC_Core foc_core = {.foc_mode = &foc_mode, .foc_val = &foc_val, .motor = &Motor};
 
 /* 滤波器实例 */
-static tFirstOrderLagFilter _i_u_filter;
-static tFirstOrderLagFilter _i_v_filter;
-static tFirstOrderLagFilter _i_w_filter;
-
-static tFirstOrderLagFilter _ialpha_filter;
-static tFirstOrderLagFilter _ibeta_filter;
-
 static tFirstOrderLagFilter _omega_filter;
 
-#define CURRENT_ORIGIN_FILTER_alpha 0.36f
+static tBW_FilterInstance _i_u_filter;
+static tBW_FilterInstance _i_v_filter;
+static tBW_FilterInstance _i_w_filter;
 
-#define CURRENT_FILTER_alpha 0.6f
-#define SPEED_FILTER_alpha 0.04f
+float32_t lpf_i_coeffs[5] = {
+    0.1453238839f, /* b0 */
+    0.2906477678f, /* b1 */
+    0.1453238839f, /* b2 */
+    0.6710290908f, /* a1 */
+    -0.2523246263f /* a2 */
+};
+
+#define SPEED_FILTER_alpha 0.02f
 
 // 启动器初始化
 static void _trajectory_init(tParameter param)
@@ -51,7 +53,6 @@ static void _mode_init(tParameter param)
     fFOC_SetSensorMode(param.sensor_mode);
     foc_mode.runmode = param.run_mode;
     foc_mode.pvt_mode = param.sw_pvt;
-    foc_mode.weak_mag = param.sw_weakmag;
 }
 
 // 电机参数初始化
@@ -73,15 +74,18 @@ static void _motor_init(tParameter param)
 // 滤波器初始化
 static void _filter_init(void)
 {
-    fFirstOrderLagInit(&_i_u_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iu);
-    fFirstOrderLagInit(&_i_v_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iv);
-    fFirstOrderLagInit(&_i_w_filter, CURRENT_ORIGIN_FILTER_alpha, foc_val.Iw);
+    fButterworthFilter_Init(&_i_u_filter, lpf_i_coeffs);
+    fButterworthFilter_Init(&_i_v_filter, lpf_i_coeffs);
+    fButterworthFilter_Init(&_i_w_filter, lpf_i_coeffs);
 
-    fFirstOrderLagInit(&_ialpha_filter, CURRENT_FILTER_alpha, foc_val.Ialpha);
-    fFirstOrderLagInit(&_ibeta_filter, CURRENT_FILTER_alpha, foc_val.Ibeta);
     fFirstOrderLagInit(&_omega_filter, SPEED_FILTER_alpha, foc_val.rpm_fb);
 }
-
+static void _filter_reset(void)
+{
+    fButterworthFilter_Reset(&_i_u_filter);
+    fButterworthFilter_Reset(&_i_v_filter);
+    fButterworthFilter_Reset(&_i_w_filter);
+}
 // FOC核心初始化
 void fFOC_CoreInit(void)
 {
@@ -110,6 +114,8 @@ void fFOC_CoreReset(void)
     _FocValReset();
     fLoopReset();
     fSMO_Reset();
+    fHFI_ResetInitialPosition();
+
     if (foc_mode.runmode == POSITION_MODE)
         fTraj_Reset(foc_val.pos_fb);
     else if (foc_mode.runmode == SPEED_MODE)
@@ -119,7 +125,6 @@ void fFOC_CoreReset(void)
 // 电流重构：根据扇区将线电流转换为相电流
 static inline void _Current_reconstruction(void)
 {
-    float ui, vi, wi;
     // fAdcGetCurrent(&foc_val.Iu, &foc_val.Iv, &foc_val.Iw);
     // switch (fSvpwmGetSector())
     // {
@@ -148,43 +153,40 @@ static inline void _Current_reconstruction(void)
     //     break;
     // }
     //  fClarkTransform(ui, vi, wi, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
-
+    float ui, vi, wi;
     fAdcGetCurrent(&ui, &vi, &wi);
-    ui = fFirstOrderLagFilter(&_i_u_filter, ui);
-    vi = fFirstOrderLagFilter(&_i_v_filter, vi);
-    wi = fFirstOrderLagFilter(&_i_w_filter, wi);
+
     switch (fSvpwmGetSector())
     {
     case 1:
     case 6:
-        foc_val.Iu = vi + wi;
-        foc_val.Iv = -vi;
-        foc_val.Iw = -wi;
+        foc_val.Iu_im = vi + wi;
+        foc_val.Iv_im = -vi;
+        foc_val.Iw_im = -wi;
         break;
     case 2:
     case 3:
-        foc_val.Iu = -ui;
-        foc_val.Iv = ui + wi;
-        foc_val.Iw = -wi;
+        foc_val.Iu_im = -ui;
+        foc_val.Iv_im = ui + wi;
+        foc_val.Iw_im = -wi;
         break;
     case 4:
     case 5:
-        foc_val.Iu = -ui;
-        foc_val.Iv = -vi;
-        foc_val.Iw = ui + vi;
+        foc_val.Iu_im = -ui;
+        foc_val.Iv_im = -vi;
+        foc_val.Iw_im = ui + vi;
         break;
     default:
-        foc_val.Iu = ui;
-        foc_val.Iv = vi;
-        foc_val.Iw = wi;
+        foc_val.Iu_im = ui;
+        foc_val.Iv_im = vi;
+        foc_val.Iw_im = wi;
         break;
     }
-    fClarkTransform(foc_val.Iu, foc_val.Iv, foc_val.Iw, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+    foc_val.Iu = fButterworthFilter_Process(&_i_u_filter, foc_val.Iu_im);
+    foc_val.Iv = fButterworthFilter_Process(&_i_v_filter, foc_val.Iv_im);
+    foc_val.Iw = fButterworthFilter_Process(&_i_w_filter, foc_val.Iw_im);
 
-    // foc_val.Ialpha = foc_val.Ialpha_im;
-    // foc_val.Ibeta = foc_val.Ibeta_im;
-    foc_val.Ialpha = fFirstOrderLagFilter(&_ialpha_filter, foc_val.Ialpha_im);
-    foc_val.Ibeta = fFirstOrderLagFilter(&_ibeta_filter, foc_val.Ibeta_im);
+    fClarkTransform(foc_val.Iu, foc_val.Iv, foc_val.Iw, &foc_val.Ialpha, &foc_val.Ibeta);
 }
 
 void fFOC_ValueUpdate(void)
@@ -205,7 +207,7 @@ void fFOC_ValueUpdate(void)
         foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
         break;
 
-    case SENSORLESS_CONTROL: // todo:运行HFI和SMO，获取其数据
+    case SENSORLESS_CONTROL: // todo:这里只获取和处理无感观测器的数据
 
         //        if (0 != fHFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
         //        { // todo:使能之后 直接跑电压环
@@ -213,26 +215,24 @@ void fFOC_ValueUpdate(void)
         //            break;
         //        }
         // todo:这里以电角速度划分区间：低速纯HFI HFI+SMO过渡 高速SMO
-        fHFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
         // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
-
         foc_val.theta_elec = fHFI_GetThetaElec();
         // todo:做累加电角度才能反馈真实的机械角速度和位置
         // foc_val.theta_mech =
         // foc_val.pos_fb =
 
         // foc_val.rpm_fb = fHFI_GetOmegaElec() / Motor.pole_pairs;
-        foc_val.rpm_fb = fHFI_GetOmegaElec(); // 先让他等于电角速度
-        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
+        //        foc_val.rpm_fb = fHFI_GetOmegaElec(); // 先让他等于电角速度
+        //        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
         break;
     case MERGE_CONTROL:
-        fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
         foc_val.theta_mech = fGetEncoderAngle_ABS();
-        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs + (Motor.elec_PI_offset ? 180 : 0);
+        foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs * (Motor.forward_dir ? 1 : -1) + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
 
         foc_val.pos_fb = fGetEncoderAngle_INC();
         foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
+        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
 
         break;
     default:
@@ -242,6 +242,18 @@ void fFOC_ValueUpdate(void)
 // 使能后执行：按模式运行对应控制环
 void fFOC_MainLoopTask(void)
 {
+    if (foc_mode.sensor_mode >= SENSORLESS_CONTROL)
+    {
+        fClarkTransform(foc_val.Iu_im, foc_val.Iv_im, foc_val.Iw_im, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
+        fHFI_Step(foc_val.Ialpha_im, foc_val.Ibeta_im, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
+        // smo
+        if (!fHFI_GetStatus())
+        { // todo:使能之后 直接跑电压环
+            fHFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha, &foc_val.Ubeta);
+            goto open_loop;
+        }
+        // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
+    }
 
     switch (foc_mode.runmode)
     {
@@ -261,14 +273,13 @@ void fFOC_MainLoopTask(void)
             foc_val.rpm_ref = traj_out.value;
         }
         foc_val.iq_ref = fSpeedLoopUpdate(foc_val.rpm_ref, foc_val.rpm_fb);
-        if (foc_mode.weak_mag)
-        {
-            if (foc_val.rpm_fb > 70)
-                foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
-            else
-                foc_val.id_ref = 0;
-        }
+        if (foc_val.rpm_fb > 70)
+            foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
+        else
+            foc_val.id_ref = 0;
+
     case CURRENT_MODE:
+
         if (!loop_con.fd.current_update)
             break;
         fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
@@ -282,7 +293,8 @@ void fFOC_MainLoopTask(void)
     default: // 开环模式
         break;
     }
-
+// 这里运行无感
+open_loop:
     fSvpwmRun(foc_val.Ualpha + foc_val.Ualpha_hfi, foc_val.Ubeta + foc_val.Ubeta_hfi);
     fSamplePointCalibration();
 }
@@ -312,6 +324,7 @@ void fFOC_SetTargetValue(float *value)
 // 参数自动校准
 bool fAutoCalibrationUpdate(void)
 {
+    fClarkTransform(foc_val.Iu_im, foc_val.Iv_im, foc_val.Iw_im, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
     if (TUNE_STATE_COMPLETE == fMotorParamTune_Update(foc_val))
     {
         fFOC_CoreInit();

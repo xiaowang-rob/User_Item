@@ -95,7 +95,6 @@ class ComPort(QObject):
             self._lock.unlock()
 
     def _update_ui_state(self):
-        print(f"is_connected={self.is_connected}, _pending_handshake={self._pending_handshake}")
         btn = self.connect_but
         if hasattr(btn, 'setValue'): 
             btn.setValue("断开" if self.is_connected  else "连接")

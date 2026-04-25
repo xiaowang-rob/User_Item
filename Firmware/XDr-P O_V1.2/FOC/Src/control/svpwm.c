@@ -18,8 +18,6 @@ void fSvpwmInit(float Vbus)
     memset(&svpwm, 0, sizeof(tSvpwm));
     svpwm.k = MATH_SQRT3 * (float)TIC_PWM / Vbus;
     DISABLE_PWM();
-
-    PWM_POWER_ON();
 }
 
 __STATIC_INLINE void pwm_out()

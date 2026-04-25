@@ -5,7 +5,7 @@
 #include "encoder.h"
 #include "adc_dr.h"
 
-FOC_t g_foc = {.core = &foc_core, .loop_con = &loop_con, .smo = &smo, .tun = &g_tune_ctx, .svpwm = &svpwm};
+FOC_t g_foc = {.core = &foc_core, .loop_con = &loop_con, .hfi = &g_hfi, .smo = &smo, .tun = &g_tune_ctx, .svpwm = &svpwm};
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
@@ -48,8 +48,10 @@ void fFOC_Init()
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
     g_foc.foc_enable = false;
     DISABLE_PWM();
+    PWM_POWER_ON();
     g_foc.state = FOC_IDLE;
     fFOC_CoreInit();
+    g_foc.foc_init = true;
     // 校准电流零点
     g_foc.state = FOC_ENABLE;
     g_calibration_flag = true;
@@ -61,6 +63,8 @@ void fFOC_Init()
 // FOC 主循环函数
 void fFOC_StateMachineMainLoop()
 {
+    if (!g_foc.foc_init)
+        return;
     fFOC_ValueUpdate();
     switch (g_foc.state)
     {

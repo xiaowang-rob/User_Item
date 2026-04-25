@@ -25,12 +25,12 @@ typedef struct
     eSensorMode sensor_mode;
     eRunMode runmode;
     u8 pvt_mode;
-    u8 weak_mag;
     eTrajType trajectory_mode;
 } tFOC_Mode;
 
 typedef struct
 {
+    float Iu_im, Iv_im, Iw_im;
     float Iu, Iv, Iw;
     float Ialpha_im, Ibeta_im;
     float Ialpha, Ibeta;

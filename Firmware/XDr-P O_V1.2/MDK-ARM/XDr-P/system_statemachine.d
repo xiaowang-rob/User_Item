@@ -37,10 +37,12 @@
   ..\FOC\Inc\utils\math_fast.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
-  ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\svpwm.h \
-  ..\FOC\Inc\services\status_feedback.h ..\FOC\Inc\services\log.h \
-  ..\FOC\Inc\services\protection_manager.h ..\FOC\Config\device.h \
-  ..\Core\Inc\spi.h ..\FOC\Inc\communication\port_mapping.h \
-  ..\FOC\Config\protocol.h ..\FOC\Inc\communication\DataMonitoring.h \
-  ..\FOC\Inc\drivers\adc_dr.h ..\FOC\Inc\drivers\flashDr.h \
-  ..\FOC\Inc\drivers\rgb.h ..\FOC\Inc\drivers\encoder.h
+  ..\FOC\Inc\control\tune.h ..\FOC\Config\drive_parameters.h \
+  ..\FOC\Inc\control\svpwm.h ..\FOC\Inc\control\hfi.h \
+  ..\FOC\Inc\utils\filter.h ..\FOC\Inc\services\status_feedback.h \
+  ..\FOC\Inc\services\log.h ..\FOC\Inc\services\protection_manager.h \
+  ..\FOC\Config\device.h ..\Core\Inc\spi.h \
+  ..\FOC\Inc\communication\port_mapping.h ..\FOC\Config\protocol.h \
+  ..\FOC\Inc\communication\DataMonitoring.h ..\FOC\Inc\drivers\adc_dr.h \
+  ..\FOC\Inc\drivers\flashDr.h ..\FOC\Inc\drivers\rgb.h \
+  ..\FOC\Inc\drivers\encoder.h

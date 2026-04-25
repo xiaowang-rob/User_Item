@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "foc_core.h"
+#include "drive_parameters.h"
 
 /* ================================= 整定参数配置 ================================= */
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
@@ -10,7 +11,7 @@
 #define TICK_TO_MS(tick) ((tick) * 0.05f)
 #define MS_TO_TICK(ms) ((u16)((ms) * 20.0f))
 
-#define TUNE_WAIT_TICKS MS_TO_TICK(1000) // 先静止等待时间 (1s)
+#define TUNE_WAIT_TICKS MS_TO_TICK(1000) // 先静止等待时间
 
 // 电阻整定 (滞环电流控制 + 滤波 + 差分)
 #define RS_FREQ_F 10                      // 电阻整定分频系数
@@ -30,23 +31,40 @@
 #define RS_DEADTIME_VCOMP 0.04f           // 死区补偿电压 (V)
 
 // 电感整定
-#define LS_TIMEOUT_TICKS MS_TO_TICK(500)  // 整定超时时间 (500ms)
-#define LS_INJECT_FREQ_HZ 2500            // 注入频率 (Hz)
+#define LS_TIMEOUT_TICKS MS_TO_TICK(500)                // 整定超时时间 (500ms)
+#define LS_INJECT_FREQ_TICK 20                          // 注入分频
+#define LS_INJECT_AMP_V (LS_INJECT_FREQ_TICK * T_PWM)   // 注入周期
+#define LS_INJECT_FREQ_HZ (F_PWM / LS_INJECT_FREQ_TICK) // 注入频率 (Hz)
+
+#define LS_ALIGN_VOLTAGE 0.6f          // 电感校准对齐电压 (V)
+#define LS_ALIGN_TICKS MS_TO_TICK(500) // 对齐时间
+
+#define DFT_WINDOW_LEN 160
+
 #define LS_V_HOLD_MAX_TICKS MS_TO_TICK(5) // 自适应注入电压最大保持时间
 #define LS_SAMPLE_TIME_ms MS_TO_TICK(200) // 采样时间 (200ms)
 #define LS_V_START 0.2f                   // 起始电压 (V)
 #define LS_V_MAX 0.8f                     // 最大电压 (V)
-#define LS_I_LIMIT 3.0f                   // 电流限幅 (A)
+#define LS_I_TARGET 3.0f                  // 电流限幅 (A)
 #define LS_I_STEP_MIN 0.04f               // 保持超时后微调步长 (A)
-#define LS_MIN_DI_DT 100.0f               // 最小信噪比要求
-#define LS_MAX_DI_DT 60000.0f             // 最大信噪比要求
-#define LS_RANGE_MIN 20e-6f               // 电感合理下限(H)
-#define LS_RANGE_MAX 300e-6f              // 电感合理上限 (H)
+
+// 转子预定位
+#define ALIGN_VOLTAGE 2.0f      // 定位电压(V)
+#define ALIGN_TIME_MS 500       // 定位持续时间(ms)
+#define WAIT_AFTER_ALIGN_MS 200 // 定位后等待电流衰减时间(ms)
+
+// DFT测量
+#define DFT_AVG_CYCLES 10 // 取10个注入周期的平均
+
+#define LS_MIN_DI_DT 100.0f   // 最小信噪比要求
+#define LS_MAX_DI_DT 60000.0f // 最大信噪比要求
+#define LS_RANGE_MIN 20e-6f   // 电感合理下限(H)
+#define LS_RANGE_MAX 300e-6f  // 电感合理上限 (H)
 
 // 编码器校准
 #define EC_FREQ_F 10                // 编码器校准分频系数
 #define EC_ALIGN_ms MS_TO_TICK(300) // 编码器校准等待时间
-#define EC_OPEN_LOOP_OMEGA 840.0f   // 开环角速度 (°/s) 对应 7极对数 20rpm 14极对数 10rpm
+#define EC_OPEN_LOOP_OMEGA 1000.0f  // 开环角速度 (°/s) 对应 7极对数 23rpm 14极对数 12rpm
 
 #define EC_OPEN_LOOP_UQ_MIN 0.4f  // 起始最小施加uq
 #define EC_OPEN_LOOP_UQ_MAX 2.0f  // 起始最大施加uq
@@ -66,8 +84,29 @@ typedef struct
 {
     // 系统参数
     float dt; // 控制周期 (s)
+
+    // 控制参数
+
+    float BandWidth_Current; // 电流滞环带宽
+    float BandWidth_Speed;   // 速度滞环带宽
+    float BandWidth_Pos;     // 位置滞环带宽
+
+    float iq_Kp;
+    float iq_Ki;
+    float id_kp;
+    float id_ki;
+    float speed_Kp;
+    float speed_Ki;
+    float mag_Kp;
+    float mag_Ki;
+    float pos_Kp;
+    float pos_Ki;
+    float pos_Kd;
+
+    /* ================================= 电机参数 ========== */
     // 电气参数
-    float KV;    // 电压转化器增益 (V/V)
+    float KV; // 电压转化器增益 (V/V) 用于检验参数有效性
+
     float Rs;    // 定子电阻(Ω)
     float Ld;    // d 轴电感 (H)
     float Lq;    // q 轴电感 (H)
@@ -78,21 +117,12 @@ typedef struct
     float J; // 转动惯量 (kg·m²)
     float B; // 摩擦系数 (N·m·s/rad)
 
-    float Kp;
-    float Ki;
-
-    // 配置参数
+    /* ========== 编码器参数 =====*/
     float theta_offset; // 编码器角度偏移 (rad)
     u8 pole_pairs;      // 极对数
     bool direction;     // 转动方向 (true:逆 false 顺)
     bool theta_elec_need_180;
 
-    // 有效性标志
-    bool Rs_valid;
-    bool L_valid;
-    bool encoder_valid;
-    bool psi_valid;
-    bool mech_valid;
 } tMotorParams;
 
 /* ================================= 整定状态枚举 ================================= */
@@ -112,11 +142,15 @@ typedef enum
 typedef enum
 {
     TUNE_FAULT_NONE = 0,
-    TUNE_FAULT_TIMEOUT,
-    TUNE_FAULT_PARAM_INVALID,
-    TUNE_FAULT_SIGNAL_WEAK,
-    TUNE_FAULT_MECH_LOCKED,
-    TUNE_FAULT_ENCODER_ERROR
+    TUNE_FAULT_CURRENT_VIBRATION,  // 电流震荡,不稳定
+    TUNE_FAULT_POLEPAIRS_MISMATCH, // 极对数不匹配,校准失败
+    TUNE_FAULT_MECH_LOCKED,        // 电机堵转
+
+    TUNE_FAULT_RSLS_INVALID,    // 电阻电感校准失败
+    TUNE_FAULT_ENCODER_INVALID, // 编码器校准失败
+    TUNE_FAULT_ELECTRI_INVALID, // 电气参数校准失败
+    TUNE_FAULT_MECH_INVALID,    // 机械参数校准失败
+
 } eTuneFault;
 
 /* ================================= 整定上下文(内部状态) ================================= */
@@ -144,15 +178,24 @@ typedef struct
     // 电感整定上下文
     struct
     {
-        float v_inj;
-        float di_dt_sum[2][2];
-        float ts_cnt[2];
-        float ipeak[2];
-        u16 cnt[2][2];
-        float i_sum[2][2];
+        // 状态机 (0~5)
+        uint8_t state;
         bool ready;
-        u16 inject_period;
-        u16 inject_cnt;
+
+        // ----- 电压自适应相关 -----
+        float v_inj;    // 最终确定的注入电压幅值
+        float i_target; // 目标电流幅值
+        float i_meas;   // 当前测量的电流幅值（用于自适应判断）
+
+        // ----- DFT 累加器（无缓冲区，周期累加）-----
+        float sum_re;        // 实部累加和
+        float sum_im;        // 虚部累加和
+        uint16_t sample_cnt; // 当前周期已采样点数
+
+        // ----- 多周期平均 -----
+        float amp_sum;     // 多个周期的幅值累加
+        uint8_t cycle_cnt; // 已完成的有效周期数
+
     } ls_ctx;
 
     // 角度偏移上下文
@@ -216,7 +259,6 @@ typedef struct
 
     // 临时变量
     float temp_val[4];
-    u16 temp_cnt[4];
     bool temp_flag[4];
 } tTuneContext;
 

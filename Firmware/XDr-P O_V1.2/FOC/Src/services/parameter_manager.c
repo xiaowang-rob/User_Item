@@ -24,9 +24,6 @@ void fParamSet(eParameter para, u8 *value)
     case CAN_MODE:
         g_Param.sw_canqueue = *(u8 *)value;
         break;
-    case WEAKMAG_MODE:
-        g_Param.sw_weakmag = *(u8 *)value;
-        break;
     case VAGUE_PID_MODE:
         g_Param.sw_vague_pid = *(u8 *)value;
         break;
@@ -40,18 +37,7 @@ void fParamSet(eParameter para, u8 *value)
     case MOTOR_POLEPAIRS:
         g_Param.motor_polepairs = *(u8 *)value;
         break;
-    case FREQ_CURRENT_LOOP:
-        g_Param.freq_current_loop = *(u8 *)value;
-        g_Param.f_current_loop = (float)F_PWM / g_Param.freq_current_loop;
-        break;
-    case FREQ_SPEED_LOOP:
-        g_Param.freq_speed_loop = *(u8 *)value;
-        g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
-        break;
-    case FREQ_POSITION_LOOP:
-        g_Param.freq_position_loop = *(u8 *)value;
-        g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
-        break;
+
     // u32类型参数
     case CAN_ID:
         g_Param.can_id = *(u32 *)value;
@@ -85,18 +71,6 @@ void fParamSet(eParameter para, u8 *value)
     case MOTOR_B:
         g_Param.motor_b = *(float *)value;
         break;
-    case Kp_CURRENT:
-        g_Param.kp_current = *(float *)value;
-        break;
-    case Ki_CURRENT:
-        g_Param.ki_current = *(float *)value;
-        break;
-    case Kp_WEAKMAG:
-        g_Param.kp_weakmag = *(float *)value;
-        break;
-    case Ki_WEAKMAG:
-        g_Param.ki_weakmag = *(float *)value;
-        break;
     case Kp_SPEED:
         g_Param.kp_speed = *(float *)value;
         break;
@@ -127,18 +101,10 @@ void fParamSet(eParameter para, u8 *value)
     case TOLERANCE_TIME:
         g_Param.tolerance_time = *(float *)value;
         break;
-    case TOLERANCE_VOLTAGE:
-        g_Param.tolerance_voltage = *(float *)value;
+    case TOLERANCE_LIMIT:
+        g_Param.tolerance_limit = *(float *)value;
         break;
-    case TOLERANCE_CURRENT:
-        g_Param.tolerance_current = *(float *)value;
-        break;
-    case TOLERANCE_SPEED:
-        g_Param.tolerance_speed = *(float *)value;
-        break;
-    case TOLERANCE_POSITION:
-        g_Param.tolerance_position = *(float *)value;
-        break;
+
     case TRAJ_MAX_RATE:
         g_Param.traj_max_rate = *(float *)value;
         break;
@@ -151,10 +117,10 @@ void fParamSet(eParameter para, u8 *value)
     case TRAJ_TOLERANCE:
         g_Param.tolerance = *(float *)value;
         break;
-    default:
+    default: // 最后会发送一个 成功 反馈
+        fParamWriteFOC();
         break;
     }
-    fParamWriteFOC();
 }
 
 void fParamGet(eParameter para, u8 *value, u8 *len)
@@ -175,10 +141,6 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(u8 *)value = g_Param.sw_canqueue;
         *len = sizeof(u8);
         break;
-    case WEAKMAG_MODE:
-        *(u8 *)value = g_Param.sw_weakmag;
-        *len = sizeof(u8);
-        break;
     case VAGUE_PID_MODE:
         *(u8 *)value = g_Param.sw_vague_pid;
         *len = sizeof(u8);
@@ -197,41 +159,12 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *len = sizeof(u8);
         break;
 
-    case FREQ_CURRENT_LOOP:
-        *(u8 *)value = g_Param.freq_current_loop;
-        *len = sizeof(u8);
-        break;
-    case FREQ_SPEED_LOOP:
-        *(u8 *)value = g_Param.freq_speed_loop;
-        *len = sizeof(u8);
-        break;
-    case FREQ_POSITION_LOOP:
-        *(u8 *)value = g_Param.freq_position_loop;
-        *len = sizeof(u8);
-        break;
     // u32类型参数
     case CAN_ID:
         *(u32 *)value = g_Param.can_id;
         *len = sizeof(u32);
         break;
 
-    // float类型参数
-    case f_PWM:
-        *(float *)value = F_PWM;
-        *len = sizeof(float);
-        break;
-    case f_CURRENT_LOOP:
-        *(float *)value = g_Param.f_current_loop;
-        *len = sizeof(float);
-        break;
-    case f_SPEED_LOOP:
-        *(float *)value = g_Param.f_speed_loop;
-        *len = sizeof(float);
-        break;
-    case f_POSITION_LOOP:
-        *(float *)value = g_Param.f_position_loop;
-        *len = sizeof(float);
-        break;
     case THETA_OFFSET:
         *(float *)value = g_Param.theta_offset;
         *len = sizeof(float);
@@ -266,22 +199,6 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         break;
     case MOTOR_B:
         *(float *)value = g_Param.motor_b;
-        *len = sizeof(float);
-        break;
-    case Kp_CURRENT:
-        *(float *)value = g_Param.kp_current;
-        *len = sizeof(float);
-        break;
-    case Ki_CURRENT:
-        *(float *)value = g_Param.ki_current;
-        *len = sizeof(float);
-        break;
-    case Kp_WEAKMAG:
-        *(float *)value = g_Param.kp_weakmag;
-        *len = sizeof(float);
-        break;
-    case Ki_WEAKMAG:
-        *(float *)value = g_Param.ki_weakmag;
         *len = sizeof(float);
         break;
     case Kp_SPEED:
@@ -324,20 +241,8 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.tolerance_time;
         *len = sizeof(float);
         break;
-    case TOLERANCE_VOLTAGE:
-        *(float *)value = g_Param.tolerance_voltage;
-        *len = sizeof(float);
-        break;
-    case TOLERANCE_CURRENT:
-        *(float *)value = g_Param.tolerance_current;
-        *len = sizeof(float);
-        break;
-    case TOLERANCE_SPEED:
-        *(float *)value = g_Param.tolerance_speed;
-        *len = sizeof(float);
-        break;
-    case TOLERANCE_POSITION:
-        *(float *)value = g_Param.tolerance_position;
+    case TOLERANCE_LIMIT:
+        *(float *)value = g_Param.tolerance_limit;
         *len = sizeof(float);
         break;
 
@@ -382,7 +287,6 @@ bool fParamInit()
         // 初始化u8类型参数
         // 初始化u8类型参数
         g_Param.sw_canqueue = 0;  // CAN队列开关
-        g_Param.sw_weakmag = 0;   // 弱磁开关
         g_Param.sw_vague_pid = 0; // 模糊PID
         g_Param.sw_pvt = 0;       // PVT模式
         g_Param.traj_type = 0;    // 轨迹类型
@@ -392,18 +296,10 @@ bool fParamInit()
         g_Param.motor_polepairs = 14; // 电机转子对数
         g_Param.theta_elec_offset = false;
 
-        g_Param.freq_current_loop = 1;
-        g_Param.freq_speed_loop = 4;
-        g_Param.freq_position_loop = 5;
-
         // 初始化u32类型参数
         g_Param.can_id = 1; // CAN ID
 
         // 初始化float类型参数
-        g_Param.f_pwm = F_PWM;
-        g_Param.f_current_loop = (float)F_PWM / g_Param.freq_current_loop;
-        g_Param.f_speed_loop = g_Param.f_current_loop / g_Param.freq_speed_loop;
-        g_Param.f_position_loop = g_Param.f_speed_loop / g_Param.freq_position_loop;
 
         g_Param.theta_offset = 0.0f; // 角度补偿
         g_Param.motor_kv = 100;
@@ -425,20 +321,17 @@ bool fParamInit()
         g_Param.ki_position = 0.05f;  // 位置环积分系数
         g_Param.kd_position = 0.005f; // 位置环微分系数
 
-        g_Param.limit_current = 30.0f;                      // 电流限幅 50A
+        g_Param.limit_current = 30.0f;           // 电流限幅 50A
         g_Param.limit_omega = 500.0f;            // 速度限幅 3000 RPM (假设转换后)
         g_Param.limit_position_min = -100000.0f; // 最小位置限制 -10000度 (弧度)
         g_Param.limit_position_max = 100000.0f;  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;                      // 容忍时间 0.1ms
-        g_Param.tolerance_voltage = 1.2f;                   // 电压容忍度 1.2
-        g_Param.tolerance_current = 1.1f;                   // 电流容忍度 1.1
-        g_Param.tolerance_speed = 1.1f;                     // 速度容忍度 1.1
-        g_Param.tolerance_position = 1.1f;                  // 位置容忍度 1.1
+        g_Param.tolerance_time = 0.1f;           // 容忍时间 0.1ms
+        g_Param.tolerance_limit = 1.1f;          // 容忍度
 
-        g_Param.traj_max_rate = 100.0f; // 最大变化率
-        g_Param.traj_max_acc = 50.0f;   // 最大加速度
-        g_Param.traj_max_jerk = 200.f;  // 最大加加速度
-        g_Param.tolerance = 0.01f;      // 容差
+        g_Param.traj_max_rate = 0.0f; // 最大变化率
+        g_Param.traj_max_acc = 0.0f;  // 最大加速度
+        g_Param.traj_max_jerk = 0.0f; // 最大加加速度
+        g_Param.tolerance = 0.01f;    // 容差
     }
     return true;
 }

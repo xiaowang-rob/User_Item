@@ -42,5 +42,6 @@
   ..\FOC\Config\drive_parameters.h ..\FOC\Inc\control\foc_statemachine.h \
   ..\FOC\Inc\control\loop_control.h ..\FOC\Inc\control\smo.h \
   ..\FOC\Inc\control\tune.h ..\FOC\Inc\control\svpwm.h \
+  ..\FOC\Inc\control\hfi.h ..\FOC\Inc\utils\filter.h \
   ..\FOC\Inc\services\log.h ..\FOC\Inc\drivers\adc_dr.h \
   ..\FOC\Inc\services\system_statemachine.h

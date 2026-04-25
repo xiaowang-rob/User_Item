@@ -2,60 +2,40 @@
 # 参数映射表 - 对应下位机参数索引
 # ==============================
 class Pidx:
-    # u8 类型参数 (0-10)
     SENSOR_MODE          = 0
     RUN_MODE             = 1
     CAN_MODE             = 2
-    WEAKMAG_MODE         = 3
-    VAGUE_PID_MODE       = 4
-    PVT_MODE             = 5
-    TRAJ_TYPE            = 6
-    MOTOR_POLEPAIRS      = 7
-    FREQ_CURRENT_LOOP    = 8
-    FREQ_SPEED_LOOP      = 9
-    FREQ_POSITION_LOOP   = 10
+    VAGUE_PID_MODE       = 3
+    PVT_MODE             = 4
+    TRAJ_TYPE            = 5
+    MOTOR_POLEPAIRS      = 6
+    CAN_ID               = 7
+    THETA_OFFSET         = 8
+    MOTOR_KV             = 9
+    MOTOR_RS             = 10
+    MOTOR_Ld             = 11
+    MOTOR_Lq             = 12
+    MOTOR_PSIF           = 13
+    MOTOR_KE             = 14
+    MOTOR_J              = 15
+    MOTOR_B              = 16
+    KP_SPEED             = 17
+    KI_SPEED             = 18
+    KP_POSITION          = 19
+    KI_POSITION          = 20
+    KD_POSITION          = 21
+    LIMIT_CURRENT        = 22
+    LIMIT_SPEED          = 23
+    LIMIT_POSITION_MIN   = 24
+    LIMIT_POSITION_MAX   = 25
+    TOLERANCE_TIME       = 26
+    TOLERANCE_LIMIT      = 27
+    TRAJ_MAX_RATE        = 28
+    TRAJ_MAX_ACC         = 29
+    TRAJ_MAX_JERK        = 30
+    TRAJ_TOLERANCE       = 31
 
-    # u32 类型参数 (11)
-    CAN_ID               = 11
-
-    # float 类型参数 (12-46)
-    F_PWM                = 12
-    F_CURRENT_LOOP       = 13
-    F_SPEED_LOOP         = 14
-    F_POSITION_LOOP      = 15
-    THETA_OFFSET         = 16
-    MOTOR_KV             = 17
-    MOTOR_RS             = 18  
-    MOTOR_Ld             = 19  
-    MOTOR_Lq             = 20  
-    MOTOR_PSIF           = 21  
-    MOTOR_KE             = 22  
-    MOTOR_J              = 23  
-    MOTOR_B              = 24  
-    KP_CURRENT           = 25  
-    KI_CURRENT           = 26  
-    KP_WEAKMAG           = 27  
-    KI_WEAKMAG           = 28  
-    KP_SPEED             = 29  
-    KI_SPEED             = 30  
-    KP_POSITION          = 31  
-    KI_POSITION          = 32  
-    KD_POSITION          = 33  
-    LIMIT_CURRENT        = 34  
-    LIMIT_SPEED          = 35  
-    LIMIT_POSITION_MIN   = 36  
-    LIMIT_POSITION_MAX   = 37  
-    TOLERANCE_TIME       = 38  
-    TOLERANCE_VOLTAGE    = 39  
-    TOLERANCE_CURRENT    = 40  
-    TOLERANCE_SPEED      = 41  
-    TOLERANCE_POSITION   = 42  
-    TRAJ_MAX_RATE        = 43  
-    TRAJ_MAX_ACC         = 44  
-    TRAJ_MAX_JERK        = 45  
-    TRAJ_TOLERANCE       = 46  
-
-    NUM_OF_PARAM         = 47
+    NUM_OF_PARAM         = 32
 
 # ============================
 # 日志映射表 - 对应下位机日志索引
@@ -171,13 +151,12 @@ class Sidx:
 # 模式与状态字符串映射表
 # ====================================
 class Midx:
-    sensor_mode        = ["编码反馈", "HFI+SMO","编码+SMO"]
+    sensor_mode        = ["编码反馈", "无感观测","混合模式"]
     run_mode           = [ "电流模式", "速度模式", "位置模式"]
     target_value       = ["拖动电流/A","速度/rpm","位置/°"]
-    can_mode           = ["实时处理", "队列处理"]
-    weakmag_mode       = ["禁用", "启动"]
+    can_mode           = ["实时处理", "队列处理","实时反馈","队列反馈"]
     vague_PID_mode     = ["禁用", "启动"]
-    pvt_mode           = ["禁用", "启动"]
+    pvt_mode           = ["禁用", "PV","PT"]
     traj_type          = ["禁用","梯形", "S形"]
 
     sys_state          = ["INIT", "RUN", "ERROR"]
@@ -185,14 +164,18 @@ class Midx:
     fault_state        = [
         "无故障",
         "闪存离线",
-        "整定超时",
-        "整定参数异常",
-        "整定失败",
+        "整定电流异常",
+        "极对数不匹配",
+        "电机堵转",
+        "电阻校准失败",
+        "编码器校准失败",
+        "电气参数校准失败",
+        "机械参数校准失败",
         "过压",
         "低电压",
         "过流",
         "CAN初始化失败",
-        "CAN通信失败"
+        "CAN通信异常"
     ]
     warning_state      = [
         "无警告",
@@ -228,25 +211,17 @@ class Data_UI_Map:
             Pidx.SENSOR_MODE:          parameter_page.sensormode_input,
             Pidx.RUN_MODE:            parameter_page.runmode_input,
             Pidx.CAN_MODE:             parameter_page.can_mode_input,
-            Pidx.WEAKMAG_MODE:         parameter_page.weakmag_mode_input,
 
             Pidx.VAGUE_PID_MODE:       parameter_page.vaguePID_input,
             Pidx.PVT_MODE:             parameter_page.PVT_mode_input,
             Pidx.TRAJ_TYPE:             parameter_page.TRAJ_mode_input,
 
             Pidx.MOTOR_POLEPAIRS:      parameter_page.motor_polepairs_input,
-            Pidx.FREQ_CURRENT_LOOP:    parameter_page.freq_current_loop,
-            Pidx.FREQ_SPEED_LOOP:      parameter_page.freq_speed_loop,
-            Pidx.FREQ_POSITION_LOOP:   parameter_page.freq_position_loop,
 
             # u32 类型
             Pidx.CAN_ID:               parameter_page.CAN_ID_input,
 
             # float 类型
-            Pidx.F_PWM:                parameter_page.f_pwm,
-            Pidx.F_CURRENT_LOOP:       parameter_page.f_current_loop,
-            Pidx.F_SPEED_LOOP:         parameter_page.f_speed_loop,
-            Pidx.F_POSITION_LOOP:      parameter_page.f_position_loop,
             Pidx.THETA_OFFSET:         parameter_page.offsetangle_input,
             Pidx.MOTOR_KV:             parameter_page.motor_KV_input,
             Pidx.MOTOR_RS:             parameter_page.motor_resistance_input,
@@ -256,10 +231,6 @@ class Data_UI_Map:
             Pidx.MOTOR_KE:             parameter_page.motor_Ke_input,
             Pidx.MOTOR_J:              parameter_page.motor_J_input,
             Pidx.MOTOR_B:              parameter_page.motor_B_input,
-            Pidx.KP_CURRENT:           parameter_page.current_loop_P_input,
-            Pidx.KI_CURRENT:           parameter_page.current_loop_I_input,
-            Pidx.KP_WEAKMAG:           parameter_page.flux_weakening_P_input,
-            Pidx.KI_WEAKMAG:           parameter_page.flux_weakening_I_input,
             Pidx.KP_SPEED:             parameter_page.speed_loop_P_input,
             Pidx.KI_SPEED:             parameter_page.speed_loop_I_input,
             Pidx.KP_POSITION:          parameter_page.position_loop_P_input,
@@ -270,10 +241,7 @@ class Data_UI_Map:
             Pidx.LIMIT_POSITION_MIN:   parameter_page.min_position,
             Pidx.LIMIT_POSITION_MAX:   parameter_page.max_position,
             Pidx.TOLERANCE_TIME:       parameter_page.tolerance_time,
-            Pidx.TOLERANCE_VOLTAGE:    parameter_page.tolerance_voltage,
-            Pidx.TOLERANCE_CURRENT:    parameter_page.tolerance_current,
-            Pidx.TOLERANCE_SPEED:      parameter_page.tolerance_speed,
-            Pidx.TOLERANCE_POSITION:   parameter_page.tolerance_position,
+            Pidx.TOLERANCE_LIMIT:      parameter_page.tolerance_limit,
             Pidx.TRAJ_MAX_RATE:        parameter_page.traj_max_rate,
             Pidx.TRAJ_MAX_ACC:         parameter_page.traj_max_acc,
             Pidx.TRAJ_MAX_JERK:        parameter_page.traj_max_jerk,

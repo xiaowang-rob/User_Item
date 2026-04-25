@@ -2,7 +2,7 @@ import struct
 import threading
 import time
 from UI.data_ui_map import (
-    Pidx,Cidx,Midx,
+    Pidx,Cidx,Midx,Fidx,
     )
 
 class ParameterManager:
@@ -35,15 +35,15 @@ class ParameterManager:
                     if idx < Pidx.CAN_ID:
                         match idx:
                             # 下拉列表
-                            case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                            case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE:
                                 val = lineedit.currentIndex()
                                                                 
                             # 数字输入框
-                            case Pidx.MOTOR_POLEPAIRS|Pidx.FREQ_CURRENT_LOOP|Pidx.FREQ_SPEED_LOOP|Pidx.FREQ_POSITION_LOOP:
+                            case Pidx.MOTOR_POLEPAIRS:
                                 val = int(lineedit.text())
                                 
                         raw_val = struct.pack('<B', val)
-                    elif idx < Pidx.F_PWM:
+                    elif idx < Pidx.THETA_OFFSET:
                         val = int(lineedit.text())
                         if val < 0:
                             raise ValueError("uint32值不能为负值")
@@ -60,6 +60,9 @@ class ParameterManager:
                 except Exception as e: 
                     print(f"参数{idx}写入失败: {e}")
                     continue
+            print("发送完成")
+            bytes([Pidx.NUM_OF_PARAM]) + struct.pack('<B', Fidx.SUCCESS)
+            self.com.send_packet(Cidx.PARAM_WRITE, payload)
             self.read_all()
         
         threading.Thread(target=task, daemon=True).start()
@@ -71,7 +74,7 @@ class ParameterManager:
     def add_param(self,index,data):
         if index < Pidx.CAN_ID:
             val=struct.unpack('<B', data)[0]
-        elif index < Pidx.F_PWM:
+        elif index < Pidx.THETA_OFFSET:
             val=struct.unpack('<i', data)[0]
         else:
             val=struct.unpack('<f', data)[0]
@@ -86,7 +89,7 @@ class ParameterManager:
         if index < Pidx.CAN_ID:
             match index:
                 # 下拉列表
-                case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE|Pidx.WEAKMAG_MODE:
+                case Pidx.SENSOR_MODE| Pidx.RUN_MODE|Pidx.CAN_MODE|Pidx.TRAJ_TYPE|Pidx.VAGUE_PID_MODE|Pidx.PVT_MODE:
                     self.param_map[index].setCurrentIndex(data)    
                     if index in self.param_show_map:
                         self.param_show_map[index].setText(self.param_map[index].currentText())
@@ -94,9 +97,9 @@ class ParameterManager:
                         self.target_val_show.setText(Midx.target_value[data])                
 
                 # 数字输入框
-                case Pidx.MOTOR_POLEPAIRS|Pidx.FREQ_CURRENT_LOOP|Pidx.FREQ_SPEED_LOOP|Pidx.FREQ_POSITION_LOOP:
+                case Pidx.MOTOR_POLEPAIRS:
                     self.param_map[index].setText(str(data))
-        elif index < Pidx.F_PWM:
+        elif index < Pidx.THETA_OFFSET:
             self.param_map[index].setText(str(data))
             if(index in self.param_show_map):
                 self.param_show_map[index].setText(str(data))

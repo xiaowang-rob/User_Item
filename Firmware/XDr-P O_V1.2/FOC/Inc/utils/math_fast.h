@@ -11,6 +11,8 @@
 #define MATH_SQRT3 1.732050807f
 #define MATH_SQRT3_2 0.8660254035f
 #define MATH_INSQRT3 0.5773502693f
+#define MATH_1_SQRT2 0.7071067812f
+#define MATH_1_SQRT3 0.5773502691f
 
 /* 函数声明 */
 // 一般函数--大型函数 不经常调用

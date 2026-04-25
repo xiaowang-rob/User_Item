@@ -24,6 +24,9 @@ AUTHOR      = "wxd"
 # 硬件参数 (仅用于生成头文件)
 PARAMS = {
     "F_PWM":         (20000,    "20kHz"),
+    "FREQ_CURRENT":  (1,        "电流环分频系数"),
+    "FREQ_SPEED":    (10,       "速度环分频系数"),
+    "FREQ_POSTION":  (10,       "位置环分频系数"),
     "T_PWM":         (0.00005,  "50us", "f"),
     "TIC_PWM":       (2099,     ""),
     "T_CON":         ("T_PWM",  ""),
@@ -57,10 +60,18 @@ def generate_header():
     date_str = get_date_str()
     date_num = (int(date_str[:2]) * 10000) + (int(date_str[2:4]) * 100) + int(date_str[4:])
     
+    f_current=PARAMS["F_PWM"][0]/PARAMS["FREQ_CURRENT"][0]
+    f_speed  =f_current/PARAMS["FREQ_SPEED"][0]
+    f_pos    =f_speed/PARAMS["FREQ_POSTION"][0]
+
     drive_message = (
         f'{PROD_NAME}-{PROD_SERIES},'
         f'{FUN_V}_{FIRM_V}_{date_str},'
         f'{AUTHOR},'
+        f'{PARAMS["F_PWM"][0]},'
+        f'{f_current},'
+        f'{f_speed},'
+        f'{f_pos},'
         f'{PARAMS["MAX_CURRENT"][0]},'
         f'{PARAMS["MIN_VOLTAGE"][0]}-{PARAMS["MAX_VOLTAGE"][0]},'
         f'{PARAMS["MAX_TEMPERATURE"][0]}'
@@ -96,12 +107,18 @@ def generate_header():
 /* ---------- 基本运行参数 ---------- */
 {chr(10).join(param_lines)}
 
+#define F_CURRENT           {f_current}
+#define F_SPEED             {f_speed}
+#define F_POS               {f_pos}
+
 /* ---------- 预拼接字符串 ---------- */
 /* 值: "{drive_message}" */
 #define DRIVE_MESSAGE       "{drive_message}"
 
 /* 值: "{firm_version}" */
 #define FIRM_VERSION        "{firm_version}"
+
+
 
 #endif /* __DRIVE_PARAMETERS_H */
 '''

@@ -7,6 +7,7 @@
 #include "smo.h"
 #include "tune.h"
 #include "svpwm.h"
+#include "hfi.h"
 typedef enum
 {
     FOC_IDLE,      // 用于参数调节、模式调节 状态
@@ -22,9 +23,11 @@ typedef enum
 typedef struct
 {
     bool foc_enable;
+    bool foc_init;
     eFOC_Status state;
     tFOC_Core *core;
     tLoopControl *loop_con;
+    tHFI_Handle *hfi;
     tSMO *smo;
     tTuneContext *tun;
     tSvpwm *svpwm;

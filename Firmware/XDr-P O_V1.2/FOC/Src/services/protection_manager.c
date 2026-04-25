@@ -10,9 +10,9 @@
 tDeviceStatus g_device_status = {.encoder_state = ONLINE};
 tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
 // 容忍度检测
-static bool _ToleranceCheck(float value, float max_value, float min_value, float tolerance)
+static bool _ToleranceCheck(float value, float max_value, float min_value)
 {
-    if (value > max_value * tolerance || value < min_value / tolerance)
+    if (value > max_value * g_pro_manager.tolerance_limit || value < min_value / g_pro_manager.tolerance_limit)
         return true;
     return false;
 }
@@ -28,10 +28,7 @@ void fProManagerInit()
     g_pro_manager.minposition = g_Param.limit_position_min;
     g_pro_manager.maxposition = g_Param.limit_position_max;
     g_pro_manager.tolerance_time_ms = g_Param.tolerance_time;
-    g_pro_manager.tolerance_voltage = g_Param.tolerance_voltage;
-    g_pro_manager.tolerance_current = g_Param.tolerance_current;
-    g_pro_manager.tolerance_speed = g_Param.tolerance_speed;
-    g_pro_manager.tolerance_position = g_Param.tolerance_position;
+    g_pro_manager.tolerance_limit = g_Param.tolerance_limit;
 }
 void fProSetLimitPosition(float min_position, float max_position)
 {
@@ -103,7 +100,7 @@ void fProManagerMainLoop()
 
         // 3.电流过大
         if (g_foc.core->foc_val->Iu > MAX_CURRENT || g_foc.core->foc_val->Iv > MAX_CURRENT || g_foc.core->foc_val->Iw > MAX_CURRENT ||
-            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
+            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent))
         {
             g_pro_manager.fault = OVER_CURRENT;
             g_pro_manager.fault_flag = true;
@@ -125,20 +122,23 @@ void fProManagerMainLoop()
             switch (g_foc.tun->fault)
             {
                 // todo:还有很多错误待扩充
-            case TUNE_FAULT_TIMEOUT:
-                g_pro_manager.fault = TUNING_TIMEOUT;
+            case TUNE_FAULT_CURRENT_VIBRATION:
+                g_pro_manager.fault = TUNING_CURRENT_VIBRATION;
                 break;
-            case TUNE_FAULT_PARAM_INVALID:
-                g_pro_manager.fault = MOTOR_PARAM_INVALID;
+            case TUNE_FAULT_POLEPAIRS_MISMATCH:
+                g_pro_manager.fault = TUNING_POLEPAIRS_MISMATCH;
+                break;
+            case TUNE_FAULT_MECH_LOCKED:
+                g_pro_manager.fault = TUNING_MOTOR_LOCKED;
                 break;
             default:
-                g_pro_manager.fault = TUNING_FAULT;
+                g_pro_manager.fault = TUNING_RSLS_FAULT + g_foc.tun->fault - 4;
                 break;
             }
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
-        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_VOLTAGE, MIN_VOLTAGE, g_pro_manager.tolerance_voltage))
+        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_VOLTAGE, MIN_VOLTAGE))
         {
             if (g_foc.core->motor->Udc > MAX_VOLTAGE)
             {
@@ -147,13 +147,13 @@ void fProManagerMainLoop()
             }
             else
             {
-                g_pro_manager.fault = LOW_VOLTAGE;
-                g_pro_manager.fault_flag = true;
+//                g_pro_manager.fault = LOW_VOLTAGE;
+//                g_pro_manager.fault_flag = true;
             }
         }
         // 3.电流过大
         if (g_foc.core->foc_val->Iu > MAX_CURRENT || g_foc.core->foc_val->Iv > MAX_CURRENT || g_foc.core->foc_val->Iw > MAX_CURRENT ||
-            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent, g_pro_manager.tolerance_current))
+            _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.maxcurrent, -g_pro_manager.maxcurrent))
         {
             g_pro_manager.fault = OVER_CURRENT;
             g_pro_manager.fault_flag = true;
@@ -166,7 +166,7 @@ void fProManagerMainLoop()
         }
 
         // 2 速度检测
-        if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega, g_pro_manager.tolerance_speed))
+        if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.maxomega, -g_pro_manager.maxomega))
         {
             g_pro_manager.warning = OVER_SPEED;
             g_pro_manager.warning_flag = true;
@@ -174,7 +174,7 @@ void fProManagerMainLoop()
         // 3位置检测 位置模式下监测
         if (g_foc.core->foc_mode->runmode == POSITION_MODE)
         {
-            if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition, g_pro_manager.tolerance_position))
+            if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.maxposition, g_pro_manager.minposition))
             {
                 g_pro_manager.warning = OVER_POSITION;
                 g_pro_manager.warning_flag = true;

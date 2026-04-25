@@ -6,12 +6,12 @@
 tLoopControl loop_con = {0};
 
 // 初始化分频系数并计算各环周期
-void fFrequencyDivisionInit(u8 fd_cur, u8 fd_speed, u8 fd_pos)
+void fFrequencyDivisionInit()
 {
     memset(&loop_con.fd, 0, sizeof(tFrequencyDivision));
-    loop_con.fd.current_update_steps = fd_cur;
-    loop_con.fd.speed_update_steps = fd_speed;
-    loop_con.fd.position_update_steps = fd_pos;
+    loop_con.fd.current_update_steps = FREQ_CURRENT;
+    loop_con.fd.speed_update_steps = FREQ_SPEED;
+    loop_con.fd.position_update_steps = FREQ_POSTION;
     loop_con.fd.Tcur = T_PWM * loop_con.fd.current_update_steps;
     loop_con.fd.Tspd = loop_con.fd.Tcur * loop_con.fd.speed_update_steps;
     loop_con.fd.Tpos = loop_con.fd.Tspd * loop_con.fd.position_update_steps;
@@ -140,10 +140,10 @@ void PID_reset(tPID *pid)
 void fLoopControlInit(tParameter param, float Vmax)
 {
     // 先初始化分频器
-    fFrequencyDivisionInit(param.freq_current_loop, param.freq_speed_loop, param.freq_position_loop);
+    fFrequencyDivisionInit();
     loop_con.max_Vs = Vmax;
     PI_init(&loop_con.PI_iq, param.kp_current, param.ki_current, Vmax, loop_con.fd.Tcur);
-    PI_init(&loop_con.PI_id, param.kp_current, param.ki_current/2, Vmax, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_id, param.kp_current, param.ki_current / 2, Vmax, loop_con.fd.Tcur);
     PI_init(&loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current, loop_con.fd.Tspd);
     PI_init(&loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current, loop_con.fd.Tspd);
     PID_init(&loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega, loop_con.fd.Tpos);

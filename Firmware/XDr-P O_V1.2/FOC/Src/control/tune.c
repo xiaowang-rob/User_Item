@@ -1,6 +1,6 @@
 #include "tune.h"
 #include "math_fast.h"
-#include "drive_parameters.h"
+
 #include "encoder.h"
 #include "parameter_manager.h"
 #include "filter.h"
@@ -9,7 +9,7 @@ tMotorParams motor_params = {0};
 tTuneContext g_tune_ctx = {0};
 
 /* ================================= 辅助函数 ================================= */
-
+// sum型线性拟合
 static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx, u16 n,
                            float *k, float *b, float *mse)
 {
@@ -55,28 +55,22 @@ void fMotorParamTune_ForceSave(void)
     g_Param.theta_offset = motor_params.theta_offset;
     g_Param.theta_elec_offset = motor_params.theta_elec_need_180;
     g_Param.forward_dir = motor_params.direction;
+
+    g_Param.kp_current = motor_params.iq_Kp;
+    g_Param.ki_current = motor_params.iq_Ki;
+    g_Param.kp_weakmag = motor_params.id_kp;
+    g_Param.ki_weakmag = motor_params.id_ki;
 }
 
 /* ================================= 初始化与重置 ================================= */
-// todo:后续添加无感整定，跳过角度偏移和极对数整定，用电角度和电角速度控制，直接用HFI、SMO做精准的控制
+// todo:后续添加无感整定，根据选择的感应模式校准，无感只校准电机，有感校准电机和编码器，直接校准电机，直接用HFI、SMO做精准的控制
 void fMotorParamTune_Init()
 {
 
     memset(&g_tune_ctx, 0, sizeof(tTuneContext));
-
+    memset(&motor_params, 0, sizeof(tMotorParams));
     motor_params.KV = g_Param.motor_kv;
-    motor_params.Rs = g_Param.motor_rs;
-    motor_params.Ld = g_Param.motor_ld;
-    motor_params.Lq = g_Param.motor_lq;
-    motor_params.pole_pairs = g_Param.motor_polepairs;
     motor_params.dt = T_CON;
-
-    // 标记未整定
-    motor_params.Rs_valid = false;
-    motor_params.L_valid = false;
-    motor_params.encoder_valid = false;
-    motor_params.psi_valid = false;
-    motor_params.mech_valid = false;
 }
 
 void fMotorParamTune_Reset()
@@ -154,7 +148,7 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
                 // 信噪比检查
                 if (FABSF(delta_i) < RS_MIN_DELTA_I)
                 {
-                    ctx->fault = TUNE_FAULT_SIGNAL_WEAK;
+                    ctx->fault = TUNE_FAULT_CURRENT_VIBRATION;
                     return true;
                 }
 
@@ -164,11 +158,10 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
                 // 合理性校验
                 if (params->Rs < RS_RANGE_MIN || params->Rs > RS_RANGE_MAX)
                 {
-                    ctx->fault = TUNE_FAULT_PARAM_INVALID;
+                    ctx->fault = TUNE_FAULT_RSLS_INVALID;
                     return true;
                 }
 
-                params->Rs_valid = true;
                 fFOC_SetUalphaBeta(0, 0);
                 return true; // 辨识完成
             }
@@ -185,197 +178,323 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
 
     return false; // 辨识进行中
 }
+
+/**
+ * @brief 累加当前采样点对DFT的贡献（无缓冲区）
+ * @param i_alpha    α轴电流
+ * @param i_beta     β轴电流
+ * @param omega_dt   ω_inj * dt (rad) 每次固定角度增量
+ * @param sum_re     实部累加器指针
+ * @param sum_im     虚部累加器指针
+ * @param cnt        当前周期内已采样点数指针（从0开始递增）
+ */
+static void dft_accumulate(float i_alpha, float i_beta, float omega_dt,
+                           float *sum_re, float *sum_im, uint16_t *cnt)
+{
+    float angle = omega_dt * (*cnt); // θ = ωt
+    float c = cosf(angle);
+    float s = -sinf(angle); // e^{-jθ}
+    // 复数乘法: (i_alpha + j i_beta) * (c + j s) 的实部和虚部
+    // 注意：实际需要的 DFT 系数是 e^{-jθ}，即 (c + j s) 其中 s = -sin(θ)
+    *sum_re += i_alpha * c - i_beta * s;
+    *sum_im += i_alpha * s + i_beta * c;
+    (*cnt)++;
+}
+/**
+ * @brief 根据累加和计算电流幅值
+ * @param sum_re   实部累加和
+ * @param sum_im   虚部累加和
+ * @param samples  该周期内的采样点数（恒为 SAMPLES_PER_CYCLE）
+ * @return 电流基波幅值 (A)
+ */
+static float dft_get_amplitude(float sum_re, float sum_im, uint16_t samples)
+{
+    float scale = 2.0f / samples;
+    float re = sum_re * scale;
+    float im = sum_im * scale;
+    return sqrtf(re * re + im * im);
+}
+static void dft_reset_accumulator(float *sum_re, float *sum_im, uint16_t *cnt)
+{
+    *sum_re = 0.0f;
+    *sum_im = 0.0f;
+    *cnt = 0;
+}
 /* ================================= 电感整定（alpha beta轴方波注入） ================================= */
 static bool
 _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams *params)
 {
 
     tTuneContext *ctx = &g_tune_ctx;
+    const float omega_inj = MATH_2PI * LS_INJECT_FREQ_HZ; // 注入角频率 (°/s)
+    const float omega_dt = omega_inj * params->dt;        // 每步相位增量 (°)
 
+    static float inj_angle = 0.0f; // 当前注入电压相位
+    float v_alpha_cmd, v_beta_cmd;
+
+    // 为了代码可读性，将上下文指针暂存
+    float *sum_re = &ctx->ls_ctx.sum_re;
+    float *sum_im = &ctx->ls_ctx.sum_im;
+    uint16_t *sample_cnt = &ctx->ls_ctx.sample_cnt;
     // 自适应注入电压 调整到反馈电流合适
-    if (!ctx->ls_ctx.ready)
-    {
-        float i_meas = (FABSF(i_alpha) + FABSF(i_beta)) * 0.5f;
 
-        // 迟滞区间: 20%~80% of LS_I_LIMIT
-        if (i_meas < LS_I_LIMIT * 0.2f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
+    // if (!ctx->ls_ctx.ready)
+    // {
+    //     float i_meas = (FABSF(i_alpha) + FABSF(i_beta)) * 0.5f;
+
+    //     // 迟滞区间: 20%~80% of LS_I_LIMIT
+    //     if (i_meas < LS_I_LIMIT * 0.2f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
+    //     {
+    //         ctx->ls_ctx.v_inj += 0.1f;
+    //         ctx->steady_tick = 0;
+    //     }
+    //     else if (i_meas > LS_I_LIMIT * 0.8f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
+    //     {
+    //         ctx->ls_ctx.v_inj -= 0.1f;
+    //         ctx->steady_tick = 0;
+    //     }
+    //     else
+    //     {
+    //         if (ctx->steady_tick > LS_V_HOLD_MAX_TICKS)
+    //         {
+    //             ctx->ls_ctx.ready = true;
+    //             ctx->steady_tick = 0;
+    //             fFOC_SetUalphaBeta(0, 0);
+    //             return false;
+    //         }
+    //     }
+    //     fFOC_SetUalphaBeta(ctx->ls_ctx.v_inj, ctx->ls_ctx.v_inj);
+    //     return false; // 未完成
+    // }
+    switch (ctx->ls_ctx.state)
+    {
+    // ==================== 状态0：自适应注入电压 ====================
+    case 0:
+        // 初始化自适应过程
+        if (!ctx->ls_ctx.ready)
         {
-            ctx->ls_ctx.v_inj += 0.1f;
-            ctx->steady_tick = 0;
+            ctx->ls_ctx.v_inj = LS_V_START;
+            ctx->ls_ctx.i_target = LS_I_TARGET;
+            dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+            ctx->ls_ctx.amp_sum = 0.0f;
+            ctx->ls_ctx.cycle_cnt = 0;
+            inj_angle = 0.0f;
+            ctx->ls_ctx.ready = true;
         }
-        else if (i_meas > LS_I_LIMIT * 0.8f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
+
+        // 生成旋转电压 (αβ 旋转，使电流幅值与转子位置无关)
+
+        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_beta_cmd = ctx->ls_ctx.v_inj * arm_sin_f32(inj_angle);
+        fFOC_SetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+
+        // 更新注入相位
+        inj_angle += omega_dt;
+        if (inj_angle > MATH_2PI)
+            inj_angle -= MATH_2PI;
+
+        // DFT 累加当前的电流值
+        dft_accumulate(i_alpha, i_beta, omega_dt, sum_re, sum_im, sample_cnt);
+
+        // 完成一个注入周期
+        if (*sample_cnt >= LS_INJECT_FREQ_TICK)
         {
-            ctx->ls_ctx.v_inj -= 0.1f;
-            ctx->steady_tick = 0;
-        }
-        else
-        {
-            if (ctx->steady_tick > LS_V_HOLD_MAX_TICKS)
+            // 计算这个周期的电流幅值
+            float I_mag = dft_get_amplitude(*sum_re, *sum_im, LS_INJECT_FREQ_TICK);
+            ctx->ls_ctx.amp_sum += I_mag;
+            ctx->ls_ctx.cycle_cnt++;
+
+            // 重置累加器，准备下一个周期
+            dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+
+            if (ctx->ls_ctx.cycle_cnt >= DFT_AVG_CYCLES)
             {
-                ctx->ls_ctx.ready = true;
+                float I_avg = ctx->ls_ctx.amp_sum / ctx->ls_ctx.cycle_cnt;
+                ctx->ls_ctx.i_meas = I_avg;
+
+                // 判断电流是否在目标范围 [I_TARGET - HYST, I_TARGET + HYST]
+                if (I_avg < LS_I_TARGET * 0.9f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
+                {
+                    ctx->ls_ctx.v_inj += 0.2f; // 增加电压
+                    if (ctx->ls_ctx.v_inj > LS_V_MAX)
+                        ctx->ls_ctx.v_inj = LS_V_MAX;
+                }
+                else if (I_avg > LS_I_TARGET * 1.1f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
+                {
+                    ctx->ls_ctx.v_inj -= 0.2f; // 降低电压
+                    if (ctx->ls_ctx.v_inj < LS_V_START)
+                        ctx->ls_ctx.v_inj = LS_V_START;
+                }
+                else
+                {
+                    // 电压已合适，结束自适应阶段
+                    ctx->ls_ctx.state = 1; // 进入转子预定位
+                    ctx->steady_tick = 0;  // 重置定时器
+                    ctx->ls_ctx.cycle_cnt = 0;
+                    fFOC_SetUalphaBeta(0, 0); // 先关断电压
+                    return false;
+                }
+
+                // 重置平均累加器，继续下一轮自适应
+                ctx->ls_ctx.amp_sum = 0.0f;
+                ctx->ls_ctx.cycle_cnt = 0;
+            }
+        }
+        return false; // 尚未完成
+
+    // ==================== 状态1：转子预定位（拉至0°电角度） ====================
+    case 1:
+        if (ctx->steady_tick > LS_ALIGN_TICKS)
+        {
+            // 对齐完成，断电，等待电流衰减
+            fFOC_SetUalphaBeta(0, 0);
+            if (ctx->steady_tick > LS_ALIGN_TICKS * 2)
+            {
+                ctx->ls_ctx.state = 2;
+                ctx->steady_tick = 0;
+
+                // 初始化 DFT 测量 Ld
+
+                dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+                ctx->ls_ctx.amp_sum = 0.0f;
+                ctx->ls_ctx.cycle_cnt = 0;
+                inj_angle = 0.0f;
+            }
+            return false;
+        }
+        // 施加直流电压使转子对齐到α轴（电角度0°）
+        fFOC_SetUalphaBeta(ALIGN_VOLTAGE, 0.0f);
+
+        return false;
+
+    // ==================== 状态2：测量 Ld ====================
+    case 2:
+
+        // 注入正弦电压（仅α轴，因转子已在0°，α轴对应d轴）
+
+        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_beta_cmd = 0.0f;
+        fFOC_SetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+
+        inj_angle += omega_dt;
+        if (inj_angle > MATH_2PI)
+            inj_angle -= MATH_2PI;
+
+        dft_accumulate(i_alpha, i_beta, omega_dt, sum_re, sum_im, sample_cnt);
+
+        if (*sample_cnt >= LS_INJECT_FREQ_TICK)
+        {
+            float I_mag = dft_get_amplitude(*sum_re, *sum_im, LS_INJECT_FREQ_TICK);
+            ctx->ls_ctx.amp_sum += I_mag;
+            ctx->ls_ctx.cycle_cnt++;
+            dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+
+            if (ctx->ls_ctx.cycle_cnt >= DFT_AVG_CYCLES)
+            {
+                float I_avg = ctx->ls_ctx.amp_sum / ctx->ls_ctx.cycle_cnt;
+                // 电阻补偿：L = sqrt( (V/R)^2? 正确公式: L = sqrt( (V/I)^2 - Rs^2 ) / ω
+                float V_rms = ctx->ls_ctx.v_inj * MATH_1_SQRT2; // 注入电压峰值 -> 有效值
+                float I_rms = I_avg * MATH_1_SQRT2;
+                float Z = V_rms / I_rms; // 阻抗模
+                float L = 0.0f;
+                if (Z * Z > params->Rs * params->Rs)
+                {
+                    arm_sqrt_f32(Z * Z - params->Rs * params->Rs, &L);
+                    L = L / omega_inj;
+                }
+                else
+                {
+                    L = 0.0f; // 不合理，置0
+                }
+                params->Ld = L;
+                // 测量完成，进入状态3：旋转转子至90°
+                ctx->ls_ctx.state = 3;
                 ctx->steady_tick = 0;
                 fFOC_SetUalphaBeta(0, 0);
-                return false;
             }
         }
-        fFOC_SetUalphaBeta(ctx->ls_ctx.v_inj, ctx->ls_ctx.v_inj);
-        return false; // 未完成
-    }
+        return false;
 
-    // 反转极性
-    if (++ctx->ls_ctx.inject_cnt >= ctx->ls_ctx.inject_period)
-    {
-        ctx->ls_ctx.inject_cnt = 0;
-        ctx->temp_flag[0] = !ctx->temp_flag[0]; // 注入极性翻转
-    }
-    else
-    { // 跟踪峰值电流和峰值周期 非反转周期
-
-        if (ctx->temp_flag[0])
-        {                          // 注入极性为正 电流正向增加
-            if (ctx->temp_flag[1]) // 是否继续跟随峰值
-            {
-                ctx->ls_ctx.ts_cnt[0]++;
-                if (i_alpha - ctx->ls_ctx.ipeak[0] < LS_I_STEP_MIN)
-                    ctx->temp_flag[1] = false;
-                ctx->ls_ctx.ipeak[0] = i_alpha;
-            }
-            if (ctx->temp_flag[2])
-            {
-                ctx->ls_ctx.ts_cnt[1]++;
-                if (i_beta - ctx->ls_ctx.ipeak[1] < LS_I_STEP_MIN)
-                    ctx->temp_flag[2] = false;
-                ctx->ls_ctx.ipeak[1] = i_beta;
-            }
-        }
-        else
-        {                          // 注入极性为负 电流反向增加
-            if (ctx->temp_flag[1]) // 是否继续跟随峰值
-            {
-                ctx->ls_ctx.ts_cnt[0]++;
-                if (i_alpha - ctx->ls_ctx.ipeak[0] > -LS_I_STEP_MIN)
-                    ctx->temp_flag[1] = false;
-                ctx->ls_ctx.ipeak[0] = i_alpha;
-            }
-            if (ctx->temp_flag[2])
-            {
-                ctx->ls_ctx.ts_cnt[1]++;
-                if (i_beta - ctx->ls_ctx.ipeak[1] > -LS_I_STEP_MIN)
-                    ctx->temp_flag[2] = false;
-                ctx->ls_ctx.ipeak[1] = i_beta;
-            }
-        }
-    }
-    // 施加电压
-    float v_cmd = ctx->temp_flag[0] ? ctx->ls_ctx.v_inj : -ctx->ls_ctx.v_inj;
-    fFOC_SetUalphaBeta(v_cmd, v_cmd);
-
-    // 记录初始电流 和 终止电流
-    if (ctx->ls_ctx.inject_cnt == 0)
-    {
-
-        float di_alpha = ctx->ls_ctx.ipeak[0] - ctx->temp_val[0];
-        float di_beta = ctx->ls_ctx.ipeak[1] - ctx->temp_val[1];
-        float di_dt_alpha = di_alpha / (ctx->ls_ctx.ts_cnt[0] * params->dt);
-        float di_dt_beta = di_beta / (ctx->ls_ctx.ts_cnt[1] * params->dt);
-
-        // 记录有效样本
-        u8 half = ctx->temp_flag[0] ? 1 : 0;
-        if (FABSF(v_cmd) > ctx->ls_ctx.v_inj * 0.9f)
+    // ==================== 状态3：旋转转子至90°电角度（准备测Lq） ====================
+    case 3:
+        if (ctx->steady_tick > LS_ALIGN_TICKS)
         {
-            // 记录alpha轴
-            if (FABSF(di_dt_alpha) > LS_MIN_DI_DT &&
-                FABSF(di_dt_alpha) < LS_MAX_DI_DT)
+            // 对齐完成，断电，等待电流衰减
+            fFOC_SetUalphaBeta(0, 0);
+            if (ctx->steady_tick > LS_ALIGN_TICKS * 2)
             {
-                ctx->ls_ctx.di_dt_sum[0][half] += di_dt_alpha;
-                ctx->ls_ctx.cnt[0][half]++;
-                ctx->ls_ctx.i_sum[0][half] += ctx->ls_ctx.ipeak[0];
+                ctx->ls_ctx.state = 4;
+                ctx->steady_tick = 0;
+
+                // 初始化dft 测量Lq
+
+                dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+                ctx->ls_ctx.amp_sum = 0.0f;
+                ctx->ls_ctx.cycle_cnt = 0;
+                inj_angle = 0.0f;
             }
-            if (FABSF(di_dt_beta) > LS_MIN_DI_DT &&
-                FABSF(di_dt_beta) < LS_MAX_DI_DT)
+            return false;
+        }
+        // 施加β轴直流电压，使转子从0°转到90°电角度
+        fFOC_SetUalphaBeta(0.0f, ALIGN_VOLTAGE);
+
+        return false;
+
+    // ==================== 状态4：测量 Lq ====================
+    case 4:
+
+        // 依旧在α轴注入正弦（此时转子90°，α轴对准q轴）
+        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_beta_cmd = 0.0f;
+        fFOC_SetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+
+        inj_angle += omega_dt;
+        if (inj_angle > MATH_2PI)
+            inj_angle -= MATH_2PI;
+
+        dft_accumulate(i_alpha, i_beta, omega_dt, sum_re, sum_im, sample_cnt);
+
+        if (*sample_cnt >= LS_INJECT_FREQ_TICK)
+        {
+            float I_mag = dft_get_amplitude(*sum_re, *sum_im, LS_INJECT_FREQ_TICK);
+            ctx->ls_ctx.amp_sum += I_mag;
+            ctx->ls_ctx.cycle_cnt++;
+            dft_reset_accumulator(sum_re, sum_im, sample_cnt);
+
+            if (ctx->ls_ctx.cycle_cnt >= DFT_AVG_CYCLES)
             {
-                ctx->ls_ctx.di_dt_sum[1][half] += di_dt_beta;
-                ctx->ls_ctx.cnt[1][half]++;
-                ctx->ls_ctx.i_sum[1][half] += ctx->ls_ctx.ipeak[1];
+                float I_avg = ctx->ls_ctx.amp_sum / ctx->ls_ctx.cycle_cnt;
+                float V_rms = ctx->ls_ctx.v_inj * MATH_1_SQRT2;
+                float I_rms = I_avg * MATH_1_SQRT2;
+                float Z = V_rms / I_rms;
+                float L = 0.0f;
+                if (Z * Z > params->Rs * params->Rs)
+                {
+                    arm_sqrt_f32(Z * Z - params->Rs * params->Rs, &L);
+                    L = L / omega_inj;
+                }
+                params->Lq = L;
+                // 测量完成，进入状态5
+                ctx->ls_ctx.state = 5;
+                fFOC_SetUalphaBeta(0, 0);
             }
         }
-        ctx->temp_val[0] = i_alpha;
-        ctx->temp_val[1] = i_beta;
+        return false;
 
-        // 复位峰值跟踪
-        ctx->temp_flag[1] = true;
-        ctx->temp_flag[2] = true;
-        ctx->ls_ctx.ipeak[0] = i_alpha;
-        ctx->ls_ctx.ipeak[1] = i_beta;
-        ctx->ls_ctx.ts_cnt[0] = 0;
-        ctx->ls_ctx.ts_cnt[1] = 0;
-    }
-
-    // 完成判断
-    if (ctx->steady_tick >= 4000)
-    {
-        // 计算电感
-        float L_alpha = 0, L_beta = 0;
-        bool alpha_ok = (ctx->ls_ctx.cnt[0][0] >= 20 && ctx->ls_ctx.cnt[0][1] >= 20);
-        bool beta_ok = (ctx->ls_ctx.cnt[1][0] >= 20 && ctx->ls_ctx.cnt[1][1] >= 20);
-
-        if (alpha_ok)
-        {
-            float avg_di_dt = (FABSF(ctx->ls_ctx.di_dt_sum[0][0] / ctx->ls_ctx.cnt[0][0]) +
-                               FABSF(ctx->ls_ctx.di_dt_sum[0][1] / ctx->ls_ctx.cnt[0][1])) *
-                              0.5f;
-            // float i_avg = (ctx->ls_ctx.i_sum[0][0] / ctx->ls_ctx.cnt[0][0] +
-            //                ctx->ls_ctx.i_sum[0][1] / ctx->ls_ctx.cnt[0][1]) *
-            //               0.5f;
-            float i_avg_0 = FABSF(ctx->ls_ctx.i_sum[0][0] / ctx->ls_ctx.cnt[0][0]);
-            float i_avg_1 = FABSF(ctx->ls_ctx.i_sum[0][1] / ctx->ls_ctx.cnt[0][1]);
-            float i_avg = (i_avg_0 + i_avg_1) * 0.5f;
-            float v_comp = ctx->ls_ctx.v_inj - params->Rs * i_avg; // 电阻压降补偿
-            L_alpha = v_comp / (avg_di_dt + 1e-6f);
-        }
-
-        if (beta_ok)
-        {
-            float avg_di_dt = (FABSF(ctx->ls_ctx.di_dt_sum[1][0] / ctx->ls_ctx.cnt[1][0]) +
-                               FABSF(ctx->ls_ctx.di_dt_sum[1][1] / ctx->ls_ctx.cnt[1][1])) *
-                              0.5f;
-            float i_avg_0 = FABSF(ctx->ls_ctx.i_sum[1][0] / ctx->ls_ctx.cnt[1][0]);
-            float i_avg_1 = FABSF(ctx->ls_ctx.i_sum[1][1] / ctx->ls_ctx.cnt[1][1]);
-            float i_avg = (i_avg_0 + i_avg_1) * 0.5f;
-            // float i_avg = (ctx->ls_ctx.i_sum[1][0] / ctx->ls_ctx.cnt[1][0] +
-            //                ctx->ls_ctx.i_sum[1][1] / ctx->ls_ctx.cnt[1][1]) *
-            //               0.5f;
-            float v_comp = ctx->ls_ctx.v_inj - params->Rs * i_avg;
-            L_beta = v_comp / (avg_di_dt + 1e-6f);
-        }
-
-        // 融合结果
-        if (alpha_ok && beta_ok)
-        {
-            params->Ld = params->Lq = (L_alpha + L_beta) * 0.5f;
-        }
-        else if (alpha_ok)
-            params->Ld = params->Lq = L_alpha;
-        else if (beta_ok)
-            params->Ld = params->Lq = L_beta;
-        else
-        {
-            ctx->fault = TUNE_FAULT_TIMEOUT;
-            return true;
-        }
-
-        // 合理性校验
+    // ==================== 状态5：完成，保存结果 ====================
+    case 5:
+        // 可选：对结果进行合理性检查（例如范围 0.01mH ~ 100mH）
         if (params->Ld < LS_RANGE_MIN || params->Ld > LS_RANGE_MAX)
-        {
-            ctx->fault = TUNE_FAULT_PARAM_INVALID;
-            return true;
-        }
+            ctx->fault = TUNE_FAULT_RSLS_INVALID;
+        if (params->Lq < LS_RANGE_MIN || params->Lq > LS_RANGE_MAX)
+            ctx->fault = TUNE_FAULT_RSLS_INVALID;
+        return true; // 校准完成
 
-        params->L_valid = true;
+    default:
         return true;
     }
 
-    return false; // 进行中
+    return false; // 未完成
 }
 
 // 编码器校准
@@ -432,7 +551,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
             }
             break;
         case 3:
-            if (ctx->encoder_ctx.delta_theta[0] < 9.0f || ctx->encoder_ctx.delta_theta[1] < 9.0f)
+            if (ctx->encoder_ctx.delta_theta[0] < 10.0f || ctx->encoder_ctx.delta_theta[1] < 10.0f)
             {
                 ctx->encoder_ctx.v_out += EC_OPEN_LOOP_UQ_STEP;
                 ctx->encoder_ctx.v_out = CLAMP(ctx->encoder_ctx.v_out, EC_OPEN_LOOP_UQ_MIN, EC_OPEN_LOOP_UQ_MAX);
@@ -468,7 +587,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
                 ctx->encoder_ctx.step = 4; // 进入方向校准
         }
         break;
-    // === STATE 1/2: 开环扫描 (正向/反向)  ===
+    // === STATE 2/3: 开环扫描 (正向/反向)  ===
     case 2: // Forward
     case 3: // Reverse
     {
@@ -518,7 +637,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         }
         break;
     }
-        // === STATE 3: 方向校准 ===
+        // === STATE 4: 方向校准 ===
     case 4:
     {
         // 施加 beta 轴电压，将转子拉至电气 90度
@@ -537,8 +656,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
                 motor_params.theta_elec_need_180 = false;
             else
             {
-                params->encoder_valid = false;
-                ctx->fault = TUNE_FAULT_PARAM_INVALID;
+                ctx->fault = TUNE_FAULT_MECH_LOCKED;
                 ctx->state = TUNE_STATE_FAULT;
                 ctx->encoder_ctx.step = 0; // 失败复位
                 return true;
@@ -561,8 +679,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         // 4.1 误差校验
         if (ctx->encoder_ctx.err[0] > EC_FIT_MAX_ERROR || ctx->encoder_ctx.err[1] > EC_FIT_MAX_ERROR)
         {
-            params->encoder_valid = false;
-            ctx->fault = TUNE_FAULT_PARAM_INVALID;
+            ctx->fault = TUNE_FAULT_ENCODER_INVALID;
             ctx->state = TUNE_STATE_FAULT;
             ctx->encoder_ctx.step = 0; // 失败复位
             return true;
@@ -575,12 +692,18 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         // 4.3 极对数范围校验
         if (params->pole_pairs < EC_MIN_POLE_PAIRS || params->pole_pairs > EC_MAX_POLE_PAIRS)
         {
-            params->encoder_valid = false;
-            ctx->fault = TUNE_FAULT_PARAM_INVALID;
+
+            ctx->fault = TUNE_FAULT_ENCODER_INVALID;
             ctx->state = TUNE_STATE_FAULT;
             return true;
         }
 
+        if (params->pole_pairs != g_Param.motor_polepairs)
+        {
+            ctx->fault = TUNE_FAULT_POLEPAIRS_MISMATCH;
+            ctx->state = TUNE_STATE_FAULT;
+            return true;
+        }
         // 4.4 计算方向 (斜率符号)
         params->direction = (ctx->encoder_ctx.k[0] > 0) ? true : false;
 
@@ -596,8 +719,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
     // === STATE 6: 完成 (Done) ===
     case 6:
         fFOC_SetUalphaBeta(0, 0); // 停机
-        params->encoder_valid = true;
-        return true; // 返回 true 表示流程结束
+        return true;              // 返回 true 表示流程结束
     }
 
     return false; // 返回 false 表示流程未结束，需下次继续调用
@@ -614,7 +736,6 @@ static bool _tune_PsiF(tFOC_val foc_val, tMotorParams *params)
     // 临时占位：使用 KV 反推（后续替换为 SMO 实测）
     params->Ke = 60.0f / (2.0f * MATH_PI * motor_params.KV * params->pole_pairs);
     params->Psi_f = params->Ke / params->pole_pairs;
-    params->psi_valid = true;
     return true;
 }
 
@@ -629,7 +750,6 @@ static bool _tune_JB(tFOC_val foc_val, tMotorParams *params)
     // 临时占位：使用默认值跳过
     params->J = 0.0001f;
     params->B = 0.001f;
-    params->mech_valid = true;
     return true;
 }
 
@@ -680,16 +800,8 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             }
 
             // 电阻完成：初始化电感整定上下文
-            ctx->ls_ctx.inject_period = F_PWM / LS_INJECT_FREQ_HZ / 2;
             ctx->ls_ctx.v_inj = LS_V_START;
-            ctx->ls_ctx.inject_cnt = 0;
-            for (int i = 0; i < 2; i++)
-                for (int j = 0; j < 2; j++)
-                {
-                    ctx->ls_ctx.di_dt_sum[i][j] = 0;
-                    ctx->ls_ctx.cnt[i][j] = 0;
-                    ctx->ls_ctx.i_sum[i][j] = 0;
-                }
+            ctx->ls_ctx.ready = false;
             ctx->steady_tick = 0;
             ctx->timeout_tick = 0;
             ctx->state = TUNE_STATE_LS;
@@ -708,10 +820,15 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 break;
             }
             // todo:这里对电流环PI进行调节
-            float fn = 1 / (MATH_2PI * params->Ld / params->Rs);
-            float wc = MATH_2PI * 0.7f * (2 * fn < g_Param.f_current_loop / 10 ? 2 * fn : g_Param.f_current_loop / 10);
-            params->Kp = wc * params->Ld;
-            params->Ki = wc * params->Rs;
+            float fn_d = 1 / (MATH_2PI * params->Ld / params->Rs);
+            float wc_d = MATH_2PI * 0.7f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
+            params->id_kp = wc_d * params->Ld;
+            params->id_ki = wc_d * params->Rs;
+
+            float fn_q = 1 / (MATH_2PI * params->Lq / params->Rs);
+            float wc_q = MATH_2PI * 0.7f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
+            params->iq_Kp = wc_q * params->Lq;
+            params->iq_Ki = wc_q * params->Rs;
             // 电感完成：初始化编码器校准上下文
 
             fSetEncoderAngleZero(); // 编码器圈数归零
