@@ -35,6 +35,9 @@ volatile uint8_t g_upgrade_cmd = 0;
 volatile uint16_t g_upgrade_len = 0;
 volatile uint8_t g_upgrade_data[256];
 volatile uint8_t g_cmd_received = 0;
+
+uint8_t rxlen=0;
+uint8_t rxbuf[280]={0};
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -261,8 +264,6 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   * @param  Len: Number of data received (in bytes)
   * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
   */
-volatile uint8_t rxbuf[256];
-uint8_t rxlen;
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
