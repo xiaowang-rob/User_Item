@@ -24,12 +24,11 @@ class QuickBut:
 
         self.foc_enable = self.mw.mid_area.ENable_button
         self.foc_disable = self.mw.mid_area.DEnable_button
-        self.foc_reset = self.mw.mid_area.reset_button
+        self.foc_reset = self.mw.top_area.reset_button
         self.foc_tunningstart = self.mw.mid_area.tunningstart_button
         self.foc_brake = self.mw.mid_area.brake_button
-        self.foc_protectreset = self.mw.mid_area.protectreset_button
 
-        self.sys_reset=self.mw.mid_area.system_reset_button
+        self.sys_reset=self.mw.top_area.system_reset_button
         self.set_zero_pos=self.mw.mid_area.pos_set_zero_button
         self.set_limit_pos=self.mw.mid_area.pos_set_limit_button
 
@@ -38,7 +37,6 @@ class QuickBut:
         self.foc_reset.clicked.connect(self.reset_button_clicked)
         self.foc_tunningstart.clicked.connect(self.tunningstart_button_clicked)
         self.foc_brake.clicked.connect(self.brake_button_clicked)
-        self.foc_protectreset.clicked.connect(self.protectreset_button_clicked)
 
         self.sys_reset.clicked.connect(self.system_reset_button_clicked)
         self.set_zero_pos.clicked.connect(self.set_zero_position_button_clicked)
@@ -74,8 +72,6 @@ class QuickBut:
     def brake_button_clicked(self):
         self.com.send_packet(Cidx.BRAKE,bytes())
 
-    def protectreset_button_clicked(self):
-        self.com.send_packet(Cidx.PROTECT_RESET,bytes())
 
     def system_reset_button_clicked(self):
         self.com.send_packet(Cidx.CMD_SYSTEM_RESET,bytes())

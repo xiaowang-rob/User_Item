@@ -1,5 +1,5 @@
 from siui.components.combobox_ import SiCapsuleComboBox
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout,QWidget
 from PyQt5.QtCore import Qt
 from siui.components.button import (
     SiCapsuleButton,
@@ -14,30 +14,40 @@ from siui.components.editbox import SiCapsuleLineEdit
 class TopArea:
     def __init__(self, main_window):
         self.mw=main_window
-        self.connect_area=main_window.ui.connect_area
-        self.mode_area=main_window.ui.mode_area
-        self.status_area=main_window.ui.status_area
-        self.config_area=main_window.ui.config_area
+        self.wideget=main_window.ui.top_area
+
+        main_layout=QHBoxLayout(self.wideget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(12)
+
+        connect_area=QWidget()
+        but_area=QWidget()
+        status_area=QWidget()
+        config_area=QWidget()
 
 
         # 统一四个角的圆角半径
-        self.connect_area.setStyleSheet("""
+        connect_area.setStyleSheet("""
             background-color: #332E38;
             border-radius: 12px;  
         """)
-        self.mode_area.setStyleSheet("""
+        but_area.setStyleSheet("""
             background-color: #332E38;
             border-radius: 12px;  
         """)
-        self.status_area.setStyleSheet("""
+        status_area.setStyleSheet("""
             background-color: #332E38;
             border-radius: 12px;
         """)
-        self.config_area.setStyleSheet("""
+        config_area.setStyleSheet("""
             background-color: #332E38;
             border-radius: 12px;
         """)
 
+        main_layout.addWidget(connect_area,3)
+        main_layout.addWidget(status_area,5)
+        main_layout.addWidget(but_area,2)
+        main_layout.addWidget(config_area,2)
     
         # 创建连接区域按钮 
         ###################################################################
@@ -61,7 +71,7 @@ class TopArea:
         self.connect_but.setText("未连接")
         self.connect_but.setValue("连接")
         # 创建主垂直布局
-        connect_H_layout = QVBoxLayout(self.connect_area)
+        connect_H_layout = QVBoxLayout(connect_area)
         connect_H_layout.setContentsMargins(6, 6, 6, 6)  # 根据需要调整边距
         connect_H_layout.setSpacing(8)  # 行间距
 
@@ -80,11 +90,13 @@ class TopArea:
         connect_W_layout.addWidget(self.connect_but,4)
 
         connect_H_layout.addLayout(connect_W_layout)
-        #############################################################################
-        # 创建模式区域按钮
+       
 
-        title_W=50
-        all_W=150
+        #############################################################################
+        # 状态区域显示控件
+        title_W=70
+        all_W=210
+
 
         self.sensormode_show=SiCapsuleLineEdit()
         self.sensormode_show.resize(all_W,40)
@@ -102,44 +114,14 @@ class TopArea:
         self.runmode_show.setReadOnly(True)
         self.runmode_show.setTitle("运行模式")
 
-        self.canid_show=SiCapsuleLineEdit()
-        self.canid_show.resize(all_W,40)
-        self.canid_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.canid_show.setTitleFixedWidth(title_W)  
-        self.canid_show.setAlignment(Qt.AlignCenter) 
-        self.canid_show.setReadOnly(True)
-        self.canid_show.setTitle("CAN ID")
-
-
-        #创建主垂直布局
-        mode_V_layout=QVBoxLayout(self.mode_area)
-        mode_V_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
-        mode_V_layout.setSpacing(8)  # 行间距
-
-        mode_V_layout.addWidget(self.sensormode_show)
-        mode_V_layout.addWidget(self.runmode_show)
-        mode_V_layout.addWidget(self.canid_show)
-
-        #############################################################################
-        # 状态区域显示控件
-
         self.focstate_show=SiCapsuleLineEdit()
         self.focstate_show.resize(all_W,40)
         self.focstate_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.focstate_show.setTitleFixedWidth(title_W)  
         self.focstate_show.setAlignment(Qt.AlignCenter) 
         self.focstate_show.setReadOnly(True)
-        self.focstate_show.setTitle("FOC状态")
+        self.focstate_show.setTitle("运行状态")
         self.focstate_show.setText("IDLE")
-
-        self.systemstate_show=SiCapsuleLineEdit()
-        self.systemstate_show.resize(all_W,40)
-        self.systemstate_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.systemstate_show.setTitleFixedWidth(title_W)  
-        self.systemstate_show.setAlignment(Qt.AlignCenter) 
-        self.systemstate_show.setReadOnly(True)
-        self.systemstate_show.setTitle("系统状态")
-        self.systemstate_show.setText("IDLE")
 
         self.Vbus_show=SiCapsuleLineEdit()
         self.Vbus_show.resize(all_W,40)
@@ -159,47 +141,57 @@ class TopArea:
         self.temp_show.setTitle("温度")
         self.temp_show.setText("0°C")
 
-        self.fault_show=SiCapsuleLineEdit()
-        self.fault_show.resize(all_W,40)
-        self.fault_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.fault_show.setTitleFixedWidth(title_W)  
-        self.fault_show.setAlignment(Qt.AlignCenter) 
-        self.fault_show.setReadOnly(True)
-        self.fault_show.setTitle("错误")
-        self.fault_show.setText("无故障")
-
-        self.warning_show=SiCapsuleLineEdit()
-        self.warning_show.resize(all_W,40)
-        self.warning_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
-        self.warning_show.setTitleFixedWidth(title_W)  
-        self.warning_show.setAlignment(Qt.AlignCenter) 
-        self.warning_show.setReadOnly(True)
-        self.warning_show.setTitle("警告")
-        self.warning_show.setText("无警告")
+        self.fault_warnning_show=SiCapsuleLineEdit()
+        self.fault_warnning_show.resize(all_W,40)
+        self.fault_warnning_show.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.fault_warnning_show.setTitleFixedWidth(title_W)  
+        self.fault_warnning_show.setAlignment(Qt.AlignCenter) 
+        self.fault_warnning_show.setReadOnly(True)
+        self.fault_warnning_show.setTitle("错误")
+        self.fault_warnning_show.setText("None")
 
 
-        #创建主垂直布局
-        status_H_layout = QHBoxLayout(self.status_area)
+        #创建主水平布局
+        status_H_layout = QHBoxLayout(status_area)
         status_H_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
         status_H_layout.setSpacing(16)  
-        #创建状态区域水平布局
+        #创建状态区域垂直布局
         status_W_layout_t = QVBoxLayout()
         status_W_layout_t.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
         status_W_layout_t.setSpacing(8)  # 行间距
+        status_W_layout_t.addWidget(self.sensormode_show)
+        status_W_layout_t.addWidget(self.runmode_show)
         status_W_layout_t.addWidget(self.focstate_show)
-        status_W_layout_t.addWidget(self.Vbus_show)
-        status_W_layout_t.addWidget(self.fault_show)
 
         status_W_layout_b = QVBoxLayout()
         status_W_layout_b.setContentsMargins(0, 0, 0,0)  # 根据需要调整边距
         status_W_layout_b.setSpacing(8)  # 行间距
-        status_W_layout_b.addWidget(self.systemstate_show)
+        status_W_layout_b.addWidget(self.Vbus_show)
         status_W_layout_b.addWidget(self.temp_show)
-        status_W_layout_b.addWidget(self.warning_show)
+        status_W_layout_b.addWidget(self.fault_warnning_show)
         
         status_H_layout.addLayout(status_W_layout_t,1)
         status_H_layout.addLayout(status_W_layout_b,1)
 
+ #############################################################################
+        # 创建复位按钮
+
+        self.reset_button=SiPushButtonRefactor()
+        self.reset_button.setText("FOC复位")
+        self.reset_button.adjustSize()
+
+        self.system_reset_button=SiPushButtonRefactor()
+        self.system_reset_button.setText("系统复位")
+        self.system_reset_button.adjustSize()
+
+
+        #创建主垂直布局
+        mode_V_layout=QVBoxLayout(but_area)
+        mode_V_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
+        mode_V_layout.setSpacing(8)  # 行间距
+
+        mode_V_layout.addWidget(self.system_reset_button)
+        mode_V_layout.addWidget(self.reset_button)
 
         #############################################################################
         # 配置文件区域显示控件
@@ -226,7 +218,7 @@ class TopArea:
         self.remove_config.adjustSize()
 
         #创建主垂直布局
-        config_H_layout = QVBoxLayout(self.config_area)
+        config_H_layout = QVBoxLayout(config_area)
         config_H_layout.setContentsMargins(12,6,12,6)  # 根据需要调整边距
         config_H_layout.setSpacing(8)  
         #创建配置区域水平布局

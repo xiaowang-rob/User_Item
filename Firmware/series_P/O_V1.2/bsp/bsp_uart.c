@@ -1,0 +1,27 @@
+#include "bsp_uart.h"
+#include "usart.h"
+#include "config.h"
+
+/* ============================================
+ * UART - 串口
+ * ============================================ */
+void BSP_UART_Receive_DMA(uint8_t *data, u16 len)
+{
+    HAL_UART_Receive_DMA(&UART_CH, data, len);
+}
+bool BSP_UART_Transmit_DMA(uint8_t *data, u16 len)
+{
+    return HAL_UART_Transmit_DMA(&UART_CH, data, len) == HAL_OK;
+}
+
+__weak void BSP_UART_RxCallback()
+{
+    return;
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == UART_INSTANCE)
+    {
+        BSP_UART_RxCallback();
+    }
+}

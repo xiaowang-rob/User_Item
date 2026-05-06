@@ -1,23 +1,8 @@
 # 编译输出
-app/build/
-bootload/build/
+**/build/
 
 # 自动生成的配置文件
-app/app_config.h
-app/cmake/STM32F405XX_FLASH.ld
-bootload/cmake/STM32F405XX_FLASH.ld
 firmware_out/
-build/
-
-# CubeMX 临时文件
-**/cubemx/*.bak
-**/cubemx/Debug/
-**/cubemx/Release/
-
-# IDE
-.vscode/
-.idea/
-*.swp
 
 # Python
 __pycache__/

@@ -106,7 +106,6 @@ class Cidx:
     FOC_NRST           = 0xF3
     ENABLE             = 0xF4
     DISABLE            = 0xF5
-    PROTECT_RESET      = 0xF6
     LOG_GET            = 0xF7
     LOG_ERASE          = 0xF8
     PARAM_ERASE        = 0x01
@@ -252,15 +251,14 @@ class Data_UI_Map:
         self.param_show_map = {
             Pidx.SENSOR_MODE:          top_area.sensormode_show,
             Pidx.RUN_MODE:            top_area.runmode_show,
-            Pidx.CAN_ID:               top_area.canid_show,
         }
 
         # 实时状态显示映射
         self.status_map = {
-            Sidx.SYSTEM_state:         top_area.systemstate_show,
+            # Sidx.SYSTEM_state:         top_area.systemstate_show,
             Sidx.FOC_state:            top_area.focstate_show,
-            Sidx.FAULT:                top_area.fault_show,
-            Sidx.WARNING:              top_area.warning_show,
+            Sidx.FAULT:                top_area.fault_warnning_show,
+            Sidx.WARNING:              top_area.fault_warnning_show,
             Sidx.TEMPERATURE:          top_area.temp_show,
             Sidx.VBUS:                 top_area.Vbus_show,
         }
