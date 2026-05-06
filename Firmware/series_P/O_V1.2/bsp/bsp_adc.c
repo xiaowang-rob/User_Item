@@ -3,6 +3,7 @@
 #include "adc.h"
 #include "tim.h"
 #include "config.h"
+#include "string.h"
 
 /* ADC相关配置定义 */
 
@@ -136,15 +137,14 @@ static int fMedianFilter(tMedianFilter *filter, int new_value)
     // 返回中值
     return buf[(filter->size - 1) / 2];
 }
-#define MED_FILTER_SIZE 3
 
 tMedianFilter Ia_Filter;
 tMedianFilter Ib_Filter;
 tMedianFilter Ic_Filter;
 
-u16 Ia_buf[MED_FILTER_SIZE];
-u16 Ib_buf[MED_FILTER_SIZE];
-u16 Ic_buf[MED_FILTER_SIZE];
+int Ia_buf[MED_FILTER_SIZE];
+int Ib_buf[MED_FILTER_SIZE];
+int Ic_buf[MED_FILTER_SIZE];
 /**
  * @brief ADC转换完成回调函数
  * @param hadc ADC句柄指针
@@ -176,9 +176,9 @@ void BSP_AdcInit(void)
     HAL_TIM_PWM_Start(&PWM_GET_HTIM, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
-    fMedianFilterInit(&Ia_Filter, (int *)Ia_buf, MED_FILTER_SIZE);
-    fMedianFilterInit(&Ib_Filter, (int *)Ib_buf, MED_FILTER_SIZE);
-    fMedianFilterInit(&Ic_Filter, (int *)Ic_buf, MED_FILTER_SIZE);
+    fMedianFilterInit(&Ia_Filter, Ia_buf, MED_FILTER_SIZE);
+    fMedianFilterInit(&Ib_Filter, Ib_buf, MED_FILTER_SIZE);
+    fMedianFilterInit(&Ic_Filter, Ic_buf, MED_FILTER_SIZE);
     while (!is_adc_init)
     {
         BSP_Delay(1);

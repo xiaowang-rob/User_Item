@@ -112,7 +112,7 @@ void fMotorParamTune_Init()
 void fMotorParamTune_Reset()
 {
     g_tune_ctx.fault = TUNE_FAULT_NONE;
-    g_tune_ctx.state = TUNE_STATE_INIT;
+    g_tune_ctx.state = TUNE_INIT;
 }
 /* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
 
@@ -272,36 +272,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
     float *sum_re = &ctx->ls_ctx.sum_re;
     float *sum_im = &ctx->ls_ctx.sum_im;
     uint16_t *sample_cnt = &ctx->ls_ctx.sample_cnt;
-    // 自适应注入电压 调整到反馈电流合适
 
-    // if (!ctx->ls_ctx.ready)
-    // {
-    //     float i_meas = (FABSF(i_alpha) + FABSF(i_beta)) * 0.5f;
-
-    //     // 迟滞区间: 20%~80% of LS_I_LIMIT
-    //     if (i_meas < LS_I_LIMIT * 0.2f && ctx->ls_ctx.v_inj < LS_V_MAX - 0.1f)
-    //     {
-    //         ctx->ls_ctx.v_inj += 0.1f;
-    //         ctx->steady_tick = 0;
-    //     }
-    //     else if (i_meas > LS_I_LIMIT * 0.8f && ctx->ls_ctx.v_inj > LS_V_START + 0.1f)
-    //     {
-    //         ctx->ls_ctx.v_inj -= 0.1f;
-    //         ctx->steady_tick = 0;
-    //     }
-    //     else
-    //     {
-    //         if (ctx->steady_tick > LS_V_HOLD_MAX_TICKS)
-    //         {
-    //             ctx->ls_ctx.ready = true;
-    //             ctx->steady_tick = 0;
-    //             fFOC_SetUalphaBeta(0, 0);
-    //             return false;
-    //         }
-    //     }
-    //     fFOC_SetUalphaBeta(ctx->ls_ctx.v_inj, ctx->ls_ctx.v_inj);
-    //     return false; // 未完成
-    // }
     switch (ctx->ls_ctx.state)
     {
     // ==================== 状态0：自适应注入电压 ====================
@@ -693,7 +664,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
             else
             {
                 ctx->fault = TUNE_FAULT_MECH_LOCKED;
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 ctx->encoder_ctx.step = 0; // 失败复位
                 return true;
             }
@@ -716,7 +687,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         if (ctx->encoder_ctx.err[0] > EC_FIT_MAX_ERROR || ctx->encoder_ctx.err[1] > EC_FIT_MAX_ERROR)
         {
             ctx->fault = TUNE_FAULT_ENCODER_INVALID;
-            ctx->state = TUNE_STATE_FAULT;
+            ctx->state = TUNE_FAILED;
             ctx->encoder_ctx.step = 0; // 失败复位
             return true;
         }
@@ -730,14 +701,14 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
         {
 
             ctx->fault = TUNE_FAULT_ENCODER_INVALID;
-            ctx->state = TUNE_STATE_FAULT;
+            ctx->state = TUNE_FAILED;
             return true;
         }
 
         if (params->pole_pairs != g_Param.motor_polepairs)
         {
             ctx->fault = TUNE_FAULT_POLEPAIRS_MISMATCH;
-            ctx->state = TUNE_STATE_FAULT;
+            ctx->state = TUNE_FAILED;
             return true;
         }
         // 4.4 计算方向 (斜率符号)
@@ -797,12 +768,12 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
     ctx->steady_tick++; // 作为全局稳态计时器
     switch (ctx->state)
     {
-    case TUNE_STATE_INIT:
+    case TUNE_INIT:
         fMotorParamTune_Init();
         ctx->steady_tick = 0;
-        ctx->state = TUNE_STATE_IDLE;
+        ctx->state = TUNE_IDLE;
         break;
-    case TUNE_STATE_IDLE:
+    case TUNE_IDLE:
         if (ctx->steady_tick < TUNE_WAIT_TICKS)
             break; // 先静止等待参数稳定
         fFOC_SetSensorMode(ENCODER_CONTROL);
@@ -816,14 +787,14 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         ctx->steady_tick = 0;
         ctx->timeout_tick = 0;
 
-        ctx->state = TUNE_STATE_RS;
+        ctx->state = TUNE_RESISTANCE;
         break;
 
-    case TUNE_STATE_RS:
+    case TUNE_RESISTANCE:
         // 超时检测
         //        if (ctx->timeout_tick++ > RS_TIMEOUT_TICKS)
         //        {
-        //            ctx->state = TUNE_STATE_FAULT;
+        //            ctx->state = TUNE_FAILED;
         //            ctx->fault = TUNE_FAULT_TIMEOUT;
         //        }
         // 校准中
@@ -831,7 +802,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 break;
             }
 
@@ -840,11 +811,11 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->ls_ctx.ready = false;
             ctx->steady_tick = 0;
             ctx->timeout_tick = 0;
-            ctx->state = TUNE_STATE_LS;
+            ctx->state = TUNE_INDUCTANCE;
         }
         break;
 
-    case TUNE_STATE_LS:
+    case TUNE_INDUCTANCE:
         if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha_im, foc_val.Ibeta_im, params))
         {
             // 电阻上下文复位
@@ -852,7 +823,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
 
             if (ctx->fault != TUNE_FAULT_NONE)
             {
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 break;
             }
 
@@ -870,16 +841,16 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->encoder_ctx.v_out = EC_OPEN_LOOP_UQ_MIN;
 
             ctx->timeout_tick = 0;
-            ctx->state = TUNE_STATE_ENCODER;
+            ctx->state = TUNE_ENCODER;
         }
         break;
 
-    case TUNE_STATE_ENCODER:
+    case TUNE_ENCODER:
         if (_tune_encoder(foc_val.theta_mech, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 break;
             }
             // todo:写入参数
@@ -892,16 +863,16 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->psi_ctx.ready = false;
             ctx->steady_tick = 0;
 
-            ctx->state = TUNE_STATE_PSI_F;
+            ctx->state = TUNE_ELEC_PARAM;
         }
         break;
 
-    case TUNE_STATE_PSI_F:
+    case TUNE_ELEC_PARAM:
         if (_tune_PsiF(foc_val, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 break;
             }
 
@@ -913,16 +884,16 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             ctx->jb_ctx.ready = false;
             ctx->steady_tick = 0;
 
-            ctx->state = TUNE_STATE_JB;
+            ctx->state = TUNE_MECH_PARAM;
         }
         break;
 
-    case TUNE_STATE_JB:
+    case TUNE_MECH_PARAM:
         if (_tune_JB(foc_val, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
-                ctx->state = TUNE_STATE_FAULT;
+                ctx->state = TUNE_FAILED;
                 break;
             }
 
@@ -930,7 +901,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
             //  结束：保存参数并进入完成状态
 
             fMotorParamTune_ForceSave();
-            ctx->state = TUNE_STATE_COMPLETE;
+            ctx->state = TUNE_DONE;
         }
         break;
 

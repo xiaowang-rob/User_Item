@@ -65,7 +65,8 @@ static void _motor_init(tParameter param)
 // 滤波器初始化
 static void _filter_init(tParameter param)
 {
-    float cur_fit_alpha = param.cur_fiter_alpha == 0;
+    if (param.cur_fiter_alpha <= 0.01f || param.cur_fiter_alpha >= 1)
+        param.cur_fiter_alpha = 0.5f; // 默认值，确保在合理范围内
     fFirstOrderLagInit(&_i_u_filter, param.cur_fiter_alpha, 0);
     fFirstOrderLagInit(&_i_v_filter, param.cur_fiter_alpha, 0);
     fFirstOrderLagInit(&_i_w_filter, param.cur_fiter_alpha, 0);
@@ -296,7 +297,7 @@ void fFOC_SetTargetValue(float *value)
 bool fAutoCalibrationUpdate(void)
 {
     fClarkTransform(foc_val.Iu_im, foc_val.Iv_im, foc_val.Iw_im, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
-    if (TUNE_STATE_COMPLETE == fMotorParamTune_Update(foc_val))
+    if (TUNE_DONE == fMotorParamTune_Update(foc_val))
     {
         fFOC_CoreInit();
         return true;

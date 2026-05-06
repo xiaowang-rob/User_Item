@@ -57,7 +57,7 @@ void fFOC_StateMachineMainLoop()
     {
     case FOC_IDLE:
         break;
-    case FOC_AUTO_TUNE:
+    case FOC_TUNE:
         if (!g_foc.foc_enable)
         {
             g_foc.foc_enable = true;
@@ -103,7 +103,7 @@ void fFOC_StateMachineMainLoop()
     }
 }
 // FOC 状态更新函数
-void fFOC_StateUpdate(eFOC_Status state)
+void fFOC_StateUpdate(eFocState state)
 {
     // 状态切换条件：
     // 1、故障状态只能通过复位退出

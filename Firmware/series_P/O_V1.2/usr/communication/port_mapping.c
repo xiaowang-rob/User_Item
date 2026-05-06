@@ -93,9 +93,12 @@ static inline void _status_send()
     }
     else
     {
-        fStreamDataGet(STREAM_STATUS, (float *)com_frame.txdata);
-        fStreamDataGet(STREAM_TEMPERATURE, (float *)&com_frame.txdata[4]);
-        fStreamDataGet(STREAM_VBUS, (float *)&com_frame.txdata[8]);
+        com_frame.txdata[0] = g_foc.tun->state;
+        com_frame.txdata[1] = g_foc.state;
+        com_frame.txdata[2] = g_pro_manager.fault;
+        com_frame.txdata[3] = g_pro_manager.warning;
+        memcpy(&com_frame.txdata[4], &g_foc.core->motor->Udc, sizeof(float));
+        memcpy(&com_frame.txdata[8], &g_pro_manager.temperature, sizeof(float));
         com_frame.txdatalen = 12;
     }
     fHostComputer_send();
@@ -131,7 +134,7 @@ static void _frame_data_deal()
             break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
-            fStreamDataGet((DataStreamId)data_id, (float *)com_frame.txdata);
+            fStreamDataGet((eData_stream)data_id, (float *)com_frame.txdata);
             fCAN_SendData(com_frame.txdata, 4);
             break;
         case CMD_SYSTEM_RESET:
@@ -169,7 +172,7 @@ static void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
             case START_TUNNING:
-                fFOC_StateUpdate(FOC_AUTO_TUNE);
+                fFOC_StateUpdate(FOC_TUNE);
                 break;
             case BRAKE:
                 fFOC_StateUpdate(FOC_SHUTDOWN);

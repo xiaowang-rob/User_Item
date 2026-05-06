@@ -2,7 +2,7 @@
 #define __USB_PORT_H
 
 #include "bsp_usb.h"
-#include "usr_config.h"
+#include "protocol_defs.h"
 
 typedef struct
 {

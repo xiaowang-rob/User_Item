@@ -2,55 +2,11 @@
 #define __PARAMETER_MANAGER_H
 
 #include "bsp.h"
+#include "protocol_defs.h"
 
 #define PARAMETER_LOAD_block 0
 #define PARAMETER_LOAD_sector 0
 #define PARAMETER_LOAD_ADDr PARAMETER_LOAD_block * 0x00010000 + PARAMETER_LOAD_sector * 0x00001000
-
-typedef enum
-{
-    SENSOR_MODE,    // 感应模式
-    LOOP_MODE,      // 环
-    CAN_MODE,       // CAN 0-实时 1-队列 2-实时有反馈 3-队列有反馈
-    VAGUE_PID_MODE, // 模糊PID
-    PVT_MODE,       // PVT 模式 0-关闭 1-PV 2-PT
-    TRAJ_TYPE,      // 轨迹规划器类型
-
-    MOTOR_POLEPAIRS, // 电机极对数
-
-    // u32
-    CAN_ID,
-
-    THETA_OFFSET, // 角度补偿
-    MOTOR_KV,
-    MOTOR_RS,
-    MOTOR_Ld,
-    MOTOR_Lq,
-    MOTOR_Psif,
-    MOTOR_Ke, // 反电动势常数
-    MOTOR_J,  // 转动惯量
-    MOTOR_B,  // 摩擦系数
-
-    Kp_SPEED,    // 速度环比例
-    Ki_SPEED,    // 速度环积分
-    Kp_POSITION, // 位置环比例
-    Ki_POSITION, // 位置环积分
-    Kd_POSITION, // 位置环微分
-
-    LIMIT_CURRENT,      // 电流限幅
-    LIMIT_SPEED,        // 速度限幅
-    LIMIT_POSITION_min, // 位置限幅
-    LIMIT_POSITION_max, // 位置限幅
-    TOLERANCE_TIME,     // 容忍时间
-    TOLERANCE_LIMIT,    // 超限容忍度
-
-    TRAJ_MAX_RATE,  // 轨迹规划最大变化率
-    TRAJ_MAX_ACC,   // 轨迹规划最大加速度
-    TRAJ_MAX_JERK,  // 轨迹规划最大加加速度
-    TRAJ_TOLERANCE, // 轨迹规划容差
-
-    COUNT_PARAM
-} eParameter;
 
 typedef struct
 {

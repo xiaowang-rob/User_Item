@@ -51,12 +51,13 @@
 #define F_PWM 20000.0f
 #define T_PWM 0.00005f
 #define TIC_PWM 2099
-#define T_CON T_PWM
+#define T_CON 0.00005f
 
 #define T_SAMPLE_us 7   // 采样 4-7us
 #define T_DEATH_us 0.5f // 死区时间
 #define T_NOISE_us 0.5f // 开关噪声时间
 
+#define MED_FILTER_SIZE 3          // 中值滤波器大小，必须为奇数
 #define RATE_CURRENT_SAMPLE 100.0f // 电流采样比率
 #define RATE_VOLTAGE_SAMPLE 16     // 电压采样比率
 #define MAX_CURRENT 100            // MOS管最大电流 100A

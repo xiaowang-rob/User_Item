@@ -41,7 +41,7 @@ tTraj_Out fTraj_Update(float dt)
 {
     tTraj_Out out = {0};
 
-    if (traj_cfg.type == TRAJ_TYPE_DISABLE)
+    if (traj_cfg.type == TRAJ_DISABLE)
     {
         out.value = traj_state.target;
         out.rate = 0.0f;
@@ -72,7 +72,7 @@ tTraj_Out fTraj_Update(float dt)
     }
 
     /* === 4. 分支：T 型 vs S 型 === */
-    if (traj_cfg.type == TRAJ_TYPE_TRAP)
+    if (traj_cfg.type == TRAJ_TRAPEZOID)
     {
         /* === 梯形轨迹 === */
         float target_rate = rate_limit * dir;

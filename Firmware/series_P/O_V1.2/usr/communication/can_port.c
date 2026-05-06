@@ -7,6 +7,7 @@
 #include "can_port.h"
 #include "usr_config.h"
 #include "device.h"
+#include "protocol_defs.h"
 
 #define STD_ID_MASK 0x7FF      // 标准帧11位ID掩码 [31:21]（32位模式）或 [15:5]（16位模式）
 #define EXT_ID_MASK 0xFFFFFFFF // 扩展帧29位ID掩码 [31:3]

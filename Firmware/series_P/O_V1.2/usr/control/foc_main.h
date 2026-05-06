@@ -7,24 +7,13 @@
 #include "tune.h"
 #include "svpwm.h"
 #include "hfi.h"
-
-typedef enum
-{
-    FOC_IDLE,      // 用于参数调节、模式调节 状态
-    FOC_AUTO_TUNE, // 自动校准电机参数 状态
-    FOC_RESET,     // 复位电机动作 过程
-    FOC_ENABLE,    // 使能电机动作 过程
-    FOC_DISABLE,   // 禁用电机动作 过程
-    FOC_RUNNING,   // FOC参数计算 PWM输出 状态
-    FOC_SHUTDOWN,  // 紧急停止电机动作 过程
-    FOC_FAULT,     // 故障状态
-} eFOC_Status;
+#include "protocol_defs.h"
 
 typedef struct
 {
     bool foc_enable;
     bool foc_init;
-    eFOC_Status state;
+    eFocState state;
     tFOC_Core *core;
     tLoopControl *loop_con;
     tHFI_Handle *hfi;
@@ -36,6 +25,6 @@ extern FOC_t g_foc;
 
 void fFOC_Init();
 void fFOC_StateMachineMainLoop();
-void fFOC_StateUpdate(eFOC_Status state);
+void fFOC_StateUpdate(eFocState state);
 
 #endif

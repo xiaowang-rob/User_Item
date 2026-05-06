@@ -2,7 +2,7 @@
 #define __UART_PORT_H
 
 #include "bsp_uart.h"
-#include "usr_config.h"
+#include "protocol_defs.h"
 
 typedef struct
 {

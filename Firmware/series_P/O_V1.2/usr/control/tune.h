@@ -4,6 +4,7 @@
 #include "bsp.h"
 #include "foc_core.h"
 #include "usr_config.h"
+#include "protocol_defs.h"
 
 /* ================================= 整定参数配置 ================================= */
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
@@ -128,18 +129,6 @@ typedef struct
 } tMotorParams;
 
 /* ================================= 整定状态枚举 ================================= */
-typedef enum
-{
-    TUNE_STATE_INIT = 0,
-    TUNE_STATE_IDLE,
-    TUNE_STATE_RS,
-    TUNE_STATE_LS,
-    TUNE_STATE_ENCODER,
-    TUNE_STATE_PSI_F,
-    TUNE_STATE_JB,
-    TUNE_STATE_COMPLETE,
-    TUNE_STATE_FAULT
-} eTuneState;
 
 typedef enum
 {

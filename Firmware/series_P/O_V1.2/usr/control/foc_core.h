@@ -4,20 +4,8 @@
 #include "bsp.h"
 #include "parameter_manager.h"
 #include "trajectory.h"
-typedef enum
-{
-    ENCODER_CONTROL,    // 有感控制
-    SENSORLESS_CONTROL, // 无感控制 HFI+SMO
-    MERGE_CONTROL,      // 混合控制
-} eSensorMode;
 
-typedef enum
-{
-    CURRENT_MODE,
-    SPEED_MODE,
-    POSITION_MODE, // 增量式控制
-    OPEN_LOOP,
-} eRunMode;
+#include "protocol_defs.h"
 
 typedef struct
 {

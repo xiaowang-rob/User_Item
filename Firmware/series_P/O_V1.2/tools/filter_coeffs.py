@@ -1,5 +1,7 @@
-"""巴特沃斯滤波器系数计算（需要 scipy）"""
+"""巴特沃斯速度回路低通滤波器系数计算"""
+
 import sys
+
 
 def compute_filter_coeffs(cfg):
     try:
@@ -13,19 +15,12 @@ def compute_filter_coeffs(cfg):
     filt = cfg["filter"]
 
     fc_speed = filt["pll_bandwidth_hz"] * filt["speed_lpf_factor"]
-    sos_w = signal.butter(ORDER, fc_speed, btype="low", output="sos", fs=FS)
-    b0, b1, b2, a0, a1, a2 = sos_w[0]
-    lpf_w = [b0/a0, b1/a0, b2/a0, -a1/a0, -a2/a0]
-
-    fc_curr = filt["curr_bw_target_hz"] * filt["curr_filter_factor"]
-    sos_i = signal.butter(ORDER, fc_curr, btype="low", output="sos", fs=FS)
-    b0, b1, b2, a0, a1, a2 = sos_i[0]
-    lpf_i = [b0/a0, b1/a0, b2/a0, -a1/a0, -a2/a0]
+    sos = signal.butter(ORDER, fc_speed, btype="low", output="sos", fs=FS)
+    b0, b1, b2, a0, a1, a2 = sos[0]
+    lpf_w = [b0 / a0, b1 / a0, b2 / a0, -a1 / a0, -a2 / a0]
 
     return {
         "lpf_w": lpf_w,
-        "lpf_i": lpf_i,
         "fc_speed": fc_speed,
-        "fc_curr": fc_curr,
         "FS": FS,
     }

@@ -16,7 +16,7 @@ void fParamSet(eParameter para, u8 *value)
     case SENSOR_MODE:
         g_Param.sensor_mode = *(u8 *)value;
         break;
-    case LOOP_MODE:
+    case RUN_MODE:
         g_Param.run_mode = *(u8 *)value;
         break;
     case CAN_MODE:
@@ -57,10 +57,10 @@ void fParamSet(eParameter para, u8 *value)
     case MOTOR_Lq:
         g_Param.motor_lq = *(float *)value;
         break;
-    case MOTOR_Psif:
+    case MOTOR_PSIF:
         g_Param.motor_psif = *(float *)value;
         break;
-    case MOTOR_Ke:
+    case MOTOR_KE:
         g_Param.motor_ke = *(float *)value;
         break;
     case MOTOR_J:
@@ -69,19 +69,19 @@ void fParamSet(eParameter para, u8 *value)
     case MOTOR_B:
         g_Param.motor_b = *(float *)value;
         break;
-    case Kp_SPEED:
+    case KP_SPEED:
         g_Param.kp_speed = *(float *)value;
         break;
-    case Ki_SPEED:
+    case KI_SPEED:
         g_Param.ki_speed = *(float *)value;
         break;
-    case Kp_POSITION:
+    case KP_POSITION:
         g_Param.kp_position = *(float *)value;
         break;
-    case Ki_POSITION:
+    case KI_POSITION:
         g_Param.ki_position = *(float *)value;
         break;
-    case Kd_POSITION:
+    case KD_POSITION:
         g_Param.kd_position = *(float *)value;
         break;
     case LIMIT_CURRENT:
@@ -90,10 +90,10 @@ void fParamSet(eParameter para, u8 *value)
     case LIMIT_SPEED:
         g_Param.limit_omega = *(float *)value;
         break;
-    case LIMIT_POSITION_min:
+    case LIMIT_POSITION_MIN:
         g_Param.limit_position_min = *(float *)value;
         break;
-    case LIMIT_POSITION_max:
+    case LIMIT_POSITION_MAX:
         g_Param.limit_position_max = *(float *)value;
         break;
     case TOLERANCE_TIME:
@@ -130,7 +130,7 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(u8 *)value = g_Param.sensor_mode;
         *len = sizeof(u8);
         break;
-    case LOOP_MODE:
+    case RUN_MODE:
         *(u8 *)value = g_Param.run_mode;
         *len = sizeof(u8);
         break;
@@ -182,11 +182,11 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.motor_lq;
         *len = sizeof(float);
         break;
-    case MOTOR_Psif:
+    case MOTOR_PSIF:
         *(float *)value = g_Param.motor_psif;
         *len = sizeof(float);
         break;
-    case MOTOR_Ke:
+    case MOTOR_KE:
         *(float *)value = g_Param.motor_ke;
         *len = sizeof(float);
         break;
@@ -198,23 +198,23 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.motor_b;
         *len = sizeof(float);
         break;
-    case Kp_SPEED:
+    case KP_SPEED:
         *(float *)value = g_Param.kp_speed;
         *len = sizeof(float);
         break;
-    case Ki_SPEED:
+    case KI_SPEED:
         *(float *)value = g_Param.ki_speed;
         *len = sizeof(float);
         break;
-    case Kp_POSITION:
+    case KP_POSITION:
         *(float *)value = g_Param.kp_position;
         *len = sizeof(float);
         break;
-    case Ki_POSITION:
+    case KI_POSITION:
         *(float *)value = g_Param.ki_position;
         *len = sizeof(float);
         break;
-    case Kd_POSITION:
+    case KD_POSITION:
         *(float *)value = g_Param.kd_position;
         *len = sizeof(float);
         break;
@@ -226,11 +226,11 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.limit_omega;
         *len = sizeof(float);
         break;
-    case LIMIT_POSITION_min:
+    case LIMIT_POSITION_MIN:
         *(float *)value = g_Param.limit_position_min;
         *len = sizeof(float);
         break;
-    case LIMIT_POSITION_max:
+    case LIMIT_POSITION_MAX:
         *(float *)value = g_Param.limit_position_max;
         *len = sizeof(float);
         break;

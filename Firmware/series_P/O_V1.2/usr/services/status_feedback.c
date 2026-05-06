@@ -8,7 +8,7 @@ void fStatusFeedbackMainLoop()
 {
     switch (g_foc.state)
     {
-    case FOC_AUTO_TUNE:
+    case FOC_TUNE:
         BSP_RGB_Breathe(TIFFANY_BLUE);
         break;
     case FOC_IDLE:

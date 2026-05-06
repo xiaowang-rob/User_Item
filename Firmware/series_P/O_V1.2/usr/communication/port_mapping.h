@@ -1,7 +1,7 @@
 #ifndef __PORT_MAPPING_H__
 #define __PORT_MAPPING_H__
 
-#include "usr_config.h"
+#include "protocol_defs.h"
 #include "device.h"
 typedef enum
 {
@@ -23,7 +23,7 @@ typedef struct
     u8 txdata[MAX_FRAME_LENGTH] __attribute__((aligned(4))); // 强制 4 字节对齐;
 
     u8 stream_num;
-    DataStreamId data_id_index[8];
+    eData_stream data_id_index[8];
 } tCOM_Frame;
 
 typedef struct

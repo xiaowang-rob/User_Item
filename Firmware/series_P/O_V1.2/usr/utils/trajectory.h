@@ -4,16 +4,8 @@
 #include "math_fast.h"
 #include "stdbool.h"
 #include "arm_math.h"
-
+#include "protocol_defs.h"
 /* === 使用 float 32位精度 确保 FPU 优化 === */
-
-/* === 轨迹类型枚举 === */
-typedef enum
-{
-    TRAJ_TYPE_DISABLE, // 禁用
-    TRAJ_TYPE_TRAP,    // 梯形
-    TRAJ_TYPE_SCURVE   // S 型
-} eTrajType;
 
 /* === 配置参数 === */
 typedef struct

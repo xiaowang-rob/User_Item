@@ -10,262 +10,252 @@
     "filter": {
         "hfi_inj_freq_hz": 5000,
         "pll_bandwidth_hz": 40,
-        "speed_lpf_factor": 2.0,
-        "curr_bw_target_hz": 700.0,
-        "curr_filter_factor": 4.0
+        "speed_lpf_factor": 2.0
     },
     "protocol": {
         "cmd_ids": [
-            {
-                "name": "UC_CONNECT",
-                "value": "0xf0",
-                "comment": "上位机连接"
-            },
-            {
-                "name": "UC_DISCONNECT",
-                "value": "0xfe",
-                "comment": "上位机断开"
-            },
-            {
-                "name": "START_TUNNING",
-                "value": "0xf1",
-                "comment": "开始调参"
-            },
-            {
-                "name": "BRAKE",
-                "value": "0xf2",
-                "comment": "刹车"
-            },
-            {
-                "name": "FOC_NRST",
-                "value": "0xf3",
-                "comment": "FOC复位"
-            },
-            {
-                "name": "CMD_ENABLE",
-                "value": "0xf4",
-                "comment": "电机使能"
-            },
-            {
-                "name": "CMD_DISABLE",
-                "value": "0xf5",
-                "comment": "电机失能"
-            },
-            {
-                "name": "LOG_GET",
-                "value": "0xf7",
-                "comment": "获取日志"
-            },
-            {
-                "name": "LOG_ERASE",
-                "value": "0xf8",
-                "comment": "日志擦除"
-            },
-            {
-                "name": "PARAM_ERASE",
-                "value": "0x01",
-                "comment": "参数擦除"
-            },
-            {
-                "name": "PARAM_WRITE",
-                "value": "0x02",
-                "comment": "参数写入"
-            },
-            {
-                "name": "PARAM_READ",
-                "value": "0x03",
-                "comment": "参数读取"
-            },
-            {
-                "name": "PARAM_SAVE",
-                "value": "0x04",
-                "comment": "参数保存"
-            },
-            {
-                "name": "CMD_REFVALUE_SET",
-                "value": "0x21",
-                "comment": "目标值设置"
-            },
-            {
-                "name": "CMD_MODE_SET",
-                "value": "0x22",
-                "comment": "模式设置"
-            },
-            {
-                "name": "CMD_STREAM_GET",
-                "value": "0x23",
-                "comment": "监测值获取"
-            },
-            {
-                "name": "CMD_STREAM_SET",
-                "value": "0x25",
-                "comment": "数据流设置"
-            },
-            {
-                "name": "CMD_SET_ZERO_POS",
-                "value": "0x26",
-                "comment": "设置零点"
-            },
-            {
-                "name": "CMD_SET_LIMIT_POS",
-                "value": "0x27",
-                "comment": "设置极限位置"
-            },
-            {
-                "name": "CMD_HANDSHAKE",
-                "value": "0x28",
-                "comment": "CAN握手"
-            },
-            {
-                "name": "CMD_SYSTEM_RESET",
-                "value": "0x30",
-                "comment": "系统复位"
-            },
-            {
-                "name": "CMD_IAP_ENTER",
-                "value": "0x31",
-                "comment": "进入IAP模式"
-            },
-            {
-                "name": "CMD_IAP_ERASE_FLASH",
-                "value": "0x32",
-                "comment": "擦除Flash"
-            },
-            {
-                "name": "CMD_IAP_WRITE_FLASH",
-                "value": "0x33",
-                "comment": "写入Flash"
-            },
-            {
-                "name": "CMD_IAP_VERIFY_FLASH",
-                "value": "0x34",
-                "comment": "校验Flash"
-            },
-            {
-                "name": "CMD_IAP_EXIT",
-                "value": "0x35",
-                "comment": "退出IAP模式"
-            }
+            {"name": "UC_CONNECT",         "value": "0xf0", "comment": "上位机连接"},
+            {"name": "UC_DISCONNECT",      "value": "0xfe", "comment": "上位机断开"},
+            {"name": "START_TUNNING",      "value": "0xf1", "comment": "开始调参"},
+            {"name": "BRAKE",              "value": "0xf2", "comment": "刹车"},
+            {"name": "FOC_NRST",           "value": "0xf3", "comment": "FOC复位"},
+            {"name": "CMD_ENABLE",         "value": "0xf4", "comment": "电机使能"},
+            {"name": "CMD_DISABLE",        "value": "0xf5", "comment": "电机失能"},
+            {"name": "LOG_GET",            "value": "0xf7", "comment": "获取日志"},
+            {"name": "LOG_ERASE",          "value": "0xf8", "comment": "日志擦除"},
+            {"name": "PARAM_ERASE",        "value": "0x01", "comment": "参数擦除"},
+            {"name": "PARAM_WRITE",        "value": "0x02", "comment": "参数写入"},
+            {"name": "PARAM_READ",         "value": "0x03", "comment": "参数读取"},
+            {"name": "PARAM_SAVE",         "value": "0x04", "comment": "参数保存"},
+            {"name": "CMD_REFVALUE_SET",   "value": "0x21", "comment": "目标值设置"},
+            {"name": "CMD_MODE_SET",       "value": "0x22", "comment": "模式设置"},
+            {"name": "CMD_STREAM_GET",     "value": "0x23", "comment": "监测值获取"},
+            {"name": "CMD_STREAM_SET",     "value": "0x25", "comment": "数据流设置"},
+            {"name": "CMD_SET_ZERO_POS",   "value": "0x26", "comment": "设置零点"},
+            {"name": "CMD_SET_LIMIT_POS",  "value": "0x27", "comment": "设置极限位置"},
+            {"name": "CMD_SYSTEM_RESET",   "value": "0x30", "comment": "系统复位"},
+            {"name": "CMD_IAP_ENTER",      "value": "0x31", "comment": "进入IAP模式"},
+            {"name": "CMD_IAP_ERASE_FLASH","value": "0x32", "comment": "擦除Flash"},
+            {"name": "CMD_IAP_WRITE_FLASH","value": "0x33", "comment": "写入Flash"},
+            {"name": "CMD_IAP_VERIFY_FLASH","value": "0x34", "comment": "校验Flash"},
+            {"name": "CMD_IAP_EXIT",       "value": "0x35", "comment": "退出IAP模式"}
         ],
         "feedback_ids": [
-            {
-                "name": "FEEDBACK_EXECUTE",
-                "value": "0xf0",
-                "comment": ""
-            },
-            {
-                "name": "FEEDBACK_FAILURE",
-                "value": "0xfe",
-                "comment": ""
-            }
+            {"name": "FEEDBACK_EXECUTE", "value": "0xf0", "comment": "成功"},
+            {"name": "FEEDBACK_FAILURE", "value": "0xfe", "comment": "失败"}
         ],
         "usb_format": {
-            "USB_PACKET_HEAD": {
-                "value": "0x3A",
-                "comment": ""
-            },
-            "USB_PACKET_TAIL": {
-                "value": "0x0D",
-                "comment": ""
-            }
+            "USB_PACKET_HEAD": {"value": "0x3A", "comment": ""},
+            "USB_PACKET_TAIL": {"value": "0x0D", "comment": ""}
         },
         "uart_format": {
-            "PACKET_HEAD": {
-                "value": "0x55",
-                "comment": ""
-            },
-            "PACKET_TAIL": {
-                "value": "0xAA",
-                "comment": ""
-            }
+            "PACKET_HEAD": {"value": "0x55", "comment": ""},
+            "PACKET_TAIL": {"value": "0xAA", "comment": ""}
         },
         "frame_length": {
-            "MAX_FRAME_LENGTH": {
-                "value": 128,
-                "comment": ""
-            }
+            "MAX_FRAME_LENGTH": {"value": 128, "comment": ""}
         },
+        "parameter_index": [
+            {"name": "SENSOR_MODE",        "value": null, "comment": "感应模式"},
+            {"name": "RUN_MODE",           "value": null, "comment": "运行模式"},
+            {"name": "CAN_MODE",           "value": null, "comment": "CAN模式"},
+            {"name": "VAGUE_PID_MODE",     "value": null, "comment": "模糊PID"},
+            {"name": "PVT_MODE",           "value": null, "comment": "PVT模式"},
+            {"name": "TRAJ_TYPE",          "value": null, "comment": "轨迹规划器类型"},
+            {"name": "MOTOR_POLEPAIRS",    "value": null, "comment": "电机极对数"},
+            {"name": "CAN_ID",             "value": null, "comment": "CAN ID"},
+            {"name": "THETA_OFFSET",       "value": null, "comment": "角度补偿"},
+            {"name": "MOTOR_KV",           "value": null, "comment": "KV"},
+            {"name": "MOTOR_RS",           "value": null, "comment": "相电阻"},
+            {"name": "MOTOR_Ld",           "value": null, "comment": "Ld"},
+            {"name": "MOTOR_Lq",           "value": null, "comment": "Lq"},
+            {"name": "MOTOR_PSIF",         "value": null, "comment": "磁链"},
+            {"name": "MOTOR_KE",           "value": null, "comment": "反电动势常数"},
+            {"name": "MOTOR_J",            "value": null, "comment": "转动惯量"},
+            {"name": "MOTOR_B",            "value": null, "comment": "摩擦系数"},
+            {"name": "KP_SPEED",           "value": null, "comment": "速度环比例"},
+            {"name": "KI_SPEED",           "value": null, "comment": "速度环积分"},
+            {"name": "KP_POSITION",        "value": null, "comment": "位置环比例"},
+            {"name": "KI_POSITION",        "value": null, "comment": "位置环积分"},
+            {"name": "KD_POSITION",        "value": null, "comment": "位置环微分"},
+            {"name": "LIMIT_CURRENT",      "value": null, "comment": "电流限幅"},
+            {"name": "LIMIT_SPEED",        "value": null, "comment": "速度限幅"},
+            {"name": "LIMIT_POSITION_MIN", "value": null, "comment": "位置限幅最小值"},
+            {"name": "LIMIT_POSITION_MAX", "value": null, "comment": "位置限幅最大值"},
+            {"name": "TOLERANCE_TIME",     "value": null, "comment": "容忍时间"},
+            {"name": "TOLERANCE_LIMIT",    "value": null, "comment": "超限容忍度"},
+            {"name": "TRAJ_MAX_RATE",      "value": null, "comment": "轨迹最大变化率"},
+            {"name": "TRAJ_MAX_ACC",       "value": null, "comment": "轨迹最大加速度"},
+            {"name": "TRAJ_MAX_JERK",      "value": null, "comment": "轨迹最大加加速度"},
+            {"name": "TRAJ_TOLERANCE",     "value": null, "comment": "轨迹规划容差"}
+        ],
+        "log_index": [
+            {"name": "num",                "value": null, "comment": "序号"},
+            {"name": "time",               "value": null, "comment": "发生时间"},
+            {"name": "fault",              "value": null, "comment": "错误"},
+            {"name": "warning",            "value": null, "comment": "警告"},
+            {"name": "sensor_mode",        "value": null, "comment": "感应模式"},
+            {"name": "run_mode",           "value": null, "comment": "运行模式"},
+            {"name": "can_status",         "value": null, "comment": "CAN状态"},
+            {"name": "encode_status",      "value": null, "comment": "编码状态"},
+            {"name": "voltage",            "value": null, "comment": "电压"},
+            {"name": "temperature",        "value": null, "comment": "温度"},
+            {"name": "iu",                 "value": null, "comment": "相电流 U"},
+            {"name": "iv",                 "value": null, "comment": "相电流 V"},
+            {"name": "iw",                 "value": null, "comment": "相电流 W"},
+            {"name": "id",                 "value": null, "comment": "d轴电流"},
+            {"name": "id_ref",             "value": null, "comment": "d轴电流参考值"},
+            {"name": "iq",                 "value": null, "comment": "q轴电流"},
+            {"name": "iq_ref",             "value": null, "comment": "q轴电流参考值"},
+            {"name": "speed",              "value": null, "comment": "速度"},
+            {"name": "target_speed",       "value": null, "comment": "目标速度"},
+            {"name": "position",           "value": null, "comment": "位置"},
+            {"name": "target_position",    "value": null, "comment": "目标位置"}
+        ],
         "data_stream": [
-            {
-                "name": "STREAM_STATUS",
-                "comment": "系统状态 | FOC状态 | 错误 | 警告"
-            },
-            {
-                "name": "STREAM_TEMPERATURE",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VBUS",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VOLTAGE_U",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VOLTAGE_V",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VOLTAGE_W",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VOLTAGE_Q",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_VOLTAGE_D",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_ALPHA",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_BETA",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_Q",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_D",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_Q_REF",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_CURRENT_D_REF",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_SPEED",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_SPEED_REF",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_THETA_ELEC",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_THETA_MECH",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_POSITION",
-                "comment": ""
-            },
-            {
-                "name": "STREAM_POSITION_REF",
-                "comment": ""
-            }
+            {"name": "CURRENT_U",         "value": null, "comment": "U相电流"},
+            {"name": "CURRENT_V",         "value": null, "comment": "V相电流"},
+            {"name": "CURRENT_W",         "value": null, "comment": "W相电流"},
+            {"name": "VOLTAGE_Q",         "value": null, "comment": "q轴电压"},
+            {"name": "VOLTAGE_D",         "value": null, "comment": "d轴电压"},
+            {"name": "CURRENT_ALPHA",     "value": null, "comment": "α轴电流"},
+            {"name": "CURRENT_BETA",      "value": null, "comment": "β轴电流"},
+            {"name": "CURRENT_Q",         "value": null, "comment": "q轴电流"},
+            {"name": "CURRENT_D",         "value": null, "comment": "d轴电流"},
+            {"name": "CURRENT_Q_REF",     "value": null, "comment": "q轴电流目标值"},
+            {"name": "CURRENT_D_REF",     "value": null, "comment": "d轴电流目标值"},
+            {"name": "SPEED",             "value": null, "comment": "速度"},
+            {"name": "SPEED_REF",         "value": null, "comment": "目标速度"},
+            {"name": "THETA_ELEC",        "value": null, "comment": "电角度"},
+            {"name": "THETA_MECH",        "value": null, "comment": "机械角度"},
+            {"name": "POSITION",          "value": null, "comment": "位置"},
+            {"name": "POSITION_REF",      "value": null, "comment": "目标位置"}
+        ],
+        "status_index": [
+            {"name": "TUNE_STATE",        "value": null, "comment": "整定状态"},
+            {"name": "FOC_STATE",         "value": null, "comment": "FOC状态"},
+            {"name": "FAULT",             "value": null, "comment": "故障"},
+            {"name": "WARNING",           "value": null, "comment": "警告"},
+            {"name": "TEMPERATURE",       "value": null, "comment": "温度"},
+            {"name": "VBUS",              "value": null, "comment": "母线电压"}
+        ],
+    "other_strings": {
+    "sensor_mode": {
+        "enum_name": "eSensorMode",
+        "items": [
+            {"name": "ENCODER_CONTROL",    "comment": "编码反馈"},
+            {"name": "SENSORLESS_CONTROL", "comment": "无感观测"},
+            {"name": "MERGE_CONTROL",      "comment": "混合模式"}
         ]
+    },
+    "run_mode": {
+        "enum_name": "eRunMode",
+        "items": [
+            {"name": "CURRENT_MODE",  "comment": "电流模式"},
+            {"name": "SPEED_MODE",    "comment": "速度模式"},
+            {"name": "POSITION_MODE", "comment": "位置模式"},
+            {"name": "OPEN_LOOP",     "comment": "开环模式"}
+        ]
+    },
+    "can_mode": {
+        "enum_name": "eCanMode",
+        "items": [
+            {"name": "CAN_REALTIME",         "comment": "实时处理"},
+            {"name": "CAN_QUEUE",           "comment": "队列处理"},
+            {"name": "CAN_REALTIME_FB",     "comment": "实时反馈"},
+            {"name": "CAN_QUEUE_FB",        "comment": "队列反馈"}
+        ]
+    },
+    "vague_PID_mode": {
+        "enum_name": "eVaguePIDMode",
+        "items": [
+            {"name": "VAGUE_PID_DISABLE", "comment": "禁用"},
+            {"name": "VAGUE_PID_ENABLE",  "comment": "启动"}
+        ]
+    },
+    "pvt_mode": {
+        "enum_name": "ePVTMode",
+        "items": [
+            {"name": "PVT_DISABLE", "comment": "禁用"},
+            {"name": "PVT_PV",      "comment": "PV"},
+            {"name": "PVT_PT",      "comment": "PT"}
+        ]
+    },
+    "traj_type": {
+        "enum_name": "eTrajType",
+        "items": [
+            {"name": "TRAJ_DISABLE", "comment": "禁用"},
+            {"name": "TRAJ_TRAPEZOID", "comment": "梯形"},
+            {"name": "TRAJ_S_CURVE",   "comment": "S形"}
+        ]
+    },
+    "tune_state": {
+        "enum_name": "eTuneState",
+        "items": [
+            {"name": "TUNE_INIT",      "comment": "INIT"},
+            {"name": "TUNE_IDLE",      "comment": "IDLE"},
+            {"name": "TUNE_RESISTANCE","comment": "电阻校准"},
+            {"name": "TUNE_INDUCTANCE","comment": "电感校准"},
+            {"name": "TUNE_ENCODER",   "comment": "编码器校准"},
+            {"name": "TUNE_ELEC_PARAM","comment": "电气参数校准"},
+            {"name": "TUNE_MECH_PARAM","comment": "机械参数校准"},
+            {"name": "TUNE_DONE",      "comment": "完成"},
+            {"name": "TUNE_FAILED",    "comment": "失败"}
+        ]
+    },
+    "foc_state": {
+        "enum_name": "eFocState",
+        "items": [
+            {"name": "FOC_IDLE",    "comment": "IDLE"},
+            {"name": "FOC_TUNE",    "comment": "TUNE"},
+            {"name": "FOC_RESET",   "comment": "RESET"},
+            {"name": "FOC_ENABLE",  "comment": "ENABLE"},
+            {"name": "FOC_DISABLE", "comment": "DISABLE"},
+            {"name": "FOC_RUNNING", "comment": "RUNNING"},
+            {"name": "FOC_SHUTDOWN","comment": "SHUTDOWN"},
+            {"name": "FOC_FAULT",   "comment": "FAULT"},
+            {"name": "FOC_WARNING", "comment": "WARNING"}
+        ]
+    },
+    "fault_state": {
+        "enum_name": "eFaultState",
+        "items": [
+            {"name": "FAULT_NONE",              "comment": "无故障"},
+            {"name": "FAULT_FLASH_OFFLINE",     "comment": "闪存离线"},
+            {"name": "FAULT_TUNE_CURRENT_ERR",  "comment": "整定电流异常"},
+            {"name": "FAULT_POLE_PAIR_MISMATCH","comment": "极对数不匹配"},
+            {"name": "FAULT_MOTOR_LOCK",        "comment": "电机堵转"},
+            {"name": "FAULT_RESISTANCE_CAL_FAIL","comment": "电阻校准失败"},
+            {"name": "FAULT_ENCODER_CAL_FAIL",  "comment": "编码器校准失败"},
+            {"name": "FAULT_ELEC_PARAM_FAIL",   "comment": "电气参数校准失败"},
+            {"name": "FAULT_MECH_PARAM_FAIL",   "comment": "机械参数校准失败"},
+            {"name": "FAULT_OVERVOLTAGE",       "comment": "过压"},
+            {"name": "FAULT_UNDERVOLTAGE",      "comment": "低电压"},
+            {"name": "FAULT_OVERCURRENT",       "comment": "过流"},
+            {"name": "FAULT_CAN_INIT_FAIL",     "comment": "CAN初始化失败"},
+            {"name": "FAULT_CAN_COMM_ERR",      "comment": "CAN通信异常"}
+        ]
+    },
+    "warning_state": {
+        "enum_name": "eWarningState",
+        "items": [
+            {"name": "WARNING_NONE",          "comment": "无警告"},
+            {"name": "WARNING_OVERTEMP",      "comment": "过温"},
+            {"name": "WARNING_OVERSPEED",     "comment": "超速"},
+            {"name": "WARNING_POSITION_LIMIT","comment": "位置超限"},
+            {"name": "WARNING_ENCODER_OFFLINE","comment": "编码器离线"},
+            {"name": "WARNING_ENCODER_COMM_ERR","comment": "编码器通信错误"}
+        ]
+    },
+    "drive_state": {
+        "enum_name": "eDriveState",
+        "items": [
+            {"name": "DRIVE_OFFLINE", "comment": "离线"},
+            {"name": "DRIVE_ONLINE",  "comment": "在线"},
+            {"name": "DRIVE_ERROR",   "comment": "运行错误"},
+            {"name": "DRIVE_NORMAL",  "comment": "运行正常"}
+        ]
+    }
+}
     }
 }
