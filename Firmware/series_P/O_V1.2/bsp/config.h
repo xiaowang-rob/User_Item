@@ -57,7 +57,7 @@
 #define T_DEATH_us 0.5f // 死区时间
 #define T_NOISE_us 0.5f // 开关噪声时间
 
-#define MED_FILTER_SIZE 3          // 中值滤波器大小，必须为奇数
+#define MED_FILTER_SIZE 5          // 中值滤波器大小，必须为奇数
 #define RATE_CURRENT_SAMPLE 100.0f // 电流采样比率
 #define RATE_VOLTAGE_SAMPLE 16     // 电压采样比率
 #define MAX_CURRENT 100            // MOS管最大电流 100A

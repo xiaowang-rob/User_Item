@@ -34,17 +34,10 @@ void fFOC_Init()
 {
     g_foc.core->foc_mode->runmode = OPEN_LOOP;
     g_foc.foc_enable = false;
-    BSP_PWM_Enable();
-    BSP_POWER_12V_Control(true);
     g_foc.state = FOC_IDLE;
     fFOC_CoreInit();
+    BSP_POWER_12V_Control(true);
     g_foc.foc_init = true;
-    // 校准电流零点
-    g_foc.state = FOC_ENABLE;
-    BSP_AdcRecalibrateCurrent();
-    while (false == BSP_AdcRecalibrateDone())
-        ;
-    g_foc.state = FOC_DISABLE;
 }
 
 // FOC 主循环函数
@@ -71,7 +64,7 @@ void fFOC_StateMachineMainLoop()
     case FOC_RESET:
         fFOC_CoreReset();
         fFOC_StateUpdate(FOC_IDLE);
-        BSP_POWER_12V_Control(false);
+        BSP_POWER_12V_Control(true);
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;

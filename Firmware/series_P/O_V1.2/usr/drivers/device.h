@@ -3,7 +3,7 @@
 
 #include "bsp_spi.h"
 #include "bsp_led.h"
-
+#include "protocol_defs.h"
 // 外设状态
 typedef enum
 {
@@ -24,34 +24,47 @@ typedef struct
 extern tDeviceStatus g_device_status;
 
 // 编码器相关定义
-typedef enum
-{
-    ENCODER_STATE_START_READ,
-    ENCODER_STATE_WAIT_HIGH,
-    ENCODER_STATE_WAIT_LOW,
-    ENCODER_STATE_PROCESS_DATA
-} eEncoderState_DMA;
 
+/* 芯片特性描述 */
 typedef struct
 {
-    eEncoderState_DMA state;
+    uint16_t resolution;     /* 单圈分辨率，如 16384 */
+    float deg_per_lsb;       /* 每 LSB 角度 */
+    uint16_t cmd_high;       /* 读高位命令 (MT6816 专用) */
+    uint16_t cmd_low;        /* 读低位命令 (MT6816 专用) */
+    uint16_t cmd_read_angle; /* 单次读角度命令 (如 AS5047) */
+    bool (*parse_and_check)(uint16_t raw_high, uint16_t raw_low, uint16_t *angle_out);
+} tEncoderChipDesc;
+
+/* 编码器全局实例 */
+typedef struct
+{
+    volatile uint8_t state;        /* 状态机当前状态 */
+    volatile uint16_t no_resp_tic; /* 超时计数器 */
+
+    volatile uint16_t cmd_reg;       /* 待发送命令 */
+    volatile uint16_t shadow_raw[2]; /* DMA 接收缓冲 */
+    volatile uint16_t data_raw[2];   /* 处理用数据副本 */
+
+    const tEncoderChipDesc *chip_desc; /* 当前芯片描述 */
+    eEncoderChip chip_type;            /* 当前芯片型号 */
+
+    uint16_t angle_raw;
+    uint16_t angle_raw_last;
+    uint16_t pos_offset;
     float angle_abs;
-    float omega_rpm;
     float pos;
-    u16 angle_raw;
-    u16 angle_raw_last;
-    u16 pos_offset;
+    float pos_last;
+    float omega_rpm;
+    uint32_t last_time;
+    int32_t num_turns;
 
-    u32 last_time;
-    int num_turns;
-    int num_turns_last;
-} tEncoder;
-
-#define MT6816_REG_ANGLE_HIGH 0x03
-#define MT6816_REG_ANGLE_LOW 0x04
-#define MT6816_REG_STATUS 0x05
-#define MT6816_NO_MAG_WARNING (1 << 1)
-#define MT6816_PARITY_CHECK (1 << 0)
+    bool first_run;
+    uint8_t valid;
+    uint8_t rubbish_data_tic;
+} tEncoderInstance;
+// 全局唯一实例
+extern tEncoderInstance g_encoder;
 
 void fEncoderMainLoopTask(void);
 float fGetEncoderAngle_ABS(void);

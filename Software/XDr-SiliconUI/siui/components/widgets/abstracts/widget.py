@@ -233,8 +233,9 @@ class SiWidget(QWidget):
         :return:
         """
         self.animation_opacity.setCurrent(opacity)
-
-        self.setWindowOpacity(opacity)
+        import sys
+        if sys.platform == 'win32':
+            self.setWindowOpacity(opacity)
 
         if self.isSiliconWidgetFlagOn(Si.EnableAnimationSignals):
             self.opacityChanged.emit(opacity)

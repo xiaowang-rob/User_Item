@@ -17,6 +17,10 @@ USB、串口、CAN 端口映射
 
 #include "bsp.h"
 #include "bsp_flash.h"
+
+#define STR(x) #x
+#define XSTR(x) STR(x)
+
 tCOM_Frame com_frame;
 tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
 
@@ -56,7 +60,7 @@ static inline void _all_params_send()
     com_frame.txdatalen += 1;
     fHostComputer_send();
     param_index++;
-    if (param_index == COUNT_PARAM)
+    if (param_index == PARAM_NUM)
     {
         param_index = 0;
         param_send_flag = false;
@@ -81,10 +85,18 @@ static inline void _status_send()
         if (drive_msg[0] == '\0')
         {
             snprintf(drive_msg, sizeof(drive_msg),
-                     "%s,%s_%s,%.1f,%.1f,%.1f,%.1f,%d,%d-%d,%d",
-                     FIRM_NAME, FIRM_V_DATE, FIRM_AUTHOR,
-                     F_PWM, F_CURRENT, F_SPEED, F_POSITION,
-                     MAX_CURRENT, MIN_VOLTAGE, MAX_VOLTAGE, MAX_TEMPERATURE);
+                     "%s,%s,%s,%s,%s,%s,%s,%s,%s-%s,%s",
+                     FIRM_NAME,
+                     FIRM_V_DATE,
+                     FIRM_AUTHOR,
+                     XSTR(F_PWM),
+                     XSTR(F_CURRENT),
+                     XSTR(F_SPEED),
+                     XSTR(F_POSITION),
+                     XSTR(MAX_CURRENT),
+                     XSTR(MIN_VOLTAGE),
+                     XSTR(MAX_VOLTAGE),
+                     XSTR(MAX_TEMPERATURE));
         }
         com_frame.txdata[0] = '\0';
         strcat((char *)com_frame.txdata, drive_msg);
@@ -93,12 +105,13 @@ static inline void _status_send()
     }
     else
     {
+        // 状态包 对应 usr_config.json 中的状态包顺序
         com_frame.txdata[0] = g_foc.tun->state;
         com_frame.txdata[1] = g_foc.state;
         com_frame.txdata[2] = g_pro_manager.fault;
         com_frame.txdata[3] = g_pro_manager.warning;
-        memcpy(&com_frame.txdata[4], &g_foc.core->motor->Udc, sizeof(float));
-        memcpy(&com_frame.txdata[8], &g_pro_manager.temperature, sizeof(float));
+        memcpy(&com_frame.txdata[4], &g_pro_manager.temperature, sizeof(float));
+        memcpy(&com_frame.txdata[8], &g_foc.core->motor->Udc, sizeof(float));
         com_frame.txdatalen = 12;
     }
     fHostComputer_send();
@@ -108,6 +121,7 @@ static inline void _status_send()
         g_com_state.Host_port = NONE_port;
         system_message_send_flag = false;
         com_frame.stream_num = 0;
+        no_response_tic = 0;
     }
 }
 
@@ -178,6 +192,7 @@ static void _frame_data_deal()
                 fFOC_StateUpdate(FOC_SHUTDOWN);
                 break;
             case FOC_NRST:
+                fProManagerClearFalg();
                 fFOC_StateUpdate(FOC_RESET);
                 break;
             case CMD_ENABLE:

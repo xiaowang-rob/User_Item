@@ -41,12 +41,9 @@ class Ui_XDr(object):
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName("stackedWidget")
-        self.parameter_page = QtWidgets.QWidget()
-        self.parameter_page.setObjectName("parameter_page")
-        self.stackedWidget.addWidget(self.parameter_page)
-        self.log_page = QtWidgets.QWidget()
-        self.log_page.setObjectName("log_page")
-        self.stackedWidget.addWidget(self.log_page)
+        self.data_page = QtWidgets.QWidget()
+        self.data_page.setObjectName("data_page")
+        self.stackedWidget.addWidget(self.data_page)
         self.control_page = QtWidgets.QWidget()
         self.control_page.setObjectName("control_page")
         self.stackedWidget.addWidget(self.control_page)
@@ -57,6 +54,7 @@ class Ui_XDr(object):
         XDr.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(XDr)
+        self.stackedWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(XDr)
 
     def retranslateUi(self, XDr):

@@ -111,6 +111,7 @@
             {"name": "target_speed",       "value": null, "comment": "目标速度"},
             {"name": "position",           "value": null, "comment": "位置"},
             {"name": "target_position",    "value": null, "comment": "目标位置"}
+            
         ],
         "data_stream": [
             {"name": "CURRENT_U",         "value": null, "comment": "U相电流"},
@@ -148,6 +149,15 @@
             {"name": "MERGE_CONTROL",      "comment": "混合模式"}
         ]
     },
+    "encoder_type": {
+        "enum_name": "eEncoderChip",
+        "items": [
+            {"name": "MT6816",          "comment": "MT6816"},
+            {"name": "AS5047",          "comment": "AS5047"},
+            {"name": "MT6835",          "comment": "MT6835"},
+            {"name": "CHIP_COUNT",      "comment": "芯片数量"}
+        ]
+    },
     "run_mode": {
         "enum_name": "eRunMode",
         "items": [
@@ -157,10 +167,19 @@
             {"name": "OPEN_LOOP",     "comment": "开环模式"}
         ]
     },
+    "target_type": {
+        "enum_name": "eTargetType",
+        "items": [
+            {"name": "CURRENT_TARGET",  "comment": "拖动电流/A"},
+            {"name": "SPEED_TARGET",    "comment": "目标速度/rpm"},
+            {"name": "POSITION_TARGET", "comment": "目标位置/deg"},
+            {"name": "NONE",            "comment": "无"}
+        ]
+    },
     "can_mode": {
         "enum_name": "eCanMode",
         "items": [
-            {"name": "CAN_REALTIME",         "comment": "实时处理"},
+            {"name": "CAN_REALTIME",        "comment": "实时处理"},
             {"name": "CAN_QUEUE",           "comment": "队列处理"},
             {"name": "CAN_REALTIME_FB",     "comment": "实时反馈"},
             {"name": "CAN_QUEUE_FB",        "comment": "队列反馈"}
@@ -220,7 +239,7 @@
     "fault_state": {
         "enum_name": "eFaultState",
         "items": [
-            {"name": "FAULT_NONE",              "comment": "无故障"},
+            {"name": "FAULT_NONE",              "comment": "NONE"},
             {"name": "FAULT_FLASH_OFFLINE",     "comment": "闪存离线"},
             {"name": "FAULT_TUNE_CURRENT_ERR",  "comment": "整定电流异常"},
             {"name": "FAULT_POLE_PAIR_MISMATCH","comment": "极对数不匹配"},
@@ -239,7 +258,7 @@
     "warning_state": {
         "enum_name": "eWarningState",
         "items": [
-            {"name": "WARNING_NONE",          "comment": "无警告"},
+            {"name": "WARNING_NONE",          "comment": "NONE"},
             {"name": "WARNING_OVERTEMP",      "comment": "过温"},
             {"name": "WARNING_OVERSPEED",     "comment": "超速"},
             {"name": "WARNING_POSITION_LIMIT","comment": "位置超限"},

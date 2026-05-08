@@ -53,10 +53,10 @@ class QuickBut:
         send_titled_message(MSG_TYPE_INFO, "设备信息", self.mw.system_message)
 
     def enable_button_clicked(self):
-        self.com.send_packet(Cidx.ENABLE, bytes())
+        self.com.send_packet(Cidx.CMD_ENABLE, bytes())
 
     def disable_button_clicked(self):
-        self.com.send_packet(Cidx.DISABLE, bytes())
+        self.com.send_packet(Cidx.CMD_DISABLE, bytes())
 
     def reset_button_clicked(self):
         self.com.send_packet(Cidx.FOC_NRST, bytes())

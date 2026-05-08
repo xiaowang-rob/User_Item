@@ -31,6 +31,23 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 /* ============================================
  * SPI - 编码器接口
  * ============================================ */
+bool BSP_SetEncoder_SPI_Config(u8 CPOL, u8 CPHA, u8 datasize)
+{
+    ENCODER_SPI_CH.Init.CLKPolarity = CPOL ? SPI_POLARITY_HIGH : SPI_POLARITY_LOW;
+    ENCODER_SPI_CH.Init.CLKPhase = CPHA ? SPI_PHASE_2EDGE : SPI_PHASE_1EDGE;
+    if (datasize == 8)
+        ENCODER_SPI_CH.Init.DataSize = SPI_DATASIZE_8BIT;
+    else if (datasize == 16)
+        ENCODER_SPI_CH.Init.DataSize = SPI_DATASIZE_16BIT;
+    else
+        return false; // 不支持的数据位长度
+
+    if (HAL_SPI_Init(&ENCODER_SPI_CH) != HAL_OK)
+        return false;
+
+    return true;
+}
+
 // 内部接口CS
 void BSP_Encoder_CS(eEncoderType type, bool level)
 {
@@ -99,5 +116,5 @@ bool BSP_Flash_SPI_Transmit(u8 *tx, u16 len, u32 timeout)
 }
 bool BSP_Flash_SPI_Receive(u8 *rx, u16 len, u32 timeout)
 {
-    return HAL_SPI_Receive(&FLASH_SPI_CH, rx, len, timeout) == HAL_OK;
+    return HAL_SPI_TransmitReceive(&FLASH_SPI_CH, rx, rx, len, timeout) == HAL_OK;
 }

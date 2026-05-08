@@ -40,8 +40,8 @@ void fLogDataSave(void)
     Log.position_ref = g_foc.core->foc_val->pos_ref;
     Log.run_mode = g_foc.core->foc_mode->runmode;
     Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
-    Log.fault = (eFault)g_pro_manager.fault;
-    Log.warning = (eWarning)g_pro_manager.warning;
+    Log.fault = (eFaultState)g_pro_manager.fault;
+    Log.warning = (eWarningState)g_pro_manager.warning;
 
     Log.can_state = g_pro_manager.drive_state->can_state;
     Log.encoder_state = g_pro_manager.drive_state->encoder_state;

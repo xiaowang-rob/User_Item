@@ -15,6 +15,7 @@ typedef enum
     EXTERNAL
 } eEncoderType;
 
+bool BSP_SetEncoder_SPI_Config(u8 CPOL, u8 CPHA, u8 datasize);
 void BSP_Encoder_CS(eEncoderType type, bool level);
 bool BSP_Encoder_SPI_IS_READY();
 bool BSP_Encoder_SPI_TransmitReceive_DMA(u8 *tx, u8 *rx, u16 len);

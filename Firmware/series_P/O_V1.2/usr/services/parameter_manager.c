@@ -278,9 +278,9 @@ bool fParamInit()
 {
     if (_ParamReadFlash() == false)
         return false;
-    if (g_Param.none_flag != 0x01)
+    if (g_Param.none_flag != 0x0f)
     { // flash中没有参数，初始化参数
-        g_Param.none_flag = 0x01;
+        g_Param.none_flag = 0x0f;
         // 初始化u8类型参数
         // 初始化u8类型参数
         g_Param.sw_canqueue = 0;  // CAN队列开关
@@ -329,6 +329,11 @@ bool fParamInit()
         g_Param.traj_max_acc = 0.0f;  // 最大加速度
         g_Param.traj_max_jerk = 0.0f; // 最大加加速度
         g_Param.tolerance = 0.01f;    // 容差
+
+        g_Param.cur_fiter_alpha = 0.5f; // 电流滤波系数
+        g_Param.adc_U_zero_offset = 4095.0f / 2.0f;
+        g_Param.adc_V_zero_offset = 4095.0f / 2.0f;
+        g_Param.adc_W_zero_offset = 4095.0f / 2.0f;
     }
     return true;
 }

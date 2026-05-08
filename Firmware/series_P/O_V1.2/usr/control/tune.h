@@ -17,8 +17,8 @@
 // 电阻整定 (滞环电流控制 + 滤波 + 差分)
 #define RS_FREQ_F 10                      // 电阻整定分频系数
 #define RS_TIMEOUT_TICKS MS_TO_TICK(2000) // 整定超时时间 (500ms)
-#define RS_I_TARGET_1 3.0f                // 第一点目标电流 (A)
-#define RS_I_TARGET_2 7.0f                // 第二点目标电流 (A)
+#define RS_I_TARGET_1 2.0f                // 第一点目标电流 (A)
+#define RS_I_TARGET_2 6.0f                // 第二点目标电流 (A)
 #define RS_HYST_BAND 2.0f                 // 滞环带宽 ±1.5A
 #define RS_V_LIMIT 2.0f                   // 电压输出限幅 (V)
 #define RS_V_HOLD_MAX_TICKS 5             // 误差带内保持最大周期数 (防静差)
@@ -37,20 +37,12 @@
 #define LS_INJECT_AMP_V (LS_INJECT_FREQ_TICK * T_PWM)   // 注入周期
 #define LS_INJECT_FREQ_HZ (F_PWM / LS_INJECT_FREQ_TICK) // 注入频率 (Hz)
 
-#define LS_ALIGN_VOLTAGE 0.6f          // 电感校准对齐电压 (V)
-#define LS_ALIGN_TICKS MS_TO_TICK(500) // 对齐时间
-
-#define DFT_WINDOW_LEN 160
-
-#define LS_V_HOLD_MAX_TICKS MS_TO_TICK(5) // 自适应注入电压最大保持时间
-#define LS_SAMPLE_TIME_ms MS_TO_TICK(200) // 采样时间 (200ms)
-#define LS_V_START 0.2f                   // 起始电压 (V)
-#define LS_V_MAX 0.8f                     // 最大电压 (V)
-#define LS_I_TARGET 3.0f                  // 电流限幅 (A)
-#define LS_I_STEP_MIN 0.04f               // 保持超时后微调步长 (A)
+#define LS_V_START 0.2f     // 起始电压 (V)
+#define LS_V_MAX 0.8f       // 最大电压 (V)
+#define LS_I_TARGET 3.0f    // 电流限幅 (A)
+#define LS_I_STEP_MIN 0.04f // 保持超时后微调步长 (A)
 
 // 转子预定位
-#define ALIGN_VOLTAGE 2.0f      // 定位电压(V)
 #define ALIGN_TIME_MS 500       // 定位持续时间(ms)
 #define WAIT_AFTER_ALIGN_MS 200 // 定位后等待电流衰减时间(ms)
 
@@ -92,6 +84,10 @@ typedef struct
     float BandWidth_Speed;   // 速度滞环带宽
     float BandWidth_Pos;     // 位置滞环带宽
 
+    float uadc_offset; // adc 偏移
+    float vadc_offset;
+    float wadc_offset;
+
     float cur_fiter_alpha; // 电流滤波系数
 
     float iq_Kp;
@@ -126,7 +122,7 @@ typedef struct
     bool direction;     // 转动方向 (true:逆 false 顺)
     bool theta_elec_need_180;
 
-} tMotorParams;
+} tTuneParams;
 
 /* ================================= 整定状态枚举 ================================= */
 

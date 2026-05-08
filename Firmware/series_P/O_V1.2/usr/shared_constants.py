@@ -109,6 +109,13 @@ class Fidx:
     FEEDBACK_EXECUTE = 0xf0  # 成功
     FEEDBACK_FAILURE = 0xfe  # 失败
 
+class Pkt:
+    USB_PACKET_HEAD  = 0x3A
+    USB_PACKET_TAIL  = 0x0D
+    PACKET_HEAD      = 0x55
+    PACKET_TAIL      = 0xAA
+    MAX_FRAME_LENGTH = 128
+
 class Sidx:
     TUNE_STATE  = 0  # 整定状态
     FOC_STATE   = 1  # FOC状态
@@ -119,15 +126,17 @@ class Sidx:
 
 class Midx:
     sensor_mode = ["编码反馈", "无感观测", "混合模式"]
+    encoder_type = ["MT6816", "AS5047", "MT6835", "芯片数量"]
     run_mode = ["电流模式", "速度模式", "位置模式", "开环模式"]
+    target_type = ["拖动电流/A", "目标速度/rpm", "目标位置/deg", "无"]
     can_mode = ["实时处理", "队列处理", "实时反馈", "队列反馈"]
     vague_PID_mode = ["禁用", "启动"]
     pvt_mode = ["禁用", "PV", "PT"]
     traj_type = ["禁用", "梯形", "S形"]
     tune_state = ["INIT", "IDLE", "电阻校准", "电感校准", "编码器校准", "电气参数校准", "机械参数校准", "完成", "失败"]
     foc_state = ["IDLE", "TUNE", "RESET", "ENABLE", "DISABLE", "RUNNING", "SHUTDOWN", "FAULT", "WARNING"]
-    fault_state = ["无故障", "闪存离线", "整定电流异常", "极对数不匹配", "电机堵转", "电阻校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过压", "低电压", "过流", "CAN初始化失败", "CAN通信异常"]
-    warning_state = ["无警告", "过温", "超速", "位置超限", "编码器离线", "编码器通信错误"]
+    fault_state = ["NONE", "闪存离线", "整定电流异常", "极对数不匹配", "电机堵转", "电阻校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过压", "低电压", "过流", "CAN初始化失败", "CAN通信异常"]
+    warning_state = ["NONE", "过温", "超速", "位置超限", "编码器离线", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]
     data_select = ["NONE", "U相电流", "V相电流", "W相电流", "q轴电压", "d轴电压", "α轴电流", "β轴电流", "q轴电流", "d轴电流", "q轴电流目标值", "d轴电流目标值", "速度", "目标速度", "电角度", "机械角度", "位置", "目标位置"]
 

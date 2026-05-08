@@ -155,12 +155,12 @@ class ControlPage:
 
         control_layout = QHBoxLayout(self.control_area)
         control_layout.setContentsMargins(0, 0, 0, 12)
-        control_layout.setSpacing(6)
+        control_layout.setSpacing(12)
 
         control_layout.addWidget(self.control_target_show, 2)
-        control_layout.addWidget(self.MIN_value, 2)
+        control_layout.addWidget(self.MIN_value, 1)
         control_layout.addWidget(self.value_slider, 10)
-        control_layout.addWidget(self.MAX_value, 2)
+        control_layout.addWidget(self.MAX_value, 1)
         control_layout.addWidget(self.target_value, 2)
         control_layout.addWidget(self.write_value_button, 1)
 

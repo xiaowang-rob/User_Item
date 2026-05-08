@@ -40,10 +40,14 @@ u32 BSP_GetTick(void)
 
 u32 BSP_GetTick_us(void)
 {
-    /* 计算微秒级时间戳 */
-    u32 tick_ms = BSP_GetTick();                                                        // 获取当前毫秒级系统时间
-    u32 tick_us = (tick_ms * 1000) + (DWT->CYCCNT / (HAL_RCC_GetHCLKFreq() / 1000000)); // 转换为微秒
-    return tick_us;
+    // 获取当前ms
+    u32 m = HAL_GetTick();
+    // 获取嘀嗒定时器重装载值
+    const u32 tms = SysTick->LOAD + 1;
+    // 获取当前滴答定时器计数值
+    __IO u32 u = tms - SysTick->VAL;
+    // 返回对应的值
+    return (m * 1000 + (u * 1000) / tms);
 }
 
 void BSP_Delay(u32 ms)

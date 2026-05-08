@@ -9,6 +9,7 @@ class MiddleArea:
         self.cmdbutton_area=main_window.ui.cmdbutton_area
         self.navegation_area = self.mw.ui.navegation_area
         self.navegation_area.setMinimumSize(200, 42)
+        self.mw.ui.stackedWidget.setCurrentIndex(0)  # 默认显示数据页
         
         navegation_layout = QHBoxLayout(self.navegation_area)
         navegation_layout.setContentsMargins(16, 0, 16, 0)  # 无内边距
@@ -16,8 +17,7 @@ class MiddleArea:
         navegation_layout.setAlignment(Qt.AlignBottom)
 
         self.navegation_bar = SiNavigationBarH(self.mw.ui.navegation_area)
-        self.navegation_bar.addItem("参数")
-        self.navegation_bar.addItem("日志")
+        self.navegation_bar.addItem("数据")
         self.navegation_bar.addItem("控制")
         
         self.navegation_bar.setCurrentIndex(0)

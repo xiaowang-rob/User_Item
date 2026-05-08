@@ -10,15 +10,14 @@
 static const float ADC_VAL_TO_CUR_FACTOR = 3.3f * RATE_CURRENT_SAMPLE / 4095.0f;
 static const float ADC_VAL_TO_VOL_FACTOR = 3.3f * RATE_VOLTAGE_SAMPLE / 255.0f;
 /* ADC采样相关变量 */
-static bool calibration_flag = false;
 
 static float adc_zero_u = 0;
 static float adc_zero_v = 0;
 static float adc_zero_w = 0;
 
-static u16 ADC_VAL_ZERO_U = 0;
-static u16 ADC_VAL_ZERO_V = 0;
-static u16 ADC_VAL_ZERO_W = 0;
+static float ADC_VAL_ZERO_U = 4095.0f / 2.0f;
+static float ADC_VAL_ZERO_V = 4095.0f / 2.0f;
+static float ADC_VAL_ZERO_W = 4095.0f / 2.0f;
 
 static u16 sample_counter = 0;
 
@@ -201,30 +200,9 @@ void BSP_TempVbusSample(void)
  */
 void BSP_AdcGetCurrent(float *ui, float *vi, float *wi)
 {
-    if (calibration_flag)
-    {
-        adc_zero_u += (float)adc1_buffer[0] * 0.01;
-        adc_zero_v += (float)adc1_buffer[1] * 0.01;
-        adc_zero_w += (float)adc1_buffer[2] * 0.01;
-        if (++sample_counter >= 100)
-        {
-            ADC_VAL_ZERO_U = (u16)(adc_zero_u + 0.5f);
-            ADC_VAL_ZERO_V = (u16)(adc_zero_v + 0.5f);
-            ADC_VAL_ZERO_W = (u16)(adc_zero_w + 0.5f);
-            adc_zero_u = 0;
-            adc_zero_v = 0;
-            adc_zero_w = 0;
-            sample_counter = 0;
-            calibration_flag = false;
-        }
-        *ui = *vi = *wi = 0.0f;
-    }
-    else
-    { // 计算校准后的电流值
-        *ui = ((float)(adc1_buffer[0] - ADC_VAL_ZERO_U) * ADC_VAL_TO_CUR_FACTOR);
-        *vi = ((float)(adc1_buffer[1] - ADC_VAL_ZERO_V) * ADC_VAL_TO_CUR_FACTOR);
-        *wi = ((float)(adc1_buffer[2] - ADC_VAL_ZERO_W) * ADC_VAL_TO_CUR_FACTOR);
-    }
+    *ui = ((float)(adc1_buffer[0] - ADC_VAL_ZERO_U) * ADC_VAL_TO_CUR_FACTOR);
+    *vi = ((float)(adc1_buffer[1] - ADC_VAL_ZERO_V) * ADC_VAL_TO_CUR_FACTOR);
+    *wi = ((float)(adc1_buffer[2] - ADC_VAL_ZERO_W) * ADC_VAL_TO_CUR_FACTOR);
 }
 
 /**
@@ -250,12 +228,35 @@ void BSP_AdcGetTemp(float *temperature)
     *temperature = Tempture;
 }
 
-// 重新校准电流
-void BSP_AdcRecalibrateCurrent(void)
+// 校准电流偏移
+bool BSP_AdcCalibrateCurrent(float *ui_offset, float *vi_offset, float *wi_offset)
 {
-    calibration_flag = true;
+    adc_zero_u += (float)adc1_buffer[0] * 0.001;
+    adc_zero_v += (float)adc1_buffer[1] * 0.001;
+    adc_zero_w += (float)adc1_buffer[2] * 0.001;
+    if (++sample_counter >= 1000)
+    {
+        ADC_VAL_ZERO_U = adc_zero_u;
+        ADC_VAL_ZERO_V = adc_zero_v;
+        ADC_VAL_ZERO_W = adc_zero_w;
+        adc_zero_u = 0;
+        adc_zero_v = 0;
+        adc_zero_w = 0;
+        sample_counter = 0;
+        *ui_offset = ADC_VAL_ZERO_U;
+        *vi_offset = ADC_VAL_ZERO_V;
+        *wi_offset = ADC_VAL_ZERO_W;
+        return true;
+    }
+    *ui_offset = 0.0f;
+    *vi_offset = 0.0f;
+    *wi_offset = 0.0f;
+    return false;
 }
-bool BSP_AdcRecalibrateDone(void)
+
+void BSP_SetAdcCurrentOffset(float ui_offset, float vi_offset, float wi_offset)
 {
-    return !calibration_flag;
+    ADC_VAL_ZERO_U = ui_offset;
+    ADC_VAL_ZERO_V = vi_offset;
+    ADC_VAL_ZERO_W = wi_offset;
 }

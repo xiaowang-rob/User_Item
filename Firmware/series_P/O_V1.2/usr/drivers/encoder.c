@@ -1,3 +1,7 @@
+/* ============================================================
+ * 编码器抽象驱动 (支持 MT6816 / AS5047 / MT6835 等)
+ * 使用全局实例 g_encoder，初始化时选择芯片型号
+ * ============================================================ */
 
 #include "device.h"
 #include "string.h"
@@ -8,282 +12,464 @@ volatile u32 encoder_ts_us = 0;
 u32 time_zero;
 #endif
 
-/* ========== 全局变量 ========== */
-static u16 reg03_cmd = 0x83ff;
-volatile static u16 reg03_data = 0;
-static u16 reg04_cmd = 0x84ff;
-volatile static u16 reg04_data = 0;
-
-// 1. 添加影子变量（用于主循环安全读取）
-static volatile u16 reg03_data_shadow = 0;
-static volatile u16 reg04_data_shadow = 0;
-
-static bool first_run = true;
-static u8 valid = 0;
-static u8 rubbish_data_tic = 0;
-
-volatile static tEncoder encoder = {0};
-
-/* ========== 内部函数声明 ========== */
-static void ENCODER_StartReg3Read(void);
-static void ENCODER_StartReg4Read(void);
-static void ENCODER_ProcessData(void);
-static void ENCODER_RecoverFromError(void);
-
-/* ========== 启动读取高位寄存器 ========== */
-static void ENCODER_StartReg3Read(void)
+/* ----------------------- 类型定义 ------------------------- */
+typedef enum
 {
-    // 检查 SPI 是否空闲
-    if (!BSP_Encoder_SPI_IS_READY())
-    {
-        ENCODER_RecoverFromError();
-        return;
-    }
-    BSP_Encoder_CS(EXTERNAL, false); // 拉低 CS 选择编码器
+    ENCODER_STATE_START_READ,
+    ENCODER_STATE_WAIT_HIGH,
+    ENCODER_STATE_WAIT_LOW,
+    ENCODER_STATE_PROCESS_DATA
+} eEncoderState_DMA;
 
-    // 启动 DMA 传输
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&reg03_cmd,
-                                             (u8 *)&reg03_data_shadow,
-                                             2))
-    { // 2 bytes = 16 bits
-        ENCODER_RecoverFromError();
-        return;
-    }
+/* ----------------------- 全局实例 ------------------------- */
+tEncoderInstance g_encoder;
 
-    encoder.state = ENCODER_STATE_WAIT_HIGH;
-}
+/* ----------------------- 常量定义 ------------------------- */
+#define NO_RESPONSE_MAX_TIC 1000 /* 1000 * 10us = 10ms 超时 */
+#define MT6816_NO_MAG_WARNING (1 << 1)
+#define MT6816_PARITY_CHECK (1 << 0)
 
-/* ========== 启动读取低位寄存器 ========== */
-static void ENCODER_StartReg4Read(void)
+/* ----------------------- 芯片描述表 ----------------------- */
+static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
+static bool AS5047_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
+
+static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
+    [MT6816] = {
+        .resolution = 16384,
+        .deg_per_lsb = 360.0f / 16384.0f,
+        .cmd_high = 0x83FF,
+        .cmd_low = 0x84FF,
+        .cmd_read_angle = 0,
+        .parse_and_check = MT6816_ParseAndCheck,
+    },
+    [AS5047] = {
+        .resolution = 16384,
+        .deg_per_lsb = 360.0f / 16384.0f,
+        .cmd_high = 0,
+        .cmd_low = 0,
+        .cmd_read_angle = 0x3FFF, /* 读角度寄存器命令 */
+        .parse_and_check = AS5047_ParseAndCheck,
+    },
+    /* MT6835 预留：按手册填入参数即可 */
+};
+
+/* ------------------ 内部函数前向声明 --------------------- */
+static void Encoder_RecoverFromError(void);
+static void Common_AngleVelocityUpdate(tEncoderInstance *enc);
+
+static void MT6816_MainLoop(void);
+static void MT6816_StartHighRead(void);
+static void MT6816_StartLowRead(void);
+static void MT6816_ProcessData(void);
+
+static void AS5047_MainLoop(void);
+static void AS5047_StartCommand(void);
+static void AS5047_ProcessData(void);
+
+/* ========== 初始化 ========== */
+bool Encoder_Init(eEncoderChip type)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (type >= CHIP_COUNT)
+        return false;
+
+    /* 获取芯片描述 */
+    const tEncoderChipDesc *desc = &chip_descs[type];
+
+    /* 根据型号动态配置 SPI3 模式 (CPOL/CPHA) */
+    if (type == MT6816)
     {
-        ENCODER_RecoverFromError();
-        return;
+        BSP_SetEncoder_SPI_Config(1, 1, 16); // CPOL=1, CPHA=1, 16位数据
     }
-
-    BSP_Encoder_CS(EXTERNAL, false); // 拉低 CS 选择编码器
-
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&reg04_cmd,
-                                             (u8 *)&reg04_data_shadow,
-                                             2))
+    else if (type == AS5047)
     {
-        ENCODER_RecoverFromError();
-        return;
-    }
-
-    encoder.state = ENCODER_STATE_WAIT_LOW;
-}
-
-/* ========== 数据处理 ========== */
-static void ENCODER_ProcessData(void)
-{
-    g_device_status.encoder_state = RUNNING;
-
-    u32 current_time = BSP_GetTick();
-    u32 time_diff = current_time - encoder.last_time;
-
-    // 状态检查：弱磁报警
-    if (reg04_data & MT6816_NO_MAG_WARNING)
-    {
-        g_device_status.encoder_state = OFFLINE;
-        encoder.state = ENCODER_STATE_START_READ;
-        return;
-    }
-    // 奇偶校验
-    bool parity_check = (reg04_data & MT6816_PARITY_CHECK) ? true : false;
-
-    u16 data_bits = (reg03_data & 0x00FF) << 7 | ((reg04_data & 0x00FE) >> 1);
-    u8 bit_count = __builtin_popcount(data_bits);
-
-    bool expected_parity = (bit_count % 2 == 1);
-
-    if (expected_parity != parity_check)
-    {
-        valid = CLAMP(valid + 10, 0, 110);
-        if (valid > 100)
-        {
-            g_device_status.encoder_state = RUN_ERROR;
-            valid = 0;
-        }
-        encoder.state = ENCODER_STATE_START_READ;
-        return;
+        BSP_SetEncoder_SPI_Config(0, 1, 16); // CPOL=0, CPHA=1, 16位数据
     }
     else
     {
-        valid = CLAMP(valid - 1, 0, 110);
+        return false; // 不支持的型号
     }
 
-    // 解析 14 位角度值
-    //   encoder.angle_raw = 16383-(data_bits >> 1);
-    encoder.angle_raw = (data_bits >> 1);
+    /* 清空全局实例并赋初值 */
+    memset((void *)&g_encoder, 0, sizeof(g_encoder));
+    g_encoder.chip_desc = desc;
+    g_encoder.chip_type = type;
+    g_encoder.state = ENCODER_STATE_START_READ;
+    g_encoder.first_run = true;
+    g_encoder.valid = 0;
+    g_encoder.rubbish_data_tic = 0;
 
-    // 角度计算
-    encoder.angle_abs = (float)encoder.angle_raw * 0.02197265625f; // 2^14 = 16384
-
-#ifdef __DEBUG__
-    u32 cur_time = BSP_GetTick_us();
-    encoder_ts_us = cur_time - time_zero;
-    time_zero = cur_time;
-#endif
-
-    if (first_run)
-    {
-        encoder.angle_raw_last = encoder.angle_raw;
-        encoder.num_turns = 0;
-        encoder.num_turns_last = 0;
-        encoder.pos_offset = encoder.angle_raw;
-        encoder.omega_rpm = 0;
-        encoder.pos = 0;
-        encoder.last_time = current_time;
-        if (rubbish_data_tic++ > 3)
-        {
-            rubbish_data_tic = 0;
-            first_run = false;
-        }
-    }
-    else
-    { // 增量角度计算
-
-        int angle_raw_delta = encoder.angle_raw - encoder.angle_raw_last;
-
-        if (FABSF(encoder.omega_rpm) > 2900) // 大于2900rpm有超过180°的风险
-        {
-            if (angle_raw_delta < -4096) // 16384/4 90°
-            {
-                encoder.num_turns++;
-            }
-            else if (angle_raw_delta > 4096)
-            {
-                encoder.num_turns--;
-            }
-        }
-        else
-        {
-            if (angle_raw_delta < -8192) // 16384/2 180°
-            {
-                encoder.num_turns++;
-            }
-            else if (angle_raw_delta > 8192)
-            {
-                encoder.num_turns--;
-            }
-        }
-        // 过滤掉抖动
-        if (angle_raw_delta > 1 || angle_raw_delta < -1)
-        {
-            // 角速度计算
-            if (time_diff > 0)
-            {
-                encoder.omega_rpm = 0.16666666667f * ((encoder.num_turns - encoder.num_turns_last) * 360.0f + angle_raw_delta * 0.02197265625f) / (time_diff * 0.001f);
-            }
-            // 位置计算
-            encoder.pos = 0.02197265625f * (int)(encoder.angle_raw - encoder.pos_offset) + encoder.num_turns * 360.0f;
-
-            // 更新历史数据
-            encoder.angle_raw_last = encoder.angle_raw;
-            encoder.num_turns_last = encoder.num_turns;
-            encoder.last_time = current_time;
-        }
-        else
-            encoder.omega_rpm = 0;
-    }
-
-    // 启动下一次读取周期
-    encoder.state = ENCODER_STATE_START_READ;
+    return true;
 }
 
 /* ========== 错误恢复 ========== */
-static void ENCODER_RecoverFromError(void)
+static void Encoder_RecoverFromError(void)
 {
-    // 1. 拉高 CS
     BSP_Encoder_CS(EXTERNAL, true);
-
-    // 2. 停止任何正在进行的 DMA
     if (!BSP_Encoder_SPI_IS_READY())
     {
-        BSP_Encoder_SPI_Abort(); // 阻塞式中止
+        BSP_Encoder_SPI_Abort();
     }
-
-    // 3. 清除 SPI/DMA 错误标志
     BSP_Encoder_SPI_CLEAR_DMA_error_flags();
 
-    // 4. 重置状态机
-    encoder.state = ENCODER_STATE_START_READ;
-
-    // 5. 重置数据
-    encoder.omega_rpm = 0;
+    g_encoder.state = ENCODER_STATE_START_READ;
+    g_encoder.omega_rpm = 0;
+    g_encoder.pos_last = 0;
 }
 
-/* ========== DMA 完成回调 (中断上下文) ========== */
+/* ========== DMA 完成回调 ========== */
 void BSP_Encoder_SPI_TxRxCpltCallback(void)
 {
-    // 立即拉高 CS
     BSP_Encoder_CS(EXTERNAL, true);
+    tEncoderInstance *enc = &g_encoder;
 
-    // 保存接收到的数据
-    if (encoder.state == ENCODER_STATE_WAIT_HIGH)
+    if (enc->chip_type == MT6816)
     {
-        encoder.state = ENCODER_STATE_WAIT_LOW;
-        // 立即启动低位读取
-        ENCODER_StartReg4Read();
+        if (enc->state == ENCODER_STATE_WAIT_HIGH)
+        {
+            /* 高字节接收完毕，启动低字节读取 */
+            enc->state = ENCODER_STATE_WAIT_LOW;
+            enc->no_resp_tic = 0;
+            MT6816_StartLowRead();
+        }
+        else if (enc->state == ENCODER_STATE_WAIT_LOW)
+        {
+            /* 低字节接收完毕，保存数据并置为待处理状态 */
+            BSP_disable_irq();
+            enc->data_raw[0] = enc->shadow_raw[0];
+            enc->data_raw[1] = enc->shadow_raw[1];
+            BSP_enable_irq();
+            enc->state = ENCODER_STATE_PROCESS_DATA;
+            enc->no_resp_tic = 0;
+        }
     }
-    else if (encoder.state == ENCODER_STATE_WAIT_LOW)
+    else if (enc->chip_type == AS5047)
     {
-        BSP_disable_irq();
-        reg03_data = reg03_data_shadow;
-        reg04_data = reg04_data_shadow;
-        BSP_enable_irq();
-        encoder.state = ENCODER_STATE_PROCESS_DATA;
-        // 数据处理交给主循环，避免中断耗时
+        if (enc->state == ENCODER_STATE_WAIT_HIGH)
+        {
+            /* 命令帧已发送，发送 NOP 接收数据帧 */
+            enc->cmd_reg = 0x0000; // NOP 命令
+            BSP_Encoder_CS(EXTERNAL, false);
+            if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
+                                                     (u8 *)&enc->shadow_raw[0], 2))
+            {
+                Encoder_RecoverFromError();
+                return;
+            }
+            enc->state = ENCODER_STATE_WAIT_LOW;
+            enc->no_resp_tic = 0;
+        }
+        else if (enc->state == ENCODER_STATE_WAIT_LOW)
+        {
+            /* 数据帧接收完成，保存数据 */
+            BSP_disable_irq();
+            enc->data_raw[0] = enc->shadow_raw[0];
+            BSP_enable_irq();
+            enc->state = ENCODER_STATE_PROCESS_DATA;
+            enc->no_resp_tic = 0;
+        }
     }
 }
 
 /* ========== DMA 错误回调 ========== */
-void BSP_Encoder_SPI_ErrorCallback()
+void BSP_Encoder_SPI_ErrorCallback(void)
 {
-    ENCODER_RecoverFromError();
+    Encoder_RecoverFromError();
 }
 
-static u16 No_response_tic;
-#define NO_RESPONSE_MAX_TIC 1000 // 1000*10us = 10ms
-/* ========== 主循环任务 ========== */
-void fEncoderMainLoopTask(void)
+/* ========== 通用角度/速度更新 (所有芯片共用) ========== */
+static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 {
-    switch (encoder.state)
+    uint32_t current_time = BSP_GetTick();
+    uint32_t time_diff = current_time - enc->last_time;
+
+    enc->angle_abs = enc->angle_raw * enc->chip_desc->deg_per_lsb;
+
+    if (enc->first_run)
+    {
+        enc->angle_raw_last = enc->angle_raw;
+        enc->num_turns = 0;
+        enc->pos_offset = enc->angle_raw;
+        enc->omega_rpm = 0;
+        enc->pos = 0;
+        enc->pos_last = 0;
+        enc->last_time = current_time;
+        if (enc->rubbish_data_tic++ > 3)
+        {
+            enc->rubbish_data_tic = 0;
+            enc->first_run = false;
+        }
+    }
+    else
+    {
+        int32_t angle_raw_delta = (int32_t)enc->angle_raw - enc->angle_raw_last;
+
+        /* 根据当前转速选择过零判断阈值 */
+        if (FABSF(enc->omega_rpm) > 2900)
+        {
+            if (angle_raw_delta < -4096)
+                enc->num_turns++;
+            else if (angle_raw_delta > 4096)
+                enc->num_turns--;
+        }
+        else
+        {
+            if (angle_raw_delta < -8192)
+                enc->num_turns++;
+            else if (angle_raw_delta > 8192)
+                enc->num_turns--;
+        }
+
+        enc->pos = enc->chip_desc->deg_per_lsb * (int32_t)(enc->angle_raw - enc->pos_offset) + enc->num_turns * 360.0f;
+
+        if (FABSF(angle_raw_delta) <= 1)
+        {
+            enc->omega_rpm = 0;
+        }
+        else if (time_diff > 0)
+        {
+            enc->omega_rpm = (enc->pos - enc->pos_last) / (time_diff * 0.001f) * 0.16666666667f;
+            enc->pos_last = enc->pos;
+            enc->last_time = current_time;
+        }
+        enc->angle_raw_last = enc->angle_raw;
+    }
+}
+
+/* ====== MT6816 驱动 ====== */
+static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle)
+{
+    bool parity_check = (low & MT6816_PARITY_CHECK) ? true : false;
+    uint16_t data_bits = (high & 0x00FF) << 7 | ((low & 0x00FE) >> 1);
+    uint8_t bit_count = __builtin_popcount(data_bits);
+    bool expected_parity = (bit_count % 2 == 1);
+
+    if (expected_parity != parity_check)
+        return false;
+    *angle = data_bits >> 1; /* 14-bit 原始角度 */
+    return true;
+}
+
+static void MT6816_StartHighRead(void)
+{
+    if (!BSP_Encoder_SPI_IS_READY())
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    BSP_Encoder_CS(EXTERNAL, false);
+
+    tEncoderInstance *enc = &g_encoder;
+    enc->cmd_reg = enc->chip_desc->cmd_high;
+    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
+                                             (u8 *)&enc->shadow_raw[0], 2))
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    enc->state = ENCODER_STATE_WAIT_HIGH;
+}
+
+static void MT6816_StartLowRead(void)
+{
+    if (!BSP_Encoder_SPI_IS_READY())
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    BSP_Encoder_CS(EXTERNAL, false);
+
+    tEncoderInstance *enc = &g_encoder;
+    enc->cmd_reg = enc->chip_desc->cmd_low;
+    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
+                                             (u8 *)&enc->shadow_raw[1], 2))
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    enc->state = ENCODER_STATE_WAIT_LOW;
+}
+
+static void MT6816_ProcessData(void)
+{
+    tEncoderInstance *enc = &g_encoder;
+    uint16_t angle_raw;
+
+    /* 弱磁检测 */
+    if (enc->data_raw[1] & MT6816_NO_MAG_WARNING)
+    {
+        g_device_status.encoder_state = OFFLINE;
+        enc->state = ENCODER_STATE_START_READ;
+        return;
+    }
+
+    /* 奇偶校验及数据提取 */
+    if (!enc->chip_desc->parse_and_check(enc->data_raw[0], enc->data_raw[1], &angle_raw))
+    {
+        enc->valid = CLAMP(enc->valid + 10, 0, 110);
+        if (enc->valid > 100)
+        {
+            g_device_status.encoder_state = RUN_ERROR;
+            enc->valid = 0;
+        }
+        enc->state = ENCODER_STATE_START_READ;
+        return;
+    }
+
+    enc->valid = CLAMP(enc->valid - 1, 0, 110);
+    enc->angle_raw = angle_raw;
+    Common_AngleVelocityUpdate(enc);
+    enc->state = ENCODER_STATE_START_READ;
+}
+
+static void MT6816_MainLoop(void)
+{
+    tEncoderInstance *enc = &g_encoder;
+    switch (enc->state)
     {
     case ENCODER_STATE_START_READ:
-        No_response_tic = 0;
-        ENCODER_StartReg3Read();
-        break;
-
-    case ENCODER_STATE_PROCESS_DATA:
-        ENCODER_ProcessData();
+        enc->no_resp_tic = 0;
+        MT6816_StartHighRead();
         break;
 
     case ENCODER_STATE_WAIT_HIGH:
     case ENCODER_STATE_WAIT_LOW:
-        No_response_tic++;
-        if (No_response_tic > NO_RESPONSE_MAX_TIC)
-            encoder.state = ENCODER_STATE_START_READ;
+        enc->no_resp_tic++;
+        if (enc->no_resp_tic > NO_RESPONSE_MAX_TIC)
+            enc->state = ENCODER_STATE_START_READ;
+        break;
+
+    case ENCODER_STATE_PROCESS_DATA:
+        MT6816_ProcessData();
         break;
 
     default:
-        ENCODER_RecoverFromError();
+        Encoder_RecoverFromError();
         break;
     }
 }
 
-/* ========== 数据获取接口 ========== */
-float fGetEncoderAngle_ABS(void) { return encoder.angle_abs; }
-float fGetEncoderAngle_INC(void) { return encoder.pos; }
-float fGetEncoderRPM(void) { return encoder.omega_rpm; }
-int fGetEncoderNumTurns(void) { return encoder.num_turns; }
+/* ====== AS5047 驱动 ====== */
+static bool AS5047_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
+{
+    (void)unused;
+    /* 错误标志 EF (bit14) */
+    if (raw & 0x4000)
+        return false;
+
+    /* 偶校验 (bit15 为接收到的校验位，14..0 为数据) */
+    uint8_t parity_received = (raw >> 15) & 0x01;
+    uint16_t data_bits = raw & 0x7FFF;
+    uint8_t bit_count = __builtin_popcount(data_bits);
+    uint8_t expected_parity = (bit_count % 2 == 1) ? 0 : 1; // 偶校验：偶数个1时校验位=0
+    if (parity_received != expected_parity)
+        return false;
+
+    *angle = raw & 0x3FFF; /* 14-bit 角度值 */
+    return true;
+}
+
+static void AS5047_StartCommand(void)
+{
+    if (!BSP_Encoder_SPI_IS_READY())
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    BSP_Encoder_CS(EXTERNAL, false);
+
+    tEncoderInstance *enc = &g_encoder;
+    enc->cmd_reg = enc->chip_desc->cmd_read_angle;
+    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
+                                             (u8 *)&enc->shadow_raw[0], 2))
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    enc->state = ENCODER_STATE_WAIT_HIGH;
+}
+
+static void AS5047_ProcessData(void)
+{
+    tEncoderInstance *enc = &g_encoder;
+    uint16_t angle_raw;
+
+    if (!enc->chip_desc->parse_and_check(enc->data_raw[0], 0, &angle_raw))
+    {
+        enc->valid = CLAMP(enc->valid + 10, 0, 110);
+        if (enc->valid > 100)
+        {
+            g_device_status.encoder_state = RUN_ERROR;
+            enc->valid = 0;
+        }
+        enc->state = ENCODER_STATE_START_READ;
+        return;
+    }
+
+    enc->valid = CLAMP(enc->valid - 1, 0, 110);
+    enc->angle_raw = angle_raw;
+    Common_AngleVelocityUpdate(enc);
+    enc->state = ENCODER_STATE_START_READ;
+}
+
+static void AS5047_MainLoop(void)
+{
+    tEncoderInstance *enc = &g_encoder;
+    switch (enc->state)
+    {
+    case ENCODER_STATE_START_READ:
+        enc->no_resp_tic = 0;
+        AS5047_StartCommand();
+        break;
+
+    case ENCODER_STATE_WAIT_HIGH:
+        enc->no_resp_tic++;
+        if (enc->no_resp_tic > NO_RESPONSE_MAX_TIC)
+            enc->state = ENCODER_STATE_START_READ;
+        break;
+
+    case ENCODER_STATE_WAIT_LOW:
+        /* 数据帧已在 DMA 回调中复制到 data_raw，直接进入处理 */
+        enc->state = ENCODER_STATE_PROCESS_DATA;
+        enc->no_resp_tic = 0;
+        break;
+
+    case ENCODER_STATE_PROCESS_DATA:
+        AS5047_ProcessData();
+        break;
+
+    default:
+        Encoder_RecoverFromError();
+        break;
+    }
+}
+
+/* ========== 主循环任务 ========== */
+void fEncoderMainLoopTask(void)
+{
+    switch (g_encoder.chip_type)
+    {
+    case MT6816:
+        MT6816_MainLoop();
+        break;
+    case AS5047:
+        AS5047_MainLoop();
+        break;
+    /* 添加新芯片时在此处增加 case */
+    default:
+        break;
+    }
+}
+
+/* ========== 对外数据接口 ========== */
+float fGetEncoderAngle_ABS(void) { return g_encoder.angle_abs; }
+float fGetEncoderAngle_INC(void) { return g_encoder.pos; }
+float fGetEncoderRPM(void) { return g_encoder.omega_rpm; }
+int fGetEncoderNumTurns(void) { return g_encoder.num_turns; }
 
 void fSetEncoderAngleZero(void)
 {
-    encoder.pos = 0;
-    encoder.pos_offset = encoder.angle_raw;
-    encoder.num_turns = 0;
-    encoder.num_turns_last = 0;
+    g_encoder.pos = 0;
+    g_encoder.pos_offset = g_encoder.angle_raw;
+    g_encoder.num_turns = 0;
+    g_encoder.pos_last = 0;
 }

@@ -11,8 +11,7 @@ from siui.components.tooltip import ToolTipWindow
 from functons.message_show import init_message_system
 from functons.com_port import ComPort
 from .middle_area import MiddleArea
-from .parameter_page import ParameterPage
-from .log_page import LogPage
+from .data_page import DataPage
 from .control_page import ControlPage
 from .IAP_widget import DownloadPage
 
@@ -53,8 +52,7 @@ class MainWindow(QMainWindow):
         # 区域UI初始化
         self.top_area = TopArea(self)
         self.mid_area = MiddleArea(self)
-        self.parameter_page = ParameterPage(self)
-        self.log_page = LogPage(self)
+        self.data_page = DataPage(self)
         self.control_page = ControlPage(self)
         self.download_page = DownloadPage(self)
 

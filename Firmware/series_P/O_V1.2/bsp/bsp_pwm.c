@@ -43,9 +43,9 @@ void BSP_POWER_12V_Control(bool on)
  * ============================================ */
 void BSP_PWM_SetCompare(u16 ticA, u16 ticB, u16 ticC)
 {
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, ticA);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, ticC);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, ticB);
-    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, ticC);
+    __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, ticA);
 }
 void BSP_PWM_Enable(void)
 {

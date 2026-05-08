@@ -19,7 +19,7 @@ def fmt_f(val):
     s = s.rstrip("0").rstrip(".")
     if "." not in s:
         s += ".0"
-    return s + "f"
+    return s
 
 
 def gen_defines(items):

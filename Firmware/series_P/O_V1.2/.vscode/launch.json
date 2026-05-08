@@ -12,11 +12,17 @@
             "showDevDebugOutput": "raw",
             "armToolchainPath": "/usr/bin",
             "preLaunchCommands": [],
-            "preLaunchTask": "CheckAndFlash",
+            "preLaunchTask": "",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg",
             ],
+            "liveWatch": {
+                "enabled": true,
+                "samples": 100, // 最多保存的历史样本数
+                "period": 500 // 采样周期（毫秒）
+            },
+            "svdFile": "${workspaceFolder}/STM32F405.svd"
         },
         {
             "name": "JLink",

@@ -35,7 +35,7 @@ typedef enum {
     TRAJ_MAX_ACC       = 29,  /* 轨迹最大加速度 */
     TRAJ_MAX_JERK      = 30,  /* 轨迹最大加加速度 */
     TRAJ_TOLERANCE     = 31,  /* 轨迹规划容差 */
-    COUNT_PARAM        = 32
+    PARAM_NUM          = 32
 } eParameter;
 
 typedef enum {
@@ -56,6 +56,7 @@ typedef enum {
     THETA_MECH    = 14,  /* 机械角度 */
     POSITION      = 15,  /* 位置 */
     POSITION_REF  = 16,  /* 目标位置 */
+    DATA_NUM      = 17
 } eData_stream;
 
 typedef enum {
@@ -66,11 +67,27 @@ typedef enum {
 
 
 typedef enum {
+    MT6816     = 0,  /* MT6816 */
+    AS5047     = 1,  /* AS5047 */
+    MT6835     = 2,  /* MT6835 */
+    CHIP_COUNT = 3,  /* 芯片数量 */
+} eEncoderChip;
+
+
+typedef enum {
     CURRENT_MODE  = 0,  /* 电流模式 */
     SPEED_MODE    = 1,  /* 速度模式 */
     POSITION_MODE = 2,  /* 位置模式 */
     OPEN_LOOP     = 3,  /* 开环模式 */
 } eRunMode;
+
+
+typedef enum {
+    CURRENT_TARGET  = 0,  /* 拖动电流/A */
+    SPEED_TARGET    = 1,  /* 目标速度/rpm */
+    POSITION_TARGET = 2,  /* 目标位置/deg */
+    NONE            = 3,  /* 无 */
+} eTargetType;
 
 
 typedef enum {
@@ -128,7 +145,7 @@ typedef enum {
 
 
 typedef enum {
-    FAULT_NONE                =  0,  /* 无故障 */
+    FAULT_NONE                =  0,  /* NONE */
     FAULT_FLASH_OFFLINE       =  1,  /* 闪存离线 */
     FAULT_TUNE_CURRENT_ERR    =  2,  /* 整定电流异常 */
     FAULT_POLE_PAIR_MISMATCH  =  3,  /* 极对数不匹配 */
@@ -146,7 +163,7 @@ typedef enum {
 
 
 typedef enum {
-    WARNING_NONE             = 0,  /* 无警告 */
+    WARNING_NONE             = 0,  /* NONE */
     WARNING_OVERTEMP         = 1,  /* 过温 */
     WARNING_OVERSPEED        = 2,  /* 超速 */
     WARNING_POSITION_LIMIT   = 3,  /* 位置超限 */

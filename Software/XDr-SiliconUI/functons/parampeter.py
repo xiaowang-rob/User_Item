@@ -16,10 +16,10 @@ class ParameterManager:
 
         self.param_list = [0] * Pidx.NUM_OF_PARAM
 
-        self.all_read_but = self.mw.parameter_page.all_read_button
-        self.all_write_but = self.mw.parameter_page.all_write_button
-        self.save_flash_but = self.mw.parameter_page.all_save_button
-        self.erase_flash_but = self.mw.parameter_page.all_erase_button
+        self.all_read_but = self.mw.data_page.all_read_button
+        self.all_write_but = self.mw.data_page.all_write_button
+        self.save_flash_but = self.mw.data_page.all_save_button
+        self.erase_flash_but = self.mw.data_page.all_erase_button
 
         self.all_read_but.clicked.connect(self.read_all)
         self.all_write_but.clicked.connect(self.write_all)
@@ -73,7 +73,7 @@ class ParameterManager:
                     print(f"参数{idx}写入失败: {e}")
                     continue
             print("发送完成")
-            bytes([Pidx.NUM_OF_PARAM]) + struct.pack("<B", Fidx.SUCCESS)
+            bytes([Pidx.NUM_OF_PARAM]) + struct.pack("<B", Fidx.FEEDBACK_EXECUTE)
             self.com.send_packet(Cidx.PARAM_WRITE, payload)
             self.read_all()
 
@@ -115,7 +115,7 @@ class ParameterManager:
                             self.param_map[index].currentText()
                         )
                     if index == Pidx.RUN_MODE:
-                        self.target_val_show.setText(Midx.target_value[data])
+                        self.target_val_show.setText(Midx.target_type[data])
 
                 # 数字输入框
                 case Pidx.MOTOR_POLEPAIRS:

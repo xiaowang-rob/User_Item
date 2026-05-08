@@ -52,10 +52,7 @@ static void FLASH_Disable(void)
  */
 static bool spi_Transmit_one_byte(u8 _dataTx)
 {
-    if (BSP_Flash_SPI_Transmit((u8 *)&_dataTx, 1, 1000))
-        return true;
-    else
-        return false;
+    return BSP_Flash_SPI_Transmit((u8 *)&_dataTx, 1, 1000);
 }
 
 /**
@@ -64,8 +61,8 @@ static bool spi_Transmit_one_byte(u8 _dataTx)
  */
 static u8 spi_Receive_one_byte(void)
 {
-    u16 _dataRx;
-    BSP_Flash_SPI_Receive((u8 *)&_dataRx, 1, 1000);
+    u8 _dataRx = 0;
+    BSP_Flash_SPI_Receive(&_dataRx, 1, 1000);
     return _dataRx;
 }
 
@@ -289,7 +286,7 @@ void fFLASH_Init(void)
 {
     u8 id[3] = {0};
     FLASH_Enable(); // 片选
-    BSP_Delay(10); // 上电延时
+    BSP_Delay(10);  // 上电延时
 
     spi_Transmit_one_byte(0x9F);    // Read JEDEC ID命令
     id[0] = spi_Receive_one_byte(); // Manufacturer ID
@@ -304,6 +301,7 @@ void fFLASH_Init(void)
     else if (_init_fault_tic < 5) // 重试逻辑
     {
         _init_fault_tic++;
+        BSP_Delay(10);
         fFLASH_Init(); // 递归重试
     }
 

@@ -32,8 +32,7 @@ void fUSB_Init(void)
  */
 bool fUSB_SendData(u8 *data, u8 len)
 {
-    u8 Trans_state = BSP_USB_CDC_Transmit_FS(data, len);
-    if (Trans_state == 0) // 发送成功（HAL库返回0表示成功）
+    if (BSP_USB_CDC_Transmit_FS(data, len)) // 发送成功
     {
         trans_fault_tic = 0; // 清除错误计数器
         return true;

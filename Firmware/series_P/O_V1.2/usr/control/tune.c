@@ -1,13 +1,15 @@
 #include "tune.h"
 #include "math_fast.h"
+#include "bsp_adc.h"
 
 #include "device.h"
 #include "parameter_manager.h"
 #include "filter.h"
 /* ================================= 全局变量定义 ================================= */
-tMotorParams motor_params = {0};
+tTuneParams temp_params = {0};
 tTuneContext g_tune_ctx = {0};
 
+tFirstOrderLagFilter rs_i_filter;
 /* ================================= 辅助函数 ================================= */
 // sum型线性拟合
 static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx, u16 n,
@@ -39,18 +41,18 @@ static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx,
     *mse = 0.0f;
 }
 // 控制带宽、滤波系数与PID参数的经验公式
-void fCalculateControlParams(tMotorParams *params)
+void fCalculateControlParams()
 {
     // todo:这里对电流环PI进行调节
-    float fn_d = 1 / (MATH_2PI * motor_params.Ld / motor_params.Rs);
+    float fn_d = 1 / (MATH_2PI * temp_params.Ld / temp_params.Rs);
     float wc_d = MATH_2PI * 0.7f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
-    motor_params.id_kp = wc_d * motor_params.Ld;
-    motor_params.id_ki = wc_d * motor_params.Rs;
+    temp_params.id_kp = wc_d * temp_params.Ld;
+    temp_params.id_ki = wc_d * temp_params.Rs;
 
-    float fn_q = 1 / (MATH_2PI * motor_params.Lq / motor_params.Rs);
+    float fn_q = 1 / (MATH_2PI * temp_params.Lq / temp_params.Rs);
     float wc_q = MATH_2PI * 0.7f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
-    motor_params.iq_Kp = wc_q * motor_params.Lq;
-    motor_params.iq_Ki = wc_q * motor_params.Rs;
+    temp_params.iq_Kp = wc_q * temp_params.Lq;
+    temp_params.iq_Ki = wc_q * temp_params.Rs;
 
     // 取电流环开环截止频率 (Hz)
     float f_c_open = fminf(wc_d, wc_q) / MATH_2PI;
@@ -69,7 +71,7 @@ void fCalculateControlParams(tMotorParams *params)
         f_filter = f_min;
 
     // 计算一阶低通滤波系数 alpha
-    motor_params.cur_fiter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
+    temp_params.cur_fiter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
 }
 
 /* ================================= 参数访问实现 ================================= */
@@ -78,24 +80,27 @@ void fMotorParamTune_ForceSave(void)
 
     // 过程中会直接写入motor用于后续控制
     //  这里是集中写入参数flash中转站
-    g_Param.motor_rs = motor_params.Rs;
-    g_Param.motor_ld = motor_params.Ld;
-    g_Param.motor_lq = motor_params.Lq;
-    g_Param.motor_psif = motor_params.Psi_f;
-    g_Param.motor_ke = motor_params.Ke;
-    g_Param.motor_j = motor_params.J;
-    g_Param.motor_b = motor_params.B;
-    g_Param.motor_polepairs = motor_params.pole_pairs;
-    g_Param.theta_offset = motor_params.theta_offset;
-    g_Param.theta_elec_offset = motor_params.theta_elec_need_180;
-    g_Param.forward_dir = motor_params.direction;
+    g_Param.motor_rs = temp_params.Rs;
+    g_Param.motor_ld = temp_params.Ld;
+    g_Param.motor_lq = temp_params.Lq;
+    g_Param.motor_psif = temp_params.Psi_f;
+    g_Param.motor_ke = temp_params.Ke;
+    g_Param.motor_j = temp_params.J;
+    g_Param.motor_b = temp_params.B;
+    g_Param.motor_polepairs = temp_params.pole_pairs;
+    g_Param.theta_offset = temp_params.theta_offset;
+    g_Param.theta_elec_offset = temp_params.theta_elec_need_180;
+    g_Param.forward_dir = temp_params.direction;
 
-    g_Param.kp_current = motor_params.iq_Kp;
-    g_Param.ki_current = motor_params.iq_Ki;
-    g_Param.kp_weakmag = motor_params.id_kp;
-    g_Param.ki_weakmag = motor_params.id_ki;
+    g_Param.kp_current = temp_params.iq_Kp;
+    g_Param.ki_current = temp_params.iq_Ki;
+    g_Param.kp_weakmag = temp_params.id_kp;
+    g_Param.ki_weakmag = temp_params.id_ki;
 
-    g_Param.cur_fiter_alpha = motor_params.cur_fiter_alpha;
+    g_Param.cur_fiter_alpha = temp_params.cur_fiter_alpha;
+    g_Param.adc_U_zero_offset = temp_params.uadc_offset;
+    g_Param.adc_V_zero_offset = temp_params.vadc_offset;
+    g_Param.adc_W_zero_offset = temp_params.wadc_offset;
 }
 
 /* ================================= 初始化与重置 ================================= */
@@ -104,9 +109,10 @@ void fMotorParamTune_Init()
 {
 
     memset(&g_tune_ctx, 0, sizeof(tTuneContext));
-    memset(&motor_params, 0, sizeof(tMotorParams));
-    motor_params.KV = g_Param.motor_kv;
-    motor_params.dt = T_CON;
+    memset(&temp_params, 0, sizeof(tTuneParams));
+    temp_params.KV = g_Param.motor_kv;
+    temp_params.dt = T_CON;
+    fFirstOrderLagInit(&rs_i_filter, 0.04f, 0);
 }
 
 void fMotorParamTune_Reset()
@@ -116,15 +122,16 @@ void fMotorParamTune_Reset()
 }
 /* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
 
-static bool _tune_Rs(float i_alpha, tMotorParams *params)
+static bool _tune_Rs(float i_alpha, tTuneParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
+    float i_a = fFirstOrderLagFilter(&rs_i_filter, i_alpha);
 
     if (ctx->freq_tick++ < RS_FREQ_F)
         return false; // 跳过不整定
     ctx->freq_tick = 0;
     //===滞环电流控制===
-    float err = ctx->rs_ctx.i_target - i_alpha;
+    float err = ctx->rs_ctx.i_target - i_a;
     if (FABSF(err) > RS_HYST_BAND)
     {
         // 误差带外 → 输出电压粗调
@@ -143,11 +150,11 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
         }
     }
     //===死区前馈===
-    float v_dead_comp = (i_alpha > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
+    float v_dead_comp = (i_a > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
     float v_out = CLAMP(ctx->rs_ctx.v_cmd + v_dead_comp, -RS_V_LIMIT, RS_V_LIMIT);
 
     // 稳态判断
-    float i_err = FABSF(i_alpha - ctx->rs_ctx.i_target);
+    float i_err = FABSF(i_a - ctx->rs_ctx.i_target);
     if (i_err < RS_STEADY_ERR_THR)
     {
         if (ctx->steady_tick >= RS_STEADY_TICKS)
@@ -156,7 +163,7 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
             if (ctx->rs_ctx.step == 0)
             {
                 // 记录第一点
-                ctx->rs_ctx.i_meas[0] = i_alpha;
+                ctx->rs_ctx.i_meas[0] = i_a;
                 ctx->rs_ctx.v_meas[0] = v_out; // 记录实际输出电压
 
                 // 切换到第二点
@@ -174,7 +181,7 @@ static bool _tune_Rs(float i_alpha, tMotorParams *params)
             else
             {
                 // 记录第二点
-                ctx->rs_ctx.i_meas[1] = i_alpha;
+                ctx->rs_ctx.i_meas[1] = i_a;
                 ctx->rs_ctx.v_meas[1] = v_out;
 
                 // === 5. 差分计算电阻 ===
@@ -256,9 +263,10 @@ static void dft_reset_accumulator(float *sum_re, float *sum_im, uint16_t *cnt)
     *sum_im = 0.0f;
     *cnt = 0;
 }
+
 /* ================================= 电感整定（alpha beta轴方波注入） ================================= */
 static bool
-_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams *params)
+_tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *params)
 {
 
     tTuneContext *ctx = &g_tune_ctx;
@@ -351,11 +359,11 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
 
     // ==================== 状态1：转子预定位（拉至0°电角度） ====================
     case 1:
-        if (ctx->steady_tick > LS_ALIGN_TICKS)
+        if (ctx->steady_tick > ALIGN_TIME_MS)
         {
             // 对齐完成，断电，等待电流衰减
             fFOC_SetUalphaBeta(0, 0);
-            if (ctx->steady_tick > LS_ALIGN_TICKS * 2)
+            if (ctx->steady_tick > ALIGN_TIME_MS * 2)
             {
                 ctx->ls_ctx.state = 2;
                 ctx->steady_tick = 0;
@@ -370,7 +378,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
             return false;
         }
         // 施加直流电压使转子对齐到α轴（电角度0°）
-        fFOC_SetUalphaBeta(ALIGN_VOLTAGE, 0.0f);
+        fFOC_SetUalphaBeta(ctx->ls_ctx.v_inj, 0.0f);
 
         return false;
 
@@ -424,11 +432,11 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
 
     // ==================== 状态3：旋转转子至90°电角度（准备测Lq） ====================
     case 3:
-        if (ctx->steady_tick > LS_ALIGN_TICKS)
+        if (ctx->steady_tick > ALIGN_TIME_MS)
         {
             // 对齐完成，断电，等待电流衰减
             fFOC_SetUalphaBeta(0, 0);
-            if (ctx->steady_tick > LS_ALIGN_TICKS * 2)
+            if (ctx->steady_tick > ALIGN_TIME_MS * 2)
             {
                 ctx->ls_ctx.state = 4;
                 ctx->steady_tick = 0;
@@ -443,7 +451,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
             return false;
         }
         // 施加β轴直流电压，使转子从0°转到90°电角度
-        fFOC_SetUalphaBeta(0.0f, ALIGN_VOLTAGE);
+        fFOC_SetUalphaBeta(0.0f, ctx->ls_ctx.v_inj);
 
         return false;
 
@@ -505,7 +513,7 @@ _tune_Ls(float v_alpha, float v_beta, float i_alpha, float i_beta, tMotorParams 
 }
 
 // 编码器校准
-bool _tune_encoder(float theta_m, tMotorParams *params)
+bool _tune_encoder(float theta_m, tTuneParams *params)
 {
     const float THETA_STEP = EC_OPEN_LOOP_OMEGA * T_CON * EC_FREQ_F;
     tTuneContext *ctx = &g_tune_ctx;
@@ -658,9 +666,9 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
             // 记录起始点
             ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
             if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start > 5.0f)
-                motor_params.theta_elec_need_180 = true;
+                temp_params.theta_elec_need_180 = true;
             else if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start < -5.0f)
-                motor_params.theta_elec_need_180 = false;
+                temp_params.theta_elec_need_180 = false;
             else
             {
                 ctx->fault = TUNE_FAULT_MECH_LOCKED;
@@ -733,7 +741,7 @@ bool _tune_encoder(float theta_m, tMotorParams *params)
 }
 
 /* ================================= 磁链整定 (SMO 框架) ================================= */
-static bool _tune_PsiF(tFOC_val foc_val, tMotorParams *params)
+static bool _tune_PsiF(tFOC_val foc_val, tTuneParams *params)
 {
     // TODO: SMO 高速整定框架
     // 1. 高速运行 (例如 1000rpm+)，SMO 估算反电动势
@@ -741,13 +749,13 @@ static bool _tune_PsiF(tFOC_val foc_val, tMotorParams *params)
     // 3. Psi_f = Ke / pole_pairs
 
     // 临时占位：使用 KV 反推（后续替换为 SMO 实测）
-    params->Ke = 60.0f / (2.0f * MATH_PI * motor_params.KV * params->pole_pairs);
+    params->Ke = 60.0f / (2.0f * MATH_PI * temp_params.KV * params->pole_pairs);
     params->Psi_f = params->Ke / params->pole_pairs;
     return true;
 }
 
 /* ================================= 转动惯量/摩擦系数整定 (框架) ================================= */
-static bool _tune_JB(tFOC_val foc_val, tMotorParams *params)
+static bool _tune_JB(tFOC_val foc_val, tTuneParams *params)
 {
     // TODO: 阶跃响应法框架
     // 1. 施加阶跃转矩 (例如 iq=2A)
@@ -764,20 +772,23 @@ static bool _tune_JB(tFOC_val foc_val, tMotorParams *params)
 eTuneState fMotorParamTune_Update(tFOC_val foc_val)
 {
     tTuneContext *ctx = &g_tune_ctx;
-    tMotorParams *params = &motor_params;
+    tTuneParams *params = &temp_params;
     ctx->steady_tick++; // 作为全局稳态计时器
     switch (ctx->state)
     {
     case TUNE_INIT:
         fMotorParamTune_Init();
+        fFOC_SetSensorMode(ENCODER_CONTROL);
+        fFOC_SetRunMode(OPEN_LOOP);
         ctx->steady_tick = 0;
         ctx->state = TUNE_IDLE;
         break;
     case TUNE_IDLE:
         if (ctx->steady_tick < TUNE_WAIT_TICKS)
             break; // 先静止等待参数稳定
-        fFOC_SetSensorMode(ENCODER_CONTROL);
-        fFOC_SetRunMode(OPEN_LOOP);
+        if (false == BSP_AdcCalibrateCurrent(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
+            break; // 电流校准
+
         // 准备工作：初始化电阻整定上下文
         ctx->rs_ctx.i_target = RS_I_TARGET_1;
         ctx->rs_ctx.v_cmd = 0;
@@ -816,7 +827,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         break;
 
     case TUNE_INDUCTANCE:
-        if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha_im, foc_val.Ibeta_im, params))
+        if (_tune_Ls(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta, params))
         {
             // 电阻上下文复位
             ctx->rs_ctx.step_ticks = 0;
@@ -827,6 +838,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 break;
             }
 
+            fCalculateControlParams();
             // 电感完成：初始化编码器校准上下文
 
             fSetEncoderAngleZero(); // 编码器圈数归零
@@ -854,7 +866,7 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
                 break;
             }
             // todo:写入参数
-            //            fSetThetaOffset(motor_params.theta_offset, motor_params.theta_elec_need_180); // 应用于目前计算
+            //            fSetThetaOffset(temp_params.theta_offset, temp_params.theta_elec_need_180); // 应用于目前计算
 
             //  极对数完成：初始化磁链上下文
             ctx->psi_ctx.sum_e_mag = 0;

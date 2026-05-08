@@ -26,6 +26,10 @@ static tFirstOrderLagFilter _i_u_filter;
 static tFirstOrderLagFilter _i_v_filter;
 static tFirstOrderLagFilter _i_w_filter;
 
+static void _current_offset_init(tParameter param)
+{
+    BSP_SetAdcCurrentOffset(param.adc_U_zero_offset, param.adc_V_zero_offset, param.adc_W_zero_offset);
+}
 // 启动器初始化
 static void _trajectory_init(tParameter param)
 {
@@ -66,7 +70,7 @@ static void _motor_init(tParameter param)
 static void _filter_init(tParameter param)
 {
     if (param.cur_fiter_alpha <= 0.01f || param.cur_fiter_alpha >= 1)
-        param.cur_fiter_alpha = 0.5f; // 默认值，确保在合理范围内
+        param.cur_fiter_alpha = 0.4f; // 默认值，确保在合理范围内
     fFirstOrderLagInit(&_i_u_filter, param.cur_fiter_alpha, 0);
     fFirstOrderLagInit(&_i_v_filter, param.cur_fiter_alpha, 0);
     fFirstOrderLagInit(&_i_w_filter, param.cur_fiter_alpha, 0);
@@ -77,12 +81,13 @@ static void _filter_init(tParameter param)
 // FOC参数更新（外部调用，参数修改后需调用）
 void fFOC_ParamUpdate(tParameter param)
 {
+    _current_offset_init(param);
     BSP_AdcGetVoltage(&Motor.Udc);
-    _motor_init(g_Param);
-    fLoopControlInit(g_Param, Motor.Udc);
+    _motor_init(param);
+    fLoopControlInit(param, Motor.Udc);
     fSvpwmInit(Motor.Udc);
-    _trajectory_init(g_Param);
-    _mode_init(g_Param);
+    _trajectory_init(param);
+    _mode_init(param);
     fSMO_Init(&Motor);
 
     fFOC_CoreReset();
@@ -216,8 +221,7 @@ void fFOC_MainLoopTask(void)
 {
     if (foc_mode.sensor_mode >= SENSORLESS_CONTROL)
     {
-        fClarkTransform(foc_val.Iu_im, foc_val.Iv_im, foc_val.Iw_im, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
-        fHFI_Step(foc_val.Ialpha_im, foc_val.Ibeta_im, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
+        fHFI_Step(foc_val.Ialpha, foc_val.Ibeta, &foc_val.Ualpha_hfi, &foc_val.Ubeta_hfi);
         // smo
         if (!fHFI_GetStatus())
         { // todo:使能之后 直接跑电压环
@@ -296,7 +300,6 @@ void fFOC_SetTargetValue(float *value)
 // 参数自动校准
 bool fAutoCalibrationUpdate(void)
 {
-    fClarkTransform(foc_val.Iu_im, foc_val.Iv_im, foc_val.Iw_im, &foc_val.Ialpha_im, &foc_val.Ibeta_im);
     if (TUNE_DONE == fMotorParamTune_Update(foc_val))
     {
         fFOC_CoreInit();

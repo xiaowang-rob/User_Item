@@ -21,7 +21,6 @@ typedef struct
 {
     float Iu_im, Iv_im, Iw_im;
     float Iu, Iv, Iw;
-    float Ialpha_im, Ibeta_im;
     float Ialpha, Ibeta;
     float theta_elec;
     float theta_mech;

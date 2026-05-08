@@ -75,11 +75,13 @@ def gen_c_header(proto, output_path):
 
     # 1. eParameter
     lines.extend(
-        aligned_enum("eParameter", proto["parameter_index"], end_name="COUNT_PARAM")
+        aligned_enum("eParameter", proto["parameter_index"],end_name="PARAM_NUM")
     )
 
+
     # 2. eData_stream
-    lines.extend(aligned_enum("eData_stream", proto["data_stream"]))
+    lines.extend(aligned_enum("eData_stream", proto["data_stream"], end_name="DATA_NUM"))
+
 
     # 3. other_strings 中的枚举 (eSensorMode, eRunMode, ...)
     if "other_strings" in proto:
@@ -233,6 +235,24 @@ def gen_python_module(proto, output_path):
     lines.extend(aligned_class("Cidx", proto["cmd_ids"], is_index=False))
     # Fidx (反馈 ID)
     lines.extend(aligned_class("Fidx", proto["feedback_ids"], is_index=False))
+
+    # Pkt (协议格式常量)
+    format_items = []
+    for key, cfg in proto['usb_format'].items():
+        format_items.append((key, cfg['value'], cfg.get('comment', '')))
+    for key, cfg in proto['uart_format'].items():
+        format_items.append((key, cfg['value'], cfg.get('comment', '')))
+    for key, cfg in proto['frame_length'].items():
+        format_items.append((key, cfg['value'], ''))
+
+    if format_items:
+        lines.append('class Pkt:')
+        max_len = max(len(name) for name, _, _ in format_items)
+        for name, value, comment in format_items:
+            comment_str = f'  # {comment}' if comment else ''
+            lines.append(f'    {name:<{max_len}} = {value}{comment_str}')
+        lines.append('')
+
     # Sidx (状态包索引，仅 Python)
     if "status_index" in proto:
         lines.extend(aligned_class("Sidx", proto["status_index"], is_index=True))

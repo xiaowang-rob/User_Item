@@ -11,11 +11,9 @@ from functons.message_show import (
     MSG_TYPE_SUCCESS,
     MSG_TYPE_WARNING,
 )
-from shared_constants import Cidx
+from shared_constants import Cidx,Fidx
 
 # ========== 协议常量 ==========
-RESP_FAIL = 0xFE
-RESP_SUCCESS = 0xF0
 WRITE_BLOCK_SIZE = 44  # 单次写入最大数据字节
 FLASH_BASE_ADDR = 0x08004000
 RETRY_COUNT = 5
@@ -49,7 +47,7 @@ class IAPWorker(QThread):
                 resp_cmd, resp_data = self._response_queue.get(timeout=0.05)
                 if resp_cmd == cmd_id and len(resp_data) >= 1:
                     self._last_response[cmd_id] = resp_data
-                    return resp_data[0] == RESP_SUCCESS
+                    return resp_data[0] == Fidx.RESP_SUCCESS
             except Empty:
                 continue
         return False
@@ -157,7 +155,7 @@ class IAPWorker(QThread):
                     return
 
                 bl_resp = self._get_response_data(Cidx.CMD_IAP_ENTER)
-                if not (bl_resp and len(bl_resp) >= 1 and bl_resp[0] == RESP_SUCCESS):
+                if not (bl_resp and len(bl_resp) >= 1 and bl_resp[0] == Fidx.RESP_SUCCESS):
                     self.finished.emit(False, "❌ Bootloader 未就绪")
                     return
                 self.progress_updated.emit(15, "准备擦除 Flash...")
@@ -174,11 +172,11 @@ class IAPWorker(QThread):
 
                 resp_data = self._get_response_data(Cidx.CMD_IAP_ENTER)
                 if resp_data and len(resp_data) >= 1:
-                    if resp_data[0] == RESP_SUCCESS:
+                    if resp_data[0] == Fidx.RESP_SUCCESS:
                         self.status_updated.emit("✓ 升级标志设置成功，设备将重启")
                         # 发送复位命令
                         self.comport.send_packet(Cidx.CMD_SYSTEM_RESET, bytes())
-                    elif resp_data[0] == RESP_FAIL:
+                    elif resp_data[0] == Fidx.RESP_FAIL:
                         self.finished.emit(False, "❌ 升级标志设置失败")
                         return
                 # 2. 启用 ComPort 自动重连，并等待重连
@@ -206,7 +204,7 @@ class IAPWorker(QThread):
                     return
 
                 bl_resp = self._get_response_data(Cidx.CMD_IAP_ENTER)
-                if bl_resp and len(bl_resp) >= 1 and bl_resp[0] == RESP_SUCCESS:
+                if bl_resp and len(bl_resp) >= 1 and bl_resp[0] == Fidx.RESP_SUCCESS:
                     self.status_updated.emit("✓ Bootloader 已就绪")
                 else:
                     self.finished.emit(False, "❌ Bootloader 未就绪")
