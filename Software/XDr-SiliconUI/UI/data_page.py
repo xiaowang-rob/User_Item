@@ -273,6 +273,16 @@ class DataPage:
         Title_mode.setAlignment(Qt.AlignBottom)
         Title_mode.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
+        self.encoder_input = SiCapsuleComboBox()
+        self.encoder_input.setTitle("编码器")
+        self.encoder_input.setEditable(False)
+        self.encoder_input.setFixedHeight(36)
+        self.encoder_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.encoder_input.setTitleFixedWidth(title_W)
+        for i in Midx.encoder_chip:
+            if i !=  Midx.encoder_chip[len(Midx.encoder_chip)-1]:
+                self.encoder_input.addItem(i)
+
         self.sensormode_input = SiCapsuleComboBox()
         self.sensormode_input.setTitle("感应模式")
         self.sensormode_input.setEditable(False)
@@ -328,6 +338,7 @@ class DataPage:
             self.TRAJ_mode_input.addItem(i)
 
         mode_layout.addWidget(Title_mode)
+        mode_layout.addWidget(self.encoder_input)
         mode_layout.addWidget(self.sensormode_input)
         mode_layout.addWidget(self.runmode_input)
         mode_layout.addWidget(self.can_mode_input)

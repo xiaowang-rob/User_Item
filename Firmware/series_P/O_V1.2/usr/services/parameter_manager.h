@@ -12,6 +12,7 @@ typedef struct
 {
     // u8类型参数
     u8 none_flag;
+    u8 encoder_chip;
     u8 sw_canqueue;
     u8 sw_vague_pid;
     u8 sw_pvt;

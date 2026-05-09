@@ -13,6 +13,9 @@ void fParamSet(eParameter para, u8 *value)
     switch (para)
     {
     // u8类型参数
+    case ENCODER_CHIP:
+        g_Param.encoder_chip = *(u8 *)value;
+        break;
     case SENSOR_MODE:
         g_Param.sensor_mode = *(u8 *)value;
         break;
@@ -126,10 +129,13 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
     switch (para)
     {
     // u8类型参数
+    case ENCODER_CHIP:
+        *(u8 *)value = g_Param.encoder_chip;
+        *len = sizeof(u8);
+        break;
     case SENSOR_MODE:
         *(u8 *)value = g_Param.sensor_mode;
         *len = sizeof(u8);
-        break;
     case RUN_MODE:
         *(u8 *)value = g_Param.run_mode;
         *len = sizeof(u8);

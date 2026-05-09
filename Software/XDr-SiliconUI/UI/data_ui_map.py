@@ -13,6 +13,7 @@ class Data_UI_Map:
         # 参数编辑控件映射（用于写入/读取参数）
         self.param_map = {
             # u8 类型
+            Pidx.ENCODER_CHIP: data_page.encoder_input,
             Pidx.SENSOR_MODE: data_page.sensormode_input,
             Pidx.RUN_MODE: data_page.runmode_input,
             Pidx.CAN_MODE: data_page.can_mode_input,

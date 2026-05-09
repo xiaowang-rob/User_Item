@@ -3,39 +3,40 @@
 #define __PROTOCOL_DEFS_H
 
 typedef enum {
-    SENSOR_MODE        =  0,  /* 感应模式 */
-    RUN_MODE           =  1,  /* 运行模式 */
-    CAN_MODE           =  2,  /* CAN模式 */
-    VAGUE_PID_MODE     =  3,  /* 模糊PID */
-    PVT_MODE           =  4,  /* PVT模式 */
-    TRAJ_TYPE          =  5,  /* 轨迹规划器类型 */
-    MOTOR_POLEPAIRS    =  6,  /* 电机极对数 */
-    CAN_ID             =  7,  /* CAN ID */
-    THETA_OFFSET       =  8,  /* 角度补偿 */
-    MOTOR_KV           =  9,  /* KV */
-    MOTOR_RS           = 10,  /* 相电阻 */
-    MOTOR_Ld           = 11,  /* Ld */
-    MOTOR_Lq           = 12,  /* Lq */
-    MOTOR_PSIF         = 13,  /* 磁链 */
-    MOTOR_KE           = 14,  /* 反电动势常数 */
-    MOTOR_J            = 15,  /* 转动惯量 */
-    MOTOR_B            = 16,  /* 摩擦系数 */
-    KP_SPEED           = 17,  /* 速度环比例 */
-    KI_SPEED           = 18,  /* 速度环积分 */
-    KP_POSITION        = 19,  /* 位置环比例 */
-    KI_POSITION        = 20,  /* 位置环积分 */
-    KD_POSITION        = 21,  /* 位置环微分 */
-    LIMIT_CURRENT      = 22,  /* 电流限幅 */
-    LIMIT_SPEED        = 23,  /* 速度限幅 */
-    LIMIT_POSITION_MIN = 24,  /* 位置限幅最小值 */
-    LIMIT_POSITION_MAX = 25,  /* 位置限幅最大值 */
-    TOLERANCE_TIME     = 26,  /* 容忍时间 */
-    TOLERANCE_LIMIT    = 27,  /* 超限容忍度 */
-    TRAJ_MAX_RATE      = 28,  /* 轨迹最大变化率 */
-    TRAJ_MAX_ACC       = 29,  /* 轨迹最大加速度 */
-    TRAJ_MAX_JERK      = 30,  /* 轨迹最大加加速度 */
-    TRAJ_TOLERANCE     = 31,  /* 轨迹规划容差 */
-    PARAM_NUM          = 32
+    ENCODER_CHIP       =  0,  /* 编码器芯片 */
+    SENSOR_MODE        =  1,  /* 感应模式 */
+    RUN_MODE           =  2,  /* 运行模式 */
+    CAN_MODE           =  3,  /* CAN模式 */
+    VAGUE_PID_MODE     =  4,  /* 模糊PID */
+    PVT_MODE           =  5,  /* PVT模式 */
+    TRAJ_TYPE          =  6,  /* 轨迹规划器类型 */
+    MOTOR_POLEPAIRS    =  7,  /* 电机极对数 */
+    CAN_ID             =  8,  /* CAN ID */
+    THETA_OFFSET       =  9,  /* 角度补偿 */
+    MOTOR_KV           = 10,  /* KV */
+    MOTOR_RS           = 11,  /* 相电阻 */
+    MOTOR_Ld           = 12,  /* Ld */
+    MOTOR_Lq           = 13,  /* Lq */
+    MOTOR_PSIF         = 14,  /* 磁链 */
+    MOTOR_KE           = 15,  /* 反电动势常数 */
+    MOTOR_J            = 16,  /* 转动惯量 */
+    MOTOR_B            = 17,  /* 摩擦系数 */
+    KP_SPEED           = 18,  /* 速度环比例 */
+    KI_SPEED           = 19,  /* 速度环积分 */
+    KP_POSITION        = 20,  /* 位置环比例 */
+    KI_POSITION        = 21,  /* 位置环积分 */
+    KD_POSITION        = 22,  /* 位置环微分 */
+    LIMIT_CURRENT      = 23,  /* 电流限幅 */
+    LIMIT_SPEED        = 24,  /* 速度限幅 */
+    LIMIT_POSITION_MIN = 25,  /* 位置限幅最小值 */
+    LIMIT_POSITION_MAX = 26,  /* 位置限幅最大值 */
+    TOLERANCE_TIME     = 27,  /* 容忍时间 */
+    TOLERANCE_LIMIT    = 28,  /* 超限容忍度 */
+    TRAJ_MAX_RATE      = 29,  /* 轨迹最大变化率 */
+    TRAJ_MAX_ACC       = 30,  /* 轨迹最大加速度 */
+    TRAJ_MAX_JERK      = 31,  /* 轨迹最大加加速度 */
+    TRAJ_TOLERANCE     = 32,  /* 轨迹规划容差 */
+    PARAM_NUM          = 33
 } eParameter;
 
 typedef enum {
@@ -68,8 +69,8 @@ typedef enum {
 
 typedef enum {
     MT6816     = 0,  /* MT6816 */
-    AS5047     = 1,  /* AS5047 */
-    MT6835     = 2,  /* MT6835 */
+    MT6835     = 1,  /* MT6835 */
+    AS5047     = 2,  /* AS5047 */
     CHIP_COUNT = 3,  /* 芯片数量 */
 } eEncoderChip;
 
@@ -146,7 +147,7 @@ typedef enum {
 
 typedef enum {
     FAULT_NONE                =  0,  /* NONE */
-    FAULT_FLASH_OFFLINE       =  1,  /* 闪存离线 */
+    FAULT_FLASH_OFFLINE       =  1,  /* FLASH离线 */
     FAULT_TUNE_CURRENT_ERR    =  2,  /* 整定电流异常 */
     FAULT_POLE_PAIR_MISMATCH  =  3,  /* 极对数不匹配 */
     FAULT_MOTOR_LOCK          =  4,  /* 电机堵转 */
@@ -154,9 +155,9 @@ typedef enum {
     FAULT_ENCODER_CAL_FAIL    =  6,  /* 编码器校准失败 */
     FAULT_ELEC_PARAM_FAIL     =  7,  /* 电气参数校准失败 */
     FAULT_MECH_PARAM_FAIL     =  8,  /* 机械参数校准失败 */
-    FAULT_OVERVOLTAGE         =  9,  /* 过压 */
+    FAULT_OVERVOLTAGE         =  9,  /* 过电压 */
     FAULT_UNDERVOLTAGE        = 10,  /* 低电压 */
-    FAULT_OVERCURRENT         = 11,  /* 过流 */
+    FAULT_OVERCURRENT         = 11,  /* 过电流 */
     FAULT_CAN_INIT_FAIL       = 12,  /* CAN初始化失败 */
     FAULT_CAN_COMM_ERR        = 13,  /* CAN通信异常 */
 } eFaultState;
@@ -167,7 +168,7 @@ typedef enum {
     WARNING_OVERTEMP         = 1,  /* 过温 */
     WARNING_OVERSPEED        = 2,  /* 超速 */
     WARNING_POSITION_LIMIT   = 3,  /* 位置超限 */
-    WARNING_ENCODER_OFFLINE  = 4,  /* 编码器离线 */
+    WARNING_ENCODER_OFFLINE  = 4,  /* 编码器无响应 */
     WARNING_ENCODER_COMM_ERR = 5,  /* 编码器通信错误 */
 } eWarningState;
 

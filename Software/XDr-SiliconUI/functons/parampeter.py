@@ -41,7 +41,8 @@ class ParameterManager:
                         match idx:
                             # 下拉列表
                             case (
-                                Pidx.SENSOR_MODE
+                                Pidx.ENCODER_CHIP
+                                | Pidx.SENSOR_MODE
                                 | Pidx.RUN_MODE
                                 | Pidx.CAN_MODE
                                 | Pidx.TRAJ_TYPE
@@ -72,9 +73,9 @@ class ParameterManager:
                 except Exception as e:
                     print(f"参数{idx}写入失败: {e}")
                     continue
-            print("发送完成")
-            bytes([Pidx.NUM_OF_PARAM]) + struct.pack("<B", Fidx.FEEDBACK_EXECUTE)
+            payload=bytes([Pidx.NUM_OF_PARAM]) + struct.pack("<B", Fidx.FEEDBACK_EXECUTE)
             self.com.send_packet(Cidx.PARAM_WRITE, payload)
+            print(f"发送完成{payload}")
             self.read_all()
 
         threading.Thread(target=task, daemon=True).start()
@@ -102,7 +103,8 @@ class ParameterManager:
             match index:
                 # 下拉列表
                 case (
-                    Pidx.SENSOR_MODE
+                    Pidx.ENCODER_CHIP
+                    | Pidx.SENSOR_MODE
                     | Pidx.RUN_MODE
                     | Pidx.CAN_MODE
                     | Pidx.TRAJ_TYPE

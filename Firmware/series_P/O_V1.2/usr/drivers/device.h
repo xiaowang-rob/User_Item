@@ -66,6 +66,7 @@ typedef struct
 // 全局唯一实例
 extern tEncoderInstance g_encoder;
 
+bool fEncoder_Init(eEncoderChip type);
 void fEncoderMainLoopTask(void);
 float fGetEncoderAngle_ABS(void);
 float fGetEncoderAngle_INC(void);

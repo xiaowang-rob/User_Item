@@ -56,6 +56,7 @@
             "MAX_FRAME_LENGTH": {"value": 128, "comment": ""}
         },
         "parameter_index": [
+            {"name": "ENCODER_CHIP",       "value": null, "comment": "编码器芯片"},
             {"name": "SENSOR_MODE",        "value": null, "comment": "感应模式"},
             {"name": "RUN_MODE",           "value": null, "comment": "运行模式"},
             {"name": "CAN_MODE",           "value": null, "comment": "CAN模式"},
@@ -149,12 +150,12 @@
             {"name": "MERGE_CONTROL",      "comment": "混合模式"}
         ]
     },
-    "encoder_type": {
+    "encoder_chip": {
         "enum_name": "eEncoderChip",
         "items": [
             {"name": "MT6816",          "comment": "MT6816"},
-            {"name": "AS5047",          "comment": "AS5047"},
             {"name": "MT6835",          "comment": "MT6835"},
+            {"name": "AS5047",          "comment": "AS5047"},
             {"name": "CHIP_COUNT",      "comment": "芯片数量"}
         ]
     },
@@ -240,7 +241,7 @@
         "enum_name": "eFaultState",
         "items": [
             {"name": "FAULT_NONE",              "comment": "NONE"},
-            {"name": "FAULT_FLASH_OFFLINE",     "comment": "闪存离线"},
+            {"name": "FAULT_FLASH_OFFLINE",     "comment": "FLASH离线"},
             {"name": "FAULT_TUNE_CURRENT_ERR",  "comment": "整定电流异常"},
             {"name": "FAULT_POLE_PAIR_MISMATCH","comment": "极对数不匹配"},
             {"name": "FAULT_MOTOR_LOCK",        "comment": "电机堵转"},
@@ -248,9 +249,9 @@
             {"name": "FAULT_ENCODER_CAL_FAIL",  "comment": "编码器校准失败"},
             {"name": "FAULT_ELEC_PARAM_FAIL",   "comment": "电气参数校准失败"},
             {"name": "FAULT_MECH_PARAM_FAIL",   "comment": "机械参数校准失败"},
-            {"name": "FAULT_OVERVOLTAGE",       "comment": "过压"},
+            {"name": "FAULT_OVERVOLTAGE",       "comment": "过电压"},
             {"name": "FAULT_UNDERVOLTAGE",      "comment": "低电压"},
-            {"name": "FAULT_OVERCURRENT",       "comment": "过流"},
+            {"name": "FAULT_OVERCURRENT",       "comment": "过电流"},
             {"name": "FAULT_CAN_INIT_FAIL",     "comment": "CAN初始化失败"},
             {"name": "FAULT_CAN_COMM_ERR",      "comment": "CAN通信异常"}
         ]
@@ -262,7 +263,7 @@
             {"name": "WARNING_OVERTEMP",      "comment": "过温"},
             {"name": "WARNING_OVERSPEED",     "comment": "超速"},
             {"name": "WARNING_POSITION_LIMIT","comment": "位置超限"},
-            {"name": "WARNING_ENCODER_OFFLINE","comment": "编码器离线"},
+            {"name": "WARNING_ENCODER_OFFLINE","comment": "编码器无响应"},
             {"name": "WARNING_ENCODER_COMM_ERR","comment": "编码器通信错误"}
         ]
     },

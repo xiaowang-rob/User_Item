@@ -67,7 +67,7 @@ static void AS5047_StartCommand(void);
 static void AS5047_ProcessData(void);
 
 /* ========== 初始化 ========== */
-bool Encoder_Init(eEncoderChip type)
+bool fEncoder_Init(eEncoderChip type)
 {
     if (type >= CHIP_COUNT)
         return false;

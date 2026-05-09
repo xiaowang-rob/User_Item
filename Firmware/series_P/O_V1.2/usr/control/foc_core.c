@@ -82,6 +82,7 @@ static void _filter_init(tParameter param)
 void fFOC_ParamUpdate(tParameter param)
 {
     _current_offset_init(param);
+    fEncoder_Init((eEncoderChip)param.encoder_chip);
     BSP_AdcGetVoltage(&Motor.Udc);
     _motor_init(param);
     fLoopControlInit(param, Motor.Udc);
