@@ -111,7 +111,7 @@ static inline void _status_send()
         com_frame.txdata[2] = g_pro_manager.fault;
         com_frame.txdata[3] = g_pro_manager.warning;
         memcpy(&com_frame.txdata[4], &g_pro_manager.temperature, sizeof(float));
-        memcpy(&com_frame.txdata[8], &g_foc.core->motor->Udc, sizeof(float));
+        memcpy(&com_frame.txdata[8], &g_foc.core->foc_val->Udc, sizeof(float));
         com_frame.txdatalen = 12;
     }
     fHostComputer_send();
@@ -192,8 +192,8 @@ static void _frame_data_deal()
                 fFOC_StateUpdate(FOC_SHUTDOWN);
                 break;
             case FOC_NRST:
-                fProManagerClearFalg();
                 fFOC_StateUpdate(FOC_RESET);
+                fProManagerClearFalg();
                 break;
             case CMD_ENABLE:
                 fFOC_StateUpdate(FOC_ENABLE);

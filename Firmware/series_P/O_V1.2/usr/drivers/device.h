@@ -33,6 +33,9 @@ typedef struct
     uint16_t cmd_high;       /* 读高位命令 (MT6816 专用) */
     uint16_t cmd_low;        /* 读低位命令 (MT6816 专用) */
     uint16_t cmd_read_angle; /* 单次读角度命令 (如 AS5047) */
+    u8 spi_CPOL;             /* SPI 时钟极性 */
+    u8 spi_CPHA;             /* SPI 时钟相位 */
+    u8 spi_data_size;        /* SPI 数据宽度 */
     bool (*parse_and_check)(uint16_t raw_high, uint16_t raw_low, uint16_t *angle_out);
 } tEncoderChipDesc;
 

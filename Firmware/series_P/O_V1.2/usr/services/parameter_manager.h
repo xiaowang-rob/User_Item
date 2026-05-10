@@ -70,9 +70,8 @@ extern tParameter g_Param;
 
 void fParamSet(eParameter para, u8 *value);
 void fParamGet(eParameter para, u8 *value, u8 *len);
-bool fParamSave();     // 一键保存
-void fParamErase();    // 一键擦除
-void fParamWriteFOC(); // 一键写入
+bool fParamSave();  // 一键保存
+void fParamErase(); // 一键擦除
 bool fParamInit();
 
 #endif // __PARAMETER_MANAGER_H

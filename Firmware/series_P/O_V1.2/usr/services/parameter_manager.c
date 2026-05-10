@@ -119,7 +119,9 @@ void fParamSet(eParameter para, u8 *value)
         g_Param.tolerance = *(float *)value;
         break;
     default: // 最后会发送一个 成功 反馈
-        fFOC_ParamUpdate(g_Param);
+        fFOC_ParamUpdate(&g_Param);
+        fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
+        fProManagerInit(&g_Param);
         break;
     }
 }
@@ -347,12 +349,4 @@ bool fParamInit()
 void fParamErase()
 {
     fEraseOneSector(PARAMETER_LOAD_ADDr);
-}
-// 写入FOC
-void fParamWriteFOC()
-{
-    // 带参数写入的全部初始化
-    fProManagerInit();
-    fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
-    fFOC_Init();
 }

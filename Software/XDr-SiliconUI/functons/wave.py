@@ -24,9 +24,9 @@ class WaveformWidget(QWidget):
         super().__init__(parent)
 
         # 核心配置
-        self.max_points = 2000                # 每通道最大缓存点数
-        self.min_view_points = 50            # X轴最小显示点数
-        self.max_view_points = 1000          # X轴最大显示点数
+        self.max_points = 10000              # 每通道最大缓存点数
+        self.min_view_points = 3000          # X轴最小显示点数
+        self.max_view_points = 5000          # X轴最大显示点数
         self.colors = [
             (88, 230, 217),
             (255, 170, 51),
@@ -175,12 +175,17 @@ class WaveformWidget(QWidget):
         self.plot_widget.setYRange(min_val - margin, max_val + margin)
 
     def auto_scale_x_axis(self):
-        """根据数据密度动态调整X轴显示范围"""
+        """X轴自动缩放：先固定最小范围，超出后动态视野"""
         total_points = max((len(wave) for wave in self.wave_data), default=0)
         if total_points <= 0:
             return
 
-        # 收集所有有效点用于评估密度
+        # 阶段1：未超出最小视野 → 固定显示 [0, min_view_points]
+        if total_points <= self.min_view_points:
+            self.plot_widget.setXRange(0, self.min_view_points)
+            return
+
+        # 阶段2：已超出 → 基于密度动态调整视野
         all_points = []
         for wave in self.wave_data:
             if wave:
@@ -188,27 +193,21 @@ class WaveformWidget(QWidget):
         if not all_points:
             return
 
-        # 数据密度指标：标准差/极差 (归一化变化程度)
+        # 密度指标（标准差/极差）
         if len(all_points) > 1:
             global_std = np.std(all_points)
             range_val = max(all_points) - min(all_points)
-            if range_val > 0:
-                density = global_std / range_val   # 范围 0~0.5 左右
-            else:
-                density = 0
+            density = global_std / range_val if range_val > 0 else 0
         else:
             density = 0
 
-        # 密度越大 -> 变化越剧烈 -> 扩大视野 (显示更多点)
         view_width = int(self.min_view_points + density * (self.max_view_points - self.min_view_points))
         view_width = max(self.min_view_points, min(view_width, self.max_view_points))
 
-        x_max = total_points + view_width * 0.1   # 右边留少量缓冲
-        x_min = max(0, x_max - view_width)
+        x_max = total_points                     # 右边界紧贴最新点
+        x_min = max(0, x_max - view_width)       # 左边界动态调整
 
         self.plot_widget.setXRange(x_min, x_max)
-
-    # ---------- 数据管理 ----------
     def add_waveform_data(self, channel, data):
         if not (0 <= channel < 5) or not self.is_running:
             return

@@ -19,6 +19,7 @@ typedef struct
 
 typedef struct
 {
+    float Udc;
     float Iu_im, Iv_im, Iw_im;
     float Iu, Iv, Iw;
     float Ialpha, Ibeta;
@@ -38,7 +39,6 @@ typedef struct
 
 typedef struct
 {
-    float Udc;         // 直流母线电压
     float mech_offect; // 机械偏移角度
     float Rs;          // 定子电阻
     float Ld;          // 定子电感
@@ -62,7 +62,7 @@ typedef struct
 extern tFOC_Core foc_core;
 
 void fFOC_CoreInit();
-void fFOC_ParamUpdate(tParameter param);
+void fFOC_ParamUpdate(tParameter *param);
 void fFOC_CoreReset();
 
 void fFOC_ValueUpdate();

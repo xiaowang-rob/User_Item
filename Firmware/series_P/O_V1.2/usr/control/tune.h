@@ -17,8 +17,8 @@
 // 电阻整定 (滞环电流控制 + 滤波 + 差分)
 #define RS_FREQ_F 10                      // 电阻整定分频系数
 #define RS_TIMEOUT_TICKS MS_TO_TICK(2000) // 整定超时时间 (500ms)
-#define RS_I_TARGET_1 2.0f                // 第一点目标电流 (A)
-#define RS_I_TARGET_2 6.0f                // 第二点目标电流 (A)
+#define RS_I_TARGET_1 3.0f                // 第一点目标电流 (A)
+#define RS_I_TARGET_2 7.0f                // 第二点目标电流 (A)
 #define RS_HYST_BAND 2.0f                 // 滞环带宽 ±1.5A
 #define RS_V_LIMIT 2.0f                   // 电压输出限幅 (V)
 #define RS_V_HOLD_MAX_TICKS 5             // 误差带内保持最大周期数 (防静差)

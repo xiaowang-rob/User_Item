@@ -45,12 +45,12 @@ void fCalculateControlParams()
 {
     // todo:这里对电流环PI进行调节
     float fn_d = 1 / (MATH_2PI * temp_params.Ld / temp_params.Rs);
-    float wc_d = MATH_2PI * 0.7f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
+    float wc_d = MATH_2PI * 0.5f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
     temp_params.id_kp = wc_d * temp_params.Ld;
     temp_params.id_ki = wc_d * temp_params.Rs;
 
     float fn_q = 1 / (MATH_2PI * temp_params.Lq / temp_params.Rs);
-    float wc_q = MATH_2PI * 0.7f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
+    float wc_q = MATH_2PI * 0.6f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
     temp_params.iq_Kp = wc_q * temp_params.Lq;
     temp_params.iq_Ki = wc_q * temp_params.Rs;
 

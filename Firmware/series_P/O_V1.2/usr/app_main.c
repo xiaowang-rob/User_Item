@@ -34,7 +34,7 @@ flash和参数一起-通讯-保护-日志-adc -foc初始化
     if (!fParamInit())
         BSP_Error_Handler();
     fCommunicateInit();
-    fProManagerInit();
+    fProManagerInit(&g_Param);
     fLogInit();
     BSP_AdcInit(); // 这里就启动了foc的定时器
     fFOC_Init();

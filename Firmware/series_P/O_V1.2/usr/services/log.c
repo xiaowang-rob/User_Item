@@ -25,7 +25,7 @@ void fLogDataSave(void)
 {
     Log.num = Index.num;
     Log.minutes = BSP_GetTick() / 1000 / 60;
-    Log.Vbus = g_foc.core->motor->Udc;
+    Log.Vbus = g_foc.core->foc_val->Udc;
     Log.TEMP = g_pro_manager.temperature;
     Log.Iu = g_foc.core->foc_val->Iu;
     Log.Iv = g_foc.core->foc_val->Iv;

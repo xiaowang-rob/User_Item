@@ -137,23 +137,24 @@ void PID_reset(tPID *pid)
 }
 
 // 环路控制器整体初始化
-void fLoopControlInit(tParameter param, float Udc)
+void fLoopControlInit(tParameter *param, float Udc)
 {
     // 先初始化分频器
     fFrequencyDivisionInit();
     loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
-    PI_init(&loop_con.PI_iq, param.kp_current, param.ki_current, loop_con.max_Vs, loop_con.fd.Tcur);
-    PI_init(&loop_con.PI_id, param.kp_current, param.ki_current / 2, loop_con.max_Vs, loop_con.fd.Tcur);
-    PI_init(&loop_con.PI_speed, param.kp_speed, param.ki_speed, param.limit_current, loop_con.fd.Tspd);
-    PI_init(&loop_con.PI_weakmag, param.kp_weakmag, param.ki_weakmag, param.limit_current, loop_con.fd.Tspd);
-    PID_init(&loop_con.PID_pos, param.kp_position, param.ki_position, param.kd_position, param.limit_omega, loop_con.fd.Tpos);
-    loop_con.position_min = param.limit_position_min;
-    loop_con.position_max = param.limit_position_max;
+    PI_init(&loop_con.PI_iq, param->kp_current, param->ki_current, loop_con.max_Vs, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_id, param->kp_current, param->ki_current, loop_con.max_Vs, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_speed, param->kp_speed, param->ki_speed, param->limit_current, loop_con.fd.Tspd);
+    PI_init(&loop_con.PI_weakmag, param->kp_weakmag, param->ki_weakmag, param->limit_current, loop_con.fd.Tspd);
+    PID_init(&loop_con.PID_pos, param->kp_position, param->ki_position, param->kd_position, param->limit_omega, loop_con.fd.Tpos);
+    loop_con.position_min = param->limit_position_min;
+    loop_con.position_max = param->limit_position_max;
 }
 
 // 重置所有控制器状态
-void fLoopReset(void)
+void fLoopReset(float Udc)
 {
+    loop_con.max_Vs = Udc / MATH_SQRT3;
     PI_reset(&loop_con.PI_id);
     PI_reset(&loop_con.PI_iq);
     PI_reset(&loop_con.PI_speed);

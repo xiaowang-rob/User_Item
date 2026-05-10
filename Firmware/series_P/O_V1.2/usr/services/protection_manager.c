@@ -4,7 +4,6 @@
 #include "usr_config.h"
 #include "foc_main.h"
 #include "log.h"
-#include "parameter_manager.h"
 #include "bsp_adc.h"
 
 tDeviceStatus g_device_status = {.encoder_state = ONLINE};
@@ -17,18 +16,18 @@ static bool _ToleranceCheck(float value, float max_value, float min_value)
     return false;
 }
 
-void fProManagerInit()
+void fProManagerInit(tParameter *param)
 {
     g_pro_manager.fault = FAULT_NONE;
     g_pro_manager.warning = WARNING_NONE;
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;
-    g_pro_manager.maxcurrent = g_Param.limit_current;
-    g_pro_manager.maxomega = g_Param.limit_omega;
-    g_pro_manager.minposition = g_Param.limit_position_min;
-    g_pro_manager.maxposition = g_Param.limit_position_max;
-    g_pro_manager.tolerance_time_ms = g_Param.tolerance_time;
-    g_pro_manager.tolerance_limit = g_Param.tolerance_limit;
+    g_pro_manager.maxcurrent = param->limit_current;
+    g_pro_manager.maxomega = param->limit_omega;
+    g_pro_manager.minposition = param->limit_position_min;
+    g_pro_manager.maxposition = param->limit_position_max;
+    g_pro_manager.tolerance_time_ms = param->tolerance_time;
+    g_pro_manager.tolerance_limit = param->tolerance_limit;
 }
 void fProSetLimitPosition(float min_position, float max_position)
 {
@@ -66,7 +65,7 @@ void fProManagerMainLoop()
     }
 
     // 过压不可取
-    if (g_foc.core->motor->Udc > MAX_VOLTAGE)
+    if (g_foc.core->foc_val->Udc > MAX_VOLTAGE)
     {
         g_pro_manager.fault = FAULT_OVERVOLTAGE;
         g_pro_manager.fault_flag = true;
@@ -142,9 +141,9 @@ void fProManagerMainLoop()
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
-        if (_ToleranceCheck(g_foc.core->motor->Udc, MAX_VOLTAGE, MIN_VOLTAGE))
+        if (_ToleranceCheck(g_foc.core->foc_val->Udc, MAX_VOLTAGE, MIN_VOLTAGE))
         {
-            if (g_foc.core->motor->Udc > MAX_VOLTAGE)
+            if (g_foc.core->foc_val->Udc > MAX_VOLTAGE)
             {
                 g_pro_manager.fault = FAULT_OVERVOLTAGE;
                 g_pro_manager.fault_flag = true;

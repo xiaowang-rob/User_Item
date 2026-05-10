@@ -26,80 +26,70 @@ static tFirstOrderLagFilter _i_u_filter;
 static tFirstOrderLagFilter _i_v_filter;
 static tFirstOrderLagFilter _i_w_filter;
 
-static void _current_offset_init(tParameter param)
-{
-    BSP_SetAdcCurrentOffset(param.adc_U_zero_offset, param.adc_V_zero_offset, param.adc_W_zero_offset);
-}
 // 启动器初始化
-static void _trajectory_init(tParameter param)
+static void _trajectory_init(tParameter *param)
 {
     tTraj_Config traj_cfg;
-    traj_cfg.max_rate = param.traj_max_rate;
-    traj_cfg.max_acc = param.traj_max_acc;
-    traj_cfg.max_jerk = param.traj_max_jerk;
-    traj_cfg.tolerance = param.tolerance;
-    traj_cfg.type = param.traj_type;
+    traj_cfg.max_rate = param->traj_max_rate;
+    traj_cfg.max_acc = param->traj_max_acc;
+    traj_cfg.max_jerk = param->traj_max_jerk;
+    traj_cfg.tolerance = param->tolerance;
+    traj_cfg.type = param->traj_type;
     fTraj_Init(traj_cfg);
 }
 
-// 模式初始化
-static void _mode_init(tParameter param)
-{
-    fFOC_SetSensorMode(param.sensor_mode);
-    foc_mode.runmode = param.run_mode;
-    foc_mode.pvt_mode = param.sw_pvt;
-}
-
 // 电机参数初始化
-static void _motor_init(tParameter param)
+static void _motor_init(tParameter *param)
 {
-    Motor.mech_offect = param.theta_offset;
-    Motor.pole_pairs = param.motor_polepairs;
-    Motor.elec_PI_offset = param.theta_elec_offset;
-    Motor.forward_dir = param.forward_dir;
-    Motor.Rs = param.motor_rs;
-    Motor.Ld = param.motor_ld;
-    Motor.Lq = param.motor_lq;
-    Motor.Psi_f = param.motor_psif;
-    Motor.Ke = param.motor_ke;
-    Motor.J = param.motor_j;
-    Motor.B = param.motor_b;
+    Motor.mech_offect = param->theta_offset;
+    Motor.pole_pairs = param->motor_polepairs;
+    Motor.elec_PI_offset = param->theta_elec_offset;
+    Motor.forward_dir = param->forward_dir;
+    Motor.Rs = param->motor_rs;
+    Motor.Ld = param->motor_ld;
+    Motor.Lq = param->motor_lq;
+    Motor.Psi_f = param->motor_psif;
+    Motor.Ke = param->motor_ke;
+    Motor.J = param->motor_j;
+    Motor.B = param->motor_b;
 }
 
 // 滤波器初始化
-static void _filter_init(tParameter param)
+static void _filter_init(tParameter *param)
 {
-    if (param.cur_fiter_alpha <= 0.01f || param.cur_fiter_alpha >= 1)
-        param.cur_fiter_alpha = 0.4f; // 默认值，确保在合理范围内
-    fFirstOrderLagInit(&_i_u_filter, param.cur_fiter_alpha, 0);
-    fFirstOrderLagInit(&_i_v_filter, param.cur_fiter_alpha, 0);
-    fFirstOrderLagInit(&_i_w_filter, param.cur_fiter_alpha, 0);
+    if (param->cur_fiter_alpha <= 0.01f || param->cur_fiter_alpha >= 1)
+        param->cur_fiter_alpha = 0.4f; // 默认值，确保在合理范围内
+    fFirstOrderLagInit(&_i_u_filter, param->cur_fiter_alpha, 0);
+    fFirstOrderLagInit(&_i_v_filter, param->cur_fiter_alpha, 0);
+    fFirstOrderLagInit(&_i_w_filter, param->cur_fiter_alpha, 0);
 
-    fFirstOrderLagInit(&_omega_filter, param.cur_fiter_alpha / FREQ_SPEED, 0);
+    fFirstOrderLagInit(&_omega_filter, param->cur_fiter_alpha / FREQ_SPEED, 0);
 }
 
 // FOC参数更新（外部调用，参数修改后需调用）
-void fFOC_ParamUpdate(tParameter param)
+void fFOC_ParamUpdate(tParameter *param)
 {
-    _current_offset_init(param);
-    fEncoder_Init((eEncoderChip)param.encoder_chip);
-    BSP_AdcGetVoltage(&Motor.Udc);
+    BSP_SetAdcCurrentOffset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
+    fEncoder_Init((eEncoderChip)param->encoder_chip);
     _motor_init(param);
-    fLoopControlInit(param, Motor.Udc);
-    fSvpwmInit(Motor.Udc);
-    _trajectory_init(param);
-    _mode_init(param);
-    fSMO_Init(&Motor);
+    BSP_AdcGetVoltage(&foc_val.Udc);
+    fSvpwmInit(foc_val.Udc);
+    fLoopControlInit(param, foc_val.Udc);
 
+    _trajectory_init(param);
+
+    fSMO_Init(&Motor);
+    fFOC_SetSensorMode(param->sensor_mode);
+    foc_mode.runmode = param->run_mode;
+    foc_mode.pvt_mode = param->sw_pvt;
     fFOC_CoreReset();
 }
 // FOC核心初始化
 void fFOC_CoreInit(void)
 {
-    fFOC_ParamUpdate(g_Param); // 参数加载
-
+    fFOC_ParamUpdate(&g_Param); // 参数加载
     fHFI_Init();
-    _filter_init(g_Param);
+    _filter_init(&g_Param);
 }
 
 // 重置FOC中间变量
@@ -112,14 +102,13 @@ static inline void _FocValReset(void)
 void fFOC_CoreReset(void)
 {
     // 刷新电压，确保参数更新后电压环能正确工作
-    BSP_AdcGetVoltage(&Motor.Udc);
-    fLoopControlInit(g_Param, Motor.Udc);
-    fSvpwmInit(Motor.Udc);
+    BSP_AdcGetVoltage(&foc_val.Udc);
+    fLoopReset(foc_val.Udc);
+    fSvpwmInit(foc_val.Udc);
 
     fHFI_ResetInitialPosition();
     fMotorParamTune_Reset();
     _FocValReset();
-    fLoopReset();
     fSMO_Reset();
 
     if (foc_mode.runmode == POSITION_MODE)
@@ -170,7 +159,7 @@ static inline void _Current_reconstruction(void)
 void fFOC_ValueUpdate(void)
 {
     fFrequencyDivisionUpdate();
-    BSP_AdcGetVoltage(&Motor.Udc);
+    BSP_AdcGetVoltage(&foc_val.Udc);
     _Current_reconstruction();
 
     switch (foc_mode.sensor_mode)

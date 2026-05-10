@@ -18,7 +18,9 @@ typedef enum
     ENCODER_STATE_START_READ,
     ENCODER_STATE_WAIT_HIGH,
     ENCODER_STATE_WAIT_LOW,
-    ENCODER_STATE_PROCESS_DATA
+    ENCODER_STATE_PROCESS_DATA,
+    ENCODER_STATE_START_LOW, /* MT6816 专用：准备读低字节 */
+    ENCODER_STATE_START_NOP  /* AS5047 专用：准备发 NOP 命令 */
 } eEncoderState_DMA;
 
 /* ----------------------- 全局实例 ------------------------- */
@@ -40,6 +42,9 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .cmd_high = 0x83FF,
         .cmd_low = 0x84FF,
         .cmd_read_angle = 0,
+        .spi_CPOL = 1,
+        .spi_CPHA = 1,
+        .spi_data_size = 16,
         .parse_and_check = MT6816_ParseAndCheck,
     },
     [AS5047] = {
@@ -47,7 +52,10 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .deg_per_lsb = 360.0f / 16384.0f,
         .cmd_high = 0,
         .cmd_low = 0,
-        .cmd_read_angle = 0x3FFF, /* 读角度寄存器命令 */
+        .cmd_read_angle = 0x7FFF, /* 读角度寄存器命令 */
+        .spi_CPOL = 0,
+        .spi_CPHA = 1,
+        .spi_data_size = 16,
         .parse_and_check = AS5047_ParseAndCheck,
     },
     /* MT6835 预留：按手册填入参数即可 */
@@ -64,6 +72,7 @@ static void MT6816_ProcessData(void);
 
 static void AS5047_MainLoop(void);
 static void AS5047_StartCommand(void);
+static void AS5047_StartNOP(void);
 static void AS5047_ProcessData(void);
 
 /* ========== 初始化 ========== */
@@ -76,18 +85,7 @@ bool fEncoder_Init(eEncoderChip type)
     const tEncoderChipDesc *desc = &chip_descs[type];
 
     /* 根据型号动态配置 SPI3 模式 (CPOL/CPHA) */
-    if (type == MT6816)
-    {
-        BSP_SetEncoder_SPI_Config(1, 1, 16); // CPOL=1, CPHA=1, 16位数据
-    }
-    else if (type == AS5047)
-    {
-        BSP_SetEncoder_SPI_Config(0, 1, 16); // CPOL=0, CPHA=1, 16位数据
-    }
-    else
-    {
-        return false; // 不支持的型号
-    }
+    BSP_SetEncoder_SPI_Config(desc->spi_CPOL, desc->spi_CPHA, desc->spi_data_size);
 
     /* 清空全局实例并赋初值 */
     memset((void *)&g_encoder, 0, sizeof(g_encoder));
@@ -97,6 +95,8 @@ bool fEncoder_Init(eEncoderChip type)
     g_encoder.first_run = true;
     g_encoder.valid = 0;
     g_encoder.rubbish_data_tic = 0;
+
+    g_device_status.encoder_state = ONLINE;
 
     return true;
 }
@@ -112,11 +112,9 @@ static void Encoder_RecoverFromError(void)
     BSP_Encoder_SPI_CLEAR_DMA_error_flags();
 
     g_encoder.state = ENCODER_STATE_START_READ;
-    g_encoder.omega_rpm = 0;
-    g_encoder.pos_last = 0;
 }
 
-/* ========== DMA 完成回调 ========== */
+/* ========== DMA 完成回调（不再启动任何 SPI 传输） ========== */
 void BSP_Encoder_SPI_TxRxCpltCallback(void)
 {
     BSP_Encoder_CS(EXTERNAL, true);
@@ -126,14 +124,13 @@ void BSP_Encoder_SPI_TxRxCpltCallback(void)
     {
         if (enc->state == ENCODER_STATE_WAIT_HIGH)
         {
-            /* 高字节接收完毕，启动低字节读取 */
-            enc->state = ENCODER_STATE_WAIT_LOW;
+            /* 高字节接收完成，标记需要启动低字节读取 */
+            enc->state = ENCODER_STATE_START_LOW;
             enc->no_resp_tic = 0;
-            MT6816_StartLowRead();
         }
         else if (enc->state == ENCODER_STATE_WAIT_LOW)
         {
-            /* 低字节接收完毕，保存数据并置为待处理状态 */
+            /* 低字节接收完成，保存数据并置为待处理状态 */
             BSP_disable_irq();
             enc->data_raw[0] = enc->shadow_raw[0];
             enc->data_raw[1] = enc->shadow_raw[1];
@@ -146,16 +143,8 @@ void BSP_Encoder_SPI_TxRxCpltCallback(void)
     {
         if (enc->state == ENCODER_STATE_WAIT_HIGH)
         {
-            /* 命令帧已发送，发送 NOP 接收数据帧 */
-            enc->cmd_reg = 0x0000; // NOP 命令
-            BSP_Encoder_CS(EXTERNAL, false);
-            if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
-                                                     (u8 *)&enc->shadow_raw[0], 2))
-            {
-                Encoder_RecoverFromError();
-                return;
-            }
-            enc->state = ENCODER_STATE_WAIT_LOW;
+            /* 命令帧已发送，标记需要启动 NOP 读 */
+            enc->state = ENCODER_STATE_START_NOP;
             enc->no_resp_tic = 0;
         }
         else if (enc->state == ENCODER_STATE_WAIT_LOW)
@@ -179,10 +168,17 @@ void BSP_Encoder_SPI_ErrorCallback(void)
 /* ========== 通用角度/速度更新 (所有芯片共用) ========== */
 static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 {
+    g_device_status.encoder_state = RUNNING;
     uint32_t current_time = BSP_GetTick();
     uint32_t time_diff = current_time - enc->last_time;
 
     enc->angle_abs = enc->angle_raw * enc->chip_desc->deg_per_lsb;
+
+#ifdef __DEBUG__
+    volatile u32 current_time_us = BSP_GetTick_us();
+    encoder_ts_us = current_time_us - time_zero;
+    time_zero = current_time_us;
+#endif
 
     if (enc->first_run)
     {
@@ -221,15 +217,20 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 
         enc->pos = enc->chip_desc->deg_per_lsb * (int32_t)(enc->angle_raw - enc->pos_offset) + enc->num_turns * 360.0f;
 
-        if (FABSF(angle_raw_delta) <= 1)
+        if (time_diff > 0)
         {
-            enc->omega_rpm = 0;
-        }
-        else if (time_diff > 0)
-        {
-            enc->omega_rpm = (enc->pos - enc->pos_last) / (time_diff * 0.001f) * 0.16666666667f;
-            enc->pos_last = enc->pos;
+            float pos_delta = enc->pos - enc->pos_last;
+            float time_delta = (float)time_diff * 0.001f;
+            if (FABSF(pos_delta) <= 2 * enc->chip_desc->deg_per_lsb)
+            {
+                enc->omega_rpm = 0;
+            }
+            else
+            {
+                enc->omega_rpm = (pos_delta / time_delta) * 0.16666666667f;
+            }
             enc->last_time = current_time;
+            enc->pos_last = enc->pos;
         }
         enc->angle_raw_last = enc->angle_raw;
     }
@@ -331,6 +332,11 @@ static void MT6816_MainLoop(void)
         MT6816_StartHighRead();
         break;
 
+    case ENCODER_STATE_START_LOW:
+        /* 启动低字节读取 (高字节已就绪) */
+        MT6816_StartLowRead();
+        break;
+
     case ENCODER_STATE_WAIT_HIGH:
     case ENCODER_STATE_WAIT_LOW:
         enc->no_resp_tic++;
@@ -352,19 +358,12 @@ static void MT6816_MainLoop(void)
 static bool AS5047_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
 {
     (void)unused;
-    /* 错误标志 EF (bit14) */
+    /* 检查错误标志 (EF, bit14) */
     if (raw & 0x4000)
         return false;
 
-    /* 偶校验 (bit15 为接收到的校验位，14..0 为数据) */
-    uint8_t parity_received = (raw >> 15) & 0x01;
-    uint16_t data_bits = raw & 0x7FFF;
-    uint8_t bit_count = __builtin_popcount(data_bits);
-    uint8_t expected_parity = (bit_count % 2 == 1) ? 0 : 1; // 偶校验：偶数个1时校验位=0
-    if (parity_received != expected_parity)
-        return false;
-
-    *angle = raw & 0x3FFF; /* 14-bit 角度值 */
+    /* 提取14位角度数据 */
+    *angle = raw & 0x3FFF;
     return true;
 }
 
@@ -388,6 +387,26 @@ static void AS5047_StartCommand(void)
     enc->state = ENCODER_STATE_WAIT_HIGH;
 }
 
+static void AS5047_StartNOP(void)
+{
+    if (!BSP_Encoder_SPI_IS_READY())
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    BSP_Encoder_CS(EXTERNAL, false);
+
+    tEncoderInstance *enc = &g_encoder;
+    enc->cmd_reg = 0x0000; /* NOP 命令 */
+    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
+                                             (u8 *)&enc->shadow_raw[0], 2))
+    {
+        Encoder_RecoverFromError();
+        return;
+    }
+    enc->state = ENCODER_STATE_WAIT_LOW;
+}
+
 static void AS5047_ProcessData(void)
 {
     tEncoderInstance *enc = &g_encoder;
@@ -406,6 +425,7 @@ static void AS5047_ProcessData(void)
     }
 
     enc->valid = CLAMP(enc->valid - 1, 0, 110);
+
     enc->angle_raw = angle_raw;
     Common_AngleVelocityUpdate(enc);
     enc->state = ENCODER_STATE_START_READ;
@@ -421,16 +441,16 @@ static void AS5047_MainLoop(void)
         AS5047_StartCommand();
         break;
 
+    case ENCODER_STATE_START_NOP:
+        /* 命令帧已发送，现在发送 NOP 接收数据 */
+        AS5047_StartNOP();
+        break;
+
     case ENCODER_STATE_WAIT_HIGH:
+    case ENCODER_STATE_WAIT_LOW:
         enc->no_resp_tic++;
         if (enc->no_resp_tic > NO_RESPONSE_MAX_TIC)
             enc->state = ENCODER_STATE_START_READ;
-        break;
-
-    case ENCODER_STATE_WAIT_LOW:
-        /* 数据帧已在 DMA 回调中复制到 data_raw，直接进入处理 */
-        enc->state = ENCODER_STATE_PROCESS_DATA;
-        enc->no_resp_tic = 0;
         break;
 
     case ENCODER_STATE_PROCESS_DATA:

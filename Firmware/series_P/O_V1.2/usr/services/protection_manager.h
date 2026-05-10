@@ -4,6 +4,8 @@
 #include "device.h"
 #include "port_mapping.h"
 #include "protocol_defs.h"
+#include "parameter_manager.h"
+
 typedef struct
 {
     float temperature;
@@ -24,7 +26,7 @@ typedef struct
 extern tProtectionManager g_pro_manager;
 
 // functions
-void fProManagerInit();
+void fProManagerInit(tParameter *param);
 void fProManagerClearFalg();
 void fProManagerMainLoop();
 
