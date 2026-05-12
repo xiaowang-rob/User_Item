@@ -58,8 +58,9 @@ void fHFI_Init()
 volatile static u32 T_hfi = 0;
 static u32 T_zero = 0;
 #endif
+
 volatile float Hfi_Kp = 2 * 1.0f * 250;
-volatile float Hfi_Ki = 250 * 250;
+volatile float Hfi_Ki = 100 * 100 * T_CON;
 
 void fHFI_Step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 {
@@ -89,27 +90,27 @@ void fHFI_Step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
     float pll_prop = g_hfi.pll_error * Hfi_Kp;
 
     // 积分项累加 (离散化: ∫e·dt ≈ Σe·Ts)
-    g_hfi.pll_integrator += g_hfi.pll_error * Hfi_Ki * T_CON;
+    g_hfi.pll_integrator += g_hfi.pll_error * Hfi_Ki;
 
-    g_hfi.pll_integrator = CLAMP(g_hfi.pll_integrator,
-                                 -HFI_MAX_OMEGA_E,
-                                 HFI_MAX_OMEGA_E);
+    // g_hfi.pll_integrator = CLAMP(g_hfi.pll_integrator,
+    //                              -HFI_MAX_OMEGA_E,
+    //                              HFI_MAX_OMEGA_E);
 
     // PLL输出: 电气角速度 [degree/s]
-    float32_t omega_e = pll_prop + g_hfi.pll_integrator;
+    g_hfi.omega_e = pll_prop + g_hfi.pll_integrator;
 
     /*=========================================================================
      * Step 5: 速度滤波 (巴特沃斯低通)
      * 目的: 抑制高频噪声，输出平滑电气速度用于后续控制/观测
      *=========================================================================*/
-    g_hfi.omega_filtered = fButterworthFilter_Process(&speed_lpf_inst, omega_e);
+    g_hfi.omega_filtered = fButterworthFilter_Process(&speed_lpf_inst, g_hfi.omega_e);
     //  g_hfi.omega_filtered = fFirstOrderLagFilter(&speed_lpf, g_hfi.omega_e);
     /*=========================================================================
      * Step 6: 角度更新与归一化
      * 公式: θ[k+1] = θ[k] + ω_e * Ts
      * 注意: 全程保持角度制 [degree]，纯电气角度系统
      *=========================================================================*/
-    g_hfi.theta_e += omega_e * T_CON;
+    g_hfi.theta_e += g_hfi.omega_e * T_CON;
     g_hfi.theta_e = fNormalizeAngle_0_360(g_hfi.theta_e); // 归一化到 [0, 360)
 
     /*=========================================================================

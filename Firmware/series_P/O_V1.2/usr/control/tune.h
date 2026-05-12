@@ -37,9 +37,9 @@
 #define LS_INJECT_AMP_V (LS_INJECT_FREQ_TICK * T_PWM)   // 注入周期
 #define LS_INJECT_FREQ_HZ (F_PWM / LS_INJECT_FREQ_TICK) // 注入频率 (Hz)
 
-#define LS_V_START 0.2f     // 起始电压 (V)
-#define LS_V_MAX 0.8f       // 最大电压 (V)
-#define LS_I_TARGET 3.0f    // 电流限幅 (A)
+#define LS_V_START 0.8f     // 起始电压 (V)
+#define LS_V_MAX 2.0f       // 最大电压 (V)
+#define LS_I_TARGET 3.0f    // 校准电流 (A)
 #define LS_I_STEP_MIN 0.04f // 保持超时后微调步长 (A)
 
 // 转子预定位
@@ -47,7 +47,7 @@
 #define WAIT_AFTER_ALIGN_MS 200 // 定位后等待电流衰减时间(ms)
 
 // DFT测量
-#define DFT_AVG_CYCLES 10 // 取10个注入周期的平均
+#define DFT_AVG_CYCLES 20 // 取10个注入周期的平均
 
 #define LS_MIN_DI_DT 100.0f   // 最小信噪比要求
 #define LS_MAX_DI_DT 60000.0f // 最大信噪比要求

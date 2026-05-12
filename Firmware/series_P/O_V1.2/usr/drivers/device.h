@@ -59,7 +59,6 @@ typedef struct
     float pos;
     float pos_last;
     float omega_rpm;
-    uint32_t last_time;
     int32_t num_turns;
 
     bool first_run;
@@ -73,7 +72,7 @@ bool fEncoder_Init(eEncoderChip type);
 void fEncoderMainLoopTask(void);
 float fGetEncoderAngle_ABS(void);
 float fGetEncoderAngle_INC(void);
-float fGetEncoderRPM(void);
+float fGetEncoderRPM(float f_speed);
 int fGetEncoderNumTurns(void);
 
 void fSetEncoderAngleZero(void);

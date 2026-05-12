@@ -63,9 +63,13 @@ static void _filter_init(tParameter *param)
     fFirstOrderLagInit(&_i_v_filter, param->cur_fiter_alpha, 0);
     fFirstOrderLagInit(&_i_w_filter, param->cur_fiter_alpha, 0);
 
-    fFirstOrderLagInit(&_omega_filter, param->cur_fiter_alpha / FREQ_SPEED, 0);
+    fFirstOrderLagInit(&_omega_filter, param->cur_fiter_alpha, 0);
 }
 
+void fFilter_Reset()
+{
+    _filter_init(&g_Param);
+}
 // FOC参数更新（外部调用，参数修改后需调用）
 void fFOC_ParamUpdate(tParameter *param)
 {
@@ -95,22 +99,32 @@ void fFOC_CoreInit(void)
 // 重置FOC中间变量
 static inline void _FocValReset(void)
 {
-    memset(&foc_val, 0, sizeof(tFOC_val));
+    foc_val.id_ref = 0;
+    foc_val.iq_ref = 0;
+    foc_val.rpm_ref = 0;
+    foc_val.pos_ref = 0;
+    foc_val.Ualpha = 0;
+    foc_val.Ubeta = 0;
+    foc_val.Ualpha_hfi = 0;
+    foc_val.Ubeta_hfi = 0;
+    foc_val.ud = 0;
+    foc_val.uq = 0;
 }
 
 // FOC 复位
 void fFOC_CoreReset(void)
 {
+    fHFI_ResetInitialPosition();
+    fMotorParamTune_Reset();
+    fSMO_Reset();
+    _FocValReset();
     // 刷新电压，确保参数更新后电压环能正确工作
     BSP_AdcGetVoltage(&foc_val.Udc);
     fLoopReset(foc_val.Udc);
     fSvpwmInit(foc_val.Udc);
 
-    fHFI_ResetInitialPosition();
-    fMotorParamTune_Reset();
-    _FocValReset();
-    fSMO_Reset();
-
+    foc_val.pos_fb = fGetEncoderAngle_INC();
+    foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM(F_SPEED));
     if (foc_mode.runmode == POSITION_MODE)
         fTraj_Reset(foc_val.pos_fb);
     else if (foc_mode.runmode == SPEED_MODE)
@@ -169,21 +183,16 @@ void fFOC_ValueUpdate(void)
         foc_val.theta_elec = (foc_val.theta_mech - Motor.mech_offect) * Motor.pole_pairs * (Motor.forward_dir ? 1 : -1) + (Motor.elec_PI_offset ? 180 : 0);
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
 
+        if (!loop_con.fd.speed_update)
+            break;
         foc_val.pos_fb = fGetEncoderAngle_INC();
-        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
-        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
+        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM(F_SPEED));
         break;
 
     case SENSORLESS_CONTROL: // todo:这里只获取和处理无感观测器的数据
 
-        //        if (0 != fHFI_DetectInitialPosition(foc_val.Ialpha, foc_val.Ibeta, &foc_val.ud, &foc_val.uq))
-        //        { // todo:使能之后 直接跑电压环
-        //            fInvParkTransform(foc_val.ud, foc_val.uq, foc_val.theta_elec, &foc_val.Ualpha, &foc_val.Ubeta);
-        //            break;
-        //        }
-        // todo:这里以电角速度划分区间：低速纯HFI HFI+SMO过渡 高速SMO
-        // fSMO_MainLoop(foc_val.Ualpha, foc_val.Ubeta, foc_val.Ialpha, foc_val.Ibeta);
         foc_val.theta_elec = fHFI_GetThetaElec();
+        foc_val.rpm_fb = fHFI_GetOmegaElec() / Motor.pole_pairs;
         // todo:做累加电角度才能反馈真实的机械角速度和位置
         // foc_val.theta_mech =
         // foc_val.pos_fb =
@@ -198,13 +207,14 @@ void fFOC_ValueUpdate(void)
         foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
 
         foc_val.pos_fb = fGetEncoderAngle_INC();
-        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM());
+        foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM(F_SPEED));
         foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
 
         break;
     default:
         break;
     }
+    fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
 }
 // 使能后执行：按模式运行对应控制环
 void fFOC_MainLoopTask(void)
@@ -239,7 +249,7 @@ void fFOC_MainLoopTask(void)
             foc_val.rpm_ref = traj_out.value;
         }
         foc_val.iq_ref = fSpeedLoopUpdate(foc_val.rpm_ref, foc_val.rpm_fb);
-        if (foc_val.rpm_fb > 70)
+        if (foc_val.rpm_fb > 500)
             foc_val.id_ref = fWeakMagLoopUpdate(foc_val.ud, foc_val.uq);
         else
             foc_val.id_ref = 0;
@@ -248,7 +258,7 @@ void fFOC_MainLoopTask(void)
 
         if (!loop_con.fd.current_update)
             break;
-        fParkTransform(foc_val.Ialpha, foc_val.Ibeta, foc_val.theta_elec, &foc_val.id_fb, &foc_val.iq_fb);
+
         foc_val.uq = fCurrentLoopUpdate(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = fMagLoopUpdate(foc_val.id_ref, foc_val.id_fb);
         //               foc_val.uq = foc_val.iq_ref; // 调试

@@ -142,9 +142,11 @@ void fLoopControlInit(tParameter *param, float Udc)
     // 先初始化分频器
     fFrequencyDivisionInit();
     loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
-    PI_init(&loop_con.PI_iq, param->kp_current, param->ki_current, loop_con.max_Vs, loop_con.fd.Tcur);
-    PI_init(&loop_con.PI_id, param->kp_current, param->ki_current, loop_con.max_Vs, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_iq, param->kp_Q, param->ki_Q, loop_con.max_Vs, loop_con.fd.Tcur);
+    PI_init(&loop_con.PI_id, param->kp_D, param->ki_D, loop_con.max_Vs, loop_con.fd.Tcur);
     PI_init(&loop_con.PI_speed, param->kp_speed, param->ki_speed, param->limit_current, loop_con.fd.Tspd);
+    param->kp_weakmag = param->kp_speed / 2;
+    param->ki_weakmag = param->ki_speed / 2;
     PI_init(&loop_con.PI_weakmag, param->kp_weakmag, param->ki_weakmag, param->limit_current, loop_con.fd.Tspd);
     PID_init(&loop_con.PID_pos, param->kp_position, param->ki_position, param->kd_position, param->limit_omega, loop_con.fd.Tpos);
     loop_con.position_min = param->limit_position_min;

@@ -33,6 +33,17 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
  * ============================================ */
 bool BSP_SetEncoder_SPI_Config(u8 CPOL, u8 CPHA, u8 datasize)
 {
+    ENCODER_SPI_CH.Instance = ENCODER_SPI;
+    ENCODER_SPI_CH.Init.Mode = SPI_MODE_MASTER;
+    ENCODER_SPI_CH.Init.Direction = SPI_DIRECTION_2LINES;
+
+    ENCODER_SPI_CH.Init.NSS = SPI_NSS_SOFT;
+    ENCODER_SPI_CH.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+    ENCODER_SPI_CH.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    ENCODER_SPI_CH.Init.TIMode = SPI_TIMODE_DISABLE;
+    ENCODER_SPI_CH.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+    ENCODER_SPI_CH.Init.CRCPolynomial = 10;
+
     ENCODER_SPI_CH.Init.CLKPolarity = CPOL ? SPI_POLARITY_HIGH : SPI_POLARITY_LOW;
     ENCODER_SPI_CH.Init.CLKPhase = CPHA ? SPI_PHASE_2EDGE : SPI_PHASE_1EDGE;
     if (datasize == 8)

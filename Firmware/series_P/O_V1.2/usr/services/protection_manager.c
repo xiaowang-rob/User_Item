@@ -135,7 +135,7 @@ void fProManagerMainLoop()
                 g_pro_manager.fault = FAULT_MOTOR_LOCK;
                 break;
             default:
-                g_pro_manager.fault = FAULT_RESISTANCE_CAL_FAIL + g_foc.tun->fault - 4;
+                g_pro_manager.fault = FAULT_RS_LS_CAL_FAIL + g_foc.tun->fault - 4;
                 break;
             }
             g_pro_manager.fault_flag = true;

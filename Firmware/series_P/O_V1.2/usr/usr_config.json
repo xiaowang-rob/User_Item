@@ -245,7 +245,7 @@
             {"name": "FAULT_TUNE_CURRENT_ERR",  "comment": "整定电流异常"},
             {"name": "FAULT_POLE_PAIR_MISMATCH","comment": "极对数不匹配"},
             {"name": "FAULT_MOTOR_LOCK",        "comment": "电机堵转"},
-            {"name": "FAULT_RESISTANCE_CAL_FAIL","comment": "电阻校准失败"},
+            {"name": "FAULT_RS_LS_CAL_FAIL",    "comment": "电阻电感校准失败"},
             {"name": "FAULT_ENCODER_CAL_FAIL",  "comment": "编码器校准失败"},
             {"name": "FAULT_ELEC_PARAM_FAIL",   "comment": "电气参数校准失败"},
             {"name": "FAULT_MECH_PARAM_FAIL",   "comment": "机械参数校准失败"},

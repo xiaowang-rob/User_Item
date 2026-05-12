@@ -45,12 +45,12 @@ void fCalculateControlParams()
 {
     // todo:这里对电流环PI进行调节
     float fn_d = 1 / (MATH_2PI * temp_params.Ld / temp_params.Rs);
-    float wc_d = MATH_2PI * 0.5f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
+    float wc_d = MATH_2PI * 0.4f * (2 * fn_d < F_CURRENT / 10 ? 2 * fn_d : F_CURRENT / 10);
     temp_params.id_kp = wc_d * temp_params.Ld;
     temp_params.id_ki = wc_d * temp_params.Rs;
 
     float fn_q = 1 / (MATH_2PI * temp_params.Lq / temp_params.Rs);
-    float wc_q = MATH_2PI * 0.6f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
+    float wc_q = MATH_2PI * 0.5f * (2 * fn_q < F_CURRENT / 10 ? 2 * fn_q : F_CURRENT / 10);
     temp_params.iq_Kp = wc_q * temp_params.Lq;
     temp_params.iq_Ki = wc_q * temp_params.Rs;
 
@@ -92,10 +92,10 @@ void fMotorParamTune_ForceSave(void)
     g_Param.theta_elec_offset = temp_params.theta_elec_need_180;
     g_Param.forward_dir = temp_params.direction;
 
-    g_Param.kp_current = temp_params.iq_Kp;
-    g_Param.ki_current = temp_params.iq_Ki;
-    g_Param.kp_weakmag = temp_params.id_kp;
-    g_Param.ki_weakmag = temp_params.id_ki;
+    g_Param.kp_Q = temp_params.iq_Kp;
+    g_Param.ki_Q = temp_params.iq_Ki;
+    g_Param.kp_D = temp_params.id_kp;
+    g_Param.ki_D = temp_params.id_ki;
 
     g_Param.cur_fiter_alpha = temp_params.cur_fiter_alpha;
     g_Param.adc_U_zero_offset = temp_params.uadc_offset;
@@ -787,7 +787,8 @@ eTuneState fMotorParamTune_Update(tFOC_val foc_val)
         if (ctx->steady_tick < TUNE_WAIT_TICKS)
             break; // 先静止等待参数稳定
         if (false == BSP_AdcCalibrateCurrent(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
-            break; // 电流校准
+            break;       // 电流校准
+        fFilter_Reset(); // 对电流滤波器进行复位
 
         // 准备工作：初始化电阻整定上下文
         ctx->rs_ctx.i_target = RS_I_TARGET_1;

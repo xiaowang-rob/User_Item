@@ -71,6 +71,7 @@ bool fFOC_Shutdown();
 bool fAutoCalibrationUpdate();
 
 // 辅助整定 函数
+void fFilter_Reset();
 void fFOC_SetUalphaBeta(float Ualpha, float Ubeta);
 void fFOC_SetIdIq(float id, float iq);
 void fSetThetaOffset(float thetaoffset);

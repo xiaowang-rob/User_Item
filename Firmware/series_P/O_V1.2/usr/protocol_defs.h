@@ -146,20 +146,20 @@ typedef enum {
 
 
 typedef enum {
-    FAULT_NONE                =  0,  /* NONE */
-    FAULT_FLASH_OFFLINE       =  1,  /* FLASH离线 */
-    FAULT_TUNE_CURRENT_ERR    =  2,  /* 整定电流异常 */
-    FAULT_POLE_PAIR_MISMATCH  =  3,  /* 极对数不匹配 */
-    FAULT_MOTOR_LOCK          =  4,  /* 电机堵转 */
-    FAULT_RESISTANCE_CAL_FAIL =  5,  /* 电阻校准失败 */
-    FAULT_ENCODER_CAL_FAIL    =  6,  /* 编码器校准失败 */
-    FAULT_ELEC_PARAM_FAIL     =  7,  /* 电气参数校准失败 */
-    FAULT_MECH_PARAM_FAIL     =  8,  /* 机械参数校准失败 */
-    FAULT_OVERVOLTAGE         =  9,  /* 过电压 */
-    FAULT_UNDERVOLTAGE        = 10,  /* 低电压 */
-    FAULT_OVERCURRENT         = 11,  /* 过电流 */
-    FAULT_CAN_INIT_FAIL       = 12,  /* CAN初始化失败 */
-    FAULT_CAN_COMM_ERR        = 13,  /* CAN通信异常 */
+    FAULT_NONE               =  0,  /* NONE */
+    FAULT_FLASH_OFFLINE      =  1,  /* FLASH离线 */
+    FAULT_TUNE_CURRENT_ERR   =  2,  /* 整定电流异常 */
+    FAULT_POLE_PAIR_MISMATCH =  3,  /* 极对数不匹配 */
+    FAULT_MOTOR_LOCK         =  4,  /* 电机堵转 */
+    FAULT_RS_LS_CAL_FAIL     =  5,  /* 电阻电感校准失败 */
+    FAULT_ENCODER_CAL_FAIL   =  6,  /* 编码器校准失败 */
+    FAULT_ELEC_PARAM_FAIL    =  7,  /* 电气参数校准失败 */
+    FAULT_MECH_PARAM_FAIL    =  8,  /* 机械参数校准失败 */
+    FAULT_OVERVOLTAGE        =  9,  /* 过电压 */
+    FAULT_UNDERVOLTAGE       = 10,  /* 低电压 */
+    FAULT_OVERCURRENT        = 11,  /* 过电流 */
+    FAULT_CAN_INIT_FAIL      = 12,  /* CAN初始化失败 */
+    FAULT_CAN_COMM_ERR       = 13,  /* CAN通信异常 */
 } eFaultState;
 
 

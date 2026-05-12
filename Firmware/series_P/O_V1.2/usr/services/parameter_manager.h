@@ -38,10 +38,7 @@ typedef struct
     float motor_ke;
     float motor_j;
     float motor_b;
-    float kp_current;
-    float ki_current;
-    float kp_weakmag;
-    float ki_weakmag;
+
     float kp_speed;
     float ki_speed;
     float kp_position;
@@ -60,6 +57,13 @@ typedef struct
     float tolerance;
 
     // 不需要上位机改写的参数可以放在这里，避免误改
+    float kp_Q;
+    float ki_Q;
+    float kp_D;
+    float ki_D;
+    float kp_weakmag;
+    float ki_weakmag;
+
     float cur_fiter_alpha;   // 电流滤波系数
     float adc_U_zero_offset; // ADC零点补偿
     float adc_V_zero_offset; // ADC零点补偿

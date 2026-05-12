@@ -138,6 +138,7 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
     case SENSOR_MODE:
         *(u8 *)value = g_Param.sensor_mode;
         *len = sizeof(u8);
+        break;
     case RUN_MODE:
         *(u8 *)value = g_Param.run_mode;
         *len = sizeof(u8);
@@ -289,59 +290,6 @@ bool fParamInit()
     if (g_Param.none_flag != 0x0f)
     { // flash中没有参数，初始化参数
         g_Param.none_flag = 0x0f;
-        // 初始化u8类型参数
-        // 初始化u8类型参数
-        g_Param.sw_canqueue = 0;  // CAN队列开关
-        g_Param.sw_vague_pid = 0; // 模糊PID
-        g_Param.sw_pvt = 0;       // PVT模式
-        g_Param.traj_type = 0;    // 轨迹类型
-        g_Param.sensor_mode = 0;  // 运行模式
-        g_Param.run_mode = 0;     // 环模式
-
-        g_Param.motor_polepairs = 14; // 电机转子对数
-        g_Param.theta_elec_offset = false;
-
-        // 初始化u32类型参数
-        g_Param.can_id = 1; // CAN ID
-
-        // 初始化float类型参数
-
-        g_Param.theta_offset = 0.0f; // 角度补偿
-        g_Param.motor_kv = 100;
-        g_Param.motor_rs = 0.0218206495f; // 电阻Rs 50mΩ3.062550.0218206495
-        g_Param.motor_lq = 0.00003f;      // 电感Ls 30μH
-        g_Param.motor_ld = 0.00003f;
-        g_Param.motor_psif = 0.01f; // 磁链 0.01Wb
-        g_Param.motor_ke = 0.01f;
-        g_Param.motor_j = 0.001f;  // 转动惯量 0.001 kg·m²
-        g_Param.motor_b = 0.0005f; // 摩擦系数 0.0005 N·m·s/rad
-
-        g_Param.kp_current = 0.2f;    // 电流环比例系数
-        g_Param.ki_current = 40.0f;   // 电流环积分系数
-        g_Param.kp_weakmag = 0.05f;   // 弱磁环比例系数
-        g_Param.ki_weakmag = 40.f;    // 弱磁环积分系数
-        g_Param.kp_speed = 3.0f;      // 速度环比例系数
-        g_Param.ki_speed = 20.f;      // 速度环积分系数
-        g_Param.kp_position = 0.5f;   // 位置环比例系数
-        g_Param.ki_position = 0.05f;  // 位置环积分系数
-        g_Param.kd_position = 0.005f; // 位置环微分系数
-
-        g_Param.limit_current = 30.0f;           // 电流限幅 50A
-        g_Param.limit_omega = 500.0f;            // 速度限幅 3000 RPM (假设转换后)
-        g_Param.limit_position_min = -100000.0f; // 最小位置限制 -10000度 (弧度)
-        g_Param.limit_position_max = 100000.0f;  // 最大位置限制 10000度 (弧度)
-        g_Param.tolerance_time = 0.1f;           // 容忍时间 0.1ms
-        g_Param.tolerance_limit = 1.1f;          // 容忍度
-
-        g_Param.traj_max_rate = 0.0f; // 最大变化率
-        g_Param.traj_max_acc = 0.0f;  // 最大加速度
-        g_Param.traj_max_jerk = 0.0f; // 最大加加速度
-        g_Param.tolerance = 0.01f;    // 容差
-
-        g_Param.cur_fiter_alpha = 0.5f; // 电流滤波系数
-        g_Param.adc_U_zero_offset = 4095.0f / 2.0f;
-        g_Param.adc_V_zero_offset = 4095.0f / 2.0f;
-        g_Param.adc_W_zero_offset = 4095.0f / 2.0f;
     }
     return true;
 }

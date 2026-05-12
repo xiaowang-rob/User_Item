@@ -24,7 +24,7 @@ typedef enum
 } eEncoderState_DMA;
 
 /* ----------------------- 全局实例 ------------------------- */
-tEncoderInstance g_encoder;
+tEncoderInstance g_encoder = {.chip_type = 0xff};
 
 /* ----------------------- 常量定义 ------------------------- */
 #define NO_RESPONSE_MAX_TIC 1000 /* 1000 * 10us = 10ms 超时 */
@@ -81,21 +81,27 @@ bool fEncoder_Init(eEncoderChip type)
     if (type >= CHIP_COUNT)
         return false;
 
-    /* 获取芯片描述 */
-    const tEncoderChipDesc *desc = &chip_descs[type];
-
-    /* 根据型号动态配置 SPI3 模式 (CPOL/CPHA) */
-    BSP_SetEncoder_SPI_Config(desc->spi_CPOL, desc->spi_CPHA, desc->spi_data_size);
+    if (type == g_encoder.chip_type)
+    {
+        g_device_status.encoder_state = ONLINE;
+        return true;
+    }
 
     /* 清空全局实例并赋初值 */
     memset((void *)&g_encoder, 0, sizeof(g_encoder));
-    g_encoder.chip_desc = desc;
+    g_encoder.chip_desc = &chip_descs[type];
     g_encoder.chip_type = type;
     g_encoder.state = ENCODER_STATE_START_READ;
     g_encoder.first_run = true;
     g_encoder.valid = 0;
     g_encoder.rubbish_data_tic = 0;
 
+    /* 根据型号动态配置 SPI3 模式 (CPOL/CPHA) */
+    if (false == BSP_SetEncoder_SPI_Config(g_encoder.chip_desc->spi_CPOL, g_encoder.chip_desc->spi_CPHA, g_encoder.chip_desc->spi_data_size))
+    {
+        g_device_status.encoder_state = OFFLINE;
+        return false;
+    }
     g_device_status.encoder_state = ONLINE;
 
     return true;
@@ -110,7 +116,7 @@ static void Encoder_RecoverFromError(void)
         BSP_Encoder_SPI_Abort();
     }
     BSP_Encoder_SPI_CLEAR_DMA_error_flags();
-
+    g_device_status.encoder_state = OFFLINE;
     g_encoder.state = ENCODER_STATE_START_READ;
 }
 
@@ -169,8 +175,6 @@ void BSP_Encoder_SPI_ErrorCallback(void)
 static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 {
     g_device_status.encoder_state = RUNNING;
-    uint32_t current_time = BSP_GetTick();
-    uint32_t time_diff = current_time - enc->last_time;
 
     enc->angle_abs = enc->angle_raw * enc->chip_desc->deg_per_lsb;
 
@@ -188,7 +192,7 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
         enc->omega_rpm = 0;
         enc->pos = 0;
         enc->pos_last = 0;
-        enc->last_time = current_time;
+
         if (enc->rubbish_data_tic++ > 3)
         {
             enc->rubbish_data_tic = 0;
@@ -216,22 +220,6 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
         }
 
         enc->pos = enc->chip_desc->deg_per_lsb * (int32_t)(enc->angle_raw - enc->pos_offset) + enc->num_turns * 360.0f;
-
-        if (time_diff > 0)
-        {
-            float pos_delta = enc->pos - enc->pos_last;
-            float time_delta = (float)time_diff * 0.001f;
-            if (FABSF(pos_delta) <= 2 * enc->chip_desc->deg_per_lsb)
-            {
-                enc->omega_rpm = 0;
-            }
-            else
-            {
-                enc->omega_rpm = (pos_delta / time_delta) * 0.16666666667f;
-            }
-            enc->last_time = current_time;
-            enc->pos_last = enc->pos;
-        }
         enc->angle_raw_last = enc->angle_raw;
     }
 }
@@ -483,7 +471,20 @@ void fEncoderMainLoopTask(void)
 /* ========== 对外数据接口 ========== */
 float fGetEncoderAngle_ABS(void) { return g_encoder.angle_abs; }
 float fGetEncoderAngle_INC(void) { return g_encoder.pos; }
-float fGetEncoderRPM(void) { return g_encoder.omega_rpm; }
+float fGetEncoderRPM(float f_speed)
+{
+    float pos_delta = g_encoder.pos - g_encoder.pos_last;
+    if (FABSF(pos_delta) <= g_encoder.chip_desc->deg_per_lsb)
+    {
+        g_encoder.omega_rpm = 0;
+    }
+    else
+    {
+        g_encoder.omega_rpm = pos_delta * f_speed * 0.16666666667f;
+    }
+    g_encoder.pos_last = g_encoder.pos;
+    return g_encoder.omega_rpm;
+}
 int fGetEncoderNumTurns(void) { return g_encoder.num_turns; }
 
 void fSetEncoderAngleZero(void)
