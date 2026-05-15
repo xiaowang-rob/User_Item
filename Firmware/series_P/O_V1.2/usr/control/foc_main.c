@@ -5,7 +5,7 @@
 
 #include "bsp_adc.h"
 
-FOC_t g_foc = {.core = &foc_core, .loop_con = &loop_con, .hfi = &g_hfi, .smo = &smo, .tun = &g_tune_ctx, .svpwm = &svpwm};
+FOC_t g_foc = {.core = &g_foc_core, .loop_con = &g_loop_con, .hfi = &g_hfi, .smo = &g_smo, .tun = &g_tune_ctx, .svpwm = &g_svpwm};
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
@@ -22,7 +22,7 @@ void BSP_FOC_ITCallback()
 #ifdef __DEBUG__
     _time_focit_start = BSP_GetTick_us();
 #endif
-    fFOC_StateMachineMainLoop();
+    fFocStateMachineMainLoop();
 #ifdef __DEBUG__
     _time_foc_T = BSP_GetTick_us() - _time_focit_end;
     _time_focit_end = BSP_GetTick_us();
@@ -30,22 +30,22 @@ void BSP_FOC_ITCallback()
 #endif
 }
 // FOC 主初始化函数
-void fFOC_Init()
+void fFocInit()
 {
-    g_foc.core->foc_mode->runmode = OPEN_LOOP;
+    g_foc.core->foc_mode->run_mode = OPEN_LOOP;
     g_foc.foc_enable = false;
     g_foc.state = FOC_IDLE;
-    fFOC_CoreInit();
+    fFocCoreInit();
     BSP_POWER_12V_Control(true);
     g_foc.foc_init = true;
 }
 
 // FOC 主循环函数
-void fFOC_StateMachineMainLoop()
+void fFocStateMachineMainLoop()
 {
     if (!g_foc.foc_init)
         return;
-    fFOC_ValueUpdate();
+    fFocValueUpdate();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -54,34 +54,34 @@ void fFOC_StateMachineMainLoop()
         if (!g_foc.foc_enable)
         {
             g_foc.foc_enable = true;
-            fFOC_CoreReset();
+            fFocCoreReset();
             BSP_PWM_Enable();
         }
         if (fAutoCalibrationUpdate())
-            fFOC_StateUpdate(FOC_DISABLE);
-        fFOC_MainLoopTask();
+            fFocStateUpdate(FOC_DISABLE);
+        fFocMainLoopTask();
         break;
     case FOC_RESET:
-        fFOC_CoreReset();
-        fFOC_StateUpdate(FOC_IDLE);
+        fFocCoreReset();
+        fFocStateUpdate(FOC_IDLE);
         BSP_POWER_12V_Control(true);
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
         BSP_PWM_Enable();
-        fFOC_StateUpdate(FOC_RUNNING);
+        fFocStateUpdate(FOC_RUNNING);
         break;
     case FOC_DISABLE:
         g_foc.foc_enable = false;
         BSP_PWM_Disable();
-        fFOC_StateUpdate(FOC_RESET);
+        fFocStateUpdate(FOC_RESET);
         break;
     case FOC_RUNNING:
-        fFOC_MainLoopTask();
+        fFocMainLoopTask();
         break;
     case FOC_SHUTDOWN:
-        if (fFOC_Shutdown())
-            fFOC_StateUpdate(FOC_FAULT);
+        if (fFocShutdown())
+            fFocStateUpdate(FOC_FAULT);
         break;
     case FOC_FAULT:
         if (g_foc.foc_enable)
@@ -96,7 +96,7 @@ void fFOC_StateMachineMainLoop()
     }
 }
 // FOC 状态更新函数
-void fFOC_StateUpdate(eFocState state)
+void fFocStateUpdate(eFocState state)
 {
     // 状态切换条件：
     // 1、故障状态只能通过复位退出

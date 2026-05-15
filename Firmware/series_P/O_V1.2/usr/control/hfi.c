@@ -21,7 +21,7 @@ float32_t lpf_w_coeffs[5] = {LPF_W_B0, LPF_W_B1, LPF_W_B2, LPF_W_A1, LPF_W_A2};
 /**
  * @brief HFI模块初始化
  */
-void fHFI_Init()
+void fHfiInit()
 {
     // 1. 状态清零
     memset(&g_hfi, 0, sizeof(tHFI_Handle));
@@ -62,7 +62,7 @@ static u32 T_zero = 0;
 volatile float Hfi_Kp = 2 * 1.0f * 250;
 volatile float Hfi_Ki = 100 * 100 * T_CON;
 
-void fHFI_Step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
+void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 {
     g_hfi.ialpha_h[0] = (ialpha - g_hfi.ialpha_z[0] * 2 + g_hfi.ialpha_z[1]) / 4;
     g_hfi.ibeta_h[0] = (ibeta - g_hfi.ibeta_z[0] * 2 + g_hfi.ibeta_z[1]) / 4;
@@ -178,13 +178,14 @@ void fHFI_Step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
  *   - 需保证调用频率 = HFI_CTRL_FREQ_HZ
  */
 static u16 detect_timer = 0;
-void fHFI_DetectInitialPosition(float ialpha, float ibeta, float *ualpha, float *ubeta)
+void fHfiDetectInitialPosition(float id, float *ualpha, float *ubeta)
 {
     if (g_hfi.init_flag)
         return; // 已完成初始位置辨识，跳过
 
-    float id, iq, ud_ref;
-    fParkTransform(ialpha, ibeta, g_hfi.theta_e, &id, &iq);
+    float ud_ref;
+    float sin_angle, cos_angle;
+    arm_sin_cos_f32(g_hfi.theta_e, &sin_angle, &cos_angle);
 
     detect_timer++;
     g_hfi.id_h = (id - 2 * g_hfi.id_z[0] + g_hfi.id_z[1]) / 4;
@@ -228,14 +229,14 @@ void fHFI_DetectInitialPosition(float ialpha, float ibeta, float *ualpha, float 
         g_hfi.init_flag = true;
     }
 
-    fInvParkTransform(ud_ref, 0.0f, g_hfi.theta_e, ualpha, ubeta);
+    fInvParkTransform(ud_ref, 0.0f, sin_angle, cos_angle, ualpha, ubeta);
 }
-bool fHFI_GetStatus(void) { return g_hfi.init_flag; }
+bool fHfiGetStatus(void) { return g_hfi.init_flag; }
 /**
  * @brief 重置初始位置辨识状态
  * @note 在需要重新进行极性辨识时调用
  */
-void fHFI_ResetInitialPosition(void)
+void fHfiResetInitialPosition(void)
 {
     memset(&g_hfi, 0, sizeof(tHFI_Handle));
     g_hfi.inj_signal = 1; // 注入信号极性 (+1/-1)
@@ -244,12 +245,12 @@ void fHFI_ResetInitialPosition(void)
     // 如需重置，建议在HFI_DetectInitialPosition中添加重置参数
 }
 // 获取电角速度
-float fHFI_GetOmegaElec(void)
+float fHfiGetOmegaElec(void)
 {
     return g_hfi.omega_filtered;
 }
 // 获取电角度
-float fHFI_GetThetaElec(void)
+float fHfiGetThetaElec(void)
 {
     return g_hfi.theta_e;
 }

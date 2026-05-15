@@ -31,15 +31,15 @@ typedef struct
     u8 can_state;
     u8 encoder_state;
 
-    float Vbus;
-    float TEMP;
-    float Iu;
-    float Iv;
-    float Iw;
-    float Id;
-    float Iq;
-    float Id_ref;
-    float Iq_ref;
+    float vbus;
+    float temp;
+    float iu;
+    float iv;
+    float iw;
+    float id;
+    float iq;
+    float id_ref;
+    float iq_ref;
     float speed;
     float speed_ref;
     float position;

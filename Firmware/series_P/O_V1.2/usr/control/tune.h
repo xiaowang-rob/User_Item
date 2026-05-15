@@ -80,9 +80,9 @@ typedef struct
 
     // 控制参数
 
-    float BandWidth_Current; // 电流滞环带宽
-    float BandWidth_Speed;   // 速度滞环带宽
-    float BandWidth_Pos;     // 位置滞环带宽
+    float bandwidth_current; // 电流滞环带宽
+    float bandwidth_speed;   // 速度滞环带宽
+    float bandwidth_pos;     // 位置滞环带宽
 
     float uadc_offset; // adc 偏移
     float vadc_offset;
@@ -90,31 +90,31 @@ typedef struct
 
     float cur_fiter_alpha; // 电流滤波系数
 
-    float iq_Kp;
-    float iq_Ki;
+    float iq_kp;
+    float iq_ki;
     float id_kp;
     float id_ki;
-    float speed_Kp;
-    float speed_Ki;
-    float mag_Kp;
-    float mag_Ki;
-    float pos_Kp;
-    float pos_Ki;
-    float pos_Kd;
+    float speed_kp;
+    float speed_ki;
+    float mag_kp;
+    float mag_ki;
+    float pos_kp;
+    float pos_ki;
+    float pos_kd;
 
     /* ================================= 电机参数 ========== */
     // 电气参数
-    float KV; // 电压转化器增益 (V/V) 用于检验参数有效性
+    float kv; // 电压转化器增益 (V/V) 用于检验参数有效性
 
-    float Rs;    // 定子电阻(Ω)
-    float Ld;    // d 轴电感 (H)
-    float Lq;    // q 轴电感 (H)
-    float Psi_f; // 永磁体磁链 (Wb)
-    float Ke;    // 反电动势常数 (V/(rad/s))
+    float rs;    // 定子电阻(Ω)
+    float ld;    // d 轴电感 (H)
+    float lq;    // q 轴电感 (H)
+    float psi_f; // 永磁体磁链 (Wb)
+    float ke;    // 反电动势常数 (V/(rad/s))
 
     // 机械参数
-    float J; // 转动惯量 (kg·m²)
-    float B; // 摩擦系数 (N·m·s/rad)
+    float j; // 转动惯量 (kg·m²)
+    float b; // 摩擦系数 (N·m·s/rad)
 
     /* ========== 编码器参数 =====*/
     float theta_offset; // 编码器角度偏移 (rad)
@@ -253,10 +253,10 @@ typedef struct
 extern tTuneContext g_tune_ctx;
 
 /* ================================= 公共接口 ================================= */
-void fMotorParamTune_Init();
-void fMotorParamTune_Reset();
-eTuneState fMotorParamTune_Update(tFOC_val foc_val);
-u8 fMotorParamTune_GetProgress(void);
-eTuneFault fMotorParamTune_GetFault(void);
+void fMotorParamTuneInit();
+void fMotorParamTuneReset();
+eTuneState fMotorParamTuneUpdate(tFOC_val foc_val);
+u8 fMotorParamTuneGetProgress(void);
+eTuneFault fMotorParamTuneGetFault(void);
 
 #endif /* __TUNE_H */

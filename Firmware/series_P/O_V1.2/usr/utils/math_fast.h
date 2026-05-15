@@ -89,13 +89,10 @@ static inline void fInvClarkTransform(float alpha, float beta, float *ia, float 
  * @param angle: 电角度（角度）
  * @param d, q: 输出的 dq 轴分量
  */
-static inline void fParkTransform(float alpha, float beta, float angle, float *d, float *q)
+static inline void fParkTransform(float alpha, float beta, float sin_angle, float cos_angle, float *d, float *q)
 {
-    float sin_theta, cos_theta;
-    arm_sin_cos_f32(angle, &sin_theta, &cos_theta);
-
-    *d = alpha * cos_theta + beta * sin_theta;
-    *q = -alpha * sin_theta + beta * cos_theta;
+    *d = alpha * cos_angle + beta * sin_angle;
+    *q = -alpha * sin_angle + beta * cos_angle;
 }
 /**
  * @brief Park 反变换 (dq → αβ)
@@ -103,12 +100,10 @@ static inline void fParkTransform(float alpha, float beta, float angle, float *d
  * @param angle: 电角度（角度）
  * @param alpha, beta: 输出的 αβ 轴分量
  */
-static inline void fInvParkTransform(float d, float q, float angle, float *alpha, float *beta)
+static inline void fInvParkTransform(float d, float q, float sin_angle, float cos_angle, float *alpha, float *beta)
 {
-    float sin_theta, cos_theta;
-    arm_sin_cos_f32(angle, &sin_theta, &cos_theta);
-    *alpha = d * cos_theta - q * sin_theta;
-    *beta = d * sin_theta + q * cos_theta;
+    *alpha = d * cos_angle - q * sin_angle;
+    *beta = d * sin_angle + q * cos_angle;
 }
 
 #endif /* __MATH_FAST_H */

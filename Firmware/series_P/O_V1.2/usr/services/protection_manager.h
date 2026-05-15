@@ -13,10 +13,10 @@ typedef struct
     eWarningState warning;
     bool fault_flag;
     bool warning_flag;
-    float maxcurrent;
-    float maxomega;
-    float minposition;
-    float maxposition;
+    float max_current;
+    float max_omega;
+    float min_position;
+    float max_position;
     float tolerance_time_ms;
     float tolerance_limit;
 

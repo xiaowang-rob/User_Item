@@ -65,6 +65,7 @@ typedef struct
     float ki_weakmag;
 
     float cur_fiter_alpha;   // 电流滤波系数
+    float speed_fiter_alpha; // 速度滤波系数
     float adc_U_zero_offset; // ADC零点补偿
     float adc_V_zero_offset; // ADC零点补偿
     float adc_W_zero_offset; // ADC零点补偿

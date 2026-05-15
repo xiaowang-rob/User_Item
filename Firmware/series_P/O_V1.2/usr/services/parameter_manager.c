@@ -119,7 +119,7 @@ void fParamSet(eParameter para, u8 *value)
         g_Param.tolerance = *(float *)value;
         break;
     default: // 最后会发送一个 成功 反馈
-        fFOC_ParamUpdate(&g_Param);
+        fFocParamUpdate(&g_Param);
         fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
         fProManagerInit(&g_Param);
         break;

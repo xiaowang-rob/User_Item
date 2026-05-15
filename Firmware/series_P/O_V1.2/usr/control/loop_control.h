@@ -16,9 +16,9 @@ typedef struct
     bool current_update;
     bool speed_update;
     bool position_update;
-    float Tcur; // 电流环周期
-    float Tspd; // 速度环周期
-    float Tpos; // 位置环周期
+    float t_cur; // 电流环周期
+    float t_spd; // 速度环周期
+    float t_pos; // 位置环周期
 } tFrequencyDivision;
 
 // PI控制器
@@ -56,7 +56,7 @@ typedef struct
     float position_min, position_max;
 } tLoopControl;
 
-extern tLoopControl loop_con;
+extern tLoopControl g_loop_con;
 
 void fFrequencyDivisionUpdate(void);                 // 更新分频计数器和各环更新标志
 void fLoopControlInit(tParameter *param, float Udc); // 环路参数初始化

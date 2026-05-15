@@ -14,17 +14,17 @@ void fStreamDataGet(eData_stream stream, float *data)
     {
     case CURRENT_U:
         //        temp_val = fGetVoltage_u();
-        temp_val = g_foc.core->foc_val->Iu;
+        temp_val = g_foc.core->foc_val->iu;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_V:
         //        temp_val = fGetVoltage_v();
-        temp_val = g_foc.core->foc_val->Iv;
+        temp_val = g_foc.core->foc_val->iv;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_W:
         //        temp_val = fGetVoltage_w();
-        temp_val = g_foc.core->foc_val->Iw;
+        temp_val = g_foc.core->foc_val->iw;
         memcpy(data, &temp_val, 4);
         break;
     case VOLTAGE_Q:
@@ -34,16 +34,16 @@ void fStreamDataGet(eData_stream stream, float *data)
         *data = g_foc.core->foc_val->ud;
         break;
     case CURRENT_ALPHA:
-        *data = g_foc.core->foc_val->Ialpha;
-        //*data = g_foc.core->foc_val->Ualpha_hfi;
-        //*data = g_foc.core->foc_val->Ualpha;
-        //		temp_val =g_foc.core->foc_val->Iu;
+        *data = g_foc.core->foc_val->ialpha;
+        //*data = g_foc.core->foc_val->ualpha_hfi;
+        //*data = g_foc.core->foc_val->ualpha;
+        //		temp_val =g_foc.core->foc_val->iu;
         //		*data =temp_val;
         break;
     case CURRENT_BETA:
-        *data = g_foc.core->foc_val->Ibeta;
-        //*data = g_foc.core->foc_val->Ubeta_hfi;
-        //*data = g_foc.core->foc_val->Ubeta;
+        *data = g_foc.core->foc_val->ibeta;
+        //*data = g_foc.core->foc_val->ubeta_hfi;
+        //*data = g_foc.core->foc_val->ubeta;
         //		temp_val = fGetVoltage_u();
         //		*data =temp_val;
         break;

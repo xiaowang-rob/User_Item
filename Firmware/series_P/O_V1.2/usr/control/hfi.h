@@ -49,12 +49,12 @@ typedef struct
 
 extern tHFI_Handle g_hfi;
 // ================= 函数声明 =================
-void fHFI_Init();
-void fHFI_Step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h);
-void fHFI_DetectInitialPosition(float ialpha, float ibeta, float *ualpha, float *ubeta);
+void fHfiInit();
+void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h);
+void fHfiDetectInitialPosition(float id, float *ualpha, float *ubeta);
 
-bool fHFI_GetStatus(void);
-void fHFI_ResetInitialPosition(void);
-float fHFI_GetOmegaElec(void);
-float fHFI_GetThetaElec(void);
+bool fHfiGetStatus(void);
+void fHfiResetInitialPosition(void);
+float fHfiGetOmegaElec(void);
+float fHfiGetThetaElec(void);
 #endif // __HFI_H

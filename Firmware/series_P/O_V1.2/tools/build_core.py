@@ -90,7 +90,7 @@ def gen_usr_config(cfg, bsp_info, coeffs, output_path):
 
 #define FREQ_CURRENT        {ctrl["f_freq_current"]}
 #define FREQ_SPEED          {ctrl["f_freq_speed"]}
-#define FREQ_POSTION        {ctrl["f_freq_position"]}
+#define FREQ_POSITION       {ctrl["f_freq_position"]}
 
 #define F_CURRENT           {fmt_f(hw["F_PWM"] / ctrl["f_freq_current"])}
 #define F_SPEED             {fmt_f((hw["F_PWM"] / ctrl["f_freq_current"]) / ctrl["f_freq_speed"])}

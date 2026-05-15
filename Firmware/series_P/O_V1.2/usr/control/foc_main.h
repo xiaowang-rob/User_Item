@@ -23,8 +23,8 @@ typedef struct
 } FOC_t;
 extern FOC_t g_foc;
 
-void fFOC_Init();
-void fFOC_StateMachineMainLoop();
-void fFOC_StateUpdate(eFocState state);
+void fFocInit();
+void fFocStateMachineMainLoop();
+void fFocStateUpdate(eFocState state);
 
 #endif

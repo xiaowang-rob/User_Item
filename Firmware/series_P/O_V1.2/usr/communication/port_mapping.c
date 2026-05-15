@@ -53,7 +53,7 @@ void fHostComputer_send()
 // 参数发送
 static bool param_send_flag = false;
 static u8 param_index = 0;
-static inline void _all_params_send()
+static inline void _AllParamsSend()
 {
     fParamGet((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
@@ -68,7 +68,7 @@ static inline void _all_params_send()
 }
 // 日志发送
 static bool log_send_flag = false;
-static inline void _all_log_send()
+static inline void _AllLogSend()
 {
     if (fLogReadFlash(com_frame.txdata, &com_frame.txdatalen))
         log_send_flag = false;
@@ -76,7 +76,7 @@ static inline void _all_log_send()
         fHostComputer_send();
 }
 // 状态发送
-static inline void _status_send()
+static inline void _StatusSend()
 {
     com_frame.cmd_id = UC_CONNECT;
     if (system_message_send_flag == false)
@@ -111,7 +111,7 @@ static inline void _status_send()
         com_frame.txdata[2] = g_pro_manager.fault;
         com_frame.txdata[3] = g_pro_manager.warning;
         memcpy(&com_frame.txdata[4], &g_pro_manager.temperature, sizeof(float));
-        memcpy(&com_frame.txdata[8], &g_foc.core->foc_val->Udc, sizeof(float));
+        memcpy(&com_frame.txdata[8], &g_foc.core->foc_val->udc, sizeof(float));
         com_frame.txdatalen = 12;
     }
     fHostComputer_send();
@@ -128,23 +128,23 @@ static inline void _status_send()
 static u8 data_id = 0;
 static float value_ref[2];
 // 命令解析
-static void _frame_data_deal()
+static void _FrameDataDeal()
 {
     if (com_frame.com_port == CAN_port)
     {
         switch (com_frame.cmd_id)
         {
         case CMD_REFVALUE_SET:
-            fFOC_SetTargetValue((float *)com_frame.rxdata);
+            fFocSetTargetValue((float *)com_frame.rxdata);
             break;
         case CMD_ENABLE:
-            fFOC_StateUpdate(FOC_ENABLE);
+            fFocStateUpdate(FOC_ENABLE);
             break;
         case CMD_DISABLE:
-            fFOC_StateUpdate(FOC_DISABLE);
+            fFocStateUpdate(FOC_DISABLE);
             break;
         case CMD_MODE_SET:
-            fFOC_SetRunMode(com_frame.rxdata[0]);
+            fFocSetRunMode(com_frame.rxdata[0]);
             break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
@@ -155,10 +155,10 @@ static void _frame_data_deal()
             BSP_SystemReset();
             break;
         case CMD_SET_ZERO_POS:
-            fFOC_SetZeroPOS(); // 以当前位置为0点
+            fFocSetZeroPos(); // 以当前位置为0点
             break;
         case CMD_SET_LIMIT_POS:
-            fFOC_SetLimitPOS();
+            fFocSetLimitPos();
             break;
         default:
             break;
@@ -186,20 +186,20 @@ static void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
             case START_TUNNING:
-                fFOC_StateUpdate(FOC_TUNE);
+                fFocStateUpdate(FOC_TUNE);
                 break;
             case BRAKE:
-                fFOC_StateUpdate(FOC_SHUTDOWN);
+                fFocStateUpdate(FOC_SHUTDOWN);
                 break;
             case FOC_NRST:
-                fFOC_StateUpdate(FOC_RESET);
+                fFocStateUpdate(FOC_RESET);
                 fProManagerClearFalg();
                 break;
             case CMD_ENABLE:
-                fFOC_StateUpdate(FOC_ENABLE);
+                fFocStateUpdate(FOC_ENABLE);
                 break;
             case CMD_DISABLE:
-                fFOC_StateUpdate(FOC_DISABLE);
+                fFocStateUpdate(FOC_DISABLE);
                 break;
             case LOG_GET:
                 log_send_flag = true;
@@ -228,10 +228,10 @@ static void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
             case CMD_SET_ZERO_POS:
-                fFOC_SetZeroPOS(); // 以当前位置为0点
+                fFocSetZeroPos(); // 以当前位置为0点
                 break;
             case CMD_SET_LIMIT_POS:
-                fFOC_SetLimitPOS(); // 以当前位置为极限位置
+                fFocSetLimitPos(); // 以当前位置为极限位置
                 break;
             case CMD_SYSTEM_RESET: // 系统复位
                 BSP_SystemReset();
@@ -269,10 +269,10 @@ static void _frame_data_deal()
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
                 memcpy(value_ref, com_frame.rxdata, 4);
                 value_ref[1] = 0.0f;
-                fFOC_SetTargetValue(value_ref);
+                fFocSetTargetValue(value_ref);
                 break;
             case CMD_MODE_SET: // 模式设置 1byte
-                fFOC_SetRunMode(com_frame.rxdata[0]);
+                fFocSetRunMode(com_frame.rxdata[0]);
                 break;
             case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
                 fStreamDataGet(com_frame.rxdata[1], (float *)com_frame.txdata);
@@ -323,7 +323,7 @@ void fCAN_RxDataCallback(u8 *RxData, u8 len)
     }
     com_frame.is_busy = true;
     com_frame.com_port = CAN_port;
-    _frame_data_deal();
+    _FrameDataDeal();
 }
 
 void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
@@ -335,7 +335,7 @@ void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
     com_frame.cmd_id = id;
     com_frame.rxdatalen = len;
     com_frame.rxdata = data;
-    _frame_data_deal();
+    _FrameDataDeal();
 }
 
 void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
@@ -347,7 +347,7 @@ void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
     com_frame.cmd_id = id;
     com_frame.rxdatalen = len;
     com_frame.rxdata = data;
-    _frame_data_deal();
+    _FrameDataDeal();
 }
 
 static u32 _time_ms = 0;
@@ -368,7 +368,7 @@ void _stream_data_trans()
     {
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
-        _all_params_send();
+        _AllParamsSend();
         _time_prev_ms = BSP_GetTick();
         return;
     }
@@ -377,7 +377,7 @@ void _stream_data_trans()
     {
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
-        _all_log_send();
+        _AllLogSend();
         _time_prev_ms = BSP_GetTick();
         return;
     }
@@ -386,7 +386,7 @@ void _stream_data_trans()
     { // 上位机连接状态下
         if ((_time_ms - _state_prev_ms > T_STATE_STREAM))
         { // 状态发送
-            _status_send();
+            _StatusSend();
             _state_prev_ms = _time_ms;
             _time_prev_ms = _time_ms;
         }

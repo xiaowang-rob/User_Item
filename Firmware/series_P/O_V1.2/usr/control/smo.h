@@ -29,17 +29,17 @@ typedef struct
 typedef struct
 {
     // === 电机参数 (识别后导入) ===
-    float Rs;
-    float Ld;
-    float Lq;
-    float Psi_f;
+    float rs;
+    float ld;
+    float lq;
+    float psi_f;
     float dt;
-    float inv_L_eff; // 预计算：1/(L_avg + Rs*dt)
+    float inv_l_eff; // 预计算：1/(L_avg + Rs*dt)
 
     // === 观测器配置 ===
     tSMO_Config cfg;
 
-    u8 Ts_tick;
+    u8 ts_tick;
 
     // === 电流观测状态 ===
     float i_alpha_hat;
@@ -60,16 +60,16 @@ typedef struct
     float k_sl_curr;
 } tSMO;
 
-extern tSMO smo;
+extern tSMO g_smo;
 
 // === 接口函数 ===
-void fSMO_Init(tMotor *motor);
-void fSMO_Reset(void);
-void fSMO_SetConfig(tSMO_Config *cfg);
-void fSMO_MainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
+void fSmoInit(tMotor *motor);
+void fSmoReset(void);
+void fSmoSetConfig(tSMO_Config *cfg);
+void fSmoMainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 
 // === 数据获取 (内联零开销) ===
-__STATIC_INLINE float fSMO_GetThetaDeg(void) { return smo.theta_elec; }
-__STATIC_INLINE float fSMO_GetOmegaElec(void) { return smo.omega_elec; }
+__STATIC_INLINE float fSmoGetThetaDeg(void) { return g_smo.theta_elec; }
+__STATIC_INLINE float fSmoGetOmegaElec(void) { return g_smo.omega_elec; }
 
 #endif // __SMO_H
