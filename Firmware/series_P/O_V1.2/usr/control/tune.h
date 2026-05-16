@@ -4,7 +4,7 @@
 #include "bsp.h"
 #include "foc_core.h"
 #include "usr_config.h"
-#include "protocol_defs.h"
+#include "protocol.h"
 
 /* ================================= 整定参数配置 ================================= */
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)

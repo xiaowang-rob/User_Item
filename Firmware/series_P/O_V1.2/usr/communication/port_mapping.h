@@ -1,7 +1,7 @@
 #ifndef __PORT_MAPPING_H__
 #define __PORT_MAPPING_H__
 
-#include "protocol_defs.h"
+#include "protocol.h"
 #include "device.h"
 typedef enum
 {

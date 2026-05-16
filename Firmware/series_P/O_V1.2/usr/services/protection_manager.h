@@ -3,7 +3,7 @@
 
 #include "device.h"
 #include "port_mapping.h"
-#include "protocol_defs.h"
+#include "protocol.h"
 #include "parameter_manager.h"
 
 typedef struct

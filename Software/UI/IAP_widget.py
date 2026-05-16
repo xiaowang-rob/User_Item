@@ -3,12 +3,8 @@ from siui.components.page.child_page import SiChildPage
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
 
-from siui.components.widgets import SiPushButton,SiWidget
-from siui.core import SiGlobal
-from siui.gui.icons.parser import GlobalIconPack
 from siui.components.editbox import SiCapsuleLineEdit
 from siui.components.button import (
-    SiCapsuleButton,
     SiLongPressButtonRefactor,
     SiPushButtonRefactor
 )

@@ -1,5 +1,5 @@
 from siui.components.widgets.navigation_bar import SiNavigationBarH
-from PyQt5.QtWidgets import  QHBoxLayout,QVBoxLayout
+from PyQt5.QtWidgets import  QHBoxLayout
 from siui.components.button import SiPushButtonRefactor
 from PyQt5.QtCore import Qt
 

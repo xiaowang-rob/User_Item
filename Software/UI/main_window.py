@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow
 from UI.Ui_mainwindow import Ui_XDr
 from siui.gui.icons.parser import GlobalIconPack
-from siui.components.widgets.abstracts import SiWidget
 from siui.templates.application.components.layer.layer_child_page.layer_child_page import (
     LayerChildPage,
 )

@@ -6,7 +6,7 @@ from siui.components.button import (
     SiToggleButtonRefactor,
 )
 from siui.components.combobox_ import SiCapsuleComboBox
-from shared_constants import Midx
+from protocol import Midx
 
 from siui.components.editbox import SiLabeledLineEdit
 from siui.components.slider import SiSliderH

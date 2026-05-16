@@ -4,7 +4,7 @@
 #include "math_fast.h"
 #include "stdbool.h"
 #include "arm_math.h"
-#include "protocol_defs.h"
+#include "protocol.h"
 /* === 使用 float 32位精度 确保 FPU 优化 === */
 
 /* === 配置参数 === */

@@ -3,6 +3,19 @@
     "debugger_type": "stlink",
     "prod_name": "XDr",
     "author": "wxd",
+    "control": {
+        "f_freq_current": 1,
+        "f_freq_speed": 10,
+        "f_freq_position": 10,
+        "t_data_stream_ms": 1,
+        "t_state_stream_ms": 500,
+        "temp_vbus_ts_ms": 300
+    },
+    "filter": {
+        "hfi_inj_freq_hz": 5000,
+        "pll_bandwidth_hz": 40,
+        "speed_lpf_factor": 2.0
+    },
     "debugger": {
         "stlink": {
             "interface": "interface/stlink.cfg",

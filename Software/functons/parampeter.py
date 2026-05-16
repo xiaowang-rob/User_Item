@@ -2,7 +2,7 @@ import struct
 import threading
 import time
 import logging
-from shared_constants import Pidx, Cidx, Midx, Fidx
+from protocol import Pidx, Cidx, Midx, Fidx
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("ParameterManager")

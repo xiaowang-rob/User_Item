@@ -7,7 +7,7 @@
 #include "tune.h"
 #include "svpwm.h"
 #include "hfi.h"
-#include "protocol_defs.h"
+#include "protocol.h"
 
 typedef struct
 {

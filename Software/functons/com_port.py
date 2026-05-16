@@ -6,7 +6,8 @@ import struct
 import logging
 from queue import Queue, Full, Empty
 from PyQt5.QtCore import QTimer, QObject, pyqtSignal
-from shared_constants import Pkt
+
+from protocol import Pkt, Cidx, Fidx
 
 from functons.message_show import (
     send_simple_message,
@@ -17,11 +18,11 @@ from functons.message_show import (
     MSG_TYPE_WARNING,
     MSG_TYPE_ERROR,
 )
-from shared_constants import Cidx, Fidx
+
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("ComPort")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter(

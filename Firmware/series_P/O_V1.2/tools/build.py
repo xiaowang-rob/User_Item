@@ -23,16 +23,12 @@ import flash_core
 # ── 路径常量 ──
 USR_DIR = Path(__file__).resolve().parent.parent          # 项目根目录
 CONFIG_PATH = USR_DIR /"usr" / "project_config.json"
-FOC_JSON_PATH = USR_DIR / "usr" / "usr_config.json"
 BUILD_DIR = USR_DIR / "build"
 
 def load_config():
-    """加载 project_config.json 和 usr_config.json"""
+    """加载 project_config.json（含 control/filter 等配置）"""
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         cfg = json.load(f)
-    with open(FOC_JSON_PATH, "r", encoding="utf-8") as f:
-        foc = json.load(f)
-    cfg.update(foc)
     return cfg
 
 def cmd_clean():

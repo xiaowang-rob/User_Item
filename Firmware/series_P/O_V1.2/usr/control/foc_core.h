@@ -5,7 +5,7 @@
 #include "parameter_manager.h"
 #include "trajectory.h"
 
-#include "protocol_defs.h"
+#include "protocol.h"
 
 typedef struct
 {

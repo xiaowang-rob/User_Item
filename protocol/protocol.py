@@ -1,4 +1,4 @@
-# 此文件由 codegen.py 自动生成，请勿手动修改，相关配置在 usr_config.json 中
+# 此文件由 gen_protocol.py 自动生成，请勿手动修改，相关配置在 protocol.json 中
 
 class Pidx:
     ENCODER_CHIP       = 0  # 编码器芯片
@@ -51,9 +51,9 @@ class Lidx:
     iv              = 11  # 相电流 V
     iw              = 12  # 相电流 W
     id              = 13  # d轴电流
-    id_ref          = 14  # d轴电流参考值
+    id_ref          = 14  # Id_ref
     iq              = 15  # q轴电流
-    iq_ref          = 16  # q轴电流参考值
+    iq_ref          = 16  # Iq_ref
     speed           = 17  # 速度
     target_speed    = 18  # 目标速度
     position        = 19  # 位置
@@ -70,8 +70,8 @@ class Didx:
     CURRENT_BETA  = 6  # β轴电流
     CURRENT_Q     = 7  # q轴电流
     CURRENT_D     = 8  # d轴电流
-    CURRENT_Q_REF = 9  # q轴电流目标值
-    CURRENT_D_REF = 10  # d轴电流目标值
+    CURRENT_Q_REF = 9  # Iq_ref
+    CURRENT_D_REF = 10  # Id_ref
     SPEED         = 11  # 速度
     SPEED_REF     = 12  # 目标速度
     THETA_ELEC    = 13  # 电角度
@@ -139,5 +139,5 @@ class Midx:
     fault_state = ["NONE", "FLASH离线", "整定电流异常", "极对数不匹配", "电机堵转", "电阻电感校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
     warning_state = ["NONE", "过温", "超速", "位置超限", "编码器无响应", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]
-    data_select = ["NONE", "U相电流", "V相电流", "W相电流", "q轴电压", "d轴电压", "α轴电流", "β轴电流", "q轴电流", "d轴电流", "q轴电流目标值", "d轴电流目标值", "速度", "目标速度", "电角度", "机械角度", "位置", "目标位置"]
+    data_select = ["NONE", "U相电流", "V相电流", "W相电流", "q轴电压", "d轴电压", "α轴电流", "β轴电流", "q轴电流", "d轴电流", "Iq_ref", "Id_ref", "速度", "目标速度", "电角度", "机械角度", "位置", "目标位置"]
 

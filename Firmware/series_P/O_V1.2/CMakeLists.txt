@@ -71,6 +71,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/usr/utils
     ${CMAKE_SOURCE_DIR}/usr
 )
+set(PROTOCOL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../protocol)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${PROTOCOL_DIR})
 
 # ========================================
 # 5. 链接 BSP 库

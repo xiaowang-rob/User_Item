@@ -1,4 +1,4 @@
-from shared_constants import Pidx, Sidx, Lidx
+from protocol import Pidx, Sidx, Lidx
 
 
 # ====================================

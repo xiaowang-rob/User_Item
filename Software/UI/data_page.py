@@ -11,7 +11,7 @@ from siui.core import Si
 from siui.gui import SiFont
 from siui.components.combobox_ import SiCapsuleComboBox
 
-from shared_constants import Midx
+from protocol import Midx
 
 
 title_W = 80

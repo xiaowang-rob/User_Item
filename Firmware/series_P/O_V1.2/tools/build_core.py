@@ -5,13 +5,12 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime
-
+from pathlib import Path
 
 # 导入同目录下的工具模块
 import config_parser
 import filter_coeffs
 import linker_mod
-
 
 # ── 辅助函数 ──
 def fmt_f(val):
@@ -148,22 +147,7 @@ def cmd_gen(cfg, project_root):
     if ld_file.exists():
         linker_mod.modify_linker_script(config_h, ld_file)
 
-    # 生成协议定义文件
-    codegen_script = project_root / "tools" / "codegen.py"
-    json_path = project_root / "usr" / "usr_config.json"
-    proto_h = project_root / "usr" / "protocol_defs.h"
-    proto_py = project_root / "usr" / "shared_constants.py"
-    subprocess.run(
-        [
-            sys.executable,
-            str(codegen_script),
-            str(json_path),
-            str(proto_h),
-            str(proto_py),
-        ],
-        check=True,
-    )
-    print("[OK] 协议定义文件已生成")
+    # （协议定义文件由开发者手动运行 protocol/gen_protocol.py 生成）
 
 
 def check_and_clean_if_type_changed(project_root, firmware_type):

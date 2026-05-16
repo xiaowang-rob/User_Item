@@ -1,6 +1,6 @@
-/* ===== 此文件由 build.py 自动生成，请勿手动修改 ，相关配置在 usr_config.json 中 ===== */
-#ifndef __PROTOCOL_DEFS_H
-#define __PROTOCOL_DEFS_H
+/* ===== 此文件由 gen_protocol.py 自动生成，请勿手动修改，相关配置在 protocol.json 中 ===== */
+#ifndef __PROTOCOL_H
+#define __PROTOCOL_H
 
 typedef enum {
     ENCODER_CHIP       =  0,  /* 编码器芯片 */
@@ -49,8 +49,8 @@ typedef enum {
     CURRENT_BETA  =  6,  /* β轴电流 */
     CURRENT_Q     =  7,  /* q轴电流 */
     CURRENT_D     =  8,  /* d轴电流 */
-    CURRENT_Q_REF =  9,  /* q轴电流目标值 */
-    CURRENT_D_REF = 10,  /* d轴电流目标值 */
+    CURRENT_Q_REF =  9,  /* Iq_ref */
+    CURRENT_D_REF = 10,  /* Id_ref */
     SPEED         = 11,  /* 速度 */
     SPEED_REF     = 12,  /* 目标速度 */
     THETA_ELEC    = 13,  /* 电角度 */

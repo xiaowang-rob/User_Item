@@ -4,11 +4,11 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QEvent
 from PyQt5.QtGui import QFont
 import numpy as np
 import logging
-from shared_constants import Cidx
+from protocol import Cidx
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("Wave")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))

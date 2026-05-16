@@ -2,7 +2,7 @@
 #define __PARAMETER_MANAGER_H
 
 #include "bsp.h"
-#include "protocol_defs.h"
+#include "protocol.h"
 
 #define PARAMETER_LOAD_block 0
 #define PARAMETER_LOAD_sector 0

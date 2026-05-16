@@ -1,6 +1,6 @@
 import struct
 import logging
-from shared_constants import Lidx, Midx, Cidx
+from protocol import Lidx, Midx, Cidx
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("LogManager")
