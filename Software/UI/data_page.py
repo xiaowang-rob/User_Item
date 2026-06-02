@@ -94,7 +94,50 @@ class DataPage:
         self.all_erase_button.setFixedHeight(30)
         button_layout2.addWidget(self.all_erase_button)
 
-        # 输入区域
+
+        control_scroll = QScrollArea()
+        control_scroll.setWidgetResizable(True)
+        control_scroll.setStyleSheet("""
+            QScrollBar:vertical {
+                background: #2b2b2b;          /* 轨道背景 */
+                width: 8px;                   /* 滚动条宽度 */
+                margin: 0px;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical {
+                background: #666666;          /* 滑块颜色 */
+                min-height: 30px;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #888888;          /* 鼠标悬停 */
+            }
+            QScrollBar::handle:vertical:pressed {
+                background: #aaaaaa;          /* 滑块按下 */
+            }
+            QScrollBar::sub-line:vertical,
+            QScrollBar::add-line:vertical {
+                height: 0px;                  /* 隐藏上下箭头 */
+            }
+            QScrollBar::add-page:vertical,
+            QScrollBar::sub-page:vertical {
+                background: none;
+            }
+        """)
+        control_container = QWidget()
+        control_layout_scroll = QVBoxLayout(control_container)
+        control_layout_scroll.setContentsMargins(0, 0, 0, 0)
+        control_layout_scroll.setAlignment(Qt.AlignTop) 
+        control_layout_scroll.setSpacing(12)
+
+        control_scroll.setWidget(control_container)
+
+        control_layout.addWidget(Title_control)
+        control_layout.addLayout(button_layout1)
+        control_layout.addLayout(button_layout2)
+        control_layout.addWidget(control_scroll)
+    
+        # CAN ID
         self.CAN_ID_input = SiCapsuleLineEdit()
         self.CAN_ID_input.resize(all_W, 40)
         self.CAN_ID_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
@@ -190,6 +233,14 @@ class DataPage:
         self.traj_tolerance.setTitle("容差")
         self.traj_tolerance.setText("0.01")
 
+        self.tune_current = SiCapsuleLineEdit()
+        self.tune_current.resize(all_W, 40)
+        self.tune_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
+        self.tune_current.setTitleFixedWidth(title_W)
+        self.tune_current.setAlignment(Qt.AlignCenter)
+        self.tune_current.setTitle("校准电流/A")
+        self.tune_current.setText("50")
+
         self.limit_current = SiCapsuleLineEdit()
         self.limit_current.resize(all_W, 40)
         self.limit_current.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
@@ -238,27 +289,26 @@ class DataPage:
         self.tolerance_limit.setTitle("容忍度")
         self.tolerance_limit.setText("1.0")
 
-        control_layout.addWidget(Title_control)
-        control_layout.addLayout(button_layout1)
-        control_layout.addLayout(button_layout2)
-        control_layout.addWidget(self.CAN_ID_input)
-        control_layout.addWidget(self.speed_loop_P_input)
-        control_layout.addWidget(self.speed_loop_I_input)
-        control_layout.addWidget(self.position_loop_P_input)
-        control_layout.addWidget(self.position_loop_I_input)
-        control_layout.addWidget(self.position_loop_D_input)
-        control_layout.addWidget(self.traj_max_rate)
-        control_layout.addWidget(self.traj_max_acc)
-        control_layout.addWidget(self.traj_max_jerk)
-        control_layout.addWidget(self.traj_tolerance)
-        control_layout.addWidget(self.limit_current)
-        control_layout.addWidget(self.limit_speed)
-        control_layout.addWidget(self.min_position)
-        control_layout.addWidget(self.max_position)
-        control_layout.addWidget(self.tolerance_time)
-        control_layout.addWidget(self.tolerance_limit)
+  
 
-        control_layout.setAlignment(Qt.AlignTop)
+        control_layout_scroll.addWidget(self.CAN_ID_input)
+        control_layout_scroll.addWidget(self.speed_loop_P_input)
+        control_layout_scroll.addWidget(self.speed_loop_I_input)
+        control_layout_scroll.addWidget(self.position_loop_P_input)
+        control_layout_scroll.addWidget(self.position_loop_I_input)
+        control_layout_scroll.addWidget(self.position_loop_D_input)
+        control_layout_scroll.addWidget(self.traj_max_rate)
+        control_layout_scroll.addWidget(self.traj_max_acc)
+        control_layout_scroll.addWidget(self.traj_max_jerk)
+        control_layout_scroll.addWidget(self.traj_tolerance)
+        control_layout_scroll.addWidget(self.tune_current)
+        control_layout_scroll.addWidget(self.limit_current)
+        control_layout_scroll.addWidget(self.limit_speed)
+        control_layout_scroll.addWidget(self.min_position)
+        control_layout_scroll.addWidget(self.max_position)
+        control_layout_scroll.addWidget(self.tolerance_time)
+        control_layout_scroll.addWidget(self.tolerance_limit)
+
 
         # 模式参数##############################################
         mode_layout = QVBoxLayout(self.mode_group)

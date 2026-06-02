@@ -281,6 +281,11 @@
             "comment": "位置环微分"
         },
         {
+            "name": "TUNE_CURRENT",
+            "value": null,
+            "comment": "校准电流"
+        },
+        {
             "name": "LIMIT_CURRENT",
             "value": null,
             "comment": "电流限幅"

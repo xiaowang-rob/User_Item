@@ -38,6 +38,7 @@ class Data_UI_Map:
             Pidx.KP_POSITION: data_page.position_loop_P_input,
             Pidx.KI_POSITION: data_page.position_loop_I_input,
             Pidx.KD_POSITION: data_page.position_loop_D_input,
+            Pidx.TUNE_CURRENT: data_page.tune_current,
             Pidx.LIMIT_CURRENT: data_page.limit_current,
             Pidx.LIMIT_SPEED: data_page.limit_speed,
             Pidx.LIMIT_POSITION_MIN: data_page.min_position,

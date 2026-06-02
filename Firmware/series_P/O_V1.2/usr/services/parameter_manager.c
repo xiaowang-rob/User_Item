@@ -87,6 +87,9 @@ void fParamSet(eParameter para, u8 *value)
     case KD_POSITION:
         g_Param.kd_position = *(float *)value;
         break;
+    case TUNE_CURRENT:
+        g_Param.tune_current = *(float *)value;
+        break;
     case LIMIT_CURRENT:
         g_Param.limit_current = *(float *)value;
         break;
@@ -225,6 +228,10 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         break;
     case KD_POSITION:
         *(float *)value = g_Param.kd_position;
+        *len = sizeof(float);
+        break;
+    case TUNE_CURRENT:
+        *(float *)value = g_Param.tune_current;
         *len = sizeof(float);
         break;
     case LIMIT_CURRENT:

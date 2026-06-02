@@ -44,6 +44,7 @@ typedef struct
     float kp_position;
     float ki_position;
     float kd_position;
+    float tune_current;
     float limit_current;
     float limit_omega;
     float limit_position_min;

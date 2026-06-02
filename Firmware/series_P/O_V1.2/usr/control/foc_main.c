@@ -64,7 +64,10 @@ void fFocStateMachineMainLoop()
     case FOC_RESET:
         fFocCoreReset();
         fFocStateUpdate(FOC_IDLE);
+        g_foc.foc_enable = false;
+        BSP_PWM_Disable();
         BSP_POWER_12V_Control(true);
+
         break;
     case FOC_ENABLE:
         g_foc.foc_enable = true;
