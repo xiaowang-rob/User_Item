@@ -7,7 +7,7 @@ import logging
 from queue import Queue, Full, Empty
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from PyQt5.QtWidgets import QFileDialog
-from functons.message_show import (
+from functions.message_show import (
     send_simple_message,
     send_titled_message,
     MSG_TYPE_ERROR,

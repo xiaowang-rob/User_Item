@@ -7,21 +7,21 @@ from siui.templates.application.components.layer.layer_child_page.layer_child_pa
 from .top_area import TopArea
 from siui.core import SiGlobal
 from siui.components.tooltip import ToolTipWindow
-from functons.message_show import init_message_system
-from functons.com_port import ComPort
+from functions.message_show import init_message_system
+from functions.com_port import ComPort
 from .middle_area import MiddleArea
 from .data_page import DataPage
 from .control_page import ControlPage
 from .IAP_widget import DownloadPage
 
-from functons.wave import Wave
+from functions.wave import Wave
 from .data_ui_map import Data_UI_Map
-from functons.data_show import DataShow
-from functons.log import LogManager
-from functons.parampeter import ParameterManager
-from functons.config import Pconfig
-from functons.quick_but import QuickBut
-from functons.IAP_downloader import IAP_downloader
+from functions.data_show import DataShow
+from functions.log import LogManager
+from functions.parampeter import ParameterManager
+from functions.config import Pconfig
+from functions.quick_but import QuickBut
+from functions.IAP_downloader import IAP_downloader
 
 
 class MainWindow(QMainWindow):
@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
 
     def _register_data_handlers(self):
         from protocol import Cidx, Fidx
-        from functons.message_show import send_titled_message, MSG_TYPE_SUCCESS, MSG_TYPE_ERROR
+        from functions.message_show import send_titled_message, MSG_TYPE_SUCCESS, MSG_TYPE_ERROR
         import struct
 
         c = self.comport

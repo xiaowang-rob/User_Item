@@ -116,6 +116,10 @@ def gen_usr_config(cfg, bsp_info, coeffs, output_path):
 #define LPF_W_A1    {fmt_f(lpf_w[3])}
 #define LPF_W_A2    {fmt_f(lpf_w[4])}
 
+/* ---------- 滤波器截止频率 (Hz) ---------- */
+#define CUR_LPF_HZ    800.0f   /* 电流采样 LPF 截止 */
+#define SPEED_LPF_HZ  50.0f    /* 速度 LPF 截止 */
+
 #endif /* __USR_CONFIG_H */
 """
     output_path.write_text(content, encoding="utf-8")

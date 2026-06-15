@@ -46,6 +46,7 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_CPHA = 1,
         .spi_data_size = 16,
         .parse_and_check = MT6816_ParseAndCheck,
+        .use_dma_state_machine = true,
     },
     [AS5047] = {
         .resolution = 16384,
@@ -57,6 +58,7 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_CPHA = 1,
         .spi_data_size = 16,
         .parse_and_check = AS5047_ParseAndCheck,
+        .use_dma_state_machine = true,
     },
     /* MT6835 预留：按手册填入参数即可 */
 };
@@ -454,6 +456,7 @@ static void AS5047_MainLoop(void)
 /* ========== 主循环任务 ========== */
 void fEncoderMainLoopTask(void)
 {
+    // TODO: 将来用 chip_desc->dma_state_entry 函数指针替代此 switch
     switch (g_encoder.chip_type)
     {
     case MT6816:

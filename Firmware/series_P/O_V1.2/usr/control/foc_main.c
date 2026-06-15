@@ -1,4 +1,11 @@
 #include "foc_main.h"
+#include "svpwm.h"
+
+// 开环启动参数
+#define OL_START_LOCK_MS    200    // 锁定时间 [ms]
+#define OL_START_RAMP_MS    500    // 斜坡时间 [ms]
+#define OL_START_RPM        200.0f // 开环目标转速 [rpm]
+#define OL_START_CURRENT    1.0f   // 开环电流 [A]
 #include "math_fast.h"
 #include "parameter_manager.h"
 #include "device.h"
@@ -69,6 +76,43 @@ void fFocStateMachineMainLoop()
         BSP_POWER_12V_Control(true);
 
         break;
+    case FOC_OPENLOOP:
+        // 开环启动：锁定→斜坡→匀速，让SMO建立BEMF后再切闭环
+        if (!g_foc.foc_enable) {
+            g_foc.foc_enable = true;
+            g_foc.ol_start_tick = BSP_GetTick();
+            g_foc.ol_angle = 0.0f;
+            BSP_PWM_Enable();
+        }
+        {
+            uint32_t elapsed = BSP_GetTick() - g_foc.ol_start_tick;
+            float rpm_cmd = 0.0f;
+            if (elapsed < OL_START_LOCK_MS) {
+                rpm_cmd = 0.0f;  // 锁定
+            } else if (elapsed < (OL_START_LOCK_MS + OL_START_RAMP_MS)) {
+                float t = (float)(elapsed - OL_START_LOCK_MS) / OL_START_RAMP_MS;
+                rpm_cmd = OL_START_RPM * t;  // 斜坡加速
+            } else {
+                rpm_cmd = OL_START_RPM;  // 匀速
+            }
+            // 开环电压矢量
+            g_foc.ol_angle += rpm_cmd * 6.0f * 0.00005f * g_Param.motor_polepairs;  // deg per tick
+            if (g_foc.ol_angle > 360.0f) g_foc.ol_angle -= 360.0f;
+            // 输出到 SVM
+            float u_alpha = OL_START_CURRENT * cosf(g_foc.ol_angle * 0.0174533f);
+            float u_beta = OL_START_CURRENT * sinf(g_foc.ol_angle * 0.0174533f);
+            fSvpwmRun(u_alpha, u_beta);
+
+            // SMO 在后台同时运行（在 fFocMainLoopTask 中调用）
+            // 条件满足时切闭环
+            if (elapsed > (OL_START_LOCK_MS + OL_START_RAMP_MS + 200)) {
+                if (FABSF(smo_get_omega()) > OL_START_RPM * 0.5f * g_Param.motor_polepairs) {
+                    fFocStateUpdate(FOC_RUNNING);
+                }
+            }
+        }
+        break;
+
     case FOC_ENABLE:
         g_foc.foc_enable = true;
         BSP_PWM_Enable();

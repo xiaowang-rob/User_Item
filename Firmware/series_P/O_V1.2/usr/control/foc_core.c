@@ -7,9 +7,13 @@
 #include "tune.h"
 #include "loop_control.h"
 #include "mit.h"
+
+// HFI→SMO 融合切换速度阈值 [rpm]
+#define HFI_TO_SMO_RPM  300.0f
 #include "filter.h"
 #include "protection_manager.h"
 #include "hfi.h"
+#include "usr_config.h"
 #include "usr_config.h"
 
 #include "bsp_adc.h"
@@ -61,15 +65,23 @@ static void _MotorInit(tParameter *param)
 // 滤波器初始化
 static void _FilterInit(tParameter *param)
 {
-    if (param->cur_filter_alpha <= 0.01f || param->cur_filter_alpha >= 1)
-        param->cur_filter_alpha = 0.4f; // 默认值，确保在合理范围内
-    if (param->speed_filter_alpha <= 0.01f || param->speed_filter_alpha >= 1)
-        param->speed_filter_alpha = 0.2f; // 默认值，确保在合理范围内
-    fFirstOrderLagInit(&_i_u_filter, param->cur_filter_alpha, 0);
-    fFirstOrderLagInit(&_i_v_filter, param->cur_filter_alpha, 0);
-    fFirstOrderLagInit(&_i_w_filter, param->cur_filter_alpha, 0);
+    // 从 Hz 计算 alpha = dt / (dt + 1/(2*PI*fc))
+    float dt_cur = T_PWM;
+    float dt_spd = T_PWM * FREQ_SPEED;
 
-    fFirstOrderLagInit(&_omega_filter, param->speed_filter_alpha, 0);
+    float alpha_cur = dt_cur / (dt_cur + 1.0f / (6.2831853f * CUR_LPF_HZ));
+    float alpha_spd = dt_spd / (dt_spd + 1.0f / (6.2831853f * SPEED_LPF_HZ));
+
+    // 参数中若配置了有效 alpha 值则覆盖
+    if (param->cur_filter_alpha > 0.01f && param->cur_filter_alpha < 1.0f)
+        alpha_cur = param->cur_filter_alpha;
+    if (param->speed_filter_alpha > 0.01f && param->speed_filter_alpha < 1.0f)
+        alpha_spd = param->speed_filter_alpha;
+
+    fFirstOrderLagInit(&_i_u_filter, alpha_cur, 0);
+    fFirstOrderLagInit(&_i_v_filter, alpha_cur, 0);
+    fFirstOrderLagInit(&_i_w_filter, alpha_cur, 0);
+    fFirstOrderLagInit(&_omega_filter, alpha_spd, 0);
 }
 
 void fFilterReset()
@@ -195,18 +207,32 @@ void fFocValueUpdate(void)
         g_foc_val.rpm_fb = fFirstOrderLagFilter(&_omega_filter, fGetEncoderRPM(F_SPEED));
         break;
 
-    case SENSORLESS_CONTROL: // todo:这里只获取和处理无感观测器的数据
+    case SENSORLESS_CONTROL: {
+        // 融合策略：低速用 HFI，高速用 SMO，中间线性过渡
+        // HFI 和 SMO 都在后台运行，这里只做数据融合
+        float smo_rpm = smo_get_omega() / g_motor.pole_pairs;
+        float smo_theta = smo_get_theta();
+        float hfi_theta = fHfiGetThetaElec();
+        float rpm_abs = FABSF(smo_rpm);
 
-        g_foc_val.theta_elec = fHfiGetThetaElec();
-        g_foc_val.rpm_fb = fHfiGetOmegaElec() / g_motor.pole_pairs;
-        // todo:做累加电角度才能反馈真实的机械角速度和位置
-        // g_foc_val.theta_mech =
-        // g_foc_val.pos_fb =
-
-        // g_foc_val.rpm_fb = fHfiGetOmegaElec() / g_motor.pole_pairs;
-        //        g_foc_val.rpm_fb = fHfiGetOmegaElec(); // 先让他等于电角速度
-        //        g_foc_val.rpm_fb = FABSF(g_foc_val.rpm_fb) < 0.1 ? 0 : g_foc_val.rpm_fb;
+        if (rpm_abs < HFI_TO_SMO_RPM) {
+            // 低速：用 HFI
+            g_foc_val.theta_elec = hfi_theta;
+            g_foc_val.rpm_fb = fHfiGetOmegaElec() / g_motor.pole_pairs;
+        } else if (rpm_abs < HFI_TO_SMO_RPM * 1.5f) {
+            // 过渡区：线性融合
+            float ratio = (rpm_abs - HFI_TO_SMO_RPM) / (HFI_TO_SMO_RPM * 0.5f);
+            if (ratio > 1.0f) ratio = 1.0f;
+            float hfi_omega = fHfiGetOmegaElec() / g_motor.pole_pairs;
+            g_foc_val.theta_elec = hfi_theta * (1.0f - ratio) + smo_theta * ratio;
+            g_foc_val.rpm_fb = hfi_omega * (1.0f - ratio) + smo_rpm * ratio;
+        } else {
+            // 高速：用 SMO
+            g_foc_val.theta_elec = smo_theta;
+            g_foc_val.rpm_fb = smo_rpm;
+        }
         break;
+    }
     case MERGE_CONTROL:
         g_foc_val.theta_mech = fGetEncoderAngle_ABS();
         g_foc_val.theta_elec = (g_foc_val.theta_mech - g_motor.mech_offset) * g_motor.pole_pairs * (g_motor.forward_dir ? 1 : -1) + (g_motor.elec_pi_offset ? 180 : 0);
@@ -241,7 +267,7 @@ void fFocMainLoopTask(void)
             fSamplePointCalibration();
             return;
         }
-        // fSmoMainLoop(g_foc_val.ualpha, g_foc_val.ubeta, g_foc_val.ialpha, g_foc_val.ibeta);
+                fSmoMainLoop(g_foc_val.ualpha, g_foc_val.ubeta, g_foc_val.ialpha, g_foc_val.ibeta);
     }
     tTraj_Out traj_out;
 

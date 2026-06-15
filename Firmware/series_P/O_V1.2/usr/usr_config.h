@@ -1,5 +1,5 @@
 /* ===== 此文件由 build.py 自动生成，请勿手动修改，相关配置在 usr_config.json 中 ===== */
-/* 生成时间: 2026-06-16 02:36:03 */
+/* 生成时间: 2026-06-16 02:42:45 */
 #ifndef __USR_CONFIG_H
 #define __USR_CONFIG_H
 
@@ -47,5 +47,9 @@
 #define LPF_W_B2    0.0001551484
 #define LPF_W_A1    1.9644605802
 #define LPF_W_A2    -0.9650811739
+
+/* ---------- 滤波器截止频率 (Hz) ---------- */
+#define CUR_LPF_HZ    800.0f   /* 电流采样 LPF 截止 */
+#define SPEED_LPF_HZ  50.0f    /* 速度 LPF 截止 */
 
 #endif /* __USR_CONFIG_H */

@@ -25,6 +25,18 @@ typedef struct
     float emf_max;           // 反电动势限幅 [V]
 } tSMO_Config;
 
+// PLL 观测器参数
+#define SMO_USE_PLL 1  // 1=PLL角度跟踪, 0=atan2+50%平滑
+#define SMO_GAIN_BY_DUTY 1  // 1=基于电压, 0=基于速度
+
+typedef struct {
+    float theta_pll;  // PLL输出角度 [rad]
+    float omega_pll;  // PLL输出电角速度 [rad/s]
+    float kp;         // 比例增益
+    float ki;         // 积分增益
+    float dt;         // 时间步长 [s]
+} tSmoPll;
+
 // SMO 主结构体
 typedef struct
 {
@@ -56,6 +68,9 @@ typedef struct
     float theta_prev;
     float omega_elec; // 电角速度 [rad/s]
 
+    // === PLL 状态 ===
+    tSmoPll pll;
+
     // === 内部缓存 ===
     float k_sl_curr;
 } tSMO;
@@ -73,6 +88,8 @@ typedef struct
 void fSmoInit(tMotor *motor);
 void fSmoReset(void);
 void fSmoSetConfig(tSMO_Config *cfg);
+void smo_pll_init(tSmoPll *pll, float kp, float ki, float dt);
+void smo_pll_update(tSmoPll *pll, float theta_obs_rad);
 void fSmoMainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 
 // === 数据获取 ===

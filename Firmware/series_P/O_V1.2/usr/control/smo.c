@@ -37,9 +37,22 @@ __STATIC_INLINE void _SmoPrecompute(tSMO *p)
     p->inv_l_eff = 1.0f / (L_avg + p->rs * p->dt);
 }
 
-// 自适应滑模增益
-__STATIC_INLINE float _CalcAdaptiveGain(tSMO *p, float omega_abs)
+// 自适应滑模增益 — 基于电压模长（BEMF信号强度），vs 基于估计速度
+// 基于电压: v_mag 越大说明信号越好，增益可以降低
+// 避免了"速度不准→增益乱调"的鸡生蛋问题
+__STATIC_INLINE float _CalcAdaptiveGain(tSMO *p, float omega_abs, float v_alpha, float v_beta)
 {
+#if SMO_GAIN_BY_DUTY
+    float v_mag = sqrtf(v_alpha * v_alpha + v_beta * v_beta);
+    float v_ratio = v_mag / 12.0f;  // 12V 为参考基准
+    v_ratio = CLAMP(v_ratio, 0.0f, 1.0f);
+    // 电压高→信号好→增益降
+    float k_sl = p->cfg.k_sl_base * (p->cfg.k_sl_min_ratio + (1.0f - p->cfg.k_sl_min_ratio) * (1.0f - v_ratio));
+    // 最低增益保障
+    k_sl = (k_sl < p->cfg.k_sl_base * 0.1f) ? (p->cfg.k_sl_base * 0.1f) : k_sl;
+    return k_sl;
+#else
+    // 原方案：基于速度（保留作为对比）
     float k_sl = p->cfg.k_sl_base;
     if (omega_abs > p->cfg.omega_adapt_start)
     {
@@ -50,6 +63,37 @@ __STATIC_INLINE float _CalcAdaptiveGain(tSMO *p, float omega_abs)
                                    (1.0f - p->cfg.k_sl_min_ratio) * (1.0f - ratio));
     }
     return k_sl;
+#endif
+}
+
+
+// ===== PLL 角度跟踪 =====
+// 归一化到 [-PI, PI]
+static inline float _norm_rad_pi(float a) {
+    while (a > 3.14159265f) a -= 6.2831853f;
+    while (a < -3.14159265f) a += 6.2831853f;
+    return a;
+}
+
+void smo_pll_init(tSmoPll *pll, float kp, float ki, float dt) {
+    pll->theta_pll = 0.0f;
+    pll->omega_pll = 0.0f;
+    pll->kp = kp;
+    pll->ki = ki;
+    pll->dt = dt;
+}
+
+void smo_pll_update(tSmoPll *pll, float theta_obs_rad) {
+    // Type-1 PLL: 角度误差 → 速度积分 + 比例修正
+    float delta = _norm_rad_pi(theta_obs_rad - pll->theta_pll);
+
+    // 比例 + 积分
+    pll->theta_pll += (pll->omega_pll + pll->kp * delta) * pll->dt;
+    pll->omega_pll += pll->ki * delta * pll->dt;
+
+    // 归一化输出角度
+    while (pll->theta_pll > 6.2831853f) pll->theta_pll -= 6.2831853f;
+    while (pll->theta_pll < 0.0f) pll->theta_pll += 6.2831853f;
 }
 
 void fSmoInit(tMotor *motor)
@@ -62,6 +106,8 @@ void fSmoInit(tMotor *motor)
 
     g_smo.cfg = SMO_DEFAULT_CFG;
     _SmoPrecompute(&g_smo);
+    // PLL 初始化: Kp=200, Ki=10000  @ dt 约 20us(SMO_DTICK=4)
+    smo_pll_init(&g_smo.pll, 200.0f, 10000.0f, g_smo.dt);
     fSmoReset();
 
     // 滤波器初始化
@@ -79,6 +125,8 @@ void fSmoReset(void)
     g_smo.e_alpha_filt = g_smo.e_beta_filt = 0.0f;
     g_smo.theta_elec = g_smo.theta_prev = g_smo.omega_elec = 0.0f;
     g_smo.k_sl_curr = g_smo.cfg.k_sl_base;
+    g_smo.pll.theta_pll = 0;
+    g_smo.pll.omega_pll = 0;
 }
 
 void fSmoSetConfig(tSMO_Config *cfg)
@@ -129,33 +177,48 @@ void fSmoMainLoop(float v_alpha, float v_beta,
     g_smo.i_beta_hat = i_beta;
 #endif
 
-    // === 步骤 2：自适应增益 ===
+    // === 步骤 2：自适应增益（基于电压模长，避免速度不准的影响） ===
     float omega_abs = FABSF(g_smo.omega_elec);
-    g_smo.k_sl_curr = _CalcAdaptiveGain(&g_smo, omega_abs);
+    g_smo.k_sl_curr = _CalcAdaptiveGain(&g_smo, omega_abs, v_alpha, v_beta);
 
     // === 步骤 3：反电动势滤波 ===
 
     g_smo.e_alpha_filt = fFirstOrderLagFilter(&emf_alpha_lpf, g_smo.e_alpha);
     g_smo.e_beta_filt = fFirstOrderLagFilter(&emf_beta_lpf, g_smo.e_beta);
 
-    // === 步骤 4：角度计算 ===
+    // === 步骤 4：角度计算（PLL vs atan2+平滑） ===
     float emf_mag_sq = g_smo.e_alpha_filt * g_smo.e_alpha_filt +
                        g_smo.e_beta_filt * g_smo.e_beta_filt;
 
+#if SMO_USE_PLL
+    if (emf_mag_sq > 0.01f)
+    {
+        // PLL: 角度速度联合估计，无附加LPF
+        float theta_obs = atan2f(g_smo.e_beta_filt, g_smo.e_alpha_filt);  // [-PI, PI] rad
+        smo_pll_update(&g_smo.pll, theta_obs);
+        g_smo.theta_elec = g_smo.pll.theta_pll * 57.29578f;  // rad → deg
+        g_smo.omega_elec = g_smo.pll.omega_pll;
+    }
+    else
+    {
+        g_smo.theta_elec = g_smo.theta_prev;  // 保持上次值
+        g_smo.omega_elec = 0;
+    }
+#else
+    // 原方案：atan2 + 50%融合平滑（用于对比）
     if (emf_mag_sq > 0.01f)
     {
         float theta_new = atan2f(g_smo.e_beta_filt, g_smo.e_alpha_filt) * 57.29578f;
         float diff = fNormalizeAngle_180(theta_new - g_smo.theta_elec);
-        g_smo.theta_elec += 0.5f * diff; // 50% 融合平滑
+        g_smo.theta_elec += 0.5f * diff;
     }
     g_smo.theta_elec = fNormalizeAngle_0_360(g_smo.theta_elec);
 
-    // === 步骤 5：速度计算 ===
     float angle_diff = fNormalizeAngle_180(g_smo.theta_elec - g_smo.theta_prev);
-    float speed_raw = angle_diff / g_smo.dt * 0.0174533f; // deg/s -> rad/s
-
+    float speed_raw = angle_diff / g_smo.dt * 0.0174533f;
     g_smo.omega_elec = fFirstOrderLagFilter(&omega_lpf, speed_raw);
     g_smo.omega_elec = CLAMP(g_smo.omega_elec, -g_smo.cfg.max_omega_elec, g_smo.cfg.max_omega_elec);
+#endif
 
     g_smo.theta_prev = g_smo.theta_elec;
 }
