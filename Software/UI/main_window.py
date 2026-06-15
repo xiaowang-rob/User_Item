@@ -72,6 +72,55 @@ class MainWindow(QMainWindow):
         self.quick_but = QuickBut(self, self.comport)
         self.IAP = IAP_downloader(self)
 
+        # Register command handlers (replaces giant match-case in com_port)
+        self._register_data_handlers()
+
+    def _register_data_handlers(self):
+        from protocol import Cidx, Fidx
+        from functons.message_show import send_titled_message, MSG_TYPE_SUCCESS, MSG_TYPE_ERROR
+        import struct
+
+        c = self.comport
+
+        # UC_CONNECT: status or system info
+        def _on_connect(data):
+            c.update_status_time()
+            byte_len = len(data) // 4 + 3
+            if byte_len == 6:
+                for i in range(byte_len):
+                    if i < 4:
+                        self.data_show.set_status(i, data[i])
+                    else:
+                        val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
+                        self.data_show.set_status(i, val)
+                self.data_show.show_status()
+            else:
+                msg = "".join(ch for ch in data.decode(errors="ignore") if 32 <= ord(ch) <= 126)
+                parts = msg.split(",")
+                self.IAP.set_current_version(parts[0].strip() + " " + parts[1].strip())
+                labels = ["Device", "Version", "Author", "PWM", "CurLoop",
+                          "SpdLoop", "PosLoop", "MaxCur", "Vin", "MaxTemp"]
+                units = ["", "", "", "Hz", "Hz", "Hz", "Hz", "A", "V", "\u00b0C"]
+                lines = [f"{l}: {p}{u}" for l, p, u in zip(labels, parts, units)]
+                self.system_message = "\n".join(lines)
+        c.register_handler(Cidx.UC_CONNECT, _on_connect)
+
+        c.register_handler(Cidx.LOG_GET, self.log.add_log)
+        c.register_handler(Cidx.PARAM_READ, self.param_manager.add_param)
+
+        def _feedback(ok_msg, fail_msg):
+            def h(data):
+                ok = data[0] == Fidx.FEEDBACK_EXECUTE
+                send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
+                    "OK" if ok else "ERR", ok_msg if ok else fail_msg, True, 1000)
+            return h
+        c.register_handler(Cidx.LOG_ERASE, _feedback("Logs cleared", "Log clear failed"))
+        c.register_handler(Cidx.PARAM_ERASE, _feedback("Params cleared", "Param clear failed"))
+        c.register_handler(Cidx.PARAM_SAVE, _feedback("Params saved", "Param save failed"))
+
+        c.register_handler(Cidx.CMD_STREAM_SET, self.wave.handle_stream_data)
+
+
     def showChildPage(self):
         self.layer_child_page.setChildPage(self.download_page)
 

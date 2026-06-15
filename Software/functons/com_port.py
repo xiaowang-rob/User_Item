@@ -91,6 +91,8 @@ class ComPort(QObject):
         self.FOOT = Pkt.USB_PACKET_TAIL
 
         # 连接信号槽
+        self._handlers = {}
+        self._handlers = {}
         self.packet_valid.connect(self.handle_received_data)
         self.connection_lost.connect(self._on_connection_lost_ui)
         self.ui_message.connect(self._on_ui_message)
@@ -106,6 +108,11 @@ class ComPort(QObject):
 
         # 初始扫描
         self._refresh_ports()
+
+    # ==================== COMMAND DISPATCH ====================
+    def register_handler(self, cmd_id, callback):
+        """Register a command handler"""
+        self._handlers[cmd_id] = callback
 
     # ==================== UI 交互 ====================
     def _handleConnectBut(self):
@@ -607,76 +614,19 @@ class ComPort(QObject):
 
     # ==================== 数据分派 ====================
     def handle_received_data(self, cmd_id: int, data: bytes):
-        """处理已解析的有效数据包（主线程信号槽）"""
+        """Dispatch to registered handlers"""
         if self._is_bootloader_mode:
             try:
                 self.mw.IAP._iap_cmd_received(cmd_id, data)
             except Exception as e:
-                logger.error(f"Bootloader 数据处理异常: {e}")
+                logger.error(f"Bootloader data error: {e}")
             return
 
-        try:
-            match cmd_id:
-                case Cidx.UC_CONNECT:
-                    self.update_status_time()
-                    byte_len = len(data) // 4 + 3
-                    if byte_len == 6:                   # 已连接，接收状态
-                        for i in range(byte_len):
-                            if i < 4:
-                                self.mw.data_show.set_status(i, data[i])
-                            else:
-                                val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
-                                self.mw.data_show.set_status(i, val)
-                        self.mw.data_show.show_status()
-                        # 固件已主动推送状态，无需再请求
-                    else:                               # 首次连接，解析系统信息
-                        sys_msg_in = data.decode(errors="ignore")
-                        sys_msg = "".join(c for c in sys_msg_in if 32 <= ord(c) <= 126)
-                        logger.debug(f"系统消息原始: {sys_msg}")
-                        parts = sys_msg.split(",")
-                        version = parts[0].strip() + " " + parts[1].strip()
-                        self.mw.IAP.set_current_version(version)
-
-                        labels = ["设备名称", "版本", "作者", "基频", "电流环频率",
-                                  "速度环频率", "位置环频率", "最大电流", "输入电压", "最大温度"]
-                        units = ["", "", "", "Hz", "Hz", "Hz", "Hz", "A", "V", "°C"]
-                        formatted = []
-                        for i, label in enumerate(labels):
-                            value = parts[i].strip() if i < len(parts) else ""
-                            formatted.append(f"{label}: {value}{units[i]}")
-                        self.mw.system_message = "\n".join(formatted)
-
-                        # 完成蓝牙握手
-                        # self.confirm_device_handshake()
-                    return
-
-                case Cidx.LOG_GET:
-                    self.mw.log.add_log(data)
-                case Cidx.LOG_ERASE:
-                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
-                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
-                                        "提示" if ok else "错误",
-                                        "日志已清除" if ok else "日志清除失败",
-                                        True, 1000)
-                case Cidx.PARAM_ERASE:
-                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
-                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
-                                        "提示" if ok else "错误",
-                                        "参数已清除" if ok else "参数清除失败",
-                                        True, 1000)
-                case Cidx.PARAM_SAVE:
-                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
-                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
-                                        "提示" if ok else "错误",
-                                        "参数已保存" if ok else "参数保存失败",
-                                        True, 1000)
-                case Cidx.PARAM_READ:
-                    self.mw.param_manager.add_param(data[0], data[1:])
-                case Cidx.CMD_STREAM_SET:
-                    count = len(data) // 4
-                    for i in range(count):
-                        val = struct.unpack("<f", data[i*4:(i+1)*4])[0]
-                        self.mw.wave.add_data_by_index(i, val)
-
-        except Exception as e:
-            logger.exception(f"数据处理异常 cmd={cmd_id}")
+        handler = self._handlers.get(cmd_id)
+        if handler:
+            try:
+                handler(data)
+            except Exception as e:
+                logger.error(f"Handler error cmd={cmd_id:#x}: {e}")
+        else:
+            logger.debug(f"Unhandled cmd={cmd_id:#x}")
