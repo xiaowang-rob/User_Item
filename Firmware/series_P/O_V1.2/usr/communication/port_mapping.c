@@ -42,7 +42,7 @@ tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &
 const u8 EXECUTE = FEEDBACK_EXECUTE;
 const u8 FAILURE = FEEDBACK_FAILURE;
 
-static u8 no_response_tic = 0; // 无响应次数
+static u32 _last_host_ping_ms = 0; // 上次收到主机心跳时间
 static bool system_message_send_flag = false;
 
 // 通讯层初始化
@@ -129,15 +129,15 @@ static inline void _StatusSend()
         memcpy(&com_frame.txdata[8], &g_foc.core->foc_val->udc, sizeof(float));
         com_frame.txdatalen = 12;
     }
-    fHostComputer_send();
-    no_response_tic++;
-    if (no_response_tic > 10)
-    {
+    // 超时检测：基于实际时间（5秒无心跳断开）
+    if (_last_host_ping_ms > 0 && BSP_GetTick() - _last_host_ping_ms > 5000) {
         g_com_state.Host_port = NONE_port;
         system_message_send_flag = false;
         com_frame.stream_num = 0;
-        no_response_tic = 0;
+        _last_host_ping_ms = 0;
+        return;
     }
+    fHostComputer_send();
 }
 
 static u8 data_id = 0;
@@ -186,14 +186,11 @@ static void _FrameDataDeal()
             switch (com_frame.cmd_id)
             {
             case UC_CONNECT:
-                if (g_com_state.Host_port != NONE_port)
-                {
-                    no_response_tic = 0;
-                }
-                else
+                if (g_com_state.Host_port == NONE_port)
                 {
                     g_com_state.Host_port = com_frame.com_port;
                 }
+                _last_host_ping_ms = BSP_GetTick();
                 break;
             case UC_DISCONNECT:
                 system_message_send_flag = false;

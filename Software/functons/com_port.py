@@ -628,7 +628,7 @@ class ComPort(QObject):
                                 val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
                                 self.mw.data_show.set_status(i, val)
                         self.mw.data_show.show_status()
-                        self.send_packet(Cidx.UC_CONNECT, bytes())
+                        # 固件已主动推送状态，无需再请求
                     else:                               # 首次连接，解析系统信息
                         sys_msg_in = data.decode(errors="ignore")
                         sys_msg = "".join(c for c in sys_msg_in if 32 <= ord(c) <= 126)
