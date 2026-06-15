@@ -7,6 +7,7 @@
 #include "usb_port.h"
 #include "string.h"
 #include "device.h"
+#include "math_fast.h"
 /* USB协议帧全局变量 */
 tUSB_Frame UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///< 发送帧结构体
 tUSB_Frame UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///< 接收帧结构体
@@ -57,16 +58,14 @@ bool fUSB_SendFrame(u8 id, u8 *data, u8 len)
     if (len == 0)
         return false;
 
-    /* 计算校验值 */
-    u16 check = 0;
-    for (int i = 0; i < len; i++)
-        check += data[i];
+    /* CRC8 校验 */
+    u8 check = crc8(data, len);
 
     /* 填充发送帧结构 */
     UsbTxFrame.id = id;
     UsbTxFrame.len = len;
     memcpy(UsbTxFrame.data, data, len);
-    UsbTxFrame.check = (u8)check & 0xff;
+    UsbTxFrame.check = check;
 
     /* 组装完整帧：head(1)+id(1)+len(1)+data(N)+check(1)+tail(1) = N+5字节 */
     UsbTxFrame.data[len] = UsbTxFrame.check;    // 校验字节
@@ -111,13 +110,11 @@ bool BSP_USB_RecvByte(u8 *data, u8 *len)
         /* 提取校验字节 */
         UsbRxFrame.check = data[*len - 2];
 
-        /* 计算数据域校验和（从第3字节开始到校验字节前） */
-        u16 check = 0;
-        for (int i = 3; i < *len - 2; i++)
-            check += data[i];
+        /* CRC8 校验（数据域从第3字节到校验字节前） */
+        u8 check = crc8(data + 3, *len - 5);
 
-        /* 校验比对（取最低位） */
-        if ((u8)(check & 0xff) != UsbRxFrame.check)
+        /* 校验比对 */
+        if (check != UsbRxFrame.check)
             return false; // 校验失败
 
         /* 校验通过，解析帧内容 */

@@ -106,4 +106,20 @@ static inline void fInvParkTransform(float d, float q, float sin_angle, float co
     *beta = d * sin_angle + q * cos_angle;
 }
 
+
+// CRC8 校验 — 替代简单的 sum&0xff，能检测字节顺序错误
+static inline u8 crc8_update(u8 crc, u8 data) {
+    crc ^= data;
+    for (int i = 0; i < 8; i++)
+        crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
+    return crc;
+}
+
+static inline u8 crc8(const u8 *data, u8 len) {
+    u8 crc = 0;
+    for (u8 i = 0; i < len; i++)
+        crc = crc8_update(crc, data[i]);
+    return crc;
+}
+
 #endif /* __MATH_FAST_H */

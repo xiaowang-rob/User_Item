@@ -6,6 +6,7 @@
 
 #include "uart_port.h"
 #include "string.h"
+#include "math_fast.h"
 
 /* 全局收发帧结构体 */
 tUartFrame UsartRxFrame_g = {0}; ///< 接收帧缓冲区
@@ -72,11 +73,8 @@ void fUartPortSendFrame(u8 id, u8 *data, u8 len)
     UsartTxFrame_g.msgID = id;
     UsartTxFrame_g.len = len;
 
-    /* 计算校验值（数据累加取最低位） */
-    u16 temp = 0;
-    for (int i = 0; i < len; i++)
-        temp += data[i];
-    UsartTxFrame_g.check = (u8)temp & 0xff;
+    /* CRC8 校验 */
+    UsartTxFrame_g.check = crc8(data, len);
 
     /* 复制数据到帧结构 */
     memcpy(UsartTxFrame_g.data, data, len);

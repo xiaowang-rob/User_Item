@@ -289,6 +289,15 @@ class ComPort(QObject):
             self._connect_time = time.time()
             self._last_status_time = 0.0
 
+            # 根据端口类型切换帧格式
+            # USB: HEAD=0x3A TAIL=0x0D, UART/蓝牙: HEAD=0x55 TAIL=0xAA
+            if port_type == "bluetooth":
+                self.HEAD = Pkt.PACKET_HEAD
+                self.FOOT = Pkt.PACKET_TAIL
+            else:
+                self.HEAD = Pkt.USB_PACKET_HEAD
+                self.FOOT = Pkt.USB_PACKET_TAIL
+
             # 启动收发线程
             self._stop_recv.clear()
             self._stop_sender.clear()
@@ -438,13 +447,24 @@ class ComPort(QObject):
             self.ui_message.emit(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
             return False
 
+    @staticmethod
+    def _crc8(data):
+        """CRC-8/ATM: poly=0x07"""
+        crc = 0
+        for byte in data:
+            crc ^= byte
+            for _ in range(8):
+                crc = ((crc << 1) ^ 0x07) if (crc & 0x80) else (crc << 1)
+            crc &= 0xFF
+        return crc
+
     def _build_packet(self, cmd_id, data_bytes):
         """构造协议包：HEAD + cmd_id + length + data + checksum + FOOT"""
         data_bytes = bytes(data_bytes) if isinstance(data_bytes, (bytes, bytearray, list)) else bytes()
         length = min(len(data_bytes), 255)
         packet = bytearray([self.HEAD, cmd_id, length])
         packet.extend(data_bytes[:length])
-        packet.append(sum(data_bytes[:length]) & 0xFF)
+        packet.append(self._crc8(data_bytes[:length]))
         packet.append(self.FOOT)
         return packet
 
@@ -522,7 +542,7 @@ class ComPort(QObject):
                 continue
 
             data_bytes = buffer[3: 3 + length]
-            calc_chk = sum(data_bytes) & 0xFF
+            calc_chk = self._crc8(data_bytes)
             if buffer[3 + length] == calc_chk:
                 self.packet_valid.emit(int(cmd_id), bytes(data_bytes))
             else:
