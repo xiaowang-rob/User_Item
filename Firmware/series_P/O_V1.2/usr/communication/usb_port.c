@@ -12,7 +12,6 @@ tUSB_Frame UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///<
 tUSB_Frame UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///< 接收帧结构体
 
 /* 传输错误计数器（用于重发机制） */
-static u8 trans_fault_tic = 0;
 
 // 上拉 让上位机识别到USB口
 void fUSB_Init(void)
@@ -32,20 +31,13 @@ void fUSB_Init(void)
  */
 bool fUSB_SendData(u8 *data, u8 len)
 {
-    if (BSP_USB_CDC_Transmit_FS(data, len)) // 发送成功
-    {
-        trans_fault_tic = 0; // 清除错误计数器
-        return true;
-    }
-    else // 发送忙，启动重发机制
-    {
-        if (trans_fault_tic > 10) // 重发超过5次则放弃
-        {
-            trans_fault_tic = 0;
-            return false;
+    for (int i = 0; i <= 5; i++) {
+        if (BSP_USB_CDC_Transmit_FS(data, len)) {
+            return true;
         }
-        trans_fault_tic++;
-        fUSB_SendData(data, len); // 递归重发（注意：嵌入式环境需谨慎使用递归）
+        if (i < 5) {
+            BSP_Delay(1);  // 等待 1ms 再重试
+        }
     }
     return false;
 }
