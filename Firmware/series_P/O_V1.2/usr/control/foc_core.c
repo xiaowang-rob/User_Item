@@ -6,6 +6,7 @@
 #include "smo.h"
 #include "tune.h"
 #include "loop_control.h"
+#include "mit.h"
 #include "filter.h"
 #include "protection_manager.h"
 #include "hfi.h"
@@ -84,7 +85,7 @@ void fFocParamUpdate(tParameter *param)
     BSP_AdcGetVoltage(&g_foc_val.udc);
     fSvpwmInit(g_foc_val.udc);
     fLoopControlInit(param, g_foc_val.udc);
-
+    fMIT_Init(param->kp_MIT, param->kd_MIT, param->tff_MIT, param->tmax_MIT);
     _TrajectoryInit(param);
 
     fSmoInit(&g_motor);
@@ -238,6 +239,7 @@ void fFocMainLoopTask(void)
         }
         // fSmoMainLoop(g_foc_val.ualpha, g_foc_val.ubeta, g_foc_val.ialpha, g_foc_val.ibeta);
     }
+    tTraj_Out traj_out;
 
     switch (g_foc_mode.run_mode)
     {
@@ -245,7 +247,7 @@ void fFocMainLoopTask(void)
         if (!g_loop_con.fd.position_update)
             break;
 
-        tTraj_Out traj_out = fTraj_Update(g_loop_con.fd.t_pos);
+        traj_out = fTraj_Update(g_loop_con.fd.t_pos);
         g_foc_val.pos_ref = traj_out.value;
         g_foc_val.rpm_ref = fPositionRelLoopUpdate(g_foc_val.pos_ref, g_foc_val.pos_fb);
     case SPEED_MODE:
@@ -253,7 +255,7 @@ void fFocMainLoopTask(void)
             break;
         if (g_foc_mode.run_mode == SPEED_MODE)
         {
-            tTraj_Out traj_out = fTraj_Update(g_loop_con.fd.t_spd);
+            traj_out = fTraj_Update(g_loop_con.fd.t_spd);
             g_foc_val.rpm_ref = traj_out.value;
         }
         g_foc_val.iq_ref = fSpeedLoopUpdate(g_foc_val.rpm_ref, g_foc_val.rpm_fb);
@@ -266,6 +268,21 @@ void fFocMainLoopTask(void)
         g_foc_val.uq = fCurrentLoopUpdate(g_foc_val.iq_ref, g_foc_val.iq_fb);
         g_foc_val.ud = fMagLoopUpdate(g_foc_val.id_ref, g_foc_val.id_fb);
         fInvParkTransform(g_foc_val.ud, g_foc_val.uq, sin_theta_e, cos_theta_e, &g_foc_val.ualpha, &g_foc_val.ubeta);
+        break;
+
+    case MIT_MODE:
+        if (g_loop_con.fd.speed_update)
+        {
+            g_foc_val.tau_ref = fMIT_LoopUpdate(g_foc_val.pos_ref, g_foc_val.pos_fb, g_foc_val.rpm_ref, g_foc_val.rpm_fb);
+            g_foc_val.iq_ref = g_foc_val.tau_ref / g_motor.ke; // V·s/rad (或 V/(rad/s)) 整定出的ke要做单位换算
+            g_foc_val.id_ref = 0;
+        }
+        if (g_loop_con.fd.current_update)
+        {
+            g_foc_val.uq = fCurrentLoopUpdate(g_foc_val.iq_ref, g_foc_val.iq_fb);
+            g_foc_val.ud = fMagLoopUpdate(g_foc_val.id_ref, g_foc_val.id_fb);
+            fInvParkTransform(g_foc_val.ud, g_foc_val.uq, sin_theta_e, cos_theta_e, &g_foc_val.ualpha, &g_foc_val.ubeta);
+        }
         break;
 
     default: // 开环模式

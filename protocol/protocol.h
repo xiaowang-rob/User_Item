@@ -26,18 +26,22 @@ typedef enum {
     KP_POSITION        = 20,  /* 位置环比例 */
     KI_POSITION        = 21,  /* 位置环积分 */
     KD_POSITION        = 22,  /* 位置环微分 */
-    TUNE_CURRENT       = 23,  /* 校准电流 */
-    LIMIT_CURRENT      = 24,  /* 电流限幅 */
-    LIMIT_SPEED        = 25,  /* 速度限幅 */
-    LIMIT_POSITION_MIN = 26,  /* 位置限幅最小值 */
-    LIMIT_POSITION_MAX = 27,  /* 位置限幅最大值 */
-    TOLERANCE_TIME     = 28,  /* 容忍时间 */
-    TOLERANCE_LIMIT    = 29,  /* 超限容忍度 */
-    TRAJ_MAX_RATE      = 30,  /* 轨迹最大变化率 */
-    TRAJ_MAX_ACC       = 31,  /* 轨迹最大加速度 */
-    TRAJ_MAX_JERK      = 32,  /* 轨迹最大加加速度 */
-    TRAJ_TOLERANCE     = 33,  /* 轨迹规划容差 */
-    PARAM_NUM          = 34
+    MIT_KP             = 23,  /* MIT刚度 */
+    MIT_KD             = 24,  /* MIT阻尼 */
+    MIT_TFF            = 25,  /* MIT前馈扭矩 */
+    MIT_TMAX           = 26,  /* MIT最大扭矩 */
+    TUNE_CURRENT       = 27,  /* 校准电流 */
+    LIMIT_CURRENT      = 28,  /* 电流限幅 */
+    LIMIT_SPEED        = 29,  /* 速度限幅 */
+    LIMIT_POSITION_MIN = 30,  /* 位置限幅最小值 */
+    LIMIT_POSITION_MAX = 31,  /* 位置限幅最大值 */
+    TOLERANCE_TIME     = 32,  /* 容忍时间 */
+    TOLERANCE_LIMIT    = 33,  /* 超限容忍度 */
+    TRAJ_MAX_RATE      = 34,  /* 轨迹最大变化率 */
+    TRAJ_MAX_ACC       = 35,  /* 轨迹最大加速度 */
+    TRAJ_MAX_JERK      = 36,  /* 轨迹最大加加速度 */
+    TRAJ_TOLERANCE     = 37,  /* 轨迹规划容差 */
+    PARAM_NUM          = 38
 } eParameter;
 
 typedef enum {
@@ -80,7 +84,8 @@ typedef enum {
     CURRENT_MODE  = 0,  /* 电流模式 */
     SPEED_MODE    = 1,  /* 速度模式 */
     POSITION_MODE = 2,  /* 位置模式 */
-    OPEN_LOOP     = 3,  /* 开环模式 */
+    MIT_MODE      = 3,  /* MIT模式 */
+    OPEN_LOOP     = 4,  /* 开环模式 */
 } eRunMode;
 
 

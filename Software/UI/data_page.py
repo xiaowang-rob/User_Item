@@ -154,7 +154,7 @@ class DataPage:
         )
         self.speed_loop_P_input.setTitleFixedWidth(title_W)
         self.speed_loop_P_input.setAlignment(Qt.AlignCenter)
-        self.speed_loop_P_input.setTitle("速度环P")
+        self.speed_loop_P_input.setTitle("速度环 p")
         self.speed_loop_P_input.setText("0")
 
         # 速度环 I
@@ -165,7 +165,7 @@ class DataPage:
         )
         self.speed_loop_I_input.setTitleFixedWidth(title_W)
         self.speed_loop_I_input.setAlignment(Qt.AlignCenter)
-        self.speed_loop_I_input.setTitle("速度环I")
+        self.speed_loop_I_input.setTitle("速度环 i")
         self.speed_loop_I_input.setText("0")
 
         # 位置环 P
@@ -176,7 +176,7 @@ class DataPage:
         )
         self.position_loop_P_input.setTitleFixedWidth(title_W)
         self.position_loop_P_input.setAlignment(Qt.AlignCenter)
-        self.position_loop_P_input.setTitle("位置环P")
+        self.position_loop_P_input.setTitle("位置环 p")
         self.position_loop_P_input.setText("0")
 
         # 位置环 I
@@ -187,7 +187,7 @@ class DataPage:
         )
         self.position_loop_I_input.setTitleFixedWidth(title_W)
         self.position_loop_I_input.setAlignment(Qt.AlignCenter)
-        self.position_loop_I_input.setTitle("位置环I")
+        self.position_loop_I_input.setTitle("位置环 i")
         self.position_loop_I_input.setText("0")
 
         # 位置环 D
@@ -198,8 +198,65 @@ class DataPage:
         )
         self.position_loop_D_input.setTitleFixedWidth(title_W)
         self.position_loop_D_input.setAlignment(Qt.AlignCenter)
-        self.position_loop_D_input.setTitle("位置环D")
+        self.position_loop_D_input.setTitle("位置环 d")
         self.position_loop_D_input.setText("0")
+
+        Title_mit = SiLabel()
+        Title_mit.setStyleSheet("color:#E5E5E5;")
+        Title_mit.setText("MIT参数")
+        Title_mit.setFont(SiFont.tokenized(GlobalFont.S_BOLD))
+        Title_mit.setFixedHeight(18)
+        Title_mit.setAlignment(Qt.AlignBottom)
+        Title_mit.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
+
+        self.mit_kp_input = SiCapsuleLineEdit()
+        self.mit_kp_input.resize(all_W, 40)
+        self.mit_kp_input.setTitleWidthMode(
+            SiCapsuleLineEdit.TitleWidthMode.Fixed
+        )
+        self.mit_kp_input.setTitleFixedWidth(title_W)
+        self.mit_kp_input.setAlignment(Qt.AlignCenter)
+        self.mit_kp_input.setTitle("刚度 kp")
+        self.mit_kp_input.setText("0")
+
+        self.mit_kd_input = SiCapsuleLineEdit()
+        self.mit_kd_input.resize(all_W, 40)
+        self.mit_kd_input.setTitleWidthMode(
+            SiCapsuleLineEdit.TitleWidthMode.Fixed
+        )
+        self.mit_kd_input.setTitleFixedWidth(title_W)
+        self.mit_kd_input.setAlignment(Qt.AlignCenter)
+        self.mit_kd_input.setTitle("阻尼 kd")
+        self.mit_kd_input.setText("0")
+
+        self.mit_tau_ff_input = SiCapsuleLineEdit()
+        self.mit_tau_ff_input.resize(all_W, 40)
+        self.mit_tau_ff_input.setTitleWidthMode(
+            SiCapsuleLineEdit.TitleWidthMode.Fixed
+        )
+        self.mit_tau_ff_input.setTitleFixedWidth(title_W)
+        self.mit_tau_ff_input.setAlignment(Qt.AlignCenter)
+        self.mit_tau_ff_input.setTitle("前馈扭矩 tff")
+        self.mit_tau_ff_input.setText("0")
+
+        self.mit_tau_max_input = SiCapsuleLineEdit()
+        self.mit_tau_max_input.resize(all_W, 40)
+        self.mit_tau_max_input.setTitleWidthMode(
+            SiCapsuleLineEdit.TitleWidthMode.Fixed
+        )
+        self.mit_tau_max_input.setTitleFixedWidth(title_W)
+        self.mit_tau_max_input.setAlignment(Qt.AlignCenter)
+        self.mit_tau_max_input.setTitle("最大扭矩 tmax")
+        self.mit_tau_max_input.setText("100")
+
+
+        Title_traj = SiLabel()
+        Title_traj.setStyleSheet("color:#E5E5E5;")
+        Title_traj.setText("轨迹规划参数")
+        Title_traj.setFont(SiFont.tokenized(GlobalFont.S_BOLD))
+        Title_traj.setFixedHeight(18)
+        Title_traj.setAlignment(Qt.AlignBottom)
+        Title_traj.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
         self.traj_max_rate = SiCapsuleLineEdit()
         self.traj_max_rate.resize(all_W, 40)
@@ -232,6 +289,14 @@ class DataPage:
         self.traj_tolerance.setAlignment(Qt.AlignCenter)
         self.traj_tolerance.setTitle("容差")
         self.traj_tolerance.setText("0.01")
+
+        Title_safety = SiLabel()
+        Title_safety.setStyleSheet("color:#E5E5E5;")
+        Title_safety.setText("安全参数")
+        Title_safety.setFont(SiFont.tokenized(GlobalFont.S_BOLD))
+        Title_safety.setFixedHeight(18)
+        Title_safety.setAlignment(Qt.AlignBottom)
+        Title_safety.setSiliconWidgetFlag(Si.AdjustSizeOnTextChanged)
 
         self.tune_current = SiCapsuleLineEdit()
         self.tune_current.resize(all_W, 40)
@@ -297,10 +362,17 @@ class DataPage:
         control_layout_scroll.addWidget(self.position_loop_P_input)
         control_layout_scroll.addWidget(self.position_loop_I_input)
         control_layout_scroll.addWidget(self.position_loop_D_input)
+        control_layout_scroll.addWidget(Title_mit)
+        control_layout_scroll.addWidget(self.mit_kp_input)
+        control_layout_scroll.addWidget(self.mit_kd_input)
+        control_layout_scroll.addWidget(self.mit_tau_ff_input)
+        control_layout_scroll.addWidget(self.mit_tau_max_input)
+        control_layout_scroll.addWidget(Title_traj)
         control_layout_scroll.addWidget(self.traj_max_rate)
         control_layout_scroll.addWidget(self.traj_max_acc)
         control_layout_scroll.addWidget(self.traj_max_jerk)
         control_layout_scroll.addWidget(self.traj_tolerance)
+        control_layout_scroll.addWidget(Title_safety)
         control_layout_scroll.addWidget(self.tune_current)
         control_layout_scroll.addWidget(self.limit_current)
         control_layout_scroll.addWidget(self.limit_speed)

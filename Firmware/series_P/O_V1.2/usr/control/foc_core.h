@@ -35,6 +35,7 @@ typedef struct
     float rpm_fb;
     float pos_ref;
     float pos_fb;
+    float tau_ref;
 } tFOC_val;
 
 typedef struct

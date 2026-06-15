@@ -1,5 +1,5 @@
 /* ===== 此文件由 build.py 自动生成，请勿手动修改 ===== */
-/* 生成时间: 2026-05-05 23:21:26 */
+/* 生成时间: 2026-06-16 00:04:48 */
 #ifndef __USR_CONFIG_H
 #define __USR_CONFIG_H
 
@@ -8,7 +8,7 @@
 /* ---------- 版本信息 ---------- */
 #define FIRM_NAME      "XDr-bl"
 #define FIRM_AUTHOR    "wxd"
-#define FIRM_V_DATE    "O_V1.2_260505"
+#define FIRM_V_DATE    "O_V1.2_260616"
 #define FIRM_VERSION   FIRM_NAME " " FIRM_V_DATE
 
 /* ---------- 启动配置 ---------- */

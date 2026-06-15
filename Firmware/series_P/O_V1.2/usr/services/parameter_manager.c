@@ -230,6 +230,22 @@ void fParamGet(eParameter para, u8 *value, u8 *len)
         *(float *)value = g_Param.kd_position;
         *len = sizeof(float);
         break;
+    case MIT_KP:
+        *(float *)value = g_Param.kp_MIT;
+        *len = sizeof(float);
+        break;
+    case MIT_KD:
+        *(float *)value = g_Param.kd_MIT;
+        *len = sizeof(float);
+        break;
+    case MIT_TFF:
+        *(float *)value = g_Param.tff_MIT;
+        *len = sizeof(float);
+        break;
+    case MIT_TMAX:
+        *(float *)value = g_Param.tmax_MIT;
+        *len = sizeof(float);
+        break;
     case TUNE_CURRENT:
         *(float *)value = g_Param.tune_current;
         *len = sizeof(float);

@@ -281,6 +281,26 @@
             "comment": "位置环微分"
         },
         {
+            "name": "MIT_KP",
+            "value": null,
+            "comment": "MIT刚度"
+        },
+        {
+            "name": "MIT_KD",
+            "value": null,
+            "comment": "MIT阻尼"
+        },
+        {
+            "name": "MIT_TFF",
+            "value": null,
+            "comment": "MIT前馈扭矩"
+        },
+        {
+            "name": "MIT_TMAX",
+            "value": null,
+            "comment": "MIT最大扭矩"
+        },
+        {
             "name": "TUNE_CURRENT",
             "value": null,
             "comment": "校准电流"
@@ -615,6 +635,10 @@
                 {
                     "name": "POSITION_MODE",
                     "comment": "位置模式"
+                },
+                {
+                    "name": "MIT_MODE",
+                    "comment": "MIT模式"
                 },
                 {
                     "name": "OPEN_LOOP",

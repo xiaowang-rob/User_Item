@@ -24,18 +24,22 @@ class Pidx:
     KP_POSITION        = 20  # 位置环比例
     KI_POSITION        = 21  # 位置环积分
     KD_POSITION        = 22  # 位置环微分
-    TUNE_CURRENT       = 23  # 校准电流
-    LIMIT_CURRENT      = 24  # 电流限幅
-    LIMIT_SPEED        = 25  # 速度限幅
-    LIMIT_POSITION_MIN = 26  # 位置限幅最小值
-    LIMIT_POSITION_MAX = 27  # 位置限幅最大值
-    TOLERANCE_TIME     = 28  # 容忍时间
-    TOLERANCE_LIMIT    = 29  # 超限容忍度
-    TRAJ_MAX_RATE      = 30  # 轨迹最大变化率
-    TRAJ_MAX_ACC       = 31  # 轨迹最大加速度
-    TRAJ_MAX_JERK      = 32  # 轨迹最大加加速度
-    TRAJ_TOLERANCE     = 33  # 轨迹规划容差
-    NUM_OF_PARAM       = 34  # 参数总数
+    MIT_KP             = 23  # MIT刚度
+    MIT_KD             = 24  # MIT阻尼
+    MIT_TFF            = 25  # MIT前馈扭矩
+    MIT_TMAX           = 26  # MIT最大扭矩
+    TUNE_CURRENT       = 27  # 校准电流
+    LIMIT_CURRENT      = 28  # 电流限幅
+    LIMIT_SPEED        = 29  # 速度限幅
+    LIMIT_POSITION_MIN = 30  # 位置限幅最小值
+    LIMIT_POSITION_MAX = 31  # 位置限幅最大值
+    TOLERANCE_TIME     = 32  # 容忍时间
+    TOLERANCE_LIMIT    = 33  # 超限容忍度
+    TRAJ_MAX_RATE      = 34  # 轨迹最大变化率
+    TRAJ_MAX_ACC       = 35  # 轨迹最大加速度
+    TRAJ_MAX_JERK      = 36  # 轨迹最大加加速度
+    TRAJ_TOLERANCE     = 37  # 轨迹规划容差
+    NUM_OF_PARAM       = 38  # 参数总数
 
 class Lidx:
     num             = 0  # 序号
@@ -129,7 +133,7 @@ class Sidx:
 class Midx:
     sensor_mode = ["编码反馈", "无感观测", "混合模式"]
     encoder_chip = ["MT6816", "MT6835", "AS5047", "芯片数量"]
-    run_mode = ["电流模式", "速度模式", "位置模式", "开环模式"]
+    run_mode = ["电流模式", "速度模式", "位置模式", "MIT模式", "开环模式"]
     target_type = ["拖动电流/A", "目标速度/rpm", "目标位置/deg", "无"]
     can_mode = ["实时处理", "队列处理", "实时反馈", "队列反馈"]
     vague_PID_mode = ["禁用", "启动"]
