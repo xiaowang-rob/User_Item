@@ -84,4 +84,12 @@ bool fParamSave();  // 一键保存
 void fParamErase(); // 一键擦除
 bool fParamInit();
 
+// 参数描述符表 — 用 memcpy+offsetof 替代 switch-case
+typedef struct {
+    u16 offset;
+    u8 size;
+} tParamEntry;
+
+extern const tParamEntry g_param_table[];
+
 #endif // __PARAMETER_MANAGER_H

@@ -63,13 +63,13 @@ static void _FilterInit(tParameter *param)
 {
     if (param->cur_filter_alpha <= 0.01f || param->cur_filter_alpha >= 1)
         param->cur_filter_alpha = 0.4f; // 默认值，确保在合理范围内
-    if (param->speed_fiter_alpha <= 0.01f || param->speed_fiter_alpha >= 1)
-        param->speed_fiter_alpha = 0.2f; // 默认值，确保在合理范围内
+    if (param->speed_filter_alpha <= 0.01f || param->speed_filter_alpha >= 1)
+        param->speed_filter_alpha = 0.2f; // 默认值，确保在合理范围内
     fFirstOrderLagInit(&_i_u_filter, param->cur_filter_alpha, 0);
     fFirstOrderLagInit(&_i_v_filter, param->cur_filter_alpha, 0);
     fFirstOrderLagInit(&_i_w_filter, param->cur_filter_alpha, 0);
 
-    fFirstOrderLagInit(&_omega_filter, param->speed_fiter_alpha, 0);
+    fFirstOrderLagInit(&_omega_filter, param->speed_filter_alpha, 0);
 }
 
 void fFilterReset()

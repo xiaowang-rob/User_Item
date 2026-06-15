@@ -1,4 +1,5 @@
 #include "parameter_manager.h"
+#include <stddef.h>
 #include "string.h"
 #include "foc_main.h"
 #include "math_fast.h"
@@ -8,295 +9,70 @@
 
 tParameter g_Param;
 
+// param 描述符表
+#define PARAM_ENTRY(id, field) [id] = { .offset = offsetof(tParameter, field), .size = sizeof(((tParameter*)0)->field) }
+
+const tParamEntry g_param_table[] = {
+    PARAM_ENTRY(ENCODER_CHIP,       encoder_chip),
+    PARAM_ENTRY(SENSOR_MODE,        sensor_mode),
+    PARAM_ENTRY(RUN_MODE,           run_mode),
+    PARAM_ENTRY(CAN_MODE,           sw_canqueue),
+    PARAM_ENTRY(VAGUE_PID_MODE,     sw_vague_pid),
+    PARAM_ENTRY(PVT_MODE,           sw_pvt),
+    PARAM_ENTRY(TRAJ_TYPE,          traj_type),
+    PARAM_ENTRY(MOTOR_POLEPAIRS,    motor_polepairs),
+    PARAM_ENTRY(CAN_ID,             can_id),
+    PARAM_ENTRY(THETA_OFFSET,       theta_offset),
+    PARAM_ENTRY(MOTOR_KV,           motor_kv),
+    PARAM_ENTRY(MOTOR_RS,           motor_rs),
+    PARAM_ENTRY(MOTOR_Ld,           motor_ld),
+    PARAM_ENTRY(MOTOR_Lq,           motor_lq),
+    PARAM_ENTRY(MOTOR_PSIF,         motor_psif),
+    PARAM_ENTRY(MOTOR_KE,           motor_ke),
+    PARAM_ENTRY(MOTOR_J,            motor_j),
+    PARAM_ENTRY(MOTOR_B,            motor_b),
+    PARAM_ENTRY(KP_SPEED,           kp_speed),
+    PARAM_ENTRY(KI_SPEED,           ki_speed),
+    PARAM_ENTRY(KP_POSITION,        kp_position),
+    PARAM_ENTRY(KI_POSITION,        ki_position),
+    PARAM_ENTRY(KD_POSITION,        kd_position),
+    PARAM_ENTRY(MIT_KP,             kp_MIT),
+    PARAM_ENTRY(MIT_KD,             kd_MIT),
+    PARAM_ENTRY(MIT_TFF,            tff_MIT),
+    PARAM_ENTRY(MIT_TMAX,           tmax_MIT),
+    PARAM_ENTRY(TUNE_CURRENT,       tune_current),
+    PARAM_ENTRY(LIMIT_CURRENT,      limit_current),
+    PARAM_ENTRY(LIMIT_SPEED,        limit_omega),
+    PARAM_ENTRY(LIMIT_POSITION_MIN, limit_position_min),
+    PARAM_ENTRY(LIMIT_POSITION_MAX, limit_position_max),
+    PARAM_ENTRY(TOLERANCE_TIME,     tolerance_time),
+    PARAM_ENTRY(TOLERANCE_LIMIT,    tolerance_limit),
+    PARAM_ENTRY(TRAJ_MAX_RATE,      traj_max_rate),
+    PARAM_ENTRY(TRAJ_MAX_ACC,       traj_max_acc),
+    PARAM_ENTRY(TRAJ_MAX_JERK,      traj_max_jerk),
+    PARAM_ENTRY(TRAJ_TOLERANCE,     tolerance),
+};
+
 void fParamSet(eParameter para, u8 *value)
 {
-    switch (para)
-    {
-    // u8类型参数
-    case ENCODER_CHIP:
-        g_Param.encoder_chip = *(u8 *)value;
-        break;
-    case SENSOR_MODE:
-        g_Param.sensor_mode = *(u8 *)value;
-        break;
-    case RUN_MODE:
-        g_Param.run_mode = *(u8 *)value;
-        break;
-    case CAN_MODE:
-        g_Param.sw_canqueue = *(u8 *)value;
-        break;
-    case VAGUE_PID_MODE:
-        g_Param.sw_vague_pid = *(u8 *)value;
-        break;
-    case PVT_MODE:
-        g_Param.sw_pvt = *(u8 *)value;
-        break;
-    case TRAJ_TYPE:
-        g_Param.traj_type = *(u8 *)value;
-        break;
-
-    case MOTOR_POLEPAIRS:
-        g_Param.motor_polepairs = *(u8 *)value;
-        break;
-
-    // u32类型参数
-    case CAN_ID:
-        g_Param.can_id = *(u32 *)value;
-        break;
-
-        // float类型参数
-    case THETA_OFFSET:
-        g_Param.theta_offset = *(float *)value;
-        break;
-    case MOTOR_KV:
-        g_Param.motor_kv = *(float *)value;
-        break;
-    case MOTOR_RS:
-        g_Param.motor_rs = *(float *)value;
-        break;
-    case MOTOR_Ld:
-        g_Param.motor_ld = *(float *)value;
-        break;
-    case MOTOR_Lq:
-        g_Param.motor_lq = *(float *)value;
-        break;
-    case MOTOR_PSIF:
-        g_Param.motor_psif = *(float *)value;
-        break;
-    case MOTOR_KE:
-        g_Param.motor_ke = *(float *)value;
-        break;
-    case MOTOR_J:
-        g_Param.motor_j = *(float *)value;
-        break;
-    case MOTOR_B:
-        g_Param.motor_b = *(float *)value;
-        break;
-    case KP_SPEED:
-        g_Param.kp_speed = *(float *)value;
-        break;
-    case KI_SPEED:
-        g_Param.ki_speed = *(float *)value;
-        break;
-    case KP_POSITION:
-        g_Param.kp_position = *(float *)value;
-        break;
-    case KI_POSITION:
-        g_Param.ki_position = *(float *)value;
-        break;
-    case KD_POSITION:
-        g_Param.kd_position = *(float *)value;
-        break;
-    case TUNE_CURRENT:
-        g_Param.tune_current = *(float *)value;
-        break;
-    case LIMIT_CURRENT:
-        g_Param.limit_current = *(float *)value;
-        break;
-    case LIMIT_SPEED:
-        g_Param.limit_omega = *(float *)value;
-        break;
-    case LIMIT_POSITION_MIN:
-        g_Param.limit_position_min = *(float *)value;
-        break;
-    case LIMIT_POSITION_MAX:
-        g_Param.limit_position_max = *(float *)value;
-        break;
-    case TOLERANCE_TIME:
-        g_Param.tolerance_time = *(float *)value;
-        break;
-    case TOLERANCE_LIMIT:
-        g_Param.tolerance_limit = *(float *)value;
-        break;
-
-    case TRAJ_MAX_RATE:
-        g_Param.traj_max_rate = *(float *)value;
-        break;
-    case TRAJ_MAX_ACC:
-        g_Param.traj_max_acc = *(float *)value;
-        break;
-    case TRAJ_MAX_JERK:
-        g_Param.traj_max_jerk = *(float *)value;
-        break;
-    case TRAJ_TOLERANCE:
-        g_Param.tolerance = *(float *)value;
-        break;
-    default: // 最后会发送一个 成功 反馈
-        fFocParamUpdate(&g_Param);
-        fCAN_SetConfig(g_Param.can_id, g_Param.sw_canqueue);
-        fProManagerInit(&g_Param);
-        break;
+    if (para >= PARAM_NUM) {
+        return;
     }
+    u8 *dst = (u8 *)&g_Param + g_param_table[para].offset;
+    memcpy(dst, value, g_param_table[para].size);
 }
 
 void fParamGet(eParameter para, u8 *value, u8 *len)
 {
-    switch (para)
-    {
-    // u8类型参数
-    case ENCODER_CHIP:
-        *(u8 *)value = g_Param.encoder_chip;
-        *len = sizeof(u8);
-        break;
-    case SENSOR_MODE:
-        *(u8 *)value = g_Param.sensor_mode;
-        *len = sizeof(u8);
-        break;
-    case RUN_MODE:
-        *(u8 *)value = g_Param.run_mode;
-        *len = sizeof(u8);
-        break;
-    case CAN_MODE:
-        *(u8 *)value = g_Param.sw_canqueue;
-        *len = sizeof(u8);
-        break;
-    case VAGUE_PID_MODE:
-        *(u8 *)value = g_Param.sw_vague_pid;
-        *len = sizeof(u8);
-        break;
-    case PVT_MODE:
-        *(u8 *)value = g_Param.sw_pvt;
-        *len = sizeof(u8);
-        break;
-    case TRAJ_TYPE:
-        *(u8 *)value = g_Param.traj_type;
-        *len = sizeof(u8);
-        break;
-
-    case MOTOR_POLEPAIRS:
-        *(u8 *)value = g_Param.motor_polepairs;
-        *len = sizeof(u8);
-        break;
-
-    // u32类型参数
-    case CAN_ID:
-        *(u32 *)value = g_Param.can_id;
-        *len = sizeof(u32);
-        break;
-
-    case THETA_OFFSET:
-        *(float *)value = g_Param.theta_offset;
-        *len = sizeof(float);
-        break;
-    case MOTOR_KV:
-        *(float *)value = g_Param.motor_kv;
-        *len = sizeof(float);
-        break;
-    case MOTOR_RS:
-        *(float *)value = g_Param.motor_rs;
-        *len = sizeof(float);
-        break;
-    case MOTOR_Ld:
-        *(float *)value = g_Param.motor_ld;
-        *len = sizeof(float);
-        break;
-    case MOTOR_Lq:
-        *(float *)value = g_Param.motor_lq;
-        *len = sizeof(float);
-        break;
-    case MOTOR_PSIF:
-        *(float *)value = g_Param.motor_psif;
-        *len = sizeof(float);
-        break;
-    case MOTOR_KE:
-        *(float *)value = g_Param.motor_ke;
-        *len = sizeof(float);
-        break;
-    case MOTOR_J:
-        *(float *)value = g_Param.motor_j;
-        *len = sizeof(float);
-        break;
-    case MOTOR_B:
-        *(float *)value = g_Param.motor_b;
-        *len = sizeof(float);
-        break;
-    case KP_SPEED:
-        *(float *)value = g_Param.kp_speed;
-        *len = sizeof(float);
-        break;
-    case KI_SPEED:
-        *(float *)value = g_Param.ki_speed;
-        *len = sizeof(float);
-        break;
-    case KP_POSITION:
-        *(float *)value = g_Param.kp_position;
-        *len = sizeof(float);
-        break;
-    case KI_POSITION:
-        *(float *)value = g_Param.ki_position;
-        *len = sizeof(float);
-        break;
-    case KD_POSITION:
-        *(float *)value = g_Param.kd_position;
-        *len = sizeof(float);
-        break;
-    case MIT_KP:
-        *(float *)value = g_Param.kp_MIT;
-        *len = sizeof(float);
-        break;
-    case MIT_KD:
-        *(float *)value = g_Param.kd_MIT;
-        *len = sizeof(float);
-        break;
-    case MIT_TFF:
-        *(float *)value = g_Param.tff_MIT;
-        *len = sizeof(float);
-        break;
-    case MIT_TMAX:
-        *(float *)value = g_Param.tmax_MIT;
-        *len = sizeof(float);
-        break;
-    case TUNE_CURRENT:
-        *(float *)value = g_Param.tune_current;
-        *len = sizeof(float);
-        break;
-    case LIMIT_CURRENT:
-        *(float *)value = g_Param.limit_current;
-        *len = sizeof(float);
-        break;
-    case LIMIT_SPEED:
-        *(float *)value = g_Param.limit_omega;
-        *len = sizeof(float);
-        break;
-    case LIMIT_POSITION_MIN:
-        *(float *)value = g_Param.limit_position_min;
-        *len = sizeof(float);
-        break;
-    case LIMIT_POSITION_MAX:
-        *(float *)value = g_Param.limit_position_max;
-        *len = sizeof(float);
-        break;
-    case TOLERANCE_TIME:
-        *(float *)value = g_Param.tolerance_time;
-        *len = sizeof(float);
-        break;
-    case TOLERANCE_LIMIT:
-        *(float *)value = g_Param.tolerance_limit;
-        *len = sizeof(float);
-        break;
-
-    case TRAJ_MAX_RATE:
-        *(float *)value = g_Param.traj_max_rate;
-        *len = sizeof(float);
-        break;
-    case TRAJ_MAX_ACC:
-        *(float *)value = g_Param.traj_max_acc;
-        *len = sizeof(float);
-        break;
-    case TRAJ_MAX_JERK:
-        *(float *)value = g_Param.traj_max_jerk;
-        *len = sizeof(float);
-        break;
-    case TRAJ_TOLERANCE:
-        *(float *)value = g_Param.tolerance;
-        *len = sizeof(float);
-        break;
-
-    default:
+    if (para >= PARAM_NUM) {
         *len = 0;
-        break;
+        return;
     }
+    u8 *src = (u8 *)&g_Param + g_param_table[para].offset;
+    memcpy(value, src, g_param_table[para].size);
+    *len = g_param_table[para].size;
 }
+
 bool _ParamReadFlash()
 {
     return fFLASH_ReadData((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
