@@ -17,7 +17,7 @@ tFirstOrderLagFilter emf_beta_lpf;
 
 tFirstOrderLagFilter omega_lpf;
 
-tSMO g_smo;
+static tSMO g_smo;
 
 // 默认配置
 static const tSMO_Config SMO_DEFAULT_CFG = {
@@ -159,3 +159,7 @@ void fSmoMainLoop(float v_alpha, float v_beta,
 
     g_smo.theta_prev = g_smo.theta_elec;
 }
+
+// 数据获取
+float smo_get_theta(void) { return g_smo.theta_elec; }
+float smo_get_omega(void) { return g_smo.omega_elec; }

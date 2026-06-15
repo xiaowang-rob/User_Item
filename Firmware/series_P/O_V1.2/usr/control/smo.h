@@ -60,7 +60,6 @@ typedef struct
     float k_sl_curr;
 } tSMO;
 
-extern tSMO g_smo;
 
 // TODO(xdr): 命名规范说明 — f 前缀无统一含义
 // VESC风格: 去掉无意义f前缀，模块名+动作 小写下划线:
@@ -76,8 +75,8 @@ void fSmoReset(void);
 void fSmoSetConfig(tSMO_Config *cfg);
 void fSmoMainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 
-// === 数据获取 (内联零开销) ===
-__STATIC_INLINE float fSmoGetThetaDeg(void) { return g_smo.theta_elec; }
-__STATIC_INLINE float fSmoGetOmegaElec(void) { return g_smo.omega_elec; }
+// === 数据获取 ===
+float smo_get_theta(void);
+float smo_get_omega(void);
 
 #endif // __SMO_H

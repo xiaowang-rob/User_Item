@@ -3,7 +3,6 @@
 
 #include "foc_core.h"
 #include "loop_control.h"
-#include "smo.h"
 #include "tune.h"
 #include "svpwm.h"
 #include "hfi.h"
@@ -17,7 +16,6 @@ typedef struct
     tFOC_Core *core;
     tLoopControl *loop_con;
     tHFI_Handle *hfi;
-    tSMO *smo;
     tTuneContext *tun;
     tSvpwm *svpwm;
 } FOC_t;
