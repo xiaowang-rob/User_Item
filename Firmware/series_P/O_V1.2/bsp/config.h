@@ -55,7 +55,7 @@
 #define T_CON 0.00005f
 
 #define T_SAMPLE_us 7   // 采样 4-7us
-#define T_DEATH_us 0.5f // 死区时间
+#define T_DEADTIME_us 0.5f // 死区时间
 #define T_NOISE_us 0.5f // 开关噪声时间
 
 #define MED_FILTER_SIZE 3          // 中值滤波器大小，必须为奇数

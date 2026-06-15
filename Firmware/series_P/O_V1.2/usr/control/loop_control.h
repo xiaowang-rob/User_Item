@@ -58,13 +58,22 @@ typedef struct
 
 extern tLoopControl g_loop_con;
 
-void fFrequencyDivisionUpdate(void);                 // 更新分频计数器和各环更新标志
-void fLoopControlInit(tParameter *param, float Udc); // 环路参数初始化
-void fLoopReset(float Udc);                          // 重置所有控制器状态
-float fCurrentLoopUpdate(float ref, float fb);       // q轴电流环
-float fMagLoopUpdate(float ref, float fb);           // d轴磁链环
-float fWeakMagLoopUpdate(float ud, float uq);        // 弱磁控制
-float fSpeedLoopUpdate(float ref, float fb);         // 速度环
-float fPositionRelLoopUpdate(float ref, float fb);   // 相对位置环（带限幅）
+// TODO(xdr): 命名规范说明
+// 以下函数中 PI_init/PI_update/PID_init 使用全大写前缀，
+// 在C语言中全大写通常留给 #define 宏。
+// VESC风格建议改为小写下划线 + 模块前缀:
+//   PI_init()           → loop_pi_init()
+//   PI_update()         → loop_pi_update()
+//   PID_init()          → loop_pid_init()
+// 函数不应使用全大写命名。
+void fFrequencyDivisionUpdate(void);
+void fLoopControlInit(tParameter *param, float Udc);
+void fLoopReset(float Udc);
+float fCurrentLoopUpdate(float ref, float fb);
+float fMagLoopUpdate(float ref, float fb);
+float fWeakMagLoopUpdate(float ud, float uq);
+float fSpeedLoopUpdate(float ref, float fb);
+float fPositionRelLoopUpdate(float ref, float fb);
+
 
 #endif

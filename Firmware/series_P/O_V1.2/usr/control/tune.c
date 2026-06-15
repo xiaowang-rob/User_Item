@@ -71,7 +71,7 @@ void fCalculateControlParams()
         f_filter = f_min;
 
     // 计算一阶低通滤波系数 alpha
-    temp_params.cur_fiter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
+    temp_params.cur_filter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
 }
 
 /* ================================= 参数访问实现 ================================= */
@@ -97,7 +97,7 @@ void fMotorParamTuneForceSave(void)
     g_Param.kp_D = temp_params.id_kp;
     g_Param.ki_D = temp_params.id_ki;
 
-    g_Param.cur_fiter_alpha = temp_params.cur_fiter_alpha;
+    g_Param.cur_filter_alpha = temp_params.cur_filter_alpha;
     g_Param.adc_U_zero_offset = temp_params.uadc_offset;
     g_Param.adc_V_zero_offset = temp_params.vadc_offset;
     g_Param.adc_W_zero_offset = temp_params.wadc_offset;

@@ -136,7 +136,7 @@ void fSvpwmRun(float ualpha, float ubeta)
 u8 change_Index = 0;
 const u16 ticTs = T_SAMPLE_us * TIC_PWM / (T_PWM * 1000000); // 采样时间提前量（计数值）
 const u16 ticTn = T_NOISE_us * TIC_PWM / (T_PWM * 1000000);  // 噪声时间（计数值）
-const u16 ticTd = T_DEATH_us * TIC_PWM / (T_PWM * 1000000);  // 死区时间（计数值）
+const u16 ticTd = T_DEADTIME_us * TIC_PWM / (T_PWM * 1000000);  // 死区时间（计数值）
 const u16 ticAll = ticTs + ticTn + ticTd;                    // 总时间（计数值
 
 void fSamplePointCalibration()

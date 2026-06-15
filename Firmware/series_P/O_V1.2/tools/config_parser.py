@@ -39,7 +39,7 @@ def parse_bsp_config(config_h_path):
         "MIN_VOLTAGE":      extract_num("MIN_VOLTAGE"),
         "MAX_TEMPERATURE":  extract_num("MAX_TEMPERATURE"),
         "T_SAMPLE_us":      extract_float("T_SAMPLE_us"),
-        "T_DEATH_us":       extract_float("T_DEATH_us"),
+        "T_DEADTIME_us":       extract_float("T_DEADTIME_us"),
         "T_NOISE_us":       extract_float("T_NOISE_us"),
         "BL_START_ADDR":    extract_hex("BL_START_ADDR"),
         "BL_SIZE_KB":       extract_num("BL_SIZE_KB"),

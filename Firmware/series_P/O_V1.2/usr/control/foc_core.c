@@ -45,7 +45,7 @@ static void _TrajectoryInit(tParameter *param)
 // 电机参数初始化
 static void _MotorInit(tParameter *param)
 {
-    g_motor.mech_offect = param->theta_offset;
+    g_motor.mech_offset = param->theta_offset;
     g_motor.pole_pairs = param->motor_polepairs;
     g_motor.elec_pi_offset = param->theta_elec_offset;
     g_motor.forward_dir = param->forward_dir;
@@ -61,13 +61,13 @@ static void _MotorInit(tParameter *param)
 // 滤波器初始化
 static void _FilterInit(tParameter *param)
 {
-    if (param->cur_fiter_alpha <= 0.01f || param->cur_fiter_alpha >= 1)
-        param->cur_fiter_alpha = 0.4f; // 默认值，确保在合理范围内
+    if (param->cur_filter_alpha <= 0.01f || param->cur_filter_alpha >= 1)
+        param->cur_filter_alpha = 0.4f; // 默认值，确保在合理范围内
     if (param->speed_fiter_alpha <= 0.01f || param->speed_fiter_alpha >= 1)
         param->speed_fiter_alpha = 0.2f; // 默认值，确保在合理范围内
-    fFirstOrderLagInit(&_i_u_filter, param->cur_fiter_alpha, 0);
-    fFirstOrderLagInit(&_i_v_filter, param->cur_fiter_alpha, 0);
-    fFirstOrderLagInit(&_i_w_filter, param->cur_fiter_alpha, 0);
+    fFirstOrderLagInit(&_i_u_filter, param->cur_filter_alpha, 0);
+    fFirstOrderLagInit(&_i_v_filter, param->cur_filter_alpha, 0);
+    fFirstOrderLagInit(&_i_w_filter, param->cur_filter_alpha, 0);
 
     fFirstOrderLagInit(&_omega_filter, param->speed_fiter_alpha, 0);
 }
@@ -186,7 +186,7 @@ void fFocValueUpdate(void)
     {
     case ENCODER_CONTROL: // 获取编码器数据
         g_foc_val.theta_mech = fGetEncoderAngle_ABS();
-        g_foc_val.theta_elec = (g_foc_val.theta_mech - g_motor.mech_offect) * g_motor.pole_pairs * (g_motor.forward_dir ? 1 : -1) + (g_motor.elec_pi_offset ? 180 : 0);
+        g_foc_val.theta_elec = (g_foc_val.theta_mech - g_motor.mech_offset) * g_motor.pole_pairs * (g_motor.forward_dir ? 1 : -1) + (g_motor.elec_pi_offset ? 180 : 0);
         g_foc_val.theta_elec = fNormalizeAngle_0_360(g_foc_val.theta_elec);
 
         if (!g_loop_con.fd.speed_update)
@@ -209,7 +209,7 @@ void fFocValueUpdate(void)
         break;
     case MERGE_CONTROL:
         g_foc_val.theta_mech = fGetEncoderAngle_ABS();
-        g_foc_val.theta_elec = (g_foc_val.theta_mech - g_motor.mech_offect) * g_motor.pole_pairs * (g_motor.forward_dir ? 1 : -1) + (g_motor.elec_pi_offset ? 180 : 0);
+        g_foc_val.theta_elec = (g_foc_val.theta_mech - g_motor.mech_offset) * g_motor.pole_pairs * (g_motor.forward_dir ? 1 : -1) + (g_motor.elec_pi_offset ? 180 : 0);
         g_foc_val.theta_elec = fNormalizeAngle_0_360(g_foc_val.theta_elec);
 
         g_foc_val.pos_fb = fGetEncoderAngle_INC();
@@ -224,6 +224,10 @@ void fFocValueUpdate(void)
     fParkTransform(g_foc_val.ialpha, g_foc_val.ibeta, sin_theta_e, cos_theta_e, &g_foc_val.id_fb, &g_foc_val.iq_fb);
 }
 // 使能后执行：按模式运行对应控制环
+// TODO(xdr): 此函数展示了switch-case的fall-through(穿透)设计:
+// POSITION_MODE → SPEED_MODE → CURRENT_MODE 逐级穿透。
+// 位置环输出→速度环输入→电流环输入，这是级联控制的标准结构。
+// 注意每个case结尾没有break，依靠穿透传递数据。
 void fFocMainLoopTask(void)
 {
     if (g_foc_mode.sensor_mode >= SENSORLESS_CONTROL)
@@ -340,7 +344,7 @@ void fFocSetIdIq(float id, float iq)
 // 设置编码器零点偏移
 void fSetThetaOffset(float thetaoffset)
 {
-    g_motor.mech_offect = thetaoffset;
+    g_motor.mech_offset = thetaoffset;
 }
 
 // 切换传感模式

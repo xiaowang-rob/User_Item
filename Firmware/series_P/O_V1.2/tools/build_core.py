@@ -105,7 +105,7 @@ def gen_usr_config(cfg, bsp_info, coeffs, output_path):
 #define MIN_VOLTAGE         {hw["MIN_VOLTAGE"]}
 #define MAX_TEMPERATURE     {hw["MAX_TEMPERATURE"]}
 #define T_SAMPLE_us         {fmt_f(hw["T_SAMPLE_us"])}
-#define T_DEATH_us          {fmt_f(hw["T_DEATH_us"])}
+#define T_DEADTIME_us          {fmt_f(hw["T_DEADTIME_us"])}
 #define T_NOISE_us          {fmt_f(hw["T_NOISE_us"])}
 
 /* ---------- 速度 LPF 滤波器系数 (Butterworth) ---------- */

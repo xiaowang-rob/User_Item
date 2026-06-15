@@ -102,7 +102,7 @@ typedef struct
     float vadc_offset;
     float wadc_offset;
 
-    float cur_fiter_alpha; // 电流滤波系数
+    float cur_filter_alpha; // 电流滤波系数
 
     float iq_kp;
     float iq_ki;

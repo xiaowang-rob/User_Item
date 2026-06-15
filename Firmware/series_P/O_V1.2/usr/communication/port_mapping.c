@@ -193,7 +193,7 @@ static void _FrameDataDeal()
                 break;
             case FOC_NRST:
                 fFocStateUpdate(FOC_RESET);
-                fProManagerClearFalg();
+                fProManagerClearFlag();
                 break;
             case CMD_ENABLE:
                 fFocStateUpdate(FOC_ENABLE);

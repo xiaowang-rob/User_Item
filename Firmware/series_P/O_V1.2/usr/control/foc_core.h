@@ -9,8 +9,8 @@
 
 typedef struct
 {
-    float cur_fiter_alpha;   // 电流滤波系数
-    float speed_fiter_alpha; // 速度滤波系数
+    float cur_filter_alpha;   // 电流滤波系数
+    float speed_filter_alpha; // 速度滤波系数
     eSensorMode sensor_mode;
     eRunMode run_mode;
     u8 pvt_mode;
@@ -40,7 +40,7 @@ typedef struct
 
 typedef struct
 {
-    float mech_offect; // 机械偏移角度
+    float mech_offset; // 机械偏移角度
     float rs;          // 定子电阻
     float ld;          // 定子电感
     float lq;
@@ -61,6 +61,15 @@ typedef struct
 } tFOC_Core;
 
 extern tFOC_Core g_foc_core;
+
+// TODO(xdr): 命名规范说明 — fFoc 前缀应改为 foc_
+// VESC风格: <模块>_<动作>，全小写下划线
+//   fFocCoreInit()      → foc_core_init()
+//   fFocValueUpdate()   → foc_value_update()
+//   fFocSetTargetValue() → foc_set_target()
+//   fFocSetRunMode()    → foc_set_run_mode()
+// 类似的: fFilterReset() → filter_reset(), fSetThetaOffset() → foc_set_theta_offset()
+
 
 void fFocCoreInit();
 void fFocParamUpdate(tParameter *param);

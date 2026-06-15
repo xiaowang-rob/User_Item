@@ -37,7 +37,7 @@
 #define MIN_VOLTAGE         20
 #define MAX_TEMPERATURE     80
 #define T_SAMPLE_us         7.0
-#define T_DEATH_us          0.5
+#define T_DEADTIME_us          0.5
 #define T_NOISE_us          0.5
 
 /* ---------- 速度 LPF 滤波器系数 (Butterworth) ---------- */

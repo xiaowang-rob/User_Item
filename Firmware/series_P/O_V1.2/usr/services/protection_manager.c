@@ -35,7 +35,7 @@ void fProSetLimitPosition(float min_position, float max_position)
     g_pro_manager.max_position = max_position;
 }
 // 保护程序 清除故障和警告标志
-void fProManagerClearFalg()
+void fProManagerClearFlag()
 {
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;

@@ -27,7 +27,7 @@ extern tProtectionManager g_pro_manager;
 
 // functions
 void fProManagerInit(tParameter *param);
-void fProManagerClearFalg();
+void fProManagerClearFlag();
 void fProManagerMainLoop();
 
 void fProSetLimitPosition(float min_position, float max_position);
