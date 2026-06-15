@@ -5,7 +5,7 @@
 
 #include "bsp_adc.h"
 
-FOC_t g_foc = {.core = &g_foc_core, .loop_con = &g_loop_con, .hfi = &g_hfi, .tun = &g_tune_ctx, .svpwm = &g_svpwm};
+FOC_t g_foc = {.core = &g_foc_core, .tun = &g_tune_ctx};
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;

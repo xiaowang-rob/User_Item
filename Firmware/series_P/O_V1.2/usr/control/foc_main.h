@@ -2,9 +2,7 @@
 #define __FOC_STATEMACHINE_H
 
 #include "foc_core.h"
-#include "loop_control.h"
 #include "tune.h"
-#include "svpwm.h"
 #include "hfi.h"
 #include "protocol.h"
 
@@ -14,10 +12,7 @@ typedef struct
     bool foc_init;
     eFocState state;
     tFOC_Core *core;
-    tLoopControl *loop_con;
-    tHFI_Handle *hfi;
     tTuneContext *tun;
-    tSvpwm *svpwm;
 } FOC_t;
 extern FOC_t g_foc;
 

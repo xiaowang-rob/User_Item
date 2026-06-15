@@ -56,7 +56,6 @@ typedef struct
     float position_min, position_max;
 } tLoopControl;
 
-extern tLoopControl g_loop_con;
 
 // TODO(xdr): 命名规范说明
 // 以下函数中 PI_init/PI_update/PID_init 使用全大写前缀，
@@ -77,3 +76,4 @@ float fPositionRelLoopUpdate(float ref, float fb);
 
 
 #endif
+extern tLoopControl g_loop_con;

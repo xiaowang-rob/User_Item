@@ -47,7 +47,6 @@ typedef struct
 
 } tHFI_Handle;
 
-extern tHFI_Handle g_hfi;
 
 // TODO(xdr): 命名规范说明 — 与 smo.h 同理
 //   fHfiInit()                → hfi_init()

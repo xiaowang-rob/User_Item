@@ -10,7 +10,7 @@
 #include "usr_config.h"
 
 /*================ 全局/静态变量 =================*/
-tHFI_Handle g_hfi;
+static tHFI_Handle g_hfi;
 
 tBW_FilterInstance speed_lpf_inst;
 tFirstOrderLagFilter speed_lpf;

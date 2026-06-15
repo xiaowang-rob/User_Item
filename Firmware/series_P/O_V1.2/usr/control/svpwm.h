@@ -13,7 +13,6 @@ typedef struct
     u16 ticw;
 } tSvpwm;
 
-extern tSvpwm g_svpwm;
 
 // SVPWM 核心接口
 void fSvpwmInit(float Vbus);
