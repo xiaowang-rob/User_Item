@@ -21,7 +21,22 @@ USB、串口、CAN 端口映射
 #define STR(x) #x
 #define XSTR(x) STR(x)
 
-tCOM_Frame com_frame;
+// 多端口接收缓冲 — 每个端口独立，避免 is_busy 互斥
+#define PORT_NUM 3
+static struct {
+    eCOM port_id;
+    u8   cmd_id;
+    u8   rxbuffer[MAX_FRAME_LENGTH];
+    u8   rxlen;
+    bool pending;
+} g_port_rx[PORT_NUM] = {
+    { .port_id = CAN_port },
+    { .port_id = USB_port },
+    { .port_id = UART_port },
+};
+
+// 下发帧（应答/状态/数据）缓冲 — 互斥访问，由主循环使用
+static tCOM_Frame com_frame;
 tCommunicationState g_com_state = {.com_port = &com_frame.com_port, .is_busy = &com_frame.is_busy};
 
 const u8 EXECUTE = FEEDBACK_EXECUTE;
@@ -292,62 +307,38 @@ static void _FrameDataDeal()
     }
     com_frame.is_busy = false;
 }
-// 端口映射
+// 端口映射 — 每个回调只做拷贝 + 挂起，由主循环统一处理
 void fCAN_RxDataCallback(u8 *RxData, u8 len)
 {
-    if (com_frame.is_busy)
+    if (g_port_rx[0].pending)  // CAN is index 0
         return;
-    if (len == 4)
-    {
-        com_frame.cmd_id = CMD_REFVALUE_SET;
-        com_frame.rxdatalen = len;
-        com_frame.rxdata = RxData;
-        memset(&com_frame.rxdata[4], 0, 4);
-    }
-    else if (len == 8)
-    {
-        com_frame.cmd_id = CMD_REFVALUE_SET;
-        com_frame.rxdatalen = len;
-        com_frame.rxdata = RxData;
-    }
-    else if (len == 1)
-    {
-        com_frame.cmd_id = *RxData;
-        com_frame.rxdatalen = 0;
-    }
-    else if (len == 2)
-    {
-        com_frame.cmd_id = *RxData;
-        com_frame.rxdatalen = 1;
-        com_frame.rxdata = &RxData[1];
-    }
-    com_frame.is_busy = true;
-    com_frame.com_port = CAN_port;
-    _FrameDataDeal();
+
+    // 拷贝数据到端口自己的缓冲
+    memcpy(g_port_rx[0].rxbuffer, RxData, len);
+    g_port_rx[0].rxlen = len;
+    g_port_rx[0].pending = true;
 }
 
 void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
 {
-    if (com_frame.is_busy)
+    if (g_port_rx[1].pending)  // USB is index 1
         return;
-    com_frame.is_busy = true;
-    com_frame.com_port = USB_port;
-    com_frame.cmd_id = id;
-    com_frame.rxdatalen = len;
-    com_frame.rxdata = data;
-    _FrameDataDeal();
+
+    g_port_rx[1].cmd_id = id;
+    memcpy(g_port_rx[1].rxbuffer, data, len);
+    g_port_rx[1].rxlen = len;
+    g_port_rx[1].pending = true;
 }
 
 void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
 {
-    if (com_frame.is_busy)
+    if (g_port_rx[2].pending)  // UART is index 2
         return;
-    com_frame.is_busy = true;
-    com_frame.com_port = UART_port;
-    com_frame.cmd_id = id;
-    com_frame.rxdatalen = len;
-    com_frame.rxdata = data;
-    _FrameDataDeal();
+
+    g_port_rx[2].cmd_id = id;
+    memcpy(g_port_rx[2].rxbuffer, data, len);
+    g_port_rx[2].rxlen = len;
+    g_port_rx[2].pending = true;
 }
 
 static u32 _time_ms = 0;
@@ -422,8 +413,58 @@ void _stream_data_trans()
     }
 }
 
+// 轮询各端口缓冲，处理待处理的数据包
+static void _process_pending_rx(void)
+{
+    for (int i = 0; i < PORT_NUM; i++) {
+        if (!g_port_rx[i].pending)
+            continue;
+
+        u8 *buf = g_port_rx[i].rxbuffer;
+        u8 len = g_port_rx[i].rxlen;
+        u8 id = g_port_rx[i].cmd_id;
+
+        if (g_port_rx[i].port_id == CAN_port) {
+            // CAN 帧格式特殊：cmd_id 由长度决定，需要重新解析
+            // 但数据已经拷贝到 buffer，直接交给 _FrameDataDeal 处理
+            com_frame.is_busy = true;
+            com_frame.com_port = CAN_port;
+
+            if (len == 4) {
+                com_frame.cmd_id = CMD_REFVALUE_SET;
+                com_frame.rxdatalen = len;
+                com_frame.rxdata = buf;
+                memset(&buf[4], 0, 4);
+            } else if (len == 8) {
+                com_frame.cmd_id = CMD_REFVALUE_SET;
+                com_frame.rxdatalen = len;
+                com_frame.rxdata = buf;
+            } else if (len == 1) {
+                com_frame.cmd_id = buf[0];
+                com_frame.rxdatalen = 0;
+            } else if (len == 2) {
+                com_frame.cmd_id = buf[0];
+                com_frame.rxdatalen = 1;
+                com_frame.rxdata = &buf[1];
+            }
+        } else {
+            // USB/UART 通用帧格式：HEAD + id + len + data + chk + tail
+            // CAN以外的端口使用 packet 协议，data 已经去掉了头尾
+            com_frame.is_busy = true;
+            com_frame.com_port = g_port_rx[i].port_id;
+            com_frame.cmd_id = id;
+            com_frame.rxdatalen = len;
+            com_frame.rxdata = buf;
+        }
+
+        _FrameDataDeal();
+        g_port_rx[i].pending = false;
+    }
+}
+
 void fCommunicateMainLoop()
 {
+    _process_pending_rx();
     _stream_data_trans();
     fCAN_QueueData_deal();
 }
