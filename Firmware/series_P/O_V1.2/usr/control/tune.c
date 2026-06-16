@@ -12,7 +12,7 @@ tTuneContext g_tune_ctx = {0};
 tFirstOrderLagFilter rs_i_filter;
 /* ================================= 辅助函数 ================================= */
 // sum型线性拟合
-static void _FitFromSums(float sum_x, float sum_y, float sum_xy, float sum_xx, u16 n,
+static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx, u16 n,
                          float *k, float *b, float *mse)
 {
     if (n < 10)
@@ -123,7 +123,7 @@ void motor_param_tune_reset()
 }
 /* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
 
-static bool _TuneRs(float i_alpha, tTuneParams *params)
+static bool _tune_rs(float i_alpha, tTuneParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
     float i_a = filter_first_order_lag(&rs_i_filter, i_alpha);
@@ -524,7 +524,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
 }
 
 // 编码器校准
-bool _TuneEncoder(float theta_m, tTuneParams *params)
+bool _tune_encoder(float theta_m, tTuneParams *params)
 {
     const float THETA_STEP = EC_OPEN_LOOP_OMEGA * T_CON * EC_FREQ_F;
     tTuneContext *ctx = &g_tune_ctx;
@@ -653,13 +653,13 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
             ctx->encoder_ctx.theta_e_acc -= THETA_STEP; // 反向取负
         else
             ctx->encoder_ctx.theta_e_acc += THETA_STEP;
-        ctx->encoder_ctx.theta_elec = fNormalizeAngle_0_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
+        ctx->encoder_ctx.theta_elec = normalize_angle_0_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
 
         // 2.2 施加开环电压 对应角度的ud
         float sin_theta_e = 0.0f;
         float cos_theta_e = 0.0f;
         arm_sin_cos_f32(ctx->encoder_ctx.theta_elec, &sin_theta_e, &cos_theta_e);
-        fInvParkTransform(ctx->encoder_ctx.v_out, 0.0f, sin_theta_e, cos_theta_e, &v_alpha, &v_beta);
+        inv_park_transform(ctx->encoder_ctx.v_out, 0.0f, sin_theta_e, cos_theta_e, &v_alpha, &v_beta);
         foc_set_ualpha_beta(v_alpha, v_beta);
 
         ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
@@ -730,11 +730,11 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         // === STATE 5: 参数解算 (Fit) ===
     case 5:
     {
-        _FitFromSums(ctx->encoder_ctx.sum_m[0], ctx->encoder_ctx.sum_e[0],
+        _fit_from_sums(ctx->encoder_ctx.sum_m[0], ctx->encoder_ctx.sum_e[0],
                      ctx->encoder_ctx.sum_me[0], ctx->encoder_ctx.sum_mm[0],
                      ctx->encoder_ctx.cnt[0], &ctx->encoder_ctx.k[0],
                      &ctx->encoder_ctx.b[0], &ctx->encoder_ctx.err[0]);
-        _FitFromSums(ctx->encoder_ctx.sum_m[1], ctx->encoder_ctx.sum_e[1],
+        _fit_from_sums(ctx->encoder_ctx.sum_m[1], ctx->encoder_ctx.sum_e[1],
                      ctx->encoder_ctx.sum_me[1], ctx->encoder_ctx.sum_mm[1],
                      ctx->encoder_ctx.cnt[1], &ctx->encoder_ctx.k[1],
                      &ctx->encoder_ctx.b[1], &ctx->encoder_ctx.err[1]);
@@ -772,7 +772,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         // 4.5 计算零位偏移 (截距平均，抵消负载角)
         float o_est_f = -(ctx->encoder_ctx.b[0] / ctx->encoder_ctx.k[0]);
         float o_est_b = -(ctx->encoder_ctx.b[1] / ctx->encoder_ctx.k[1]);
-        params->theta_offset = fNormalizeAngle_0_360((o_est_f + o_est_b) * 0.5f);
+        params->theta_offset = normalize_angle_0_360((o_est_f + o_est_b) * 0.5f);
 
         ctx->encoder_ctx.step = 6; // 进入完成态
         break;
@@ -788,7 +788,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
 }
 
 /* ================================= 磁链整定 (SMO 框架) ================================= */
-static bool _TunePsiF(tFOC_val foc_val, tTuneParams *params)
+static bool _tune_psi_f(tFOC_val foc_val, tTuneParams *params)
 {
     // TODO: SMO 高速整定框架
     // 1. 高速运行 (例如 1000rpm+)，SMO 估算反电动势
@@ -802,7 +802,7 @@ static bool _TunePsiF(tFOC_val foc_val, tTuneParams *params)
 }
 
 /* ================================= 转动惯量/摩擦系数整定 (框架) ================================= */
-static bool _TuneJB(tFOC_val foc_val, tTuneParams *params)
+static bool _tune_jb(tFOC_val foc_val, tTuneParams *params)
 {
     // TODO: 阶跃响应法框架
     // 1. 施加阶跃转矩 (例如 iq=2A)
@@ -886,7 +886,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
         //            ctx->fault = TUNE_FAULT_TIMEOUT;
         //        }
         // 校准中
-        if (_TuneRs(foc_val.ialpha, params))
+        if (_tune_rs(foc_val.ialpha, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -969,7 +969,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
         break;
 
     case TUNE_ENCODER:
-        if (_TuneEncoder(foc_val.theta_mech, params))
+        if (_tune_encoder(foc_val.theta_mech, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -991,7 +991,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
         break;
 
     case TUNE_ELEC_PARAM:
-        if (_TunePsiF(foc_val, params))
+        if (_tune_psi_f(foc_val, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {
@@ -1012,7 +1012,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
         break;
 
     case TUNE_MECH_PARAM:
-        if (_TuneJB(foc_val, params))
+        if (_tune_jb(foc_val, params))
         {
             if (ctx->fault != TUNE_FAULT_NONE)
             {

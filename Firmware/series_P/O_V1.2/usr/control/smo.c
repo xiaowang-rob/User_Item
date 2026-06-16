@@ -215,12 +215,12 @@ void smo_main_loop(float v_alpha, float v_beta,
     if (emf_mag_sq > 0.01f)
     {
         float theta_new = atan2f(smo.e_beta_filt, smo.e_alpha_filt) * 57.29578f;
-        float diff = fNormalizeAngle_180(theta_new - smo.theta_elec);
+        float diff = normalize_angle_180(theta_new - smo.theta_elec);
         smo.theta_elec += 0.5f * diff;
     }
-    smo.theta_elec = fNormalizeAngle_0_360(smo.theta_elec);
+    smo.theta_elec = normalize_angle_0_360(smo.theta_elec);
 
-    float angle_diff = fNormalizeAngle_180(smo.theta_elec - smo.theta_prev);
+    float angle_diff = normalize_angle_180(smo.theta_elec - smo.theta_prev);
     float speed_raw = angle_diff / smo.dt * 0.0174533f;
     smo.omega_elec = filter_first_order_lag(&omega_lpf, speed_raw);
     smo.omega_elec = CLAMP(smo.omega_elec, -smo.cfg.max_omega_elec, smo.cfg.max_omega_elec);

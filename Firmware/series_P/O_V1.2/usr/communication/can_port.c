@@ -164,7 +164,7 @@ void bsp_can_rx_callback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
  *         2. 用于队列模式下重组被拆分为字节流的CAN帧
  *         3. 成功解析一帧后自动调用fCAN_RxDataDeal进行业务处理
  */
-void CAN_data_byte_deal(u8 data)
+void can_data_byte_deal(u8 data)
 {
     if (_get_head)
     {
@@ -208,6 +208,6 @@ void can_queue_data_deal(void)
 {
     while (fStaticQueueDequeue(&can.rx_queue, &rxtemp) == QUEUE_STATUS_OK)
     {
-        CAN_data_byte_deal(rxtemp);
+        can_data_byte_deal(rxtemp);
     }
 }

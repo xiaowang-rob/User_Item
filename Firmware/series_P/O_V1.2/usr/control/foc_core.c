@@ -33,7 +33,7 @@ static tFirstOrderLagFilter _i_v_filter;
 static tFirstOrderLagFilter _i_w_filter;
 
 // 启动器初始化
-static void _TrajectoryInit(tParameter *param)
+static void _trajectory_init(tParameter *param)
 {
     tTraj_Config traj_cfg;
     traj_cfg.max_rate = param->traj_max_rate;
@@ -45,7 +45,7 @@ static void _TrajectoryInit(tParameter *param)
 }
 
 // 电机参数初始化
-static void _MotorInit(tParameter *param)
+static void _motor_init(tParameter *param)
 {
     motor.mech_offset = param->theta_offset;
     motor.pole_pairs = param->motor_polepairs;
@@ -61,7 +61,7 @@ static void _MotorInit(tParameter *param)
 }
 
 // 滤波器初始化
-static void _FilterInit(tParameter *param)
+static void _filter_init(tParameter *param)
 {
     // 从 Hz 计算 alpha = dt / (dt + 1/(2*PI*fc))
     float dt_cur = T_PWM;
@@ -83,7 +83,7 @@ static void _FilterInit(tParameter *param)
 }
 
 // 模式初始化
-static void _ModeInit(tParameter *param)
+static void _mode_init(tParameter *param)
 {
     foc_set_sensor_mode(param->sensor_mode);
     foc_mode.run_mode = param->run_mode;
@@ -101,22 +101,22 @@ void foc_core_init(tParameter *param)
 {
     BSP_SetAdcCurrentOffset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
     encoder_init((eEncoderChip)param->encoder_chip);
-    _MotorInit(param);
+    _motor_init(param);
     foc_update_vol_temp();
     svpwm_init(foc_val.udc);
     loop_control_init(param, foc_val.udc);
     mit_init(param->kp_MIT, param->kd_MIT, param->tff_MIT, param->tmax_MIT);
-    _TrajectoryInit(param);
+    _trajectory_init(param);
 
     smo_init(&motor);
-    _ModeInit(param);
+    _mode_init(param);
     foc_core_reset();
     hfi_init();
-    _FilterInit(param);
+    _filter_init(param);
 }
 
 // 重置FOC中间变量
-static void _FocValReset(void)
+static void _foc_val_reset(void)
 {
     foc_val.id_ref = 0;
     foc_val.iq_ref = 0;
@@ -138,7 +138,7 @@ void foc_core_reset(void)
 
     motor_param_tune_reset();
 
-    _FocValReset();
+    _foc_val_reset();
     // 刷新电压，确保参数更新后电压环能正确工作
     foc_update_vol_temp();
     loop_control_reset(foc_val.udc);
@@ -188,7 +188,7 @@ static inline void _CurrentReconstruction(void)
     foc_val.iv = filter_first_order_lag(&_i_v_filter, foc_val.iv_im);
     foc_val.iw = filter_first_order_lag(&_i_w_filter, foc_val.iw_im);
     /* Clarke 变换 */
-    fClarkTransform(foc_val.iu, foc_val.iv, foc_val.iw, &foc_val.ialpha, &foc_val.ibeta);
+    clarke_transform(foc_val.iu, foc_val.iv, foc_val.iw, &foc_val.ialpha, &foc_val.ibeta);
 }
 
 // 更新电压和温度
@@ -208,7 +208,7 @@ void foc_update_val(void)
     case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = encoder_get_angle_abs();
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
-        foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
+        foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
 
         if (!g_loop_con.fd.speed_update)
             break;
@@ -252,7 +252,7 @@ void foc_update_val(void)
     case MERGE_CONTROL:
         foc_val.theta_mech = encoder_get_angle_abs();
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
-        foc_val.theta_elec = fNormalizeAngle_0_360(foc_val.theta_elec);
+        foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
 
         foc_val.pos_fb = encoder_get_angle_inc();
         foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
@@ -263,7 +263,7 @@ void foc_update_val(void)
         break;
     }
     arm_sin_cos_f32(foc_val.theta_elec, &sin_theta_e, &cos_theta_e);
-    fParkTransform(foc_val.ialpha, foc_val.ibeta, sin_theta_e, cos_theta_e, &foc_val.id_fb, &foc_val.iq_fb);
+    park_transform(foc_val.ialpha, foc_val.ibeta, sin_theta_e, cos_theta_e, &foc_val.id_fb, &foc_val.iq_fb);
 }
 // 使能后执行：按模式运行对应控制环
 // switch-case fall-through: POSITION→SPEED→CURRENT 级联控制
@@ -313,7 +313,7 @@ void foc_main_loop_task(void)
 
         foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
-        fInvParkTransform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
+        inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
         break;
 
     case MIT_MODE:
@@ -327,7 +327,7 @@ void foc_main_loop_task(void)
         {
             foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
             foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
-            fInvParkTransform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
+            inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
         }
         break;
 
@@ -398,7 +398,7 @@ void foc_set_sensor_mode(eSensorMode mode)
 // 切换控制模式
 void foc_set_run_mode(eRunMode mode)
 {
-    _FocValReset();
+    _foc_val_reset();
     foc_mode.run_mode = mode;
 }
 

@@ -32,12 +32,12 @@ tEncoderInstance g_encoder = {.chip_type = 0xff};
 #define MT6816_PARITY_CHECK (1 << 0)
 
 /* ----------------------- 芯片描述表 ----------------------- */
-static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
-static bool AS5047_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
-static bool MT6835_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
-static void MT6816_MainLoop(void *arg);
-static void AS5047_MainLoop(void *arg);
-static void MT6835_MainLoop(void *arg);
+static bool mt6816_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
+static bool as5047_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
+static bool mt6835_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
+static void mt6816_main_loop(void *arg);
+static void as5047_main_loop(void *arg);
+static void mt6835_main_loop(void *arg);
 
 /* MT6835: 连续读角度 5-byte 命令 + 接收缓冲 */
 static uint8_t mt6835_rx_buf[5] __attribute__((aligned(4)));
@@ -53,10 +53,10 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_CPOL = 1,
         .spi_CPHA = 1,
         .spi_data_size = 16,
-        .parse_and_check = MT6816_ParseAndCheck,
+        .parse_and_check = mt6816_parse_and_check,
         .use_dma_state_machine = true,
         .dma_post_high_state = ENCODER_STATE_START_LOW,
-        .dma_state_entry = MT6816_MainLoop,
+        .dma_state_entry = mt6816_main_loop,
     },
     [AS5047] = {
         .resolution = 16384,
@@ -67,10 +67,10 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_CPOL = 0,
         .spi_CPHA = 1,
         .spi_data_size = 16,
-        .parse_and_check = AS5047_ParseAndCheck,
+        .parse_and_check = as5047_parse_and_check,
         .use_dma_state_machine = true,
         .dma_post_high_state = ENCODER_STATE_START_NOP,
-        .dma_state_entry = AS5047_MainLoop,
+        .dma_state_entry = as5047_main_loop,
     },
     [MT6835] = {
         .resolution = 16384,       /* 14-bit 输出 (21-bit 原始 >> 7) */
@@ -81,24 +81,24 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_CPOL = 1,               /* Mode 3 */
         .spi_CPHA = 1,
         .spi_data_size = 8,          /* 8-bit 模式 */
-        .parse_and_check = MT6835_ParseAndCheck,
+        .parse_and_check = mt6835_parse_and_check,
         .use_dma_state_machine = true,
         .dma_post_high_state = ENCODER_STATE_PROCESS_DATA,  /* 单次交易完成即处理 */
-        .dma_state_entry = MT6835_MainLoop,
+        .dma_state_entry = mt6835_main_loop,
     },
 };
 
 /* ------------------ 内部函数前向声明 --------------------- */
-static void Encoder_RecoverFromError(void);
-static void Common_AngleVelocityUpdate(tEncoderInstance *enc);
+static void encoder_recover_from_error(void);
+static void common_angle_velocity_update(tEncoderInstance *enc);
 
-static void MT6816_StartHighRead(void);
-static void MT6816_StartLowRead(void);
-static void MT6816_ProcessData(void);
+static void mt6816_start_high_read(void);
+static void mt6816_start_low_read(void);
+static void mt6816_process_data(void);
 
-static void AS5047_StartCommand(void);
-static void AS5047_StartNOP(void);
-static void AS5047_ProcessData(void);
+static void as5047_start_command(void);
+static void as5047_start_nop(void);
+static void as5047_process_data(void);
 
 /* ========== 初始化 ========== */
 bool encoder_init(eEncoderChip type)
@@ -133,7 +133,7 @@ bool encoder_init(eEncoderChip type)
 }
 
 /* ========== 错误恢复 ========== */
-static void Encoder_RecoverFromError(void)
+static void encoder_recover_from_error(void)
 {
     BSP_Encoder_CS(EXTERNAL, true);
     if (!BSP_Encoder_SPI_IS_READY())
@@ -167,11 +167,11 @@ void bsp_encoder_spi_txrx_cplt_callback(void)
 /* ========== DMA 错误回调 ========== */
 void bsp_encoder_spi_error_callback(void)
 {
-    Encoder_RecoverFromError();
+    encoder_recover_from_error();
 }
 
 /* PLL 更新：给定观测角度 (deg)，更新 PLL 估计角度和速度 */
-static void Encoder_PllUpdate(tEncoderInstance *enc, float angle_obs_deg, float dt)
+static void encoder_pll_update(tEncoderInstance *enc, float angle_obs_deg, float dt)
 {
     float delta = angle_obs_deg - enc->pll_theta;
     /* 角度归一化到 [-180, 180) */
@@ -192,7 +192,7 @@ static void Encoder_PllUpdate(tEncoderInstance *enc, float angle_obs_deg, float 
 }
 
 /* ========== 通用角度/速度更新 (所有芯片共用) ========== */
-static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
+static void common_angle_velocity_update(tEncoderInstance *enc)
 {
     g_device_status.encoder_state = RUNNING;
 
@@ -259,12 +259,12 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
         enc->angle_raw_last = enc->angle_raw;
 
         /* PLL 角度/速度估计 (dt ≈ 100us, 对应 10kHz 编码器更新率) */
-        Encoder_PllUpdate(enc, enc->angle_abs, 0.0001f);
+        encoder_pll_update(enc, enc->angle_abs, 0.0001f);
     }
 }
 
 /* ====== MT6816 驱动 ====== */
-static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle)
+static bool mt6816_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle)
 {
     bool parity_check = (low & MT6816_PARITY_CHECK) ? true : false;
     uint16_t data_bits = (high & 0x00FF) << 7 | ((low & 0x00FE) >> 1);
@@ -277,11 +277,11 @@ static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle)
     return true;
 }
 
-static void MT6816_StartHighRead(void)
+static void mt6816_start_high_read(void)
 {
     if (!BSP_Encoder_SPI_IS_READY())
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     BSP_Encoder_CS(EXTERNAL, false);
@@ -291,17 +291,17 @@ static void MT6816_StartHighRead(void)
     if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
                                              (u8 *)&enc->shadow_raw[0], 2))
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     enc->state = ENCODER_STATE_WAIT_HIGH;
 }
 
-static void MT6816_StartLowRead(void)
+static void mt6816_start_low_read(void)
 {
     if (!BSP_Encoder_SPI_IS_READY())
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     BSP_Encoder_CS(EXTERNAL, false);
@@ -311,13 +311,13 @@ static void MT6816_StartLowRead(void)
     if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
                                              (u8 *)&enc->shadow_raw[1], 2))
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     enc->state = ENCODER_STATE_WAIT_LOW;
 }
 
-static void MT6816_ProcessData(void)
+static void mt6816_process_data(void)
 {
     tEncoderInstance *enc = &g_encoder;
     uint16_t angle_raw;
@@ -347,23 +347,23 @@ static void MT6816_ProcessData(void)
     enc->valid = CLAMP(enc->valid - 1, 0, 110);
     enc->spi_error_rate *= 0.999f;  /* 成功时衰减 */
     enc->angle_raw = angle_raw;
-    Common_AngleVelocityUpdate(enc);
+    common_angle_velocity_update(enc);
     enc->state = ENCODER_STATE_START_READ;
 }
 
-static void MT6816_MainLoop(void *arg)
+static void mt6816_main_loop(void *arg)
 {
     tEncoderInstance *enc = (tEncoderInstance *)arg;
     switch (enc->state)
     {
     case ENCODER_STATE_START_READ:
         enc->no_resp_tic = 0;
-        MT6816_StartHighRead();
+        mt6816_start_high_read();
         break;
 
     case ENCODER_STATE_START_LOW:
         /* 启动低字节读取 (高字节已就绪) */
-        MT6816_StartLowRead();
+        mt6816_start_low_read();
         break;
 
     case ENCODER_STATE_WAIT_HIGH:
@@ -374,17 +374,17 @@ static void MT6816_MainLoop(void *arg)
         break;
 
     case ENCODER_STATE_PROCESS_DATA:
-        MT6816_ProcessData();
+        mt6816_process_data();
         break;
 
     default:
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         break;
     }
 }
 
 /* ====== AS5047 驱动 ====== */
-static bool AS5047_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
+static bool as5047_parse_and_check(uint16_t raw, uint16_t unused, uint16_t *angle)
 {
     (void)unused;
     /* 检查错误标志 (EF, bit14) */
@@ -396,11 +396,11 @@ static bool AS5047_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
     return true;
 }
 
-static void AS5047_StartCommand(void)
+static void as5047_start_command(void)
 {
     if (!BSP_Encoder_SPI_IS_READY())
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     BSP_Encoder_CS(EXTERNAL, false);
@@ -410,17 +410,17 @@ static void AS5047_StartCommand(void)
     if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
                                              (u8 *)&enc->shadow_raw[0], 2))
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     enc->state = ENCODER_STATE_WAIT_HIGH;
 }
 
-static void AS5047_StartNOP(void)
+static void as5047_start_nop(void)
 {
     if (!BSP_Encoder_SPI_IS_READY())
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     BSP_Encoder_CS(EXTERNAL, false);
@@ -430,13 +430,13 @@ static void AS5047_StartNOP(void)
     if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc->cmd_reg,
                                              (u8 *)&enc->shadow_raw[0], 2))
     {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     enc->state = ENCODER_STATE_WAIT_LOW;
 }
 
-static void AS5047_ProcessData(void)
+static void as5047_process_data(void)
 {
     tEncoderInstance *enc = &g_encoder;
     uint16_t angle_raw;
@@ -458,23 +458,23 @@ static void AS5047_ProcessData(void)
     enc->spi_error_rate *= 0.999f;  /* 成功时衰减 */
 
     enc->angle_raw = angle_raw;
-    Common_AngleVelocityUpdate(enc);
+    common_angle_velocity_update(enc);
     enc->state = ENCODER_STATE_START_READ;
 }
 
-static void AS5047_MainLoop(void *arg)
+static void as5047_main_loop(void *arg)
 {
     tEncoderInstance *enc = (tEncoderInstance *)arg;
     switch (enc->state)
     {
     case ENCODER_STATE_START_READ:
         enc->no_resp_tic = 0;
-        AS5047_StartCommand();
+        as5047_start_command();
         break;
 
     case ENCODER_STATE_START_NOP:
         /* 命令帧已发送，现在发送 NOP 接收数据 */
-        AS5047_StartNOP();
+        as5047_start_nop();
         break;
 
     case ENCODER_STATE_WAIT_HIGH:
@@ -485,17 +485,17 @@ static void AS5047_MainLoop(void *arg)
         break;
 
     case ENCODER_STATE_PROCESS_DATA:
-        AS5047_ProcessData();
+        as5047_process_data();
         break;
 
     default:
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         break;
     }
 }
 
 /* ====== MT6835 驱动 (SPI Mode 3, 8-bit, 连续读角度) ====== */
-static bool MT6835_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
+static bool mt6835_parse_and_check(uint16_t raw, uint16_t unused, uint16_t *angle)
 {
     (void)unused;
     /* mt6835_rx_buf[2] = ANGLE[20:13], [3] = ANGLE[12:5], [4] = ANGLE[4:0] + STATUS[2:0] */
@@ -514,29 +514,29 @@ static bool MT6835_ParseAndCheck(uint16_t raw, uint16_t unused, uint16_t *angle)
     return true;
 }
 
-static void MT6835_StartRead(void)
+static void mt6835_start_read(void)
 {
     if (!BSP_Encoder_SPI_IS_READY()) {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     BSP_Encoder_CS(EXTERNAL, false);
     if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)mt6835_cmd_buf,
                                              (u8 *)mt6835_rx_buf, 5)) {
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         return;
     }
     g_encoder.state = ENCODER_STATE_WAIT_HIGH;
 }
 
-static void MT6835_MainLoop(void *arg)
+static void mt6835_main_loop(void *arg)
 {
     (void)arg;
     tEncoderInstance *enc = &g_encoder;
     switch (enc->state) {
     case ENCODER_STATE_START_READ:
         enc->no_resp_tic = 0;
-        MT6835_StartRead();
+        mt6835_start_read();
         break;
     case ENCODER_STATE_WAIT_HIGH:
         enc->no_resp_tic++;
@@ -558,12 +558,12 @@ static void MT6835_MainLoop(void *arg)
         enc->valid = CLAMP(enc->valid - 1, 0, 110);
         enc->spi_error_rate *= 0.999f;
         enc->angle_raw = angle_raw;
-        Common_AngleVelocityUpdate(enc);
+        common_angle_velocity_update(enc);
         enc->state = ENCODER_STATE_START_READ;
         break;
     }
     default:
-        Encoder_RecoverFromError();
+        encoder_recover_from_error();
         break;
     }
 }

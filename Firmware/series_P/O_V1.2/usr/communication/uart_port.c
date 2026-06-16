@@ -41,7 +41,7 @@ void uart_port_init(void)
  * @brief UART单字节发送
  * @param data 待发送字节指针
  */
-void uartSendByte(u8 *data)
+void uart_send_byte(u8 *data)
 {
     BSP_UART_Transmit_DMA(data, 1);
 }
@@ -51,7 +51,7 @@ void uartSendByte(u8 *data)
  * @param data 待发送数据缓冲区指针
  * @param len  发送数据长度
  */
-void uartSendData(u8 *data, u8 len)
+void uart_send_data(u8 *data, u8 len)
 {
     BSP_UART_Transmit_DMA(data, len);
 }
@@ -88,7 +88,7 @@ void uart_port_send_frame(u8 id, u8 *data, u8 len)
     _tx_data[4 + len] = UsartTxFrame_g.tail;        // 帧尾
 
     /* 启动DMA发送完整帧 */
-    uartSendData(_tx_data, 5 + len);
+    uart_send_data(_tx_data, 5 + len);
 }
 
 /**
@@ -200,5 +200,5 @@ void vofa_float_data_send(const float *data, u8 count)
     memcpy(&_tx_data[count * 4], tail_bytes, 4);
 
     /* 启动DMA发送完整数据包 */
-    uartSendData(_tx_data, count * 4 + 4);
+    uart_send_data(_tx_data, count * 4 + 4);
 }

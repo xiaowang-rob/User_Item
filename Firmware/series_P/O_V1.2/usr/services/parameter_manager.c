@@ -75,7 +75,7 @@ void param_get(eParameter para, u8 *value, u8 *len)
     *len = g_param_table[para].size;
 }
 
-bool _ParamReadFlash()
+bool _param_read_flash()
 {
     return flash_read_data((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
 }
@@ -89,7 +89,7 @@ bool param_init()
     // 先清零，避免 Flash 未写入的字段为 NaN/垃圾值
     memset(&g_Param, 0, sizeof(g_Param));
 
-    if (_ParamReadFlash() == false)
+    if (_param_read_flash() == false)
         return false;
     if (g_Param.none_flag != 0x0f)
     { // flash中没有参数，初始化默认值

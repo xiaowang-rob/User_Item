@@ -35,13 +35,13 @@ static inline float FSIGN(float x)
     return (x > 0.0f) - (x < 0.0f); // 分支消除
 }
 // 快速浮点数四舍五入
-static inline u32 fFastRoundf(float x)
+static inline u32 fast_roundf(float x)
 {
     return (u32)(x + 0.5f);
 }
 
 // 将角度标准化到 [0, 360) 范围
-static inline float fNormalizeAngle_0_360(float angle)
+static inline float normalize_angle_0_360(float angle)
 {
     angle = fmodf(angle, 360);
     if (angle < 0.0f)
@@ -51,7 +51,7 @@ static inline float fNormalizeAngle_0_360(float angle)
     return angle;
 }
 // 将角度标准化到[-π, π]范围
-static inline float fNormalizeAngle_180(float angle)
+static inline float normalize_angle_180(float angle)
 {
     /* 利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] */
     angle = fmodf(angle + 180, 360);
@@ -65,7 +65,7 @@ static inline float fNormalizeAngle_180(float angle)
  * @param ia, ib, ic: 三相电流或电压
  * @param alpha, beta: 输出的 αβ 轴分量
  */
-static inline void fClarkTransform(float ia, float ib, float ic, float *alpha, float *beta)
+static inline void clarke_transform(float ia, float ib, float ic, float *alpha, float *beta)
 {
     // 使用幅值不变变换（系数 2/3）
     // 简化电流 ia+ib+ic=0
@@ -77,7 +77,7 @@ static inline void fClarkTransform(float ia, float ib, float ic, float *alpha, f
  * @param alpha, beta: αβ 轴分量
  * @param ia, ib, ic: 输出的三相值
  */
-static inline void fInvClarkTransform(float alpha, float beta, float *ia, float *ib, float *ic)
+static inline void inv_clarke_transform(float alpha, float beta, float *ia, float *ib, float *ic)
 {
     *ia = alpha;
     *ib = -0.5f * alpha + MATH_SQRT3_2 * beta;
@@ -89,7 +89,7 @@ static inline void fInvClarkTransform(float alpha, float beta, float *ia, float 
  * @param angle: 电角度（角度）
  * @param d, q: 输出的 dq 轴分量
  */
-static inline void fParkTransform(float alpha, float beta, float sin_angle, float cos_angle, float *d, float *q)
+static inline void park_transform(float alpha, float beta, float sin_angle, float cos_angle, float *d, float *q)
 {
     *d = alpha * cos_angle + beta * sin_angle;
     *q = -alpha * sin_angle + beta * cos_angle;
@@ -100,7 +100,7 @@ static inline void fParkTransform(float alpha, float beta, float sin_angle, floa
  * @param angle: 电角度（角度）
  * @param alpha, beta: 输出的 αβ 轴分量
  */
-static inline void fInvParkTransform(float d, float q, float sin_angle, float cos_angle, float *alpha, float *beta)
+static inline void inv_park_transform(float d, float q, float sin_angle, float cos_angle, float *alpha, float *beta)
 {
     *alpha = d * cos_angle - q * sin_angle;
     *beta = d * sin_angle + q * cos_angle;

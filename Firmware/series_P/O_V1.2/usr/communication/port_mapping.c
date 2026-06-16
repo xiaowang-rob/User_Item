@@ -71,7 +71,7 @@ void comm_host_send()
 // 参数发送
 static bool param_send_flag = false;
 static u8 param_index = 0;
-static inline void _AllParamsSend()
+static inline void _all_params_send()
 {
     param_get((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
@@ -86,7 +86,7 @@ static inline void _AllParamsSend()
 }
 // 日志发送
 static bool log_send_flag = false;
-static inline void _AllLogSend()
+static inline void _all_log_send()
 {
     if (log_read_flash(com_frame.txdata, &com_frame.txdatalen))
         log_send_flag = false;
@@ -94,7 +94,7 @@ static inline void _AllLogSend()
         comm_host_send();
 }
 // 状态发送
-static inline void _StatusSend()
+static inline void _status_send()
 {
     com_frame.cmd_id = UC_CONNECT;
     if (system_message_send_flag == false)
@@ -147,7 +147,7 @@ static inline void _StatusSend()
 static u8 data_id = 0;
 static float value_ref[2];
 // 命令解析
-static void _FrameDataDeal()
+static void _frame_data_deal()
 {
     if (com_frame.com_port == CAN_port)
     {
@@ -360,7 +360,7 @@ void _stream_data_trans()
     {
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
-        _AllParamsSend();
+        _all_params_send();
         _time_prev_ms = BSP_GetTick();
         return;
     }
@@ -369,7 +369,7 @@ void _stream_data_trans()
     {
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
-        _AllLogSend();
+        _all_log_send();
         _time_prev_ms = BSP_GetTick();
         return;
     }
@@ -378,7 +378,7 @@ void _stream_data_trans()
     { // 上位机连接状态下
         if ((_time_ms - _state_prev_ms > T_STATE_STREAM))
         { // 状态发送
-            _StatusSend();
+            _status_send();
             _state_prev_ms = _time_ms;
             _time_prev_ms = _time_ms;
         }
@@ -429,7 +429,7 @@ static void _process_pending_rx(void)
         if (g_port_rx[i].port_id == CAN_port)
         {
             // CAN 帧格式特殊：cmd_id 由长度决定，需要重新解析
-            // 但数据已经拷贝到 buffer，直接交给 _FrameDataDeal 处理
+            // 但数据已经拷贝到 buffer，直接交给 _frame_data_deal 处理
             com_frame.is_busy = true;
             com_frame.com_port = CAN_port;
 
@@ -469,7 +469,7 @@ static void _process_pending_rx(void)
             com_frame.rxdata = buf;
         }
 
-        _FrameDataDeal();
+        _frame_data_deal();
         g_port_rx[i].pending = false;
     }
 }

@@ -16,13 +16,13 @@
 #include "device.h"
 
 /* 私有函数声明 ----------------------------------------------------------*/
-static bool spi_Transmit_one_byte(u8 _dataTx);
-static u8 spi_Receive_one_byte(void);
-static void FLASH_Write_Enable(void);
-static void FLASH_Write_Disable(void);
-static u8 FLASH_ReadSR(void);
-static void FLASH_Wait_Busy(void);
-static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
+static bool spi_transmit_one_byte(u8 _dataTx);
+static u8 spi_receive_one_byte(void);
+static void flash_write_enable(void);
+static void flash_write_disable(void);
+static u8 flash_read_sr(void);
+static void flash_wait_busy(void);
+static void flash_write_page(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
 
 /* 私有变量 --------------------------------------------------------------*/
 static u8 _init_fault_tic = 0; ///< 初始化失败重试计数器
@@ -32,7 +32,7 @@ static u8 _init_fault_tic = 0; ///< 初始化失败重试计数器
 /**
  * @brief  使能Flash芯片（拉低CS片选）
  */
-static void FLASH_Enable(void)
+static void flash_cs_enable(void)
 {
     BSP_Flash_CS(false); // 拉低CS选择Flash
 }
@@ -40,7 +40,7 @@ static void FLASH_Enable(void)
 /**
  * @brief  禁用Flash芯片（拉高CS片选）
  */
-static void FLASH_Disable(void)
+static void flash_cs_disable(void)
 {
     BSP_Flash_CS(true); // 拉高CS取消选择
 }
@@ -50,7 +50,7 @@ static void FLASH_Disable(void)
  * @param  _dataTx: 待发送数据
  * @retval true: 发送成功，false: 发送失败
  */
-static bool spi_Transmit_one_byte(u8 _dataTx)
+static bool spi_transmit_one_byte(u8 _dataTx)
 {
     return BSP_Flash_SPI_Transmit((u8 *)&_dataTx, 1, 1000);
 }
@@ -59,7 +59,7 @@ static bool spi_Transmit_one_byte(u8 _dataTx)
  * @brief  SPI接收单字节数据
  * @retval 接收到的数据
  */
-static u8 spi_Receive_one_byte(void)
+static u8 spi_receive_one_byte(void)
 {
     u8 _dataRx = 0;
     BSP_Flash_SPI_Receive(&_dataRx, 1, 1000);
@@ -70,21 +70,21 @@ static u8 spi_Receive_one_byte(void)
  * @brief  Flash写使能（设置WEL位）
  * @note   任何编程或擦除操作前必须执行此命令
  */
-static void FLASH_Write_Enable(void)
+static void flash_write_enable(void)
 {
-    FLASH_Enable();
-    spi_Transmit_one_byte(0x06); // Write Enable命令
-    FLASH_Disable();
+    flash_cs_enable();
+    spi_transmit_one_byte(0x06); // Write Enable命令
+    flash_cs_disable();
 }
 
 /**
  * @brief  Flash写禁止（清除WEL位）
  */
-static void FLASH_Write_Disable(void)
+static void flash_write_disable(void)
 {
-    FLASH_Enable();
-    spi_Transmit_one_byte(0x04); // Write Disable命令
-    FLASH_Disable();
+    flash_cs_enable();
+    spi_transmit_one_byte(0x04); // Write Disable命令
+    flash_cs_disable();
 }
 
 /**
@@ -92,13 +92,13 @@ static void FLASH_Write_Disable(void)
  * @retval 状态寄存器值
  * @note   Bit0: BUSY（忙标志），Bit1: WEL（写使能锁存）
  */
-static u8 FLASH_ReadSR(void)
+static u8 flash_read_sr(void)
 {
     u8 byte = 0;
-    FLASH_Enable();
-    spi_Transmit_one_byte(0x05);   // Read Status Register-1命令
-    byte = spi_Receive_one_byte(); // 读取状态字节
-    FLASH_Disable();
+    flash_cs_enable();
+    spi_transmit_one_byte(0x05);   // Read Status Register-1命令
+    byte = spi_receive_one_byte(); // 读取状态字节
+    flash_cs_disable();
     return byte;
 }
 
@@ -106,9 +106,9 @@ static u8 FLASH_ReadSR(void)
  * @brief  等待Flash操作完成
  * @note   轮询BUSY位，直到操作完成（BUSY=0）
  */
-static void FLASH_Wait_Busy(void)
+static void flash_wait_busy(void)
 {
-    while ((FLASH_ReadSR() & 0x01) == 0x01)
+    while ((flash_read_sr() & 0x01) == 0x01)
     {
         // 等待BUSY位清空
     }
@@ -121,16 +121,16 @@ static void FLASH_Wait_Busy(void)
  */
 void flash_erase_one_sector(u32 Address)
 {
-    FLASH_Write_Enable();        // 使能写操作
-    FLASH_Wait_Busy();           // 等待空闲
-    FLASH_Enable();              // 片选
-    spi_Transmit_one_byte(0x20); // Sector Erase命令（4KB）
+    flash_write_enable();        // 使能写操作
+    flash_wait_busy();           // 等待空闲
+    flash_cs_enable();              // 片选
+    spi_transmit_one_byte(0x20); // Sector Erase命令（4KB）
     // 发送24位地址（MSB first）
-    spi_Transmit_one_byte((u8)((Address) >> 16));
-    spi_Transmit_one_byte((u8)((Address) >> 8));
-    spi_Transmit_one_byte((u8)Address);
-    FLASH_Disable();   // 取消片选
-    FLASH_Wait_Busy(); // 等待擦除完成（典型时间45ms）
+    spi_transmit_one_byte((u8)((Address) >> 16));
+    spi_transmit_one_byte((u8)((Address) >> 8));
+    spi_transmit_one_byte((u8)Address);
+    flash_cs_disable();   // 取消片选
+    flash_wait_busy(); // 等待擦除完成（典型时间45ms）
 }
 
 /**
@@ -161,12 +161,12 @@ void flash_erase_sector(u32 Address, u32 Write_data_NUM)
  */
 void flash_erase_chip(void)
 {
-    FLASH_Write_Enable();        // 写使能
-    FLASH_Wait_Busy();           // 等待空闲
-    FLASH_Enable();              // 片选
-    spi_Transmit_one_byte(0x60); // Chip Erase命令
-    FLASH_Disable();             // 取消片选
-    FLASH_Wait_Busy();           // 等待擦除完成
+    flash_write_enable();        // 写使能
+    flash_wait_busy();           // 等待空闲
+    flash_cs_enable();              // 片选
+    spi_transmit_one_byte(0x60); // Chip Erase命令
+    flash_cs_disable();             // 取消片选
+    flash_wait_busy();           // 等待擦除完成
 }
 
 /**
@@ -179,26 +179,26 @@ void flash_erase_chip(void)
 bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
 {
     u16 i = 0;
-    FLASH_Enable();                   // 片选
-    if (!spi_Transmit_one_byte(0x03)) // Read Data命令
+    flash_cs_enable();                   // 片选
+    if (!spi_transmit_one_byte(0x03)) // Read Data命令
     {
         g_device_status.flash_state = RUN_ERROR;
-        FLASH_Disable();
+        flash_cs_disable();
         return false;
     }
 
     // 发送24位地址
-    spi_Transmit_one_byte((u8)((ReadAddr) >> 16));
-    spi_Transmit_one_byte((u8)((ReadAddr) >> 8));
-    spi_Transmit_one_byte((u8)ReadAddr);
+    spi_transmit_one_byte((u8)((ReadAddr) >> 16));
+    spi_transmit_one_byte((u8)((ReadAddr) >> 8));
+    spi_transmit_one_byte((u8)ReadAddr);
 
     // 连续读取数据
     for (; i < NumByteToRead; i++)
     {
-        pBuffer[i] = spi_Receive_one_byte();
+        pBuffer[i] = spi_receive_one_byte();
     }
 
-    FLASH_Disable();
+    flash_cs_disable();
     g_device_status.flash_state = ONLINE; // 设置在线状态
     return true;
 }
@@ -214,27 +214,27 @@ bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
 bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     u16 i;
-    FLASH_Write_Enable(); // 写使能
-    FLASH_Enable();       // 片选
+    flash_write_enable(); // 写使能
+    flash_cs_enable();       // 片选
 
-    if (!spi_Transmit_one_byte(0x02)) // Page Program命令
+    if (!spi_transmit_one_byte(0x02)) // Page Program命令
     {
         g_device_status.flash_state = RUN_ERROR;
-        FLASH_Disable();
+        flash_cs_disable();
         return false;
     }
 
     // 发送24位地址
-    spi_Transmit_one_byte((u8)((WriteAddr) >> 16));
-    spi_Transmit_one_byte((u8)((WriteAddr) >> 8));
-    spi_Transmit_one_byte((u8)WriteAddr);
+    spi_transmit_one_byte((u8)((WriteAddr) >> 16));
+    spi_transmit_one_byte((u8)((WriteAddr) >> 8));
+    spi_transmit_one_byte((u8)WriteAddr);
 
     // 连续写入数据
     for (i = 0; i < NumByteToWrite; i++)
-        spi_Transmit_one_byte(pBuffer[i]);
+        spi_transmit_one_byte(pBuffer[i]);
 
-    FLASH_Disable();
-    FLASH_Wait_Busy(); // 等待编程完成（典型时间0.7ms）
+    flash_cs_disable();
+    flash_wait_busy(); // 等待编程完成（典型时间0.7ms）
     g_device_status.flash_state = ONLINE;
     return true;
 }
@@ -246,7 +246,7 @@ bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
  * @param  NumByteToWrite: 写入字节数
  * @note   自动处理跨页情况，支持写入任意长度数据
  */
-static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
+static void flash_write_page(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     // 计算当前页剩余空间
     u16 Word_remain = 256 - WriteAddr % 256;
@@ -285,13 +285,13 @@ static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 void flash_init(void)
 {
     u8 id[3] = {0};
-    FLASH_Enable(); // 片选
+    flash_cs_enable(); // 片选
     BSP_Delay(10);  // 上电延时
 
-    spi_Transmit_one_byte(0x9F);    // Read JEDEC ID命令
-    id[0] = spi_Receive_one_byte(); // Manufacturer ID
-    id[1] = spi_Receive_one_byte(); // Memory Type
-    id[2] = spi_Receive_one_byte(); // Capacity
+    spi_transmit_one_byte(0x9F);    // Read JEDEC ID命令
+    id[0] = spi_receive_one_byte(); // Manufacturer ID
+    id[1] = spi_receive_one_byte(); // Memory Type
+    id[2] = spi_receive_one_byte(); // Capacity
 
     // 验证是否为W25Q128（Winbond 16MB）
     if ((id[0] == 0xEF) && (id[1] == 0x40) && (id[2] == 0x18))
@@ -305,5 +305,5 @@ void flash_init(void)
         flash_init(); // 递归重试
     }
 
-    FLASH_Disable(); // 取消片选
+    flash_cs_disable(); // 取消片选
 }

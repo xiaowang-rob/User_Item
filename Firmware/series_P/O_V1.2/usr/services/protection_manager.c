@@ -8,7 +8,7 @@
 tDeviceStatus g_device_status = {.encoder_state = ONLINE};
 tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
 // 容忍度检测
-static bool _ToleranceCheck(float value, float max_value, float min_value)
+static bool _tolerance_check(float value, float max_value, float min_value)
 {
     if (value > max_value * g_pro_manager.tolerance_limit || value < min_value / g_pro_manager.tolerance_limit)
         return true;
@@ -91,7 +91,7 @@ void pro_manager_main_loop()
     }
     // 3.电流过大
     if (g_pro_manager.foc_val->iu > MAX_CURRENT || g_pro_manager.foc_val->iv > MAX_CURRENT || g_pro_manager.foc_val->iw > MAX_CURRENT ||
-        _ToleranceCheck(g_pro_manager.foc_val->iq_fb, g_pro_manager.max_current, -g_pro_manager.max_current))
+        _tolerance_check(g_pro_manager.foc_val->iq_fb, g_pro_manager.max_current, -g_pro_manager.max_current))
     {
         g_pro_manager.fault = FAULT_OVERCURRENT;
         g_pro_manager.fault_flag = true;
@@ -135,7 +135,7 @@ void pro_manager_main_loop()
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
-        if (_ToleranceCheck(g_pro_manager.foc_val->udc, MAX_VOLTAGE, MIN_VOLTAGE))
+        if (_tolerance_check(g_pro_manager.foc_val->udc, MAX_VOLTAGE, MIN_VOLTAGE))
         {
             if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
             {
@@ -150,7 +150,7 @@ void pro_manager_main_loop()
         }
 
         // 2 速度检测
-        if (_ToleranceCheck(g_pro_manager.foc_val->rpm_fb, g_pro_manager.max_omega, -g_pro_manager.max_omega))
+        if (_tolerance_check(g_pro_manager.foc_val->rpm_fb, g_pro_manager.max_omega, -g_pro_manager.max_omega))
         {
             g_pro_manager.warning = WARNING_OVERSPEED;
             g_pro_manager.warning_flag = true;
@@ -158,7 +158,7 @@ void pro_manager_main_loop()
         // 3位置检测 位置模式下监测
         if (g_pro_manager.foc_mode->run_mode == POSITION_MODE)
         {
-            if (_ToleranceCheck(g_pro_manager.foc_val->pos_fb, g_pro_manager.max_position, g_pro_manager.min_position))
+            if (_tolerance_check(g_pro_manager.foc_val->pos_fb, g_pro_manager.max_position, g_pro_manager.min_position))
             {
                 g_pro_manager.warning = WARNING_POSITION_LIMIT;
                 g_pro_manager.warning_flag = true;

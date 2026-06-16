@@ -12,7 +12,7 @@
  * @param arr 待排序的数组
  * @param n 数组大小
  */
-static void vBubbleSort(int arr[], int n)
+static void bubble_sort(int arr[], int n)
 {
     if (arr == NULL || n <= 1)
     {
@@ -113,7 +113,7 @@ int filter_median(tMedianFilter *filter, int new_value)
     }
 
     // 排序
-    vBubbleSort(buf, filter->size);
+    bubble_sort(buf, filter->size);
 
     // 返回中值
     return buf[(filter->size - 1) / 2];
@@ -319,7 +319,7 @@ u16 filter_pulse(tPulseInterferenceFilter *filter, u16 new_value)
     }
 
     // 排序
-    vBubbleSort(buf, filter->size);
+    bubble_sort(buf, filter->size);
 
     // 去掉最大最小值后求平均
     for (i = 1; i < filter->size - 1; i++)

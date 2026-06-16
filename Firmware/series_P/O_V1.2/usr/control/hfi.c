@@ -77,7 +77,7 @@ void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 
     /* 5. 角度更新 (积分 + 归一化) */
     g_hfi.theta_e += g_hfi.omega_e * T_CON;
-    g_hfi.theta_e = fNormalizeAngle_0_360(g_hfi.theta_e);
+    g_hfi.theta_e = normalize_angle_0_360(g_hfi.theta_e);
 
     /* 6. 更新方波注入信号 (+1/-1 交替) */
     g_hfi.inj_count++;
@@ -146,12 +146,12 @@ void hfi_detect_initial_position(float id, float *ualpha, float *ubeta)
         if (g_hfi.init_curr_pos < g_hfi.init_curr_neg)
         {
             g_hfi.theta_e += 180.0f;
-            g_hfi.theta_e = fNormalizeAngle_0_360(g_hfi.theta_e);
+            g_hfi.theta_e = normalize_angle_0_360(g_hfi.theta_e);
         }
         g_hfi.init_flag = true;
     }
 
-    fInvParkTransform(ud_ref, 0.0f, sin_angle, cos_angle, ualpha, ubeta);
+    inv_park_transform(ud_ref, 0.0f, sin_angle, cos_angle, ualpha, ubeta);
 }
 
 bool hfi_get_status(void)
