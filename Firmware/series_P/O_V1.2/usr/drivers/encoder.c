@@ -34,6 +34,8 @@ tEncoderInstance g_encoder = {.chip_type = 0xff};
 /* ----------------------- 芯片描述表 ----------------------- */
 static bool MT6816_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
 static bool AS5047_ParseAndCheck(uint16_t high, uint16_t low, uint16_t *angle);
+static void MT6816_MainLoop(void *arg);
+static void AS5047_MainLoop(void *arg);
 
 static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
     [MT6816] = {
@@ -47,6 +49,8 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_data_size = 16,
         .parse_and_check = MT6816_ParseAndCheck,
         .use_dma_state_machine = true,
+        .dma_post_high_state = ENCODER_STATE_START_LOW,
+        .dma_state_entry = MT6816_MainLoop,
     },
     [AS5047] = {
         .resolution = 16384,
@@ -59,6 +63,8 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .spi_data_size = 16,
         .parse_and_check = AS5047_ParseAndCheck,
         .use_dma_state_machine = true,
+        .dma_post_high_state = ENCODER_STATE_START_NOP,
+        .dma_state_entry = AS5047_MainLoop,
     },
     /* MT6835 预留：按手册填入参数即可 */
 };
@@ -67,12 +73,10 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
 static void Encoder_RecoverFromError(void);
 static void Common_AngleVelocityUpdate(tEncoderInstance *enc);
 
-static void MT6816_MainLoop(void);
 static void MT6816_StartHighRead(void);
 static void MT6816_StartLowRead(void);
 static void MT6816_ProcessData(void);
 
-static void AS5047_MainLoop(void);
 static void AS5047_StartCommand(void);
 static void AS5047_StartNOP(void);
 static void AS5047_ProcessData(void);
@@ -128,42 +132,16 @@ void BSP_Encoder_SPI_TxRxCpltCallback(void)
     BSP_Encoder_CS(EXTERNAL, true);
     tEncoderInstance *enc = &g_encoder;
 
-    if (enc->chip_type == MT6816)
-    {
-        if (enc->state == ENCODER_STATE_WAIT_HIGH)
-        {
-            /* 高字节接收完成，标记需要启动低字节读取 */
-            enc->state = ENCODER_STATE_START_LOW;
-            enc->no_resp_tic = 0;
-        }
-        else if (enc->state == ENCODER_STATE_WAIT_LOW)
-        {
-            /* 低字节接收完成，保存数据并置为待处理状态 */
-            BSP_disable_irq();
-            enc->data_raw[0] = enc->shadow_raw[0];
-            enc->data_raw[1] = enc->shadow_raw[1];
-            BSP_enable_irq();
-            enc->state = ENCODER_STATE_PROCESS_DATA;
-            enc->no_resp_tic = 0;
-        }
-    }
-    else if (enc->chip_type == AS5047)
-    {
-        if (enc->state == ENCODER_STATE_WAIT_HIGH)
-        {
-            /* 命令帧已发送，标记需要启动 NOP 读 */
-            enc->state = ENCODER_STATE_START_NOP;
-            enc->no_resp_tic = 0;
-        }
-        else if (enc->state == ENCODER_STATE_WAIT_LOW)
-        {
-            /* 数据帧接收完成，保存数据 */
-            BSP_disable_irq();
-            enc->data_raw[0] = enc->shadow_raw[0];
-            BSP_enable_irq();
-            enc->state = ENCODER_STATE_PROCESS_DATA;
-            enc->no_resp_tic = 0;
-        }
+    if (enc->state == ENCODER_STATE_WAIT_HIGH) {
+        enc->state = enc->chip_desc->dma_post_high_state;
+        enc->no_resp_tic = 0;
+    } else if (enc->state == ENCODER_STATE_WAIT_LOW) {
+        BSP_disable_irq();
+        enc->data_raw[0] = enc->shadow_raw[0];
+        enc->data_raw[1] = enc->shadow_raw[1];
+        BSP_enable_irq();
+        enc->state = ENCODER_STATE_PROCESS_DATA;
+        enc->no_resp_tic = 0;
     }
 }
 
@@ -312,9 +290,9 @@ static void MT6816_ProcessData(void)
     enc->state = ENCODER_STATE_START_READ;
 }
 
-static void MT6816_MainLoop(void)
+static void MT6816_MainLoop(void *arg)
 {
-    tEncoderInstance *enc = &g_encoder;
+    tEncoderInstance *enc = (tEncoderInstance *)arg;
     switch (enc->state)
     {
     case ENCODER_STATE_START_READ:
@@ -421,9 +399,9 @@ static void AS5047_ProcessData(void)
     enc->state = ENCODER_STATE_START_READ;
 }
 
-static void AS5047_MainLoop(void)
+static void AS5047_MainLoop(void *arg)
 {
-    tEncoderInstance *enc = &g_encoder;
+    tEncoderInstance *enc = (tEncoderInstance *)arg;
     switch (enc->state)
     {
     case ENCODER_STATE_START_READ:
@@ -456,18 +434,8 @@ static void AS5047_MainLoop(void)
 /* ========== 主循环任务 ========== */
 void fEncoderMainLoopTask(void)
 {
-    // TODO: 将来用 chip_desc->dma_state_entry 函数指针替代此 switch
-    switch (g_encoder.chip_type)
-    {
-    case MT6816:
-        MT6816_MainLoop();
-        break;
-    case AS5047:
-        AS5047_MainLoop();
-        break;
-    /* 添加新芯片时在此处增加 case */
-    default:
-        break;
+    if (g_encoder.chip_desc && g_encoder.chip_desc->dma_state_entry) {
+        g_encoder.chip_desc->dma_state_entry(&g_encoder);
     }
 }
 

@@ -139,16 +139,16 @@ typedef enum {
 
 
 typedef enum {
-    FOC_IDLE     = 0,  /* IDLE */
-    FOC_TUNE     = 1,  /* TUNE */
-    FOC_RESET    = 2,  /* RESET */
-    FOC_ENABLE   = 3,  /* ENABLE */
-    FOC_DISABLE  = 4,  /* DISABLE */
-    FOC_RUNNING  = 5,  /* RUNNING */
-    FOC_OPENLOOP = 6,  /* 开环启动 */
-    FOC_SHUTDOWN = 9,  /* SHUTDOWN */
-    FOC_FAULT    = 7,  /* FAULT */
-    FOC_WARNING  = 8,  /* WARNING */
+    FOC_IDLE     =  0,  /* IDLE */
+    FOC_TUNE     =  1,  /* TUNE */
+    FOC_RESET    =  2,  /* RESET */
+    FOC_ENABLE   =  3,  /* ENABLE */
+    FOC_DISABLE  =  4,  /* DISABLE */
+    FOC_RUNNING  =  5,  /* RUNNING */
+    FOC_OPENLOOP =  6,  /* 开环启动 */
+    FOC_SHUTDOWN =  9,  /* SHUTDOWN */
+    FOC_FAULT    = 10,  /* FAULT */
+    FOC_WARNING  = 11,  /* WARNING */
 } eFocState;
 
 

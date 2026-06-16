@@ -39,6 +39,7 @@ typedef struct
     bool (*parse_and_check)(uint16_t raw_high, uint16_t raw_low, uint16_t *angle_out);
     bool use_dma_state_machine;  // 是否使用DMA状态机
     void (*dma_state_entry)(void *enc);   // DMA状态机入口（按芯片不同）
+    u8 dma_post_high_state;  // WAIT_HIGH 完成后的下一个状态
 } tEncoderChipDesc;
 
 /* 编码器全局实例 */
