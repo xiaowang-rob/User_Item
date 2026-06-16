@@ -14,7 +14,7 @@ bool BSP_UART_Transmit_DMA(uint8_t *data, u16 len)
     return HAL_UART_Transmit_DMA(&UART_CH, data, len) == HAL_OK;
 }
 
-__weak void BSP_UART_RxCallback()
+__weak void bsp_uart_rx_callback()
 {
     return;
 }
@@ -22,6 +22,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == UART_INSTANCE)
     {
-        BSP_UART_RxCallback();
+        bsp_uart_rx_callback();
     }
 }

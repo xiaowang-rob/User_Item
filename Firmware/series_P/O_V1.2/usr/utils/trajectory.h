@@ -39,10 +39,10 @@ typedef struct
 } tTraj_Out;
 
 /* === 核心 API  === */
-void fTraj_Init(tTraj_Config cfg);
-void fTraj_Reset(float current_value);
-void fTraj_SetTarget(float target);
-void fTraj_SetRate(float rate);
+void traj_init(tTraj_Config cfg);
+void traj_reset(float current_value);
+void traj_set_target(float target);
+void traj_set_rate(float rate);
 tTraj_Out fTraj_Update(float dt);
 
 #endif /* __TRAJECTORY_H */

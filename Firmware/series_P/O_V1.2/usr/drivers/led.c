@@ -1,7 +1,7 @@
 
 #include "device.h"
 
-void fLED_Control(eDeviceStatus can_state, eDeviceStatus encoder_state)
+void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state)
 {
     static u32 led_base_time = 0;
     static bool half_blink_flag = false;

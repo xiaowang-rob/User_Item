@@ -804,10 +804,6 @@
                     "comment": "RUNNING"
                 },
                 {
-                    "name": "FOC_OPENLOOP",
-                    "comment": "开环启动"
-                },
-                {
                     "name": "FOC_SHUTDOWN",
                     "comment": "SHUTDOWN",
                     "value": "9"

@@ -6,7 +6,7 @@
 tLoopControl g_loop_con = {0};
 
 // 初始化分频系数并计算各环周期
-void fFrequencyDivisionInit()
+void freq_div_init()
 {
     memset(&g_loop_con.fd, 0, sizeof(tFrequencyDivision));
     g_loop_con.fd.current_update_steps = FREQ_CURRENT;
@@ -18,7 +18,7 @@ void fFrequencyDivisionInit()
 }
 
 // 每PWM周期调用：更新分频计数器，置位各环更新标志
-void fFrequencyDivisionUpdate(void)
+void freq_div_update(void)
 {
     g_loop_con.fd.current_update = false;
     g_loop_con.fd.speed_update = false;
@@ -137,10 +137,10 @@ void PID_reset(tPID *pid)
 }
 
 // 环路控制器整体初始化
-void fLoopControlInit(tParameter *param, float Udc)
+void loop_control_init(tParameter *param, float Udc)
 {
     // 先初始化分频器
-    fFrequencyDivisionInit();
+    freq_div_init();
     g_loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
     loop_pi_init(&g_loop_con.PI_iq, param->kp_Q, param->ki_Q, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
     loop_pi_init(&g_loop_con.PI_id, param->kp_D, param->ki_D, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
@@ -154,7 +154,7 @@ void fLoopControlInit(tParameter *param, float Udc)
 }
 
 // 重置所有控制器状态
-void fLoopReset(float Udc)
+void loop_control_reset(float Udc)
 {
     g_loop_con.max_Vs = Udc / MATH_SQRT3;
     PI_reset(&g_loop_con.PI_id);
@@ -165,19 +165,19 @@ void fLoopReset(float Udc)
 }
 
 // q轴电流环
-float fCurrentLoopUpdate(float current_ref, float current_fb)
+float loop_current_update(float current_ref, float current_fb)
 {
     return loop_pi_update(&g_loop_con.PI_iq, current_ref, current_fb);
 }
 
 // d轴磁链环
-float fMagLoopUpdate(float id_ref, float id_fb)
+float loop_mag_update(float id_ref, float id_fb)
 {
     return loop_pi_update(&g_loop_con.PI_id, id_ref, id_fb);
 }
 
 // 弱磁控制：电压超限时通过负Id削弱磁链
-float fWeakMagLoopUpdate(float ud, float uq)
+float loop_weak_mag_update(float ud, float uq)
 {
     float vout;
     arm_sqrt_f32((ud * ud + uq * uq), &vout);
@@ -188,13 +188,13 @@ float fWeakMagLoopUpdate(float ud, float uq)
 }
 
 // 速度环
-float fSpeedLoopUpdate(float speed_ref, float speed_fb)
+float loop_speed_update(float speed_ref, float speed_fb)
 {
     return loop_pi_update(&g_loop_con.PI_speed, speed_ref, speed_fb);
 }
 
 // 相对位置环（带指令限幅）
-float fPositionRelLoopUpdate(float position_ref, float position_fb)
+float loop_position_update(float position_ref, float position_fb)
 {
     if (position_ref > g_loop_con.position_max)
         position_ref = g_loop_con.position_max;

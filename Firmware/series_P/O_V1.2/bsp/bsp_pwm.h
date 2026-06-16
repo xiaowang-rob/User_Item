@@ -3,7 +3,7 @@
 
 #include "bsp.h"
 
-void BSP_FOC_ITCallback(void); // FOC定时器中断回调函数声明
+void bsp_foc_it_callback(void); // FOC定时器中断回调函数声明
 
 void BSP_POWER_12V_Control(bool on);
 

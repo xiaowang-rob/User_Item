@@ -4,6 +4,6 @@
 #include "bsp.h"
 #include "protocol.h"
 // 读取数据流
-void fStreamDataGet(eData_stream stream, float *data);
-void fStreamDataPrepare(eData_stream stream, u8 index, u8 *data, bool _tx);
+void stream_data_get(eData_stream stream, float *data);
+void stream_data_prepare(eData_stream stream, u8 index, u8 *data, bool _tx);
 #endif

@@ -145,7 +145,6 @@ typedef enum {
     FOC_ENABLE   =  3,  /* ENABLE */
     FOC_DISABLE  =  4,  /* DISABLE */
     FOC_RUNNING  =  5,  /* RUNNING */
-    FOC_OPENLOOP =  6,  /* 开环启动 */
     FOC_SHUTDOWN =  9,  /* SHUTDOWN */
     FOC_FAULT    = 10,  /* FAULT */
     FOC_WARNING  = 11,  /* WARNING */

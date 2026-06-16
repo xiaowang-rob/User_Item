@@ -8,9 +8,9 @@
 tLogindex Index;
 tLog Log;
 
-void fLogInit(void)
+void log_init(void)
 {
-    fFLASH_ReadData((u8 *)&Index, Log_start_addr, sizeof(Index));
+    flash_read_data((u8 *)&Index, Log_start_addr, sizeof(Index));
     if (Index.num == 0xff)
     { // 日志被擦除过 或 第一次上电
         Index.num = 0;
@@ -21,35 +21,35 @@ void fLogInit(void)
         Index.log_addr = Log_start_addr + Index.num * sizeof(Log);
     }
 }
-void fLogDataSave(void)
+void log_data_save(tProtectionManager *pro_manager)
 {
     Log.num = Index.num;
     Log.minutes = BSP_GetTick() / 1000 / 60;
-    Log.vbus = g_foc.core->foc_val->udc;
-    Log.temp = g_pro_manager.temperature;
-    Log.iu = g_foc.core->foc_val->iu;
-    Log.iv = g_foc.core->foc_val->iv;
-    Log.iw = g_foc.core->foc_val->iw;
-    Log.iq = g_foc.core->foc_val->iq_fb;
-    Log.id = g_foc.core->foc_val->id_fb;
-    Log.id_ref = g_foc.core->foc_val->id_ref;
-    Log.iq_ref = g_foc.core->foc_val->iq_ref;
-    Log.speed = g_foc.core->foc_val->rpm_fb;
-    Log.speed_ref = g_foc.core->foc_val->rpm_ref;
-    Log.position = g_foc.core->foc_val->pos_fb;
-    Log.position_ref = g_foc.core->foc_val->pos_ref;
-    Log.run_mode = g_foc.core->foc_mode->run_mode;
-    Log.sensor_mode = g_foc.core->foc_mode->sensor_mode;
-    Log.fault = (eFaultState)g_pro_manager.fault;
-    Log.warning = (eWarningState)g_pro_manager.warning;
+    Log.vbus = pro_manager->foc_val->udc;
+    Log.temp = pro_manager->foc_val->temp;
+    Log.iu = pro_manager->foc_val->iu;
+    Log.iv = pro_manager->foc_val->iv;
+    Log.iw = pro_manager->foc_val->iw;
+    Log.iq = pro_manager->foc_val->iq_fb;
+    Log.id = pro_manager->foc_val->id_fb;
+    Log.id_ref = pro_manager->foc_val->id_ref;
+    Log.iq_ref = pro_manager->foc_val->iq_ref;
+    Log.speed = pro_manager->foc_val->rpm_fb;
+    Log.speed_ref = pro_manager->foc_val->rpm_ref;
+    Log.position = pro_manager->foc_val->pos_fb;
+    Log.position_ref = pro_manager->foc_val->pos_ref;
+    Log.run_mode = pro_manager->foc_mode->run_mode;
+    Log.sensor_mode = pro_manager->foc_mode->sensor_mode;
+    Log.fault = (eFaultState)pro_manager->fault;
+    Log.warning = (eWarningState)pro_manager->warning;
 
-    Log.can_state = g_pro_manager.drive_state->can_state;
-    Log.encoder_state = g_pro_manager.drive_state->encoder_state;
+    Log.can_state = pro_manager->drive_state->can_state;
+    Log.encoder_state = pro_manager->drive_state->encoder_state;
 }
 
-void fLogDataWrite(void)
+void log_data_write(void)
 {
-    fFLASH_WriteWord((u8 *)&Log, Index.log_addr, sizeof(Log));
+    flash_write_word((u8 *)&Log, Index.log_addr, sizeof(Log));
     if (Index.num >= MAX_log_NUM)
     { // 日志满了后 循环覆盖最后一条日志
         return;
@@ -60,11 +60,11 @@ void fLogDataWrite(void)
 }
 
 static u8 read_index = 0;
-bool fLogReadFlash(u8 *data, u8 *len)
+bool log_read_flash(u8 *data, u8 *len)
 {
     if (read_index < MAX_log_NUM)
     {
-        fFLASH_ReadData((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
+        flash_read_data((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
         if (Log.num == read_index)
         {
             *len = sizeof(Log);
@@ -86,10 +86,10 @@ bool fLogReadFlash(u8 *data, u8 *len)
     }
 }
 
-void fLogErase()
+void log_erase()
 {
-    fFLASH_EraseSector(Log_start_addr, MAX_log_NUM * sizeof(Log));
-    fFLASH_EraseSector(Log_Index_start_addr, sizeof(Index));
+    flash_erase_sector(Log_start_addr, MAX_log_NUM * sizeof(Log));
+    flash_erase_sector(Log_Index_start_addr, sizeof(Index));
     Index.num = 0;
     Index.log_addr = Log_start_addr;
 }

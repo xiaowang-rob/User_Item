@@ -8,6 +8,6 @@
  * ============================================ */
 void BSP_UART_Receive_DMA(u8 *data, u16 len);
 bool BSP_UART_Transmit_DMA(u8 *data, u16 len);
-void BSP_UART_RxCallback(void);
+void bsp_uart_rx_callback(void);
 
 #endif /* __BSP_UART_H */

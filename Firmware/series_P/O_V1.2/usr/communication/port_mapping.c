@@ -23,16 +23,17 @@ USB、串口、CAN 端口映射
 
 // 多端口接收缓冲 — 每个端口独立，避免 is_busy 互斥
 #define PORT_NUM 3
-static struct {
+static struct
+{
     eCOM port_id;
-    u8   cmd_id;
-    u8   rxbuffer[MAX_FRAME_LENGTH];
-    u8   rxlen;
+    u8 cmd_id;
+    u8 rxbuffer[MAX_FRAME_LENGTH];
+    u8 rxlen;
     bool pending;
 } g_port_rx[PORT_NUM] = {
-    { .port_id = CAN_port },
-    { .port_id = USB_port },
-    { .port_id = UART_port },
+    {.port_id = CAN_port},
+    {.port_id = USB_port},
+    {.port_id = UART_port},
 };
 
 // 下发帧（应答/状态/数据）缓冲 — 互斥访问，由主循环使用
@@ -46,21 +47,23 @@ static u32 _last_host_ping_ms = 0; // 上次收到主机心跳时间
 static bool system_message_send_flag = false;
 
 // 通讯层初始化
-void fCommunicateInit()
+void comm_init()
 {
-    fCAN_PortInit(g_Param.can_id, g_Param.sw_canqueue);
-    fUartPortInit();
-    fUSB_Init();
+    can_port_init(g_Param.can_id, g_Param.sw_canqueue);
+    uart_port_init();
+    usb_init();
+    g_device_status.usb_state = ONLINE;
     g_com_state.Host_port = NONE_port;
 }
 // 上位机发送 缓存中的数据
-void fHostComputer_send()
+void comm_host_send()
 {
     if (com_frame.com_port == UART_port)
-        fUartPortSendFrame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
-    else if (!fUSB_SendFrame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
+        uart_port_send_frame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen);
+    else if (!usb_send_frame(com_frame.cmd_id, com_frame.txdata, com_frame.txdatalen))
     {
         g_com_state.Host_port = NONE_port;
+        g_device_status.usb_state = OFFLINE;
         system_message_send_flag = false;
         com_frame.stream_num = 0;
     }
@@ -70,10 +73,10 @@ static bool param_send_flag = false;
 static u8 param_index = 0;
 static inline void _AllParamsSend()
 {
-    fParamGet((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
+    param_get((eParameter)param_index, &com_frame.txdata[1], &com_frame.txdatalen);
     com_frame.txdata[0] = param_index;
     com_frame.txdatalen += 1;
-    fHostComputer_send();
+    comm_host_send();
     param_index++;
     if (param_index == PARAM_NUM)
     {
@@ -85,10 +88,10 @@ static inline void _AllParamsSend()
 static bool log_send_flag = false;
 static inline void _AllLogSend()
 {
-    if (fLogReadFlash(com_frame.txdata, &com_frame.txdatalen))
+    if (log_read_flash(com_frame.txdata, &com_frame.txdatalen))
         log_send_flag = false;
     else
-        fHostComputer_send();
+        comm_host_send();
 }
 // 状态发送
 static inline void _StatusSend()
@@ -130,14 +133,15 @@ static inline void _StatusSend()
         com_frame.txdatalen = 12;
     }
     // 超时检测：基于实际时间（5秒无心跳断开）
-    if (_last_host_ping_ms > 0 && BSP_GetTick() - _last_host_ping_ms > 5000) {
+    if (_last_host_ping_ms > 0 && BSP_GetTick() - _last_host_ping_ms > 5000)
+    {
         g_com_state.Host_port = NONE_port;
         system_message_send_flag = false;
         com_frame.stream_num = 0;
         _last_host_ping_ms = 0;
         return;
     }
-    fHostComputer_send();
+    comm_host_send();
 }
 
 static u8 data_id = 0;
@@ -153,18 +157,18 @@ static void _FrameDataDeal()
             foc_set_target((float *)com_frame.rxdata);
             break;
         case CMD_ENABLE:
-            fFocStateUpdate(FOC_ENABLE);
+            foc_state_update(FOC_ENABLE);
             break;
         case CMD_DISABLE:
-            fFocStateUpdate(FOC_DISABLE);
+            foc_state_update(FOC_DISABLE);
             break;
         case CMD_MODE_SET:
             foc_set_run_mode(com_frame.rxdata[0]);
             break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
-            fStreamDataGet((eData_stream)data_id, (float *)com_frame.txdata);
-            fCAN_SendData(com_frame.txdata, 4);
+            stream_data_get((eData_stream)data_id, (float *)com_frame.txdata);
+            can_send_data(com_frame.txdata, 4);
             break;
         case CMD_SYSTEM_RESET:
             BSP_SystemReset();
@@ -198,43 +202,42 @@ static void _FrameDataDeal()
                 com_frame.stream_num = 0;
                 break;
             case START_TUNNING:
-                fFocStateUpdate(FOC_TUNE);
+                foc_state_update(FOC_TUNE);
                 break;
             case BRAKE:
-                fFocStateUpdate(FOC_SHUTDOWN);
+                foc_state_update(FOC_SHUTDOWN);
                 break;
             case FOC_NRST:
-                fFocStateUpdate(FOC_RESET);
-                fProManagerClearFlag();
+                foc_state_update(FOC_RESET);
                 break;
             case CMD_ENABLE:
-                fFocStateUpdate(FOC_ENABLE);
+                foc_state_update(FOC_ENABLE);
                 break;
             case CMD_DISABLE:
-                fFocStateUpdate(FOC_DISABLE);
+                foc_state_update(FOC_DISABLE);
                 break;
             case LOG_GET:
                 log_send_flag = true;
                 break;
             case LOG_ERASE:
-                fLogErase();
+                log_erase();
                 com_frame.txdata[0] = EXECUTE;
                 com_frame.txdatalen = 1;
-                fHostComputer_send();
+                comm_host_send();
                 break;
             case PARAM_ERASE:
-                fParamErase();
+                param_erase();
                 com_frame.txdata[0] = EXECUTE;
                 com_frame.txdatalen = 1;
-                fHostComputer_send();
+                comm_host_send();
                 break;
             case PARAM_SAVE: // 一键保存
-                if (fParamSave())
+                if (param_save())
                     com_frame.txdata[0] = EXECUTE;
                 else
                     com_frame.txdata[0] = FAILURE;
                 com_frame.txdatalen = 1;
-                fHostComputer_send();
+                comm_host_send();
                 break;
             case CMD_STREAM_SET: // 除了状态位清除检测值
                 com_frame.stream_num = 0;
@@ -256,7 +259,7 @@ static void _FrameDataDeal()
                 else
                     com_frame.txdata[0] = FAILURE;
                 com_frame.txdatalen = 1;
-                fHostComputer_send();
+                comm_host_send();
                 break;
             default:
                 break;
@@ -267,7 +270,7 @@ static void _FrameDataDeal()
             switch (com_frame.cmd_id)
             {
             case PARAM_WRITE: // 指定写入
-                fParamSet(com_frame.rxdata[0], &com_frame.rxdata[1]);
+                param_set(com_frame.rxdata[0], &com_frame.rxdata[1]);
                 break;
             case PARAM_READ:
                 if (com_frame.rxdata[0] == 0xff)
@@ -275,8 +278,8 @@ static void _FrameDataDeal()
                     param_send_flag = true;
                     break;
                 } // 指定读取
-                fParamGet(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
-                fHostComputer_send();
+                param_get(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
+                comm_host_send();
                 break;
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
                 memcpy(value_ref, com_frame.rxdata, 4);
@@ -287,9 +290,9 @@ static void _FrameDataDeal()
                 foc_set_run_mode(com_frame.rxdata[0]);
                 break;
             case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
-                fStreamDataGet(com_frame.rxdata[1], (float *)com_frame.txdata);
+                stream_data_get(com_frame.rxdata[1], (float *)com_frame.txdata);
                 com_frame.txdatalen = 4;
-                fHostComputer_send();
+                comm_host_send();
                 break;
             case CMD_STREAM_SET: // 监测值设置 5byte
                 com_frame.stream_num = com_frame.rxdatalen;
@@ -305,9 +308,9 @@ static void _FrameDataDeal()
     com_frame.is_busy = false;
 }
 // 端口映射 — 每个回调只做拷贝 + 挂起，由主循环统一处理
-void fCAN_RxDataCallback(u8 *RxData, u8 len)
+void can_rx_data_callback(u8 *RxData, u8 len)
 {
-    if (g_port_rx[0].pending)  // CAN is index 0
+    if (g_port_rx[0].pending) // CAN is index 0
         return;
 
     // 拷贝数据到端口自己的缓冲
@@ -316,20 +319,21 @@ void fCAN_RxDataCallback(u8 *RxData, u8 len)
     g_port_rx[0].pending = true;
 }
 
-void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
+void usb_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
-    if (g_port_rx[1].pending)  // USB is index 1
+    if (g_port_rx[1].pending) // USB is index 1
         return;
 
+    g_device_status.usb_state = RUNNING;
     g_port_rx[1].cmd_id = id;
     memcpy(g_port_rx[1].rxbuffer, data, len);
     g_port_rx[1].rxlen = len;
     g_port_rx[1].pending = true;
 }
 
-void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
+void uart_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
-    if (g_port_rx[2].pending)  // UART is index 2
+    if (g_port_rx[2].pending) // UART is index 2
         return;
 
     g_port_rx[2].cmd_id = id;
@@ -383,13 +387,13 @@ void _stream_data_trans()
             if (com_frame.stream_num == 0)
                 return;
             bool txflag = _datanum >= 12 / com_frame.stream_num * com_frame.stream_num - 1;
-            fStreamDataPrepare(com_frame.data_id_index[_datanum % com_frame.stream_num], _datanum, com_frame.txdata, txflag);
+            stream_data_prepare(com_frame.data_id_index[_datanum % com_frame.stream_num], _datanum, com_frame.txdata, txflag);
             _datanum++;
             if (txflag)
             {
                 com_frame.cmd_id = CMD_STREAM_SET;
                 com_frame.txdatalen = _datanum * 4;
-                fHostComputer_send();
+                comm_host_send();
                 _datanum = 0;
             }
             _time_prev_ms = _time_ms;
@@ -404,16 +408,17 @@ void _stream_data_trans()
         _time_prev_ms = _time_ms;
         for (u8 i = 0; i < com_frame.stream_num; i++)
         {
-            fStreamDataGet(com_frame.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
+            stream_data_get(com_frame.data_id_index[i], (float *)&com_frame.txdata[i * 4]);
         }
-        fVOFA_FloatDataSend((float *)com_frame.txdata, com_frame.stream_num);
+        vofa_float_data_send((float *)com_frame.txdata, com_frame.stream_num);
     }
 }
 
 // 轮询各端口缓冲，处理待处理的数据包
 static void _process_pending_rx(void)
 {
-    for (int i = 0; i < PORT_NUM; i++) {
+    for (int i = 0; i < PORT_NUM; i++)
+    {
         if (!g_port_rx[i].pending)
             continue;
 
@@ -421,30 +426,40 @@ static void _process_pending_rx(void)
         u8 len = g_port_rx[i].rxlen;
         u8 id = g_port_rx[i].cmd_id;
 
-        if (g_port_rx[i].port_id == CAN_port) {
+        if (g_port_rx[i].port_id == CAN_port)
+        {
             // CAN 帧格式特殊：cmd_id 由长度决定，需要重新解析
             // 但数据已经拷贝到 buffer，直接交给 _FrameDataDeal 处理
             com_frame.is_busy = true;
             com_frame.com_port = CAN_port;
 
-            if (len == 4) {
+            if (len == 4)
+            {
                 com_frame.cmd_id = CMD_REFVALUE_SET;
                 com_frame.rxdatalen = len;
                 com_frame.rxdata = buf;
                 memset(&buf[4], 0, 4);
-            } else if (len == 8) {
+            }
+            else if (len == 8)
+            {
                 com_frame.cmd_id = CMD_REFVALUE_SET;
                 com_frame.rxdatalen = len;
                 com_frame.rxdata = buf;
-            } else if (len == 1) {
+            }
+            else if (len == 1)
+            {
                 com_frame.cmd_id = buf[0];
                 com_frame.rxdatalen = 0;
-            } else if (len == 2) {
+            }
+            else if (len == 2)
+            {
                 com_frame.cmd_id = buf[0];
                 com_frame.rxdatalen = 1;
                 com_frame.rxdata = &buf[1];
             }
-        } else {
+        }
+        else
+        {
             // USB/UART 通用帧格式：HEAD + id + len + data + chk + tail
             // CAN以外的端口使用 packet 协议，data 已经去掉了头尾
             com_frame.is_busy = true;
@@ -459,9 +474,9 @@ static void _process_pending_rx(void)
     }
 }
 
-void fCommunicateMainLoop()
+void comm_main_loop()
 {
     _process_pending_rx();
     _stream_data_trans();
-    fCAN_QueueData_deal();
+    can_queue_data_deal();
 }

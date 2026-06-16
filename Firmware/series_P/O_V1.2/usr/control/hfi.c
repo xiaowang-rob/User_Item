@@ -21,13 +21,13 @@ float32_t lpf_w_coeffs[5] = {LPF_W_B0, LPF_W_B1, LPF_W_B2, LPF_W_A1, LPF_W_A2};
 /**
  * @brief  HFI模块初始化
  */
-void fHfiInit()
+void hfi_init()
 {
     memset(&g_hfi, 0, sizeof(tHFI_Handle));
     g_hfi.inj_signal = 1;
 
-    fButterworthFilter_Init(&speed_lpf_inst, (float *)lpf_w_coeffs);
-    fFirstOrderLagInit(&speed_lpf, 0.01f, 0.0f);
+    filter_butterworth_init(&speed_lpf_inst, (float *)lpf_w_coeffs);
+    filter_first_order_lag_init(&speed_lpf, 0.01f, 0.0f);
 }
 
 /**
@@ -41,7 +41,7 @@ void fHfiInit()
 volatile float Hfi_Kp = 2 * 1.0f * 250;
 volatile float Hfi_Ki = 100 * 100 * T_CON;
 
-void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
+void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 {
     /* 1. 高频电流提取 (二阶差分 + 注入极性解调) */
     g_hfi.ialpha_h[0] = (ialpha - g_hfi.ialpha_z[0] * 2 + g_hfi.ialpha_z[1]) / 4;
@@ -100,7 +100,7 @@ void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
  * @note   通过正反向d轴脉冲比较电流幅值，消除180°模糊
  */
 static u16 detect_timer = 0;
-void fHfiDetectInitialPosition(float id, float *ualpha, float *ubeta)
+void hfi_detect_initial_position(float id, float *ualpha, float *ubeta)
 {
     if (g_hfi.init_flag)
         return;
@@ -154,24 +154,24 @@ void fHfiDetectInitialPosition(float id, float *ualpha, float *ubeta)
     fInvParkTransform(ud_ref, 0.0f, sin_angle, cos_angle, ualpha, ubeta);
 }
 
-bool fHfiGetStatus(void)
+bool hfi_get_status(void)
 {
     return g_hfi.init_flag;
 }
 
-void fHfiResetInitialPosition(void)
+void hfi_reset_initial_position(void)
 {
     memset(&g_hfi, 0, sizeof(tHFI_Handle));
     g_hfi.inj_signal = 1;
-    fButterworthFilter_Reset(&speed_lpf_inst);
+    filter_butterworth_reset(&speed_lpf_inst);
 }
 
-float fHfiGetOmegaElec(void)
+float hfi_get_omega_elec(void)
 {
     return g_hfi.omega_filtered;
 }
 
-float fHfiGetThetaElec(void)
+float hfi_get_theta_elec(void)
 {
     return g_hfi.theta_e;
 }

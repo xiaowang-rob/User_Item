@@ -19,7 +19,7 @@ typedef struct
 
 typedef struct
 {
-    float udc;
+    float udc, temp;
     float iu_im, iv_im, iw_im;
     float iu, iv, iw;
     float ialpha, ibeta;
@@ -53,16 +53,6 @@ typedef struct
     bool elec_pi_offset; // 电角度180°偏差
 } tMotor;
 
-typedef struct
-{
-    tMotor *motor;
-    tFOC_Mode *foc_mode;
-    tFOC_val *foc_val;
-} tFOC_Core;
-
-extern tFOC_Core g_foc_core;
-
-
 void foc_core_init();
 void foc_param_update(tParameter *param);
 void foc_core_reset();
@@ -70,7 +60,7 @@ void foc_core_reset();
 void foc_value_update();
 void foc_main_loop_task();
 bool foc_shutdown();
-bool fAutoCalibrationUpdate();
+bool auto_calibration_update();
 
 // 辅助整定 函数
 void filter_reset();
@@ -79,10 +69,10 @@ void foc_set_id_iq(float id, float iq);
 void foc_set_theta_offset(float thetaoffset);
 
 // 主要函数
-
 void foc_set_target(float *value);
 void foc_set_sensor_mode(eSensorMode mode);
 void foc_set_run_mode(eRunMode mode);
 void foc_set_zero_pos();
 void foc_set_limit_pos();
+
 #endif // __FOC_CORE_H

@@ -78,11 +78,11 @@ typedef struct
 
 extern tParameter g_Param;
 
-void fParamSet(eParameter para, u8 *value);
-void fParamGet(eParameter para, u8 *value, u8 *len);
-bool fParamSave();  // 一键保存
-void fParamErase(); // 一键擦除
-bool fParamInit();
+void param_set(eParameter para, u8 *value);
+void param_get(eParameter para, u8 *value, u8 *len);
+bool param_save();  // 一键保存
+void param_erase(); // 一键擦除
+bool param_init();
 
 // 参数描述符表 — 用 memcpy+offsetof 替代 switch-case
 typedef struct {

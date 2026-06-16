@@ -2,7 +2,7 @@
 
 import struct
 import logging
-from functions.message_show import (
+from functons.message_show import (
     send_simple_message,
     send_titled_message,
     MSG_TYPE_INFO,
@@ -108,7 +108,7 @@ class QuickBut:
     def value_slider_mapping(self, rel_value):
         """将滑块相对值 (0-1000) 映射到实际值"""
         max_val = float(self.MAX_val_input.text())
-        return (rel_value / 1000) * max_val
+        return int((rel_value / 1000) * max_val)
 
     def MAX_value_changed(self, text):
         """最大值输入变更时重置滑块"""
@@ -126,8 +126,7 @@ class QuickBut:
 
     def value_slider_changed(self, value):
         """滑块拖动 → 更新显示值并发送参考值"""
-        max_val = float(self.MAX_val_input.text())
-        val = (value / 1000) * max_val
+        val = float(value / 1000) * float(self.MAX_val_input.text())
         val = float(f"{val:.3g}")
         self.value_slider.setText(str(val))
         self.target_val_input.setText(str(val))
@@ -138,9 +137,8 @@ class QuickBut:
         max_val = float(self.MAX_val_input.text())
         target_val = float(self.target_val_input.text())
         if abs(target_val) > abs(max_val):
-            target_val = max_val if max_val >= 0 else -abs(max_val)
-        slider_pos = int(abs(target_val) / abs(max_val) * 1000) if max_val != 0 else 0
-        self.value_slider.setValue(min(slider_pos, 1000))
+            target_val = max_val
+        self.value_slider.setValue(int(abs(target_val) / abs(max_val) * 1000))
         self.target_val_input.setText(str(f"{target_val:.3g}"))
         self.send_val_ref()
 

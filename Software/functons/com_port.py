@@ -9,7 +9,7 @@ from PyQt5.QtCore import QTimer, QObject, pyqtSignal
 
 from protocol import Pkt, Cidx, Fidx
 
-from functions.message_show import (
+from functons.message_show import (
     send_simple_message,
     send_titled_message,
     MSG_TYPE_NORMAL,
@@ -87,11 +87,10 @@ class ComPort(QObject):
         self._handshake_timer = None
 
         # 包头尾常量 默认 USB 协议 蓝牙模式下 切换 串口的协议包头尾
-        self.HEAD = Pkt.PACKET_HEAD
-        self.FOOT = Pkt.PACKET_TAIL
+        self.HEAD = Pkt.USB_PACKET_HEAD
+        self.FOOT = Pkt.USB_PACKET_TAIL
 
         # 连接信号槽
-        self._handlers = {}
         self.packet_valid.connect(self.handle_received_data)
         self.connection_lost.connect(self._on_connection_lost_ui)
         self.ui_message.connect(self._on_ui_message)
@@ -105,18 +104,8 @@ class ComPort(QObject):
         self.monitor_timer.timeout.connect(self._monitor_connection)
         self.monitor_timer.start(1000)
 
-        # 心跳定时器 — 固件 5 秒无 UC_CONNECT 则断开
-        self.heartbeat_timer = QTimer()
-        self.heartbeat_timer.timeout.connect(self._send_heartbeat)
-        self.heartbeat_interval = 3000  # 3 秒一次
-
         # 初始扫描
         self._refresh_ports()
-
-    # ==================== COMMAND DISPATCH ====================
-    def register_handler(self, cmd_id, callback):
-        """Register a command handler"""
-        self._handlers[cmd_id] = callback
 
     # ==================== UI 交互 ====================
     def _handleConnectBut(self):
@@ -293,9 +282,7 @@ class ComPort(QObject):
             self._connect_time = time.time()
             self._last_status_time = 0.0
 
-            # 帧格式统一为 0x55/0xAA
-            self.HEAD = Pkt.PACKET_HEAD
-            self.FOOT = Pkt.PACKET_TAIL
+            # 启动收发线程
             self._stop_recv.clear()
             self._stop_sender.clear()
             self._recv_thread = threading.Thread(
@@ -319,7 +306,6 @@ class ComPort(QObject):
                 self._handshake_timer.start(5000)
                 self._send_direct_with_retry(Cidx.UC_CONNECT, bytes(), retries=2)
                 logger.debug("蓝牙握手命令已发送")
-                self.heartbeat_timer.start(self.heartbeat_interval)
             elif self._is_bootloader_mode:
                 self._send_direct_with_retry(Cidx.CMD_BL_CONNECT, bytes(), retries=2)
                 self.ui_message.emit(
@@ -334,7 +320,6 @@ class ComPort(QObject):
                     True, 1500
                 )
                 logger.debug("有线设备连接命令已发送")
-                self.heartbeat_timer.start(self.heartbeat_interval)
 
             self._update_ui_state()
             return True
@@ -374,9 +359,6 @@ class ComPort(QObject):
             if self._handshake_timer:
                 self._handshake_timer.stop()
                 self._handshake_timer = None
-
-        # 停止心跳
-        self.heartbeat_timer.stop()
 
         # 停止收发线程
         self._stop_recv.set()
@@ -449,24 +431,13 @@ class ComPort(QObject):
             self.ui_message.emit(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
             return False
 
-    @staticmethod
-    def _crc8(data):
-        """CRC-8/ATM: poly=0x07"""
-        crc = 0
-        for byte in data:
-            crc ^= byte
-            for _ in range(8):
-                crc = ((crc << 1) ^ 0x07) if (crc & 0x80) else (crc << 1)
-            crc &= 0xFF
-        return crc
-
     def _build_packet(self, cmd_id, data_bytes):
         """构造协议包：HEAD + cmd_id + length + data + checksum + FOOT"""
         data_bytes = bytes(data_bytes) if isinstance(data_bytes, (bytes, bytearray, list)) else bytes()
         length = min(len(data_bytes), 255)
         packet = bytearray([self.HEAD, cmd_id, length])
         packet.extend(data_bytes[:length])
-        packet.append(self._crc8(data_bytes[:length]))
+        packet.append(sum(data_bytes[:length]) & 0xFF)
         packet.append(self.FOOT)
         return packet
 
@@ -492,7 +463,6 @@ class ComPort(QObject):
                         continue
                     self.serial_port.write(packet)
                     self.serial_port.flush()
-                    logger.debug(f"发送成功：packet={packet}")
                 except (serial.SerialTimeoutException, OSError, serial.SerialException) as e:
                     self._handle_connection_lost(f"发送异常：{e}", is_physical=True)
         logger.debug("发送线程退出")
@@ -545,7 +515,7 @@ class ComPort(QObject):
                 continue
 
             data_bytes = buffer[3: 3 + length]
-            calc_chk = self._crc8(data_bytes)
+            calc_chk = sum(data_bytes) & 0xFF
             if buffer[3 + length] == calc_chk:
                 self.packet_valid.emit(int(cmd_id), bytes(data_bytes))
             else:
@@ -594,10 +564,13 @@ class ComPort(QObject):
             self._handle_connection_lost("物理连接断开", is_physical=True)
             return
 
-    def _send_heartbeat(self):
-        """定时发送心跳包（UC_CONNECT），维持固件连接"""
-        if self.is_connected:
-            self.send_packet(Cidx.UC_CONNECT, bytes())
+        now = time.time()
+        timeout = self._status_timeout
+        if self._last_status_time > 0:
+            if now - self._last_status_time > timeout:
+                self._handle_connection_lost(f"状态包超时（{timeout}秒）", is_physical=False)
+        elif now - self._connect_time > timeout * 2:
+            self._handle_connection_lost(f"连接后{timeout*2}秒未收到首个状态包", is_physical=False)
 
     def update_status_time(self):
         """收到有效状态包时更新最后活跃时间"""
@@ -634,19 +607,76 @@ class ComPort(QObject):
 
     # ==================== 数据分派 ====================
     def handle_received_data(self, cmd_id: int, data: bytes):
-        """Dispatch to registered handlers"""
+        """处理已解析的有效数据包（主线程信号槽）"""
         if self._is_bootloader_mode:
             try:
                 self.mw.IAP._iap_cmd_received(cmd_id, data)
             except Exception as e:
-                logger.error(f"Bootloader data error: {e}")
+                logger.error(f"Bootloader 数据处理异常: {e}")
             return
 
-        handler = self._handlers.get(cmd_id)
-        if handler:
-            try:
-                handler(data)
-            except Exception as e:
-                logger.error(f"Handler error cmd={cmd_id:#x}: {e}")
-        else:
-            logger.debug(f"Unhandled cmd={cmd_id:#x}")
+        try:
+            match cmd_id:
+                case Cidx.UC_CONNECT:
+                    self.update_status_time()
+                    byte_len = len(data) // 4 + 3
+                    if byte_len == 6:                   # 已连接，接收状态
+                        for i in range(byte_len):
+                            if i < 4:
+                                self.mw.data_show.set_status(i, data[i])
+                            else:
+                                val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
+                                self.mw.data_show.set_status(i, val)
+                        self.mw.data_show.show_status()
+                        self.send_packet(Cidx.UC_CONNECT, bytes())
+                    else:                               # 首次连接，解析系统信息
+                        sys_msg_in = data.decode(errors="ignore")
+                        sys_msg = "".join(c for c in sys_msg_in if 32 <= ord(c) <= 126)
+                        logger.debug(f"系统消息原始: {sys_msg}")
+                        parts = sys_msg.split(",")
+                        version = parts[0].strip() + " " + parts[1].strip()
+                        self.mw.IAP.set_current_version(version)
+
+                        labels = ["设备名称", "版本", "作者", "基频", "电流环频率",
+                                  "速度环频率", "位置环频率", "最大电流", "输入电压", "最大温度"]
+                        units = ["", "", "", "Hz", "Hz", "Hz", "Hz", "A", "V", "°C"]
+                        formatted = []
+                        for i, label in enumerate(labels):
+                            value = parts[i].strip() if i < len(parts) else ""
+                            formatted.append(f"{label} :  {value}{units[i]}")
+                        self.mw.system_message = "\n".join(formatted)
+
+                        # 完成蓝牙握手
+                        # self.confirm_device_handshake()
+                    return
+
+                case Cidx.LOG_GET:
+                    self.mw.log.add_log(data)
+                case Cidx.LOG_ERASE:
+                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
+                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
+                                        "提示" if ok else "错误",
+                                        "日志已清除" if ok else "日志清除失败",
+                                        True, 1000)
+                case Cidx.PARAM_ERASE:
+                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
+                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
+                                        "提示" if ok else "错误",
+                                        "参数已清除" if ok else "参数清除失败",
+                                        True, 1000)
+                case Cidx.PARAM_SAVE:
+                    ok = data[0] == Fidx.FEEDBACK_EXECUTE
+                    send_titled_message(MSG_TYPE_SUCCESS if ok else MSG_TYPE_ERROR,
+                                        "提示" if ok else "错误",
+                                        "参数已保存" if ok else "参数保存失败",
+                                        True, 1000)
+                case Cidx.PARAM_READ:
+                    self.mw.param_manager.add_param(data[0], data[1:])
+                case Cidx.CMD_STREAM_SET:
+                    count = len(data) // 4
+                    for i in range(count):
+                        val = struct.unpack("<f", data[i*4:(i+1)*4])[0]
+                        self.mw.wave.add_data_by_index(i, val)
+
+        except Exception as e:
+            logger.exception(f"数据处理异常 cmd={cmd_id}")

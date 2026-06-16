@@ -122,7 +122,7 @@ bool BSP_CanSendData(u32 CAN_ID, u8 *msg, u8 len)
     return true;
 }
 
-__weak void BSP_CanRxCallback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len) // CAN接收中断接口（供读取数据调用）
+__weak void bsp_can_rx_callback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len) // CAN接收中断接口（供读取数据调用）
 {
     return;
 }
@@ -135,5 +135,5 @@ void Bsp_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
     /* 从FIFO0读取消息 */
     recv_ok = HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &CAN_RxHeader, RxData) == HAL_OK;
-    BSP_CanRxCallback(&recv_ok, &CAN_RxHeader.StdId, RxData, &CAN_RxHeader.DLC);
+    bsp_can_rx_callback(&recv_ok, &CAN_RxHeader.StdId, RxData, &CAN_RxHeader.DLC);
 }

@@ -15,11 +15,11 @@ typedef struct
 
 
 // SVPWM 核心接口
-void fSvpwmInit(float Vbus);
-void fSvpwmRun(float ualpha, float ubeta);
-void fSamplePointCalibration(void);
-void fSvpwmSetVbus(float Vbus);
-u8 fSvpwmGetSector(void);
+void svpwm_init(float Vbus);
+void svpwm_run(float ualpha, float ubeta);
+void svpwm_sample_point_calibration(void);
+void svpwm_set_vbus(float Vbus);
+u8 svpwm_get_sector(void);
 
 // 调试接口（理论电压）
 float fGetVoltage_u(void);

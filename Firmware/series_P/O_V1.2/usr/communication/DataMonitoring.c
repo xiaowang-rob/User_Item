@@ -7,7 +7,7 @@ static float temp_val = 0;
 
 static u8 txdata_queue[64];
 
-void fStreamDataGet(eData_stream stream, float *data)
+void stream_data_get(eData_stream stream, float *data)
 {
 
     switch (stream)
@@ -82,9 +82,9 @@ void fStreamDataGet(eData_stream stream, float *data)
     }
 }
 
-void fStreamDataPrepare(eData_stream stream, u8 index, u8 *data, bool _tx)
+void stream_data_prepare(eData_stream stream, u8 index, u8 *data, bool _tx)
 {
-    fStreamDataGet(stream, (float *)&txdata_queue[index * 4]);
+    stream_data_get(stream, (float *)&txdata_queue[index * 4]);
     if (_tx)
     {
         memcpy(data, txdata_queue, (index + 1) * 4);

@@ -5,10 +5,10 @@
 #include "port_mapping.h"
 #include "protocol.h"
 #include "parameter_manager.h"
+#include "foc_core.h"
 
 typedef struct
 {
-    float temperature;
     eFaultState fault;
     eWarningState warning;
     bool fault_flag;
@@ -20,16 +20,18 @@ typedef struct
     float tolerance_time_ms;
     float tolerance_limit;
 
+    tFOC_Mode *foc_mode;
+    tFOC_val *foc_val;
     tCommunicationState *com_state;
     tDeviceStatus *drive_state;
 } tProtectionManager;
 extern tProtectionManager g_pro_manager;
 
 // functions
-void fProManagerInit(tParameter *param);
-void fProManagerClearFlag();
-void fProManagerMainLoop();
+void pro_manager_init(tParameter *param);
+void pro_manager_clear_flag();
+void pro_manager_main_loop();
 
-void fProSetLimitPosition(float min_position, float max_position);
+void pro_set_limit_position(float min_position, float max_position);
 
 #endif /* __PROTECTION_MANAGER_H */

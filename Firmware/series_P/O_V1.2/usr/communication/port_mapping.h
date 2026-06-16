@@ -35,7 +35,7 @@ typedef struct
 extern tCommunicationState g_com_state;
 
 
-void fCommunicateInit();
-void fCommunicateMainLoop();
+void comm_init();
+void comm_main_loop();
 
 #endif

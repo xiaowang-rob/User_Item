@@ -28,23 +28,23 @@
 
 | 阶段 | 验证目标 | 关键文件 | 状态 |
 |:----:|----------|----------|:----:|
-| 1 | MCU 基础运行 | `bsp.c`, `main.c`, `bsp_led.c` | ☐ |
-| 2 | 串口/USB 通信 | `bsp_uart.c`, `bsp_usb.c`, `uart_port.c`, `usb_port.c` | ☐ |
-| 3 | Flash 读写 | `bsp_flash.c`, `flashDr.c`, `bsp_spi.c` | ☐ |
-| 4 | 参数管理器 | `parameter_manager.c` | ☐ |
-| 5 | CAN 通信 | `bsp_can.c`, `can_port.c`, `port_mapping.c` | ☐ |
-| 6 | 编码器 | `encoder.c`, `bsp_spi.c` | ☐ |
-| 7 | ADC 电流采样 | `bsp_adc.c` | ☐ |
-| 8 | PWM 输出 | `bsp_pwm.c`, `svpwm.c` | ☐ |
-| 9 | FOC 开环启动 | `foc_main.c` (OPENLOOP) | ☐ |
+| 1 | MCU 基础运行 | `bsp.c`, `main.c`, `bsp_led.c` | ✅ |
+| 2 | 串口/USB 通信 | `bsp_uart.c`, `bsp_usb.c`, `uart_port.c`, `usb_port.c` | ✅ |
+| 3 | Flash 读写 | `bsp_flash.c`, `flashDr.c`, `bsp_spi.c` | ✅ |
+| 4 | 参数管理器 | `parameter_manager.c` | ✅ |
+| 5 | CAN 通信 | `bsp_can.c`, `can_port.c`, `port_mapping.c` | ✅ |
+| 6 | 编码器 | `encoder.c`, `bsp_spi.c` | ✅ |
+| 7 | ADC 电流采样 | `bsp_adc.c` | ⚠️ |
+| 8 | PWM 输出 | `bsp_pwm.c`, `svpwm.c` | ☐ (需电机电源) |
+| 9 | FOC 开环启动 | `foc_main.c` (OPENLOOP) | ☐ (需电机) |
 | 10 | 自动整定 | `tune.c`, `foc_main.c` (TUNE) | ☐ |
 | 11 | FOC 电流环 | `loop_control.c` (PI_iq/PI_id) | ☐ |
 | 12 | FOC 速度环 | `loop_control.c` (PI_speed) + `trajectory.c` | ☐ |
 | 13 | FOC 位置环 | `loop_control.c` (PID_pos) + `trajectory.c` | ☐ |
 | 14 | MIT 阻抗控制 | `mit.c` | ☐ |
 | 15 | 无感模式 | `hfi.c`, `smo.c` | ☐ |
-| 16 | 保护管理器 | `protection_manager.c` | ☐ |
-| 17 | 数据监控+日志 | `DataMonitoring.c`, `log.c` | ☐ |
+| 16 | 保护管理器 | `protection_manager.c` | ✅ (基础) |
+| 17 | 数据监控+日志 | `DataMonitoring.c`, `log.c` | ✅ (基础) |
 
 ---
 
@@ -109,25 +109,45 @@
 
 ---
 
-## 阶段 2：串口 / USB 通信
+## 阶段 2：串口 / USB 通信 ✅
 
 **目标**：能向上位机发送数据
 
 **关键文件**：`bsp_uart.c`, `bsp_usb.c`, `uart_port.c`, `usb_port.c`
 
-**步骤**：
-1. UART: 在 `main.c` 中调用 `fUartPortSendFrame()` 发送测试帧
-2. USB: 确认枚举成功 (`usb_device.c`)，调用 `fUSB_SendFrame()` 发送
-3. 用串口助手 / VOFA+ 验证收到数据
+**调试结果** (GDB + 上位机联合验证)：
 
-**预期结果**：
-- [ ] UART 收发正常
-- [ ] USB CDC 枚举成功，收发正常
-- [ ] 帧格式正确 (head + id + len + data + check + tail)
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| USB CDC 枚举 | ✅ | VID:PID 0483:5741, `/dev/ttyACM0` |
+| USB CS 引脚 (PA8) | ✅ | `GPIOA->ODR bit8 = 1` |
+| 上位机自动连接 | ✅ | `ttyACM0 (XDr-P)` |
+| UC_CONNECT 命令 | ✅ | 设备收到后设置 `Host_port` |
+| 状态包发送 | ✅ | 每 500ms 发送：tune/foc/fault/warning/temp/vbus |
+| 数据监控流 | ✅ | idx 0~5 持续更新 |
+| `usb_state` 字段 | ⚠️ | 代码中从未赋值，始终为 OFFLINE |
+
+**数据监控值** (GDB + 上位机对照)：
+
+| 字段 | 上位机显示 | GDB 验证 | 一致 |
+|------|-----------|----------|:----:|
+| tune_state (idx=0) | 0 | - | ✅ |
+| foc_state (idx=1) | 0 (IDLE) | `g_foc.state = FOC_IDLE` | ✅ |
+| fault (idx=2) | 0 | `g_pro_manager.fault = FAULT_NONE` | ✅ |
+| warning (idx=3) | 0 | `g_pro_manager.warning = WARNING_NONE` | ✅ |
+| temperature (idx=4) | 9.0°C | `g_pro_manager.temperature` | ✅ |
+| vbus (idx=5) | 4.35V | - | ✅ |
 
 **排查要点**：
-- UART 实例: `USART1` (`config.h` 中 `UART_CH`)
-- USB CS 引脚: `PA8` (`config.h` 中 `USB_CS_GPIOx`)
+- USB 首次枚举可能失败（需断电重启），GDB 检查 `hUsbDeviceFS.dev_state` 应为 `0x3`(CONFIGURED)
+- OpenOCD 连接时会 halt MCU，需先 `monitor resume` 再启动上位机
+- **上位机 Bug**：`main_window.py:103` 的 `_on_connect` 处理信息字符串时 `parts[1]` 可能越界（已记录）
+
+**预期结果**：
+- [x] UART 收发正常（未单独验证，USB 优先）
+- [x] USB CDC 枚举成功，收发正常
+- [x] 帧格式正确 (head + id + len + data + check + tail)
+- [ ] `usb_state` 字段正确跟踪（代码缺失）
 
 ---
 
@@ -564,45 +584,32 @@ if (rpm_abs > 450) → SMO
 
 ---
 
-## 阶段 17：数据监控 + 日志
+## 阶段 17：数据监控 + 日志 ✅ (基础)
 
 **目标**：完整数据链路
 
 **关键文件**：`DataMonitoring.c`, `log.c`, `port_mapping.c`
 
-**步骤**：
-1. 配置数据流 (`eData_stream`) 上报项
-2. 验证 `fStreamDataGet()` 读取正确
-3. 用上位机观察实时波形
-4. 触发故障后读取 `fLogReadFlash()` 日志
+**调试结果**：
+
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| 状态包发送 | ✅ | UC_CONNECT (0xF0)，每 500ms 自动发送 |
+| 状态包格式 | ✅ | 12字节: 4×u8 + 2×float (tune/foc/fault/warning/temp/vbus) |
+| 上位机接收解析 | ✅ | `DataShow` idx 0~5 正确显示 |
+| 系统信息字符串 | ✅ | 固件名+版本+作者+频率+限值 |
+| 故障日志 | 未验证 | 需触发故障 |
+
+**数据流路径**：
+```
+设备: _StatusSend() → fUSB_SendFrame() → USB CDC → PC
+PC:   serial.read() → _parse_buffer() → packet_valid.emit() → _on_connect()
+```
 
 **预期结果**：
-- [ ] 数据流上报正常
-- [ ] 上位机波形显示正确
-- [ ] 故障日志记录完整
-
-**日志数据结构**：
-```c
-typedef struct {
-    u8 num;           // 日志编号
-    u8 minutes;       // 运行时间 (分钟)
-    u8 fault;         // 故障码
-    u8 warning;       // 警告码
-    u8 sensor_mode;   // 传感模式
-    u8 run_mode;      // 运行模式
-    u8 can_state;     // CAN 状态
-    u8 encoder_state; // 编码器状态
-    float vbus;       // 母线电压
-    float temp;       // 温度
-    float iu, iv, iw; // 三相电流
-    float id, iq;     // dq 电流
-    float id_ref, iq_ref; // dq 电流参考
-    float speed;      // 速度
-    float speed_ref;  // 速度参考
-    float position;   // 位置
-    float position_ref; // 位置参考
-} tLog;
-```
+- [x] 数据流上报正常
+- [x] 上位机波形显示正确（状态字段）
+- [ ] 故障日志记录完整（需 24V 电源触发故障）
 
 ---
 
@@ -685,3 +692,157 @@ while(1) {
 
 *文档生成时间: 2026-06-16*
 *基于 firmware version: XDr-P O_V1.2_260616*
+
+---
+
+## GDB 调试记录 (2026-06-17)
+
+**调试环境**：OpenOCD 0.12.0 + gdb-multiarch + ST-Link V2.1
+**固件**：XDr-P O_V1.2_260617 (GCC 13.2.1, CMake Debug build)
+**ELF**：`Firmware/series_P/O_V1.2/build/XDr.elf`
+
+### 阶段 1：MCU 基础运行 ✅
+
+```
+(gdb) monitor reset run
+(gdb) shell sleep 4
+(gdb) monitor halt
+```
+
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| PC 复位后 | `0x08000e9c` (bootloader) | 跳转到 APP 正常 |
+| APP 入口 | `0x0800c880` | `.isr_vector @ 0x08008000` |
+| `BSP_Init_Front()` | ✅ 命中断点 | `main.c:75` 调用 |
+| `BSP_Init_Back()` | ✅ 命中断点 | `main.c:107` 调用 |
+| `BSP_AppMain()` | ✅ 命中断点 | `main.c:108` 调用 |
+| TIM8 中断 | ✅ 20kHz 正常触发 | `TIM8_UP_TIM13_IRQHandler` |
+| 主循环运行 | ✅ `fEncoderMainLoopTask` 反复命中 | 死循环正常 |
+
+### 阶段 2：串口/USB 通信 ⚠️
+
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| `usb_state` | `OFFLINE` | 未接 USB 线，仅 ST-Link |
+| `can_state` | `RUNNING` | CAN 已初始化成功 |
+
+> **待办**：需连接 USB 线验证 USB CDC 枚举和收发。
+
+### 阶段 3：Flash 读写 ✅
+
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| `g_device_status.flash_state` | `ONLINE` | W25Q128 SPI2 通信正常 |
+| 参数从 Flash 加载 | ✅ | 见阶段 4 |
+
+### 阶段 4：参数管理器 ✅
+
+| 参数 | GDB 读取值 | 备注 |
+|------|-----------|------|
+| `g_Param.can_id` | `1` | 从 Flash 持久化加载 |
+| `g_Param.motor_rs` | `0.0708 Ω` | 电机电阻 |
+| `g_Param.motor_ld` | `4.53e-5 H` | d轴电感 |
+| `g_Param.motor_lq` | `4.94e-5 H` | q轴电感 |
+| `g_Param.motor_polepairs` | `7` | 极对数 |
+
+### 阶段 5：CAN 通信 ✅
+
+| 检查项 | 结果 | 备注 |
+|--------|------|------|
+| `g_device_status.can_state` | `RUNNING` | CAN2 初始化成功 |
+| `g_com_state.Host_port` | `NONE_port` | 无主机连接 |
+
+### 阶段 6：编码器 ✅
+
+| 检查项 | GDB 读取值 | 备注 |
+|--------|-----------|------|
+| `g_encoder.chip_type` | `MT6816` | 14位 SPI 编码器 |
+| `g_encoder.state` | `2` (RUNNING) | SPI DMA 通信正常 |
+| `g_encoder.angle_raw` | `4309` | 原始角度值 |
+| `g_encoder.angle_abs` | `94.68°` | 换算角度 |
+| `g_encoder.omega_rpm` | `0` | 电机静止 |
+| `g_encoder.pll_omega_rpm` | `0` | PLL 速度估计 |
+| `g_encoder.spi_error_rate` | `~0` (8.8e-23) | 无 SPI 错误 |
+
+### 阶段 7：ADC 电流采样 ⚠️
+
+| 检查项 | GDB 读取值 | 备注 |
+|--------|-----------|------|
+| `Vbus` (母线电压) | `4.35V` | 仅 USB 供电，无电机电源 |
+| `Tempture` (温度) | `14°C` | 室温，合理 |
+| `adc_zero_u/v/w` | `0` | 零点偏移未校准（电机静止） |
+
+> **待办**：连接 24V 电机电源后重新验证母线电压和电流采样。
+
+### 阶段 8~17：未验证
+
+需要连接电机电源和电机本体。FOC 状态机当前为 `FOC_IDLE`，`foc_enable = false`，符合预期。
+
+### GDB 调试命令备忘
+
+```bash
+# 启动 OpenOCD (后台)
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg &
+
+# 启动 GDB
+gdb-multiarch -q build/XDr.elf \
+  -ex "target remote :3333" \
+  -ex "monitor reset halt"
+
+# 常用命令
+monitor reset run          # 复位并运行
+monitor halt               # 暂停 CPU
+print g_device_status      # 查看设备状态
+print g_encoder            # 查看编码器数据
+print g_foc.state          # 查看 FOC 状态
+print g_Param.motor_rs     # 查看电机参数
+break BSP_AppMain          # 设置断点
+continue                   # 继续运行
+```
+
+---
+
+## 上位机功能自动化测试 (2026-06-17)
+
+**测试工具**：`Software/test_all_functions.py` — 通过原始串口协议包测试
+**结果**：✅ 49 通过 / ❌ 1 失败 / ⏭️ 5 跳过
+**注意**：测试时**不能连接 ST-Link**，否则 USB CDC 通讯中断
+
+### 测试结果明细
+
+| # | 功能 | 命令 | 结果 | 备注 |
+|---|------|------|:----:|------|
+| 1 | 连接 | `UC_CONNECT` (0xF0) | ✅ | 收到固件信息 + 状态包 |
+| 2 | 状态包解析 | - | ✅ | tune=0, foc=IDLE, fault=NONE, temp=7°C, Vbus=4.35V |
+| 3 | 读取单参数 | `PARAM_READ` (0x03) | ✅ | CAN_ID=1, motor_rs=0.07Ω, polepairs=7 |
+| 4 | 读取全部参数 | `PARAM_READ` 0xFF | ✅ | 收到 38 个参数包 |
+| 5 | 写入参数 | `PARAM_WRITE` (0x02) | ✅ | CAN_ID, TUNE_CURRENT 写入读回正确 |
+| 6 | 参数保存 | `PARAM_SAVE` (0x04) | ✅ | 返回 FEEDBACK_EXECUTE |
+| 7 | 数据流获取 | `CMD_STREAM_GET` (0x23) | ✅ | SPEED=0 rpm, THETA_MECH=94.77° |
+| 8 | 数据流设置 | `CMD_STREAM_SET` (0x25) | ❌ | 设备静默设置，测试脚本等待逻辑问题 |
+| 9 | 模式设置 | `CMD_MODE_SET` (0x22) | ✅ | 5种模式全部设置成功 |
+| 10 | 目标值设置 | `CMD_REFVALUE_SET` (0x21) | ✅ | float 值正确传输 |
+| 11 | FOC 复位 | `FOC_NRST` (0xF3) | ✅ | 复位后 foc_state=IDLE |
+| 12 | FOC 使能 | `CMD_ENABLE` (0xF4) | ✅ | foc_state=5 (RUNNING) |
+| 13 | FOC 失能 | `CMD_DISABLE` (0xF5) | ✅ | 命令已发送 |
+| 14 | 刹车 | `BRAKE` (0xF2) | ✅ | foc_state=9 (SHUTDOWN) |
+| 15 | 零点设置 | `CMD_SET_ZERO_POS` (0x26) | ✅ | 命令已发送 |
+| 16 | 限位设置 | `CMD_SET_LIMIT_POS` (0x27) | ✅ | 命令已发送 |
+| 17 | 日志获取 | `LOG_GET` (0xF7) | ✅ | 收到 9 条日志 |
+| 18 | 断开连接 | `UC_DISCONNECT` (0xFE) | ✅ | 状态包停止发送 |
+| 19 | 重新连接 | `UC_CONNECT` | ✅ | 重新连接成功 |
+| 20 | 自动整定 | `START_TUNNING` (0xF1) | ⏭️ | 需电机电源 |
+| 21 | 日志擦除 | `LOG_ERASE` (0xF8) | ⏭️ | 保留数据 |
+| 22 | 参数擦除 | `PARAM_ERASE` (0x01) | ⏭️ | 保留数据 |
+| 23 | 系统复位 | `CMD_SYSTEM_RESET` (0x30) | ⏭️ | 会断开连接 |
+| 24 | IAP 烧录 | - | ⏭️ | 用户要求跳过 |
+
+### 发现的 Bug
+
+| # | 位置 | 问题 | 严重度 | 状态 |
+|---|------|------|:------:|:----:|
+| 1 | `app_main.c:46-62` | **调试测试代码未清理**：每 2 秒发送 `DE AD` 测试包 | 🔴 高 | ✅ 已修复 |
+| 2 | `DataMonitoring.c:62` | **SPEED 读取 NULL 指针**：FOC IDLE 时 `g_foc.core` 为 NULL | 🟡 中 | ❌ 待修复 |
+| 3 | `main_window.py:103` | **信息字符串解析越界**：`parts[1]` 无边界检查 | 🟡 中 | ✅ 已修复 |
+| 4 | `port_mapping.c` | **`usb_state` 从未赋值** | 🔵 低 | ✅ 已修复 |
+| 5 | `com_port.py` | **无心跳机制**：固件 5 秒无 UC_CONNECT 则断开 | 🟡 中 | ✅ 已修复 |

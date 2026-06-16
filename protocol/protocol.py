@@ -140,7 +140,7 @@ class Midx:
     pvt_mode = ["禁用", "PV", "PT"]
     traj_type = ["禁用", "梯形", "S形"]
     tune_state = ["INIT", "IDLE", "电阻校准", "电感校准", "编码器校准", "电气参数校准", "机械参数校准", "完成", "失败"]
-    foc_state = ["IDLE", "TUNE", "RESET", "ENABLE", "DISABLE", "RUNNING", "开环启动", "SHUTDOWN", "FAULT", "WARNING"]
+    foc_state = ["IDLE", "TUNE", "RESET", "ENABLE", "DISABLE", "RUNNING", "SHUTDOWN", "FAULT", "WARNING"]
     fault_state = ["NONE", "FLASH离线", "整定电流异常", "极对数不匹配", "电机堵转", "电阻电感校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
     warning_state = ["NONE", "过温", "超速", "位置超限", "编码器无响应", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]

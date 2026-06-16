@@ -15,7 +15,7 @@ tUSB_Frame UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///<
 /* 传输错误计数器（用于重发机制） */
 
 // 上拉 让上位机识别到USB口
-void fUSB_Init(void)
+void usb_init(void)
 {
     BSP_USB_CS(true); // 使能USB时钟
 }
@@ -30,7 +30,7 @@ void fUSB_Init(void)
  *       2. 发送忙时自动重发，最多重试5次
  *       3. @warning 成功返回路径中trans_fault_tic清零语句位于return之后，实际不会执行
  */
-bool fUSB_SendData(u8 *data, u8 len)
+bool usb_send_data(u8 *data, u8 len)
 {
     for (int i = 0; i <= 5; i++) {
         if (BSP_USB_CDC_Transmit_FS(data, len)) {
@@ -53,7 +53,7 @@ bool fUSB_SendData(u8 *data, u8 len)
  * @note 帧格式：头(1)+ID(1)+长度(1)+数据(N)+校验(1)+尾(1)
  *       校验算法：数据字节累加后取最低位
  */
-bool fUSB_SendFrame(u8 id, u8 *data, u8 len)
+bool usb_send_frame(u8 id, u8 *data, u8 len)
 {
     if (len == 0)
         return false;
@@ -72,7 +72,7 @@ bool fUSB_SendFrame(u8 id, u8 *data, u8 len)
     UsbTxFrame.data[len + 1] = UsbTxFrame.tail; // 帧尾
 
     /* 发送完整帧（包含帧头） */
-    return fUSB_SendData((u8 *)&UsbTxFrame, len + 5);
+    return usb_send_data((u8 *)&UsbTxFrame, len + 5);
 }
 
 /**
@@ -82,7 +82,7 @@ bool fUSB_SendFrame(u8 id, u8 *data, u8 len)
  * @param len  有效数据长度
  * @note 用户可在应用层重写此函数实现业务逻辑
  */
-__weak void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
+__weak void usb_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
     return;
 }
@@ -98,7 +98,7 @@ __weak void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len)
  *       3. 校验通过后调用用户处理回调
  *       4. 帧格式：头(1)+ID(1)+长度(1)+数据(N)+校验(1)+尾(1)
  */
-bool BSP_USB_RecvByte(u8 *data, u8 *len)
+bool bsp_usb_recv_byte(u8 *data, u8 *len)
 {
     /* 参数有效性检查 */
     if (data == NULL || len == NULL)
@@ -123,7 +123,7 @@ bool BSP_USB_RecvByte(u8 *data, u8 *len)
         memcpy(UsbRxFrame.data, data + 3, UsbRxFrame.len); // 数据域
 
         /* 调用用户处理回调 */
-        fUSB_RxFrameCallback(UsbRxFrame.id, UsbRxFrame.data, UsbRxFrame.len);
+        usb_rx_frame_callback(UsbRxFrame.id, UsbRxFrame.data, UsbRxFrame.len);
     }
     return true;
 }

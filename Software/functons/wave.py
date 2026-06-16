@@ -366,7 +366,9 @@ class Wave:
             layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.waveform_widget)
 
-        # 双向同步（auto_x/auto_y 的 toggled 信号已在上方连接）
+        # 双向同步
+        self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)
+        self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)
         self.waveform_widget.auto_x_state_changed.connect(self._sync_auto_x_button)
         self.waveform_widget.auto_y_state_changed.connect(self._sync_auto_y_button)
 
@@ -408,13 +410,6 @@ class Wave:
 
     def add_data(self, channel: int, data):
         self.waveform_widget.add_waveform_data(channel, data)
-
-    def handle_stream_data(self, data):
-        import struct
-        count = len(data) // 4
-        for i in range(count):
-            val = struct.unpack("<f", data[i*4:(i+1)*4])[0]
-            self.add_data_by_index(i, val)
 
     def add_data_by_index(self, index: int, data):
         id_index = index % len(self.channel_index)

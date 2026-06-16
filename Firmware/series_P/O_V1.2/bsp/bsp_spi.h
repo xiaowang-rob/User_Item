@@ -3,8 +3,8 @@
 
 #include "bsp.h"
 
-void BSP_Encoder_SPI_TxRxCpltCallback(void); // SPI传输完成回调函数声明
-void BSP_Encoder_SPI_ErrorCallback(void);    // SPI错误回调函数声明
+void bsp_encoder_spi_txrx_cplt_callback(void); // SPI传输完成回调函数声明
+void bsp_encoder_spi_error_callback(void);    // SPI错误回调函数声明
 
 /* ============================================
  * SPI - 编码器通信

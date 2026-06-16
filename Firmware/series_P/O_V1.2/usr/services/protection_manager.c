@@ -1,6 +1,5 @@
 
 #include "protection_manager.h"
-#include "foc_core.h"
 #include "usr_config.h"
 #include "foc_main.h"
 #include "log.h"
@@ -16,7 +15,7 @@ static bool _ToleranceCheck(float value, float max_value, float min_value)
     return false;
 }
 
-void fProManagerInit(tParameter *param)
+void pro_manager_init(tParameter *param)
 {
     g_pro_manager.fault = FAULT_NONE;
     g_pro_manager.warning = WARNING_NONE;
@@ -29,30 +28,23 @@ void fProManagerInit(tParameter *param)
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
     g_pro_manager.tolerance_limit = param->tolerance_limit;
 }
-void fProSetLimitPosition(float min_position, float max_position)
+void pro_set_limit_position(float min_position, float max_position)
 {
     g_pro_manager.min_position = min_position;
     g_pro_manager.max_position = max_position;
 }
 // 保护程序 清除故障和警告标志
-void fProManagerClearFlag()
+void pro_manager_clear_flag()
 {
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;
     g_pro_manager.fault = FAULT_NONE;
     g_pro_manager.warning = WARNING_NONE;
 }
-static u32 sample_time_prev_ms = 0;
+
 // 保护主循环
-void fProManagerMainLoop()
+void pro_manager_main_loop()
 {
-    // 采集数据
-    if (BSP_GetTick() - sample_time_prev_ms > TEMP_VBUS_TS_MS)
-    {
-        sample_time_prev_ms = BSP_GetTick();
-        BSP_TempVbusSample(); // 采集电压和温度
-        BSP_AdcGetTemp(&g_pro_manager.temperature);
-    }
 
     if (g_pro_manager.fault_flag)
         return;
@@ -65,7 +57,7 @@ void fProManagerMainLoop()
     }
 
     // 过压不可取
-    if (g_foc.core->foc_val->udc > MAX_VOLTAGE)
+    if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
     {
         g_pro_manager.fault = FAULT_OVERVOLTAGE;
         g_pro_manager.fault_flag = true;
@@ -85,7 +77,7 @@ void fProManagerMainLoop()
         g_pro_manager.fault_flag = true;
     }
     //  4编码器状态检测
-    if (g_foc.core->foc_mode->sensor_mode != SENSORLESS_CONTROL)
+    if (g_pro_manager.foc_mode->sensor_mode != SENSORLESS_CONTROL)
     { // 有感模式和混合模式启动编码器判断
         if (g_pro_manager.drive_state->encoder_state != ONLINE && g_pro_manager.drive_state->encoder_state != RUNNING)
         {
@@ -98,8 +90,8 @@ void fProManagerMainLoop()
         }
     }
     // 3.电流过大
-    if (g_foc.core->foc_val->iu > MAX_CURRENT || g_foc.core->foc_val->iv > MAX_CURRENT || g_foc.core->foc_val->iw > MAX_CURRENT ||
-        _ToleranceCheck(g_foc.core->foc_val->iq_fb, g_pro_manager.max_current, -g_pro_manager.max_current))
+    if (g_pro_manager.foc_val->iu > MAX_CURRENT || g_pro_manager.foc_val->iv > MAX_CURRENT || g_pro_manager.foc_val->iw > MAX_CURRENT ||
+        _ToleranceCheck(g_pro_manager.foc_val->iq_fb, g_pro_manager.max_current, -g_pro_manager.max_current))
     {
         g_pro_manager.fault = FAULT_OVERCURRENT;
         g_pro_manager.fault_flag = true;
@@ -107,13 +99,13 @@ void fProManagerMainLoop()
 
     // 警告：
     // 1温度过高
-    if (g_pro_manager.temperature > MAX_TEMPERATURE)
+    if (g_pro_manager.foc_val->temp > MAX_TEMPERATURE)
     {
         g_pro_manager.warning = WARNING_OVERTEMP;
         g_pro_manager.warning_flag = true;
     }
     // 电压过大
-    if (g_foc.core->foc_val->udc > MAX_VOLTAGE)
+    if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
     {
         g_pro_manager.fault = FAULT_OVERVOLTAGE;
         g_pro_manager.fault_flag = true;
@@ -143,14 +135,14 @@ void fProManagerMainLoop()
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
-        if (_ToleranceCheck(g_foc.core->foc_val->udc, MAX_VOLTAGE, MIN_VOLTAGE))
+        if (_ToleranceCheck(g_pro_manager.foc_val->udc, MAX_VOLTAGE, MIN_VOLTAGE))
         {
-            if (g_foc.core->foc_val->udc > MAX_VOLTAGE)
+            if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
             {
                 g_pro_manager.fault = FAULT_OVERVOLTAGE;
                 g_pro_manager.fault_flag = true;
             }
-            if (g_foc.core->foc_val->udc > MAX_VOLTAGE)
+            if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
             {
                 g_pro_manager.fault = FAULT_UNDERVOLTAGE;
                 g_pro_manager.fault_flag = true;
@@ -158,15 +150,15 @@ void fProManagerMainLoop()
         }
 
         // 2 速度检测
-        if (_ToleranceCheck(g_foc.core->foc_val->rpm_fb, g_pro_manager.max_omega, -g_pro_manager.max_omega))
+        if (_ToleranceCheck(g_pro_manager.foc_val->rpm_fb, g_pro_manager.max_omega, -g_pro_manager.max_omega))
         {
             g_pro_manager.warning = WARNING_OVERSPEED;
             g_pro_manager.warning_flag = true;
         }
         // 3位置检测 位置模式下监测
-        if (g_foc.core->foc_mode->run_mode == POSITION_MODE)
+        if (g_pro_manager.foc_mode->run_mode == POSITION_MODE)
         {
-            if (_ToleranceCheck(g_foc.core->foc_val->pos_fb, g_pro_manager.max_position, g_pro_manager.min_position))
+            if (_ToleranceCheck(g_pro_manager.foc_val->pos_fb, g_pro_manager.max_position, g_pro_manager.min_position))
             {
                 g_pro_manager.warning = WARNING_POSITION_LIMIT;
                 g_pro_manager.warning_flag = true;
@@ -177,8 +169,8 @@ void fProManagerMainLoop()
     //   B错误处理--日志模块还得优化
     if (g_pro_manager.fault_flag || g_pro_manager.warning_flag)
     {
-        fLogDataSave();
-        fFocStateUpdate(FOC_FAULT);
-        // fLogDataWrite();
+        log_data_save(&g_pro_manager);
+        foc_state_update(FOC_FAULT);
+        // log_data_write();
     }
 }

@@ -54,7 +54,7 @@ static void vBubbleSort(int arr[], int n)
  * @param max_deviation 最大允许偏差值
  * @param initial_value 初始值
  */
-void fAmplitudeLimitingInit(tAmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
+void filter_amplitude_limiting_init(tAmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
 {
     filter->max_deviation = max_deviation;
     filter->last_value = initial_value;
@@ -66,7 +66,7 @@ void fAmplitudeLimitingInit(tAmplitudeLimitingFilter *filter, int max_deviation,
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-int fAmplitudeLimitingFilter(tAmplitudeLimitingFilter *filter, int new_value)
+int filter_amplitude_limiting(tAmplitudeLimitingFilter *filter, int new_value)
 {
     if ((new_value - filter->last_value > filter->max_deviation) ||
         (filter->last_value - new_value > filter->max_deviation))
@@ -83,7 +83,7 @@ int fAmplitudeLimitingFilter(tAmplitudeLimitingFilter *filter, int new_value)
  * @param buffer 数据缓冲区指针
  * @param size 缓冲区大小
  */
-void fMedianFilterInit(tMedianFilter *filter, int *buffer, int size)
+void filter_median_init(tMedianFilter *filter, int *buffer, int size)
 {
     filter->buffer = buffer;
     filter->size = size;
@@ -97,7 +97,7 @@ void fMedianFilterInit(tMedianFilter *filter, int *buffer, int size)
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-int fMedianFilter(tMedianFilter *filter, int new_value)
+int filter_median(tMedianFilter *filter, int new_value)
 {
     int i;
     int buf[filter->size];
@@ -125,7 +125,7 @@ int fMedianFilter(tMedianFilter *filter, int new_value)
  * @param buffer 数据缓冲区指针
  * @param size 缓冲区大小
  */
-void fMovingAverageInit(tMovingAverageFilter *filter, float32_t *buffer, int size)
+void filter_moving_avg_init(tMovingAverageFilter *filter, float32_t *buffer, int size)
 {
     filter->buffer = buffer;
     filter->size = size;
@@ -180,7 +180,7 @@ float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value
  * @param coefficient 加权系数数组指针
  * @param size 缓冲区大小
  */
-void fWeightedMovingAverageInit(tWeightedMovingAverageFilter *filter,
+void filter_weighted_moving_avg_init(tWeightedMovingAverageFilter *filter,
                                 int *buffer, int *coefficient, int size)
 {
     filter->buffer = buffer;
@@ -204,7 +204,7 @@ void fWeightedMovingAverageInit(tWeightedMovingAverageFilter *filter,
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-int fWeightedMovingAverageFilter(tWeightedMovingAverageFilter *filter, int new_value)
+int filter_weighted_moving_avg(tWeightedMovingAverageFilter *filter, int new_value)
 {
     int sum = 0;
 
@@ -230,7 +230,7 @@ int fWeightedMovingAverageFilter(tWeightedMovingAverageFilter *filter, int new_v
  * @param alpha 滤波系数(0~1)
  * @param initial_value 初始值
  */
-void fFirstOrderLagInit(tFirstOrderLagFilter *filter, float alpha, float initial_value)
+void filter_first_order_lag_init(tFirstOrderLagFilter *filter, float alpha, float initial_value)
 {
     filter->alpha = alpha;
     filter->last_value = initial_value;
@@ -242,7 +242,7 @@ void fFirstOrderLagInit(tFirstOrderLagFilter *filter, float alpha, float initial
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-float fFirstOrderLagFilter(tFirstOrderLagFilter *filter, float new_value)
+float filter_first_order_lag(tFirstOrderLagFilter *filter, float new_value)
 {
     filter->last_value = filter->alpha * new_value + (1 - filter->alpha) * filter->last_value;
     return filter->last_value;
@@ -255,7 +255,7 @@ float fFirstOrderLagFilter(tFirstOrderLagFilter *filter, float new_value)
  * @param r 测量噪声协方差
  * @param initial_value 初始值
  */
-void fKalmanInit(tKalmanFilter *filter, float q, float r, float initial_value)
+void filter_kalman_init(tKalmanFilter *filter, float q, float r, float initial_value)
 {
     filter->q = q;
     filter->r = r;
@@ -270,7 +270,7 @@ void fKalmanInit(tKalmanFilter *filter, float q, float r, float initial_value)
  * @param measurement 测量值
  * @return 滤波后的值
  */
-float fKalmanFilter(tKalmanFilter *filter, float measurement)
+float filter_kalman(tKalmanFilter *filter, float measurement)
 {
     // 预测
     filter->p = filter->p + filter->q;
@@ -289,7 +289,7 @@ float fKalmanFilter(tKalmanFilter *filter, float measurement)
  * @param buffer 数据缓冲区指针
  * @param size 缓冲区大小
  */
-void fPulseInterferenceInit(tPulseInterferenceFilter *filter, u16 *buffer, u8 size)
+void filter_pulse_init(tPulseInterferenceFilter *filter, u16 *buffer, u8 size)
 {
     filter->buffer = buffer;
     filter->size = size;
@@ -303,7 +303,7 @@ void fPulseInterferenceInit(tPulseInterferenceFilter *filter, u16 *buffer, u8 si
  * @param new_value 新的采样值
  * @return 滤波后的值
  */
-u16 fPulseInterferenceFilter(tPulseInterferenceFilter *filter, u16 new_value)
+u16 filter_pulse(tPulseInterferenceFilter *filter, u16 new_value)
 {
     int i, sum = 0;
     int buf[filter->size];
@@ -354,7 +354,7 @@ int fArithmeticMeanFilter(const int *data_buf, int size)
  * @retval 无
  * @note 系数需预先通过双线性变换法计算（推荐使用Python scipy.signal.butter生成）
  */
-void fButterworthFilter_Init(tBW_FilterInstance *f, float32_t *coeffs)
+void filter_butterworth_init(tBW_FilterInstance *f, float32_t *coeffs)
 {
     memset(f, 0, sizeof(tBW_FilterInstance));
     /* 拷贝系数到实例内部缓冲区，避免外部数组被意外修改 */
@@ -398,7 +398,7 @@ float32_t fButterworthFilter_Process(tBW_FilterInstance *f, float32_t input)
  * @retval 无
  * @note 避免重启时状态变量残留导致输出跳变
  */
-void fButterworthFilter_Reset(tBW_FilterInstance *f)
+void filter_butterworth_reset(tBW_FilterInstance *f)
 {
     /* 清空状态缓冲区，共4个float32_t（2阶*2状态） */
     memset(f->state, 0, sizeof(float32_t) * 4);

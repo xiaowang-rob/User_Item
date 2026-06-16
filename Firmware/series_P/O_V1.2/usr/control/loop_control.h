@@ -58,14 +58,14 @@ typedef struct
 
 
 
-void fFrequencyDivisionUpdate(void);
-void fLoopControlInit(tParameter *param, float Udc);
-void fLoopReset(float Udc);
-float fCurrentLoopUpdate(float ref, float fb);
-float fMagLoopUpdate(float ref, float fb);
-float fWeakMagLoopUpdate(float ud, float uq);
-float fSpeedLoopUpdate(float ref, float fb);
-float fPositionRelLoopUpdate(float ref, float fb);
+void freq_div_update(void);
+void loop_control_init(tParameter *param, float Udc);
+void loop_control_reset(float Udc);
+float loop_current_update(float ref, float fb);
+float loop_mag_update(float ref, float fb);
+float loop_weak_mag_update(float ud, float uq);
+float loop_speed_update(float ref, float fb);
+float loop_position_update(float ref, float fb);
 
 #endif
 extern tLoopControl g_loop_con;

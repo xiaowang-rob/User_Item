@@ -22,7 +22,7 @@ u8 _tx_data[MAX_FRAME_LENGTH + 5]; ///< 帧组装缓冲区（含头尾校验）
  * @note 1. 初始化收发帧结构体，设置协议帧头尾
  *       2. 启动DMA循环接收（每次接收1字节）
  */
-void fUartPortInit(void)
+void uart_port_init(void)
 {
     memset(&UsartRxFrame_g, 0, sizeof(tUartFrame));
     memset(&UsartTxFrame_g, 0, sizeof(tUartFrame));
@@ -64,7 +64,7 @@ void uartSendData(u8 *data, u8 len)
  * @note 帧格式：头(1)+ID(1)+长度(1)+数据(N)+校验(1)+尾(1)
  *       校验算法：数据字节累加后取最低位
  */
-void fUartPortSendFrame(u8 id, u8 *data, u8 len)
+void uart_port_send_frame(u8 id, u8 *data, u8 len)
 {
     if (len == 0)
         return;
@@ -98,7 +98,7 @@ void fUartPortSendFrame(u8 id, u8 *data, u8 len)
  * @param len  有效数据长度
  * @note 用户可在应用层重写此函数实现业务逻辑
  */
-__weak void fUartRxFrameCallback(u8 id, u8 *data, u8 len)
+__weak void uart_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
     return;
 }
@@ -117,7 +117,7 @@ static u8 DataIndex = 0;      ///< 当前解析字节索引
  *       3. 校验通过后调用用户处理函数（调试模式跳过校验）
  *       4. 重新启动DMA接收下一字节
  */
-void fUartReviceByte(u8 *data)
+void uart_receive_byte(u8 *data)
 {
     if (get_head)
     {
@@ -127,7 +127,7 @@ void fUartReviceByte(u8 *data)
 #ifndef __DEBUG__
             if (((u8)check & 0xff) == UsartRxFrame_g.check) // 校验通过
 #endif
-                fUartRxFrameCallback(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
+                uart_rx_frame_callback(UsartRxFrame_g.msgID, UsartRxFrame_g.data, UsartRxFrame_g.len);
             get_head = false; // 重置状态机
         }
         else
@@ -170,9 +170,9 @@ void fUartReviceByte(u8 *data)
  * @param huart UART句柄指针
  * @note 仅处理USART1的接收中断，调用字节解析函数
  */
-void BSP_UART_RxCallback()
+void bsp_uart_rx_callback()
 {
-    fUartReviceByte(&_rx);
+    uart_receive_byte(&_rx);
 }
 
 /* VOFA+协议帧尾标识（固定4字节） */
@@ -185,7 +185,7 @@ static u8 tail_bytes[4] = {0x00, 0x00, 0x80, 0x7F};
  * @note 数据格式：连续float数据 + 4字节帧尾(0x00 0x00 0x80 0x7F)
  *       适用于VOFA+上位机波形显示
  */
-void fVOFA_FloatDataSend(const float *data, u8 count)
+void vofa_float_data_send(const float *data, u8 count)
 {
     if (count == 0 || count > 8)
         return;

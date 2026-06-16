@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 from siui.components.editbox import SiLabeledLineEdit
 from siui.components.button import SiPushButtonRefactor
-from functions.message_show import (
+from functons.message_show import (
     send_custom_message,
     send_simple_message,
     MSG_TYPE_SUCCESS,

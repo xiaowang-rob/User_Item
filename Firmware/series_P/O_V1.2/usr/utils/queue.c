@@ -50,7 +50,7 @@ eQueueStatus fStaticQueueInit(tStaticQueue *queue, u8 *buffer, u16 capacity)
  * @brief 清空队列内容
  * @param queue 队列结构体指针
  */
-void fStaticQueueClear(tStaticQueue *queue)
+void queue_clear(tStaticQueue *queue)
 {
     if (bQueueIsNull(queue))
     {
@@ -68,7 +68,7 @@ void fStaticQueueClear(tStaticQueue *queue)
  * @param queue 队列结构体指针
  * @return bool 队列为空返回true，否则返回false
  */
-bool fStaticQueueIsEmpty(const tStaticQueue *queue)
+bool queue_is_empty(const tStaticQueue *queue)
 {
     return bQueueIsEmptyInline(queue);
 }
@@ -78,7 +78,7 @@ bool fStaticQueueIsEmpty(const tStaticQueue *queue)
  * @param queue 队列结构体指针
  * @return bool 队列已满返回true，否则返回false
  */
-bool fStaticQueueIsFull(const tStaticQueue *queue)
+bool queue_is_full(const tStaticQueue *queue)
 {
     return bQueueIsFullInline(queue);
 }
@@ -88,7 +88,7 @@ bool fStaticQueueIsFull(const tStaticQueue *queue)
  * @param queue 队列结构体指针
  * @return u16 当前队列中的元素数量
  */
-u16 fStaticQueueCount(const tStaticQueue *queue)
+u16 queue_count(const tStaticQueue *queue)
 {
     if (bQueueIsNull(queue))
     {
@@ -102,7 +102,7 @@ u16 fStaticQueueCount(const tStaticQueue *queue)
  * @param queue 队列结构体指针
  * @return u16 队列剩余可用空间大小
  */
-u16 fStaticQueueRemaining(const tStaticQueue *queue)
+u16 queue_remaining(const tStaticQueue *queue)
 {
     if (bQueueIsNull(queue))
     {

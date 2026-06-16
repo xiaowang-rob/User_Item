@@ -22,11 +22,11 @@ bool BSP_USB_CDC_Transmit_FS(uint8_t *data, uint16_t len)
     return CDC_Transmit_FS(data, len) == USBD_OK;
 }
 
-__weak bool BSP_USB_RecvByte(u8 *data, u8 *len)
+__weak bool bsp_usb_recv_byte(u8 *data, u8 *len)
 {
     return false;
 }
 void USB_RecvByte(uint8_t *Buf, uint32_t *Len)
 {
-    BSP_USB_RecvByte(Buf, (u8 *)Len);
+    bsp_usb_recv_byte(Buf, (u8 *)Len);
 }

@@ -78,12 +78,12 @@ typedef struct
 
 
 // === 接口函数 ===
-void fSmoInit(tMotor *motor);
-void fSmoReset(void);
-void fSmoSetConfig(tSMO_Config *cfg);
+void smo_init(tMotor *motor);
+void smo_reset(void);
+void smo_set_config(tSMO_Config *cfg);
 void smo_pll_init(tSmoPll *pll, float kp, float ki, float dt);
 void smo_pll_update(tSmoPll *pll, float theta_obs_rad);
-void fSmoMainLoop(float v_alpha, float v_beta, float i_alpha, float i_beta);
+void smo_main_loop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 
 // === 数据获取 ===
 float smo_get_theta(void);

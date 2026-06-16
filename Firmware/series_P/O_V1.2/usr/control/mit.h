@@ -15,10 +15,10 @@ typedef struct
 
 } tMIT_HandleTypeDef;
 
-void fMIT_Init(float Kp, float Kd, float tau_ff, float tau_max);
-float fMIT_LoopUpdate(float pos_ref, float pos_fb, float vel_ref, float vel_fb);
-void fMIT_ConfigStatic(float Kp, float Kd);
-void fMIT_ConfigTFF(float tau_ff);
-void fMIT_ConfigDynamic(float alpha_ref, float vel_ref);
+void mit_init(float Kp, float Kd, float tau_ff, float tau_max);
+float mit_loop_update(float pos_ref, float pos_fb, float vel_ref, float vel_fb);
+void mit_config_static(float Kp, float Kd);
+void mit_config_tff(float tau_ff);
+void mit_config_dynamic(float alpha_ref, float vel_ref);
 
 #endif

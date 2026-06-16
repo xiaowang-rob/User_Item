@@ -6,13 +6,13 @@
 
 tSvpwm g_svpwm = {0};
 
-void fSvpwmInit(float Vbus)
+void svpwm_init(float Vbus)
 {
     memset(&g_svpwm, 0, sizeof(tSvpwm));
     g_svpwm.k = MATH_SQRT3 * (float)TIC_PWM / Vbus;
 }
 
-void fSvpwmRun(float ualpha, float ubeta)
+void svpwm_run(float ualpha, float ubeta)
 {
     // 反clark变换，不是标准的，只是为了方便判断扇区
     float U1 = ubeta;
@@ -139,7 +139,7 @@ const u16 ticTn = T_NOISE_us * TIC_PWM / (T_PWM * 1000000);  // 噪声时间（�
 const u16 ticTd = T_DEADTIME_us * TIC_PWM / (T_PWM * 1000000);  // 死区时间（计数值）
 const u16 ticAll = ticTs + ticTn + ticTd;                    // 总时间（计数值
 
-void fSamplePointCalibration()
+void svpwm_sample_point_calibration()
 {
     u16 tic_ref; // 当前扇区的参考相计数
 
@@ -213,12 +213,12 @@ float fGetVoltage_w()
     return g_svpwm.ticw * MATH_SQRT3 / g_svpwm.k;
 }
 
-void fSvpwmSetVbus(float Vbus)
+void svpwm_set_vbus(float Vbus)
 {
     g_svpwm.k = MATH_SQRT3 * TIC_PWM / Vbus;
 }
 
-u8 fSvpwmGetSector()
+u8 svpwm_get_sector()
 {
     return g_svpwm.sector;
 }

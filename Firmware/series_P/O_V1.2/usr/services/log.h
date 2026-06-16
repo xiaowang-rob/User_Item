@@ -46,10 +46,10 @@ typedef struct
     float position_ref;
 } tLog;
 
-void fLogInit(void);
-void fLogDataSave(void);
-void fLogDataWrite(void);
-bool fLogReadFlash(u8 *data, u8 *len);
-void fLogErase();
+void log_init(void);
+void log_data_save(tProtectionManager *pro_manager);
+void log_data_write(void);
+bool log_read_flash(u8 *data, u8 *len);
+void log_erase();
 
 #endif /* __LOG_H */

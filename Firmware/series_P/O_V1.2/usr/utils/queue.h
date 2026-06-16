@@ -28,11 +28,11 @@ typedef struct
 
 /* 函数声明 */
 eQueueStatus fStaticQueueInit(tStaticQueue *queue, u8 *buffer, u16 capacity);
-void fStaticQueueClear(tStaticQueue *queue);
-bool fStaticQueueIsEmpty(const tStaticQueue *queue);
-bool fStaticQueueIsFull(const tStaticQueue *queue);
-u16 fStaticQueueCount(const tStaticQueue *queue);
-u16 fStaticQueueRemaining(const tStaticQueue *queue);
+void queue_clear(tStaticQueue *queue);
+bool queue_is_empty(const tStaticQueue *queue);
+bool queue_is_full(const tStaticQueue *queue);
+u16 queue_count(const tStaticQueue *queue);
+u16 queue_remaining(const tStaticQueue *queue);
 eQueueStatus fStaticQueueEnqueue(tStaticQueue *queue, const u8 *data);
 eQueueStatus fStaticQueueDequeue(tStaticQueue *queue, u8 *data);
 eQueueStatus fStaticQueuePeek(const tStaticQueue *queue, u8 *data);

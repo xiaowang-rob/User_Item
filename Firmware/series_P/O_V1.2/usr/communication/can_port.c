@@ -31,7 +31,7 @@ tCAN_handle can = {.queue_head = 0xE5, .queue_tail = 0x5E};
  *         3. 若启用队列模式，初始化静态接收队列
  *         4. 初始化完成后自动发送一条执行指令
  */
-void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
+void can_port_init(u32 CAN_ID, bool canQUEUE)
 {
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
@@ -52,7 +52,7 @@ void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
 
     /* 初始化完成后发送执行指令 */
     u8 answer = FEEDBACK_EXECUTE;
-    fCAN_SendData((u8 *)&answer, 1);
+    can_send_data((u8 *)&answer, 1);
 }
 
 /**
@@ -64,7 +64,7 @@ void fCAN_PortInit(u32 CAN_ID, bool canQUEUE)
  *         3. 重启CAN外设并恢复中断使能
  *         4. 队列模式切换时重新初始化静态队列
  */
-void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE)
+void can_set_config(u32 CAN_ID, bool canQUEUE)
 {
 
     can.id = CAN_ID;
@@ -95,7 +95,7 @@ void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE)
  *         2. 采用阻塞方式等待发送完成（检测所有发送邮箱空闲）
  *         3. 发送失败时更新设备状态为RUN_ERROR，但函数仍返回true以保持接口简洁
  */
-bool fCAN_SendData(u8 *msg, u8 len)
+bool can_send_data(u8 *msg, u8 len)
 {
     g_device_status.can_state = RUNNING;
     return BSP_CanSendData(can.id, msg, len);
@@ -109,12 +109,12 @@ bool fCAN_SendData(u8 *msg, u8 len)
  *         2. 默认为空实现，需用户根据协议填充处理代码
  *         3. 非队列模式下，此函数由中断直接调用
  */
-__weak void fCAN_RxDataCallback(u8 *RxData, u8 len)
+__weak void can_rx_data_callback(u8 *RxData, u8 len)
 {
     // 用户重写此函数以实现具体协议解析
 }
 
-void BSP_CanRxCallback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
+void bsp_can_rx_callback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
 {
     if (*recv_ok)
     {
@@ -135,7 +135,7 @@ void BSP_CanRxCallback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
             else
             {
                 /* 非队列模式：直接调用用户回调函数 */
-                fCAN_RxDataCallback(RxData, *len);
+                can_rx_data_callback(RxData, *len);
             }
         }
 
@@ -174,7 +174,7 @@ void CAN_data_byte_deal(u8 data)
             if (data == 0x5E)
             {
                 /* 完成一帧解析，提交数据处理 */
-                fCAN_RxDataCallback(rxbuffer, rxindex);
+                can_rx_data_callback(rxbuffer, rxindex);
                 rxindex = 0;
                 _get_head = false;
             }
@@ -204,7 +204,7 @@ void CAN_data_byte_deal(u8 data)
  *         2. 调用CAN_data_byte_deal进行帧重组与解析
  *         3. 应在主循环或低优先级任务中周期调用，避免中断中处理耗时操作
  */
-void fCAN_QueueData_deal(void)
+void can_queue_data_deal(void)
 {
     while (fStaticQueueDequeue(&can.rx_queue, &rxtemp) == QUEUE_STATUS_OK)
     {

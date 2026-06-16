@@ -3,7 +3,7 @@
 #include "spi.h"
 #include "config.h"
 
-__weak void BSP_Encoder_SPI_TxRxCpltCallback(void)
+__weak void bsp_encoder_spi_txrx_cplt_callback(void)
 {
     return;
 }
@@ -12,11 +12,11 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi == &ENCODER_SPI_CH)
     {
-        BSP_Encoder_SPI_TxRxCpltCallback();
+        bsp_encoder_spi_txrx_cplt_callback();
     }
 }
 
-__weak void BSP_Encoder_SPI_ErrorCallback(void)
+__weak void bsp_encoder_spi_error_callback(void)
 {
 }
 
@@ -24,7 +24,7 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi == &ENCODER_SPI_CH)
     {
-        BSP_Encoder_SPI_ErrorCallback();
+        bsp_encoder_spi_error_callback();
     }
 }
 

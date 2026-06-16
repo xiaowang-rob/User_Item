@@ -81,14 +81,14 @@ typedef struct
 // 全局唯一实例
 extern tEncoderInstance g_encoder;
 
-bool fEncoder_Init(eEncoderChip type);
-void fEncoderMainLoopTask(void);
-float fGetEncoderAngle_ABS(void);
-float fGetEncoderAngle_INC(void);
-float fGetEncoderRPM(float f_speed);
-int fGetEncoderNumTurns(void);
+bool encoder_init(eEncoderChip type);
+void encoder_main_loop_task(void);
+float encoder_get_angle_abs(void);
+float encoder_get_angle_inc(void);
+float encoder_get_rpm(float f_speed);
+int encoder_get_num_turns(void);
 
-void fSetEncoderAngleZero(void);
+void encoder_set_angle_zero(void);
 
 // flash相关定义
 
@@ -100,11 +100,11 @@ void fSetEncoderAngleZero(void);
 #define FLASH_BLOCK_NUM 256                ///< 块数量：256块
 
 /* 函数声明 -------------------------------------------------------------*/
-void fFLASH_Init(void);
-void fEraseOneSector(u32 Address);
-void fFLASH_EraseSector(u32 Address, u32 Write_data_NUM);
-bool fFLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
-bool fFLASH_WriteWord(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
+void flash_init(void);
+void flash_erase_one_sector(u32 Address);
+void flash_erase_sector(u32 Address, u32 Write_data_NUM);
+bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
+bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
 
-void fLED_Control(eDeviceStatus can_state, eDeviceStatus encoder_state);
+void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state);
 #endif

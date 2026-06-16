@@ -28,13 +28,13 @@ class DataShow:
         """更新指定索引的状态值（枚举/数值）"""
         match index:
             case Sidx.TUNE_STATE:
-                self.status[Sidx.TUNE_STATE] = Midx.tune_state[int(data)] if int(data) < len(Midx.tune_state) else str(int(data))
+                self.status[Sidx.TUNE_STATE] = Midx.tune_state[int(data)]
             case Sidx.FOC_STATE:
-                self.status[Sidx.FOC_STATE] = Midx.foc_state[int(data)] if int(data) < len(Midx.foc_state) else str(int(data))
+                self.status[Sidx.FOC_STATE] = Midx.foc_state[int(data)]
             case Sidx.FAULT:
-                self.status[Sidx.FAULT] = Midx.fault_state[int(data)] if int(data) < len(Midx.fault_state) else str(int(data))
+                self.status[Sidx.FAULT] = Midx.fault_state[int(data)]
             case Sidx.WARNING:
-                self.status[Sidx.WARNING] = Midx.warning_state[int(data)] if int(data) < len(Midx.warning_state) else str(int(data))
+                self.status[Sidx.WARNING] = Midx.warning_state[int(data)]
             case Sidx.TEMPERATURE | Sidx.VBUS:
                 self.status[index] = data
         logger.debug(f"状态更新 idx={index} val={data}")

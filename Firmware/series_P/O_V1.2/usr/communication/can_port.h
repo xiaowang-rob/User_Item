@@ -15,10 +15,10 @@ typedef struct
 } tCAN_handle;
 
 // 函数声明
-void fCAN_PortInit(u32 CAN_ID, bool canQUEUE);
-void fCAN_SetConfig(u32 CAN_ID, bool canQUEUE);
-bool fCAN_SendData(u8 *msg, u8 len);
-void fCAN_RxDataCallback(u8 *RxData, u8 len);
-void fCAN_QueueData_deal();
+void can_port_init(u32 CAN_ID, bool canQUEUE);
+void can_set_config(u32 CAN_ID, bool canQUEUE);
+bool can_send_data(u8 *msg, u8 len);
+void can_rx_data_callback(u8 *RxData, u8 len);
+void can_queue_data_deal();
 
 #endif

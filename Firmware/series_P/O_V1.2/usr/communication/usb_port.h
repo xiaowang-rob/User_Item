@@ -14,8 +14,8 @@ typedef struct
     u8 tail;
 } tUSB_Frame;
 
-void fUSB_Init(void);
-bool fUSB_SendFrame(u8 id, u8 *data, u8 len);
-void fUSB_RxFrameCallback(u8 id, u8 *data, u8 len);
+void usb_init(void);
+bool usb_send_frame(u8 id, u8 *data, u8 len);
+void usb_rx_frame_callback(u8 id, u8 *data, u8 len);
 
 #endif /* __USB_INTERFACE_H */

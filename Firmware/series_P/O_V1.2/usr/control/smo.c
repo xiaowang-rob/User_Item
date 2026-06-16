@@ -102,7 +102,7 @@ void smo_pll_update(tSmoPll *pll, float theta_obs_rad)
         pll->theta_pll += 6.2831853f;
 }
 
-void fSmoInit(tMotor *motor)
+void smo_init(tMotor *motor)
 {
     smo.rs = motor->rs;
     smo.ld = motor->ld;
@@ -114,17 +114,17 @@ void fSmoInit(tMotor *motor)
     _SmoPrecompute(&smo);
     // PLL 初始化: Kp=200, Ki=10000  @ dt 约 20us(SMO_DTICK=4)
     smo_pll_init(&smo.pll, 200.0f, 10000.0f, smo.dt);
-    fSmoReset();
+    smo_reset();
 
     // 滤波器初始化
-    fFirstOrderLagInit(&I_alpha_lpf, CURRENT_ALPHA, 0.0f);
-    fFirstOrderLagInit(&I_beta_lpf, CURRENT_ALPHA, 0.0f);
-    fFirstOrderLagInit(&emf_alpha_lpf, EMF_ALPHA, 0.0f);
-    fFirstOrderLagInit(&emf_beta_lpf, EMF_ALPHA, 0.0f);
-    fFirstOrderLagInit(&omega_lpf, OMEGA_ALPHA, 0.0f);
+    filter_first_order_lag_init(&I_alpha_lpf, CURRENT_ALPHA, 0.0f);
+    filter_first_order_lag_init(&I_beta_lpf, CURRENT_ALPHA, 0.0f);
+    filter_first_order_lag_init(&emf_alpha_lpf, EMF_ALPHA, 0.0f);
+    filter_first_order_lag_init(&emf_beta_lpf, EMF_ALPHA, 0.0f);
+    filter_first_order_lag_init(&omega_lpf, OMEGA_ALPHA, 0.0f);
 }
 
-void fSmoReset(void)
+void smo_reset(void)
 {
     smo.i_alpha_hat = smo.i_beta_hat = 0.0f;
     smo.e_alpha = smo.e_beta = 0.0f;
@@ -135,7 +135,7 @@ void fSmoReset(void)
     smo.pll.omega_pll = 0;
 }
 
-void fSmoSetConfig(tSMO_Config *cfg)
+void smo_set_config(tSMO_Config *cfg)
 {
     if (cfg == NULL)
         return;
@@ -143,7 +143,7 @@ void fSmoSetConfig(tSMO_Config *cfg)
     _SmoPrecompute(&smo);
 }
 
-void fSmoMainLoop(float v_alpha, float v_beta,
+void smo_main_loop(float v_alpha, float v_beta,
                   float i_alpha, float i_beta)
 {
     // 空闲时刻对电流进行滤波
@@ -189,8 +189,8 @@ void fSmoMainLoop(float v_alpha, float v_beta,
 
     // === 步骤 3：反电动势滤波 ===
 
-    smo.e_alpha_filt = fFirstOrderLagFilter(&emf_alpha_lpf, smo.e_alpha);
-    smo.e_beta_filt = fFirstOrderLagFilter(&emf_beta_lpf, smo.e_beta);
+    smo.e_alpha_filt = filter_first_order_lag(&emf_alpha_lpf, smo.e_alpha);
+    smo.e_beta_filt = filter_first_order_lag(&emf_beta_lpf, smo.e_beta);
 
     // === 步骤 4：角度计算（PLL vs atan2+平滑） ===
     float emf_mag_sq = smo.e_alpha_filt * smo.e_alpha_filt +
@@ -222,7 +222,7 @@ void fSmoMainLoop(float v_alpha, float v_beta,
 
     float angle_diff = fNormalizeAngle_180(smo.theta_elec - smo.theta_prev);
     float speed_raw = angle_diff / smo.dt * 0.0174533f;
-    smo.omega_elec = fFirstOrderLagFilter(&omega_lpf, speed_raw);
+    smo.omega_elec = filter_first_order_lag(&omega_lpf, speed_raw);
     smo.omega_elec = CLAMP(smo.omega_elec, -smo.cfg.max_omega_elec, smo.cfg.max_omega_elec);
 #endif
 

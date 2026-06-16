@@ -101,7 +101,7 @@ static void AS5047_StartNOP(void);
 static void AS5047_ProcessData(void);
 
 /* ========== 初始化 ========== */
-bool fEncoder_Init(eEncoderChip type)
+bool encoder_init(eEncoderChip type)
 {
     if (type >= CHIP_COUNT)
         return false;
@@ -146,7 +146,7 @@ static void Encoder_RecoverFromError(void)
 }
 
 /* ========== DMA 完成回调（不再启动任何 SPI 传输） ========== */
-void BSP_Encoder_SPI_TxRxCpltCallback(void)
+void bsp_encoder_spi_txrx_cplt_callback(void)
 {
     BSP_Encoder_CS(EXTERNAL, true);
     tEncoderInstance *enc = &g_encoder;
@@ -165,7 +165,7 @@ void BSP_Encoder_SPI_TxRxCpltCallback(void)
 }
 
 /* ========== DMA 错误回调 ========== */
-void BSP_Encoder_SPI_ErrorCallback(void)
+void bsp_encoder_spi_error_callback(void)
 {
     Encoder_RecoverFromError();
 }
@@ -227,6 +227,15 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
     }
     else
     {
+        /* PLL 发散检测：速度饱和时重置积分器 */
+        if (enc->pll_omega_rpm >= 99999.0f || enc->pll_omega_rpm <= -99999.0f ||
+            enc->pll_integ > 10000.0f || enc->pll_integ < -10000.0f)
+        {
+            enc->pll_integ = 0.0f;
+            enc->pll_omega_rpm = 0.0f;
+            enc->pll_theta = enc->angle_abs;
+        }
+
         int32_t angle_raw_delta = (int32_t)enc->angle_raw - enc->angle_raw_last;
 
         /* 根据当前转速选择过零判断阈值（保留累计圈数） */
@@ -560,7 +569,7 @@ static void MT6835_MainLoop(void *arg)
 }
 
 /* ========== 主循环任务 ========== */
-void fEncoderMainLoopTask(void)
+void encoder_main_loop_task(void)
 {
     if (g_encoder.chip_desc && g_encoder.chip_desc->dma_state_entry) {
         g_encoder.chip_desc->dma_state_entry(&g_encoder);
@@ -568,9 +577,9 @@ void fEncoderMainLoopTask(void)
 }
 
 /* ========== 对外数据接口 ========== */
-float fGetEncoderAngle_ABS(void) { return g_encoder.angle_abs; }
-float fGetEncoderAngle_INC(void) { return g_encoder.pos; }
-float fGetEncoderRPM(float f_speed)
+float encoder_get_angle_abs(void) { return g_encoder.angle_abs; }
+float encoder_get_angle_inc(void) { return g_encoder.pos; }
+float encoder_get_rpm(float f_speed)
 {
     /* PLL 已收敛时优先使用 PLL 输出 */
     if (g_encoder.pll_omega_rpm > 1.0f || g_encoder.pll_omega_rpm < -1.0f) {
@@ -589,9 +598,9 @@ float fGetEncoderRPM(float f_speed)
     }
     return g_encoder.omega_rpm;
 }
-int fGetEncoderNumTurns(void) { return g_encoder.num_turns; }
+int encoder_get_num_turns(void) { return g_encoder.num_turns; }
 
-void fSetEncoderAngleZero(void)
+void encoder_set_angle_zero(void)
 {
     g_encoder.pos = 0;
     g_encoder.pos_offset = g_encoder.angle_raw;

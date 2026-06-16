@@ -49,12 +49,12 @@ typedef struct
 
 
 // ================= 函数声明 =================
-void fHfiInit();
-void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h);
-void fHfiDetectInitialPosition(float id, float *ualpha, float *ubeta);
+void hfi_init();
+void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h);
+void hfi_detect_initial_position(float id, float *ualpha, float *ubeta);
 
-bool fHfiGetStatus(void);
-void fHfiResetInitialPosition(void);
-float fHfiGetOmegaElec(void);
-float fHfiGetThetaElec(void);
+bool hfi_get_status(void);
+void hfi_reset_initial_position(void);
+float hfi_get_omega_elec(void);
+float hfi_get_theta_elec(void);
 #endif // __HFI_H

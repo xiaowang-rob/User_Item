@@ -62,7 +62,7 @@ class ParameterManager:
         if index < Pidx.CAN_ID:
             return struct.unpack("<B", data)[0]
         elif index < Pidx.THETA_OFFSET:
-            return struct.unpack("<I", data)[0]    # unsigned uint32
+            return struct.unpack("<i", data)[0]    # 注意：原代码用 <i (signed int)
         else:
             return struct.unpack("<f", data)[0]
 
@@ -97,14 +97,10 @@ class ParameterManager:
         self.com.send_packet(Cidx.PARAM_READ, bytes([0xFF]))
 
     # ---------- 接收参数数据 ----------
-    def add_param(self, data):
-        """解析接收到的参数并更新界面（由 protocol handler 回调，参数为 data bytes）"""
-        if len(data) < 1:
-            logger.warning("add_param: 收到空数据")
-            return
-        index = data[0]
-        payload = data[1:]
-        val = self._unpack_value(index, payload)
+    def add_param(self, index, data):
+        """解析接收到的参数并更新界面"""
+        print(f"接收到参数 idx={index} data={data}")
+        val = self._unpack_value(index, data)
         self.param_list[index] = val
         self.show_param(index, val)
         logger.debug(f"更新参数 idx={index} val={val}")

@@ -119,7 +119,7 @@ static void FLASH_Wait_Busy(void)
  * @param  Address: 扇区内任意地址
  * @note   自动对齐到扇区边界，擦除需要一定时间
  */
-void fEraseOneSector(u32 Address)
+void flash_erase_one_sector(u32 Address)
 {
     FLASH_Write_Enable();        // 使能写操作
     FLASH_Wait_Busy();           // 等待空闲
@@ -139,7 +139,7 @@ void fEraseOneSector(u32 Address)
  * @param  Write_data_NUM: 需要写入的数据字节数
  * @note   自动计算需要擦除的扇区范围
  */
-void fFLASH_EraseSector(u32 Address, u32 Write_data_NUM)
+void flash_erase_sector(u32 Address, u32 Write_data_NUM)
 {
     // 计算起始和结束扇区
     u16 Star_Sector = Address / 4096;                   // 起始扇区
@@ -149,7 +149,7 @@ void fFLASH_EraseSector(u32 Address, u32 Write_data_NUM)
     // 擦除所有相关扇区
     for (u16 i = 0; i <= Num_Sector; i++)
     {
-        fEraseOneSector(Address); // 擦除当前扇区
+        flash_erase_one_sector(Address); // 擦除当前扇区
         Address += 4096;          // 移动到下一个扇区
     }
 }
@@ -159,7 +159,7 @@ void fFLASH_EraseSector(u32 Address, u32 Write_data_NUM)
  * @note   全片擦除，等待时间较长（10-20秒）
  *         非必要不建议使用
  */
-void fEraseFLASHChip(void)
+void flash_erase_chip(void)
 {
     FLASH_Write_Enable();        // 写使能
     FLASH_Wait_Busy();           // 等待空闲
@@ -176,7 +176,7 @@ void fEraseFLASHChip(void)
  * @param  NumByteToRead: 读取字节数
  * @retval true: 成功，false: 失败
  */
-bool fFLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
+bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
 {
     u16 i = 0;
     FLASH_Enable();                   // 片选
@@ -211,7 +211,7 @@ bool fFLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
  * @retval true: 成功，false: 失败
  * @note   必须在擦除的扇区内写入，跨页写入需调用fFLASH_WritePage
  */
-bool fFLASH_WriteWord(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
+bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     u16 i;
     FLASH_Write_Enable(); // 写使能
@@ -256,7 +256,7 @@ static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
     while (1)
     {
         // 写入当前页能容纳的数据
-        fFLASH_WriteWord(pBuffer, WriteAddr, Word_remain);
+        flash_write_word(pBuffer, WriteAddr, Word_remain);
 
         if (NumByteToWrite == Word_remain)
         {
@@ -282,7 +282,7 @@ static void fFLASH_WritePage(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
  * @note   读取设备ID（0xEF4018）验证连接
  *         失败时最多重试5次
  */
-void fFLASH_Init(void)
+void flash_init(void)
 {
     u8 id[3] = {0};
     FLASH_Enable(); // 片选
@@ -302,7 +302,7 @@ void fFLASH_Init(void)
     {
         _init_fault_tic++;
         BSP_Delay(10);
-        fFLASH_Init(); // 递归重试
+        flash_init(); // 递归重试
     }
 
     FLASH_Disable(); // 取消片选

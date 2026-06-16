@@ -4,7 +4,7 @@
 #include "protection_manager.h"
 #include "device.h"
 
-void fStatusFeedbackMainLoop()
+void status_feedback_main_loop()
 {
     switch (g_foc.state)
     {
@@ -23,9 +23,9 @@ void fStatusFeedbackMainLoop()
     default:
         break;
     }
-    fLED_Control(g_pro_manager.drive_state->can_state, g_pro_manager.drive_state->encoder_state);
+    led_control(g_pro_manager.drive_state->can_state, g_pro_manager.drive_state->encoder_state);
 }
-void fSystemFaultFeedback()
+void system_fault_feedback()
 {
     BSP_RGB_Breathe(RED);
     BSP_Delay(500);

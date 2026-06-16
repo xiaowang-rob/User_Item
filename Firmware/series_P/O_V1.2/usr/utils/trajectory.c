@@ -9,13 +9,13 @@ static tTraj_Config traj_cfg = {0};
 static tTraj_State traj_state = {0};
 
 /* === 初始化 === */
-void fTraj_Init(tTraj_Config cfg)
+void traj_init(tTraj_Config cfg)
 {
     traj_cfg = cfg;
 }
 
 /* === 重置状态 === */
-void fTraj_Reset(float current_value)
+void traj_reset(float current_value)
 {
     traj_state.target = current_value;
     traj_state.current = current_value;
@@ -25,14 +25,14 @@ void fTraj_Reset(float current_value)
 }
 
 /* === 设置目标 === */
-void fTraj_SetTarget(float target)
+void traj_set_target(float target)
 {
     traj_state.target = target;
     float err = FABSF(target - traj_state.current);
     traj_state.busy = (err > TRAJ_TOL_DEFAULT);
 }
 
-void fTraj_SetRate(float rate)
+void traj_set_rate(float rate)
 {
     traj_state.rate = rate;
 }

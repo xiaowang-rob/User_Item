@@ -9,7 +9,7 @@
 #include "log.h"
 #include "protection_manager.h"
 #include "port_mapping.h"
-#include "usb_port.h"        // [DEBUG] fUSB_SendFrame
+#include "usb_port.h"        // [DEBUG] usb_send_frame
 #include "device.h"
 
 #ifdef __DEBUG__ //***********调试************
@@ -32,43 +32,27 @@ void BSP_Init_Back(void)
 flash和参数一起-通讯-保护-日志-adc -foc初始化
 */
 
-    fFLASH_Init();
-    if (!fParamInit())
+    flash_init();
+    if (!param_init())
         BSP_Error_Handler();
-    fCommunicateInit();
-    fProManagerInit(&g_Param);
-    fLogInit();
+    comm_init();
+    pro_manager_init(&g_Param);
+    log_init();
     BSP_AdcInit(); // 这里就启动了foc的定时器
-    fFocInit();
+    foc_init();
 }
 void BSP_AppMain(void)
 {
-    // [DEBUG] USB 通信测试：每隔 2 秒主动发送一帧测试数据
-    static u32 _dbg_last_send = 0;
-    static u8 _dbg_counter = 0;
-
     while (1)
     {
-        // [DEBUG] USB 发送测试
-        if (BSP_GetTick() - _dbg_last_send > 2000)
-        {
-            _dbg_last_send = BSP_GetTick();
-            _dbg_counter++;
-            u8 test_data[5] = {0xDE, 0xAD, _dbg_counter, 0x00, 0x00};
-            bool ok = fUSB_SendFrame(0xF0, test_data, sizeof(test_data));
-            // 也尝试裸 CDC 发送
-            u8 raw_msg[] = "HELLO_USB_TEST\r\n";
-            BSP_USB_CDC_Transmit_FS(raw_msg, sizeof(raw_msg) - 1);
-        }
-
         //	编码器主循环
-        fEncoderMainLoopTask();
+        encoder_main_loop_task();
         // 通讯层运行
-        fCommunicateMainLoop();
+        comm_main_loop();
         // 控制层由定时器驱动
         // 服务层运行
-        fProManagerMainLoop();
-        fStatusFeedbackMainLoop();
+        pro_manager_main_loop();
+        status_feedback_main_loop();
 #ifdef __DEBUG__ //***********调试************
 
         time_while_T = BSP_GetTick_us() - time_while_zero;
@@ -82,6 +66,6 @@ void BSP_Error_Handler()
     BSP_disable_irq();
     while (1)
     {
-        fSystemFaultFeedback();
+        system_fault_feedback();
     }
 }

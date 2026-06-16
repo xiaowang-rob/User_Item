@@ -50,13 +50,6 @@ static const u8 g_adc_to_temp[256] = {
 // clang-format on
 
 /**
- * @brief 冒泡排序函数
- * @param arr 待排序的数组
- * @param n 数组大小
- */
-
-
-/**
  * @brief ADC转换完成回调函数
  * @param hadc ADC句柄指针
  */
@@ -92,49 +85,15 @@ void BSP_AdcInit(void)
     }
 }
 
-/**
- * @brief 温度从影电压触发采样
- */
-void BSP_TempVbusSample(void)
+// 获取电压和温度
+void BSP_AdcGetVoltage_Temp(float *voltage, float *temperature)
 {
+    *voltage = Vbus;
+    *temperature = Tempture;
     HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
 }
 
-// 2-shunt + Clarke：在上溢中断中调用，根据扇区采两相并直接计算 Ialpha/Ibeta
-// 省掉一路 ADC + 扇区重构查表
-void BSP_SampleCurrent2Shunt(u8 sector, float *ialpha, float *ibeta)
-{
-    /* 读取 ADC 原始值 */
-    float ui = ((float)(adc1_buffer[0] - ADC_VAL_ZERO_U) * ADC_VAL_TO_CUR_FACTOR);
-    float vi = ((float)(adc1_buffer[1] - ADC_VAL_ZERO_V) * ADC_VAL_TO_CUR_FACTOR);
-    float wi = ((float)(adc1_buffer[2] - ADC_VAL_ZERO_W) * ADC_VAL_TO_CUR_FACTOR);
-    float iu, iv, iw;
-
-    /* 根据扇区确定两相：最短导通相由另两相推导 (Ia+Ib+Ic=0) */
-    if (sector == 1 || sector == 6) {           /* 最短相=W */
-        iv = -vi;  iw = -wi;
-        iu = -(iv + iw);
-    } else if (sector == 2 || sector == 3) {     /* 最短相=U */
-        iu = -ui;  iw = -wi;
-        iv = -(iu + iw);
-    } else if (sector == 4 || sector == 5) {     /* 最短相=V */
-        iu = -ui;  iv = -vi;
-        iw = -(iu + iv);
-    } else {                                      /* sector 0/7: 零矢量 */
-        iu = ui;  iv = vi;  iw = wi;
-    }
-
-    /* Clarke 变换 */
-    *ialpha = iu;
-    *ibeta = (iu + 2.0f * iv) * 0.57735027f;
-}
-
-/**
- * @brief 获取电流值
- * @param ui U相电流指针
- * @param vi V相电流指针
- * @param wi W相电流指针
- */
+// 获取三相电流
 void BSP_AdcGetCurrent(float *ui, float *vi, float *wi)
 {
     *ui = ((float)(adc1_buffer[0] - ADC_VAL_ZERO_U) * ADC_VAL_TO_CUR_FACTOR);
@@ -142,41 +101,27 @@ void BSP_AdcGetCurrent(float *ui, float *vi, float *wi)
     *wi = ((float)(adc1_buffer[2] - ADC_VAL_ZERO_W) * ADC_VAL_TO_CUR_FACTOR);
 }
 
-/**
- * @brief 修改ADC采样周期
- * @param compare 比较值
- */
+// 改变采样点
 void BSP_AdcSampleChange(u16 compare)
 {
     __HAL_TIM_SetCompare(&PWM_GET_HTIM, TIM_CHANNEL_4, compare);
 }
 
-/**
- * @brief 获取电压值
- * @param voltage 电压值指针
- */
-void BSP_AdcGetVoltage(float *voltage)
-{
-    *voltage = Vbus;
-}
-
-void BSP_AdcGetTemp(float *temperature)
-{
-    *temperature = Tempture;
-}
-
-// VESC 式 DC 校准：使能前一阶 LPF 快速收敛
+// 校准电流零点：在电机静止且无电流时调用，持续采样并平均以获得稳定的零点偏移
 bool BSP_AdcCalibrateCurrent(float *ui_offset, float *vi_offset, float *wi_offset)
 {
-    const float calib_k = 0.01f;  /* LPF 系数 */
-    adc_zero_u += ((float)adc1_buffer[0] - adc_zero_u) * calib_k;
-    adc_zero_v += ((float)adc1_buffer[1] - adc_zero_v) * calib_k;
-    adc_zero_w += ((float)adc1_buffer[2] - adc_zero_w) * calib_k;
-    if (++sample_counter >= 300)
+    adc_zero_u += (float)adc1_buffer[0] * 0.001;
+    adc_zero_v += (float)adc1_buffer[1] * 0.001;
+    adc_zero_w += (float)adc1_buffer[2] * 0.001;
+    if (++sample_counter >= 1000)
     {
         ADC_VAL_ZERO_U = adc_zero_u;
         ADC_VAL_ZERO_V = adc_zero_v;
         ADC_VAL_ZERO_W = adc_zero_w;
+        adc_zero_u = 0;
+        adc_zero_v = 0;
+        adc_zero_w = 0;
+        sample_counter = 0;
         *ui_offset = ADC_VAL_ZERO_U;
         *vi_offset = ADC_VAL_ZERO_V;
         *wi_offset = ADC_VAL_ZERO_W;
@@ -197,6 +142,7 @@ void BSP_AdcIdleTrack(void)
     ADC_VAL_ZERO_W += ((float)adc1_buffer[2] - ADC_VAL_ZERO_W) * idle_k;
 }
 
+// 设置电流零点偏移
 void BSP_SetAdcCurrentOffset(float ui_offset, float vi_offset, float wi_offset)
 {
     ADC_VAL_ZERO_U = ui_offset;

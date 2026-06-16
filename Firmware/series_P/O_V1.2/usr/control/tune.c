@@ -41,7 +41,7 @@ static void _FitFromSums(float sum_x, float sum_y, float sum_xy, float sum_xx, u
     *mse = 0.0f;
 }
 // 控制带宽、滤波系数与PID参数的经验公式
-void fCalculateControlParams()
+void calculate_control_params()
 {
     // todo:这里对电流环PI进行调节
     float fn_d = 1 / (MATH_2PI * temp_params.ld / temp_params.rs);
@@ -75,7 +75,7 @@ void fCalculateControlParams()
 }
 
 /* ================================= 参数访问实现 ================================= */
-void fMotorParamTuneForceSave(void)
+void motor_param_tune_force_save(void)
 {
 
     // 过程中会直接写入motor用于后续控制
@@ -105,7 +105,7 @@ void fMotorParamTuneForceSave(void)
 
 /* ================================= 初始化与重置 ================================= */
 // todo:后续添加无感整定，根据选择的感应模式校准，无感只校准电机，有感校准电机和编码器，直接校准电机，直接用HFI、SMO做精准的控制
-void fMotorParamTuneInit()
+void motor_param_tune_init()
 {
 
     memset(&g_tune_ctx, 0, sizeof(tTuneContext));
@@ -113,10 +113,10 @@ void fMotorParamTuneInit()
     temp_params.kv = g_Param.motor_kv;
     temp_params.dt = T_CON;
     temp_params.tune_cur_limit = g_Param.tune_current; // 从用户配置获取校准电流锚点
-    fFirstOrderLagInit(&rs_i_filter, 0.04f, 0);
+    filter_first_order_lag_init(&rs_i_filter, 0.04f, 0);
 }
 
-void fMotorParamTuneReset()
+void motor_param_tune_reset()
 {
     g_tune_ctx.fault = TUNE_FAULT_NONE;
     g_tune_ctx.state = TUNE_INIT;
@@ -126,7 +126,7 @@ void fMotorParamTuneReset()
 static bool _TuneRs(float i_alpha, tTuneParams *params)
 {
     tTuneContext *ctx = &g_tune_ctx;
-    float i_a = fFirstOrderLagFilter(&rs_i_filter, i_alpha);
+    float i_a = filter_first_order_lag(&rs_i_filter, i_alpha);
 
     if (ctx->freq_tick++ < RS_FREQ_F)
         return false; // 跳过不整定
@@ -541,7 +541,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
     {
         // === STATE 0: 确定要施加的合理电压===
     case 0:
-        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
+        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
         switch (ctx->encoder_ctx.test_step)
         {
         case 0: // 拉到0°电角度 (缓慢斜坡)
@@ -631,7 +631,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         { // 对齐完成
             ctx->steady_tick = 0;
             // 记录起始点
-            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
+            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
             ctx->encoder_ctx.theta_m_start = ctx->encoder_ctx.theta_m_unwrap;
             ctx->encoder_ctx.theta_e_acc = 0.0f;
             ctx->encoder_ctx.theta_e_raw = 0.0f;
@@ -662,7 +662,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         fInvParkTransform(ctx->encoder_ctx.v_out, 0.0f, sin_theta_e, cos_theta_e, &v_alpha, &v_beta);
         foc_set_ualpha_beta(v_alpha, v_beta);
 
-        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
+        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
 
         // 2.4 采样存储 累加最小二乘所需量
         if (FABSF(ctx->encoder_ctx.theta_e_acc - ctx->encoder_ctx.theta_e_raw) >= 10.0f)
@@ -712,7 +712,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         { // 对齐 300ms
             ctx->steady_tick = 0;
             // 记录起始点
-            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
+            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
             if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start > 5.0f)
                 temp_params.theta_elec_need_180 = true;
             else if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start < -5.0f)
@@ -824,7 +824,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
     switch (ctx->state)
     {
     case TUNE_INIT:
-        fMotorParamTuneInit();
+        motor_param_tune_init();
         foc_set_sensor_mode(ENCODER_CONTROL);
         foc_set_run_mode(OPEN_LOOP);
         ctx->steady_tick = 0;
@@ -934,10 +934,10 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
                 break;
             }
 
-            fCalculateControlParams();
+            calculate_control_params();
             // 电感完成：初始化编码器校准上下文
 
-            fSetEncoderAngleZero(); // 编码器圈数归零
+            encoder_set_angle_zero(); // 编码器圈数归零
             ctx->encoder_ctx.theta_elec = 0;
             ctx->encoder_ctx.v_out = 0;
             ctx->encoder_ctx.forward_done = false;
@@ -1023,7 +1023,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
             // todo:这里可以对速度环PI和位置环PID 参数进行调节
             //  结束：保存参数并进入完成状态
 
-            fMotorParamTuneForceSave();
+            motor_param_tune_force_save();
             ctx->state = TUNE_DONE;
         }
         break;

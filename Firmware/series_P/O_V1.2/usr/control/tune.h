@@ -278,10 +278,10 @@ typedef struct
 extern tTuneContext g_tune_ctx;
 
 /* ================================= 公共接口 ================================= */
-void fMotorParamTuneInit();
-void fMotorParamTuneReset();
+void motor_param_tune_init();
+void motor_param_tune_reset();
 eTuneState fMotorParamTuneUpdate(tFOC_val foc_val);
-u8 fMotorParamTuneGetProgress(void);
+u8 motor_param_tune_get_progress(void);
 eTuneFault fMotorParamTuneGetFault(void);
 
 #endif /* __TUNE_H */

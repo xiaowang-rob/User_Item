@@ -88,24 +88,32 @@ class MainWindow(QMainWindow):
 
         def _on_connect(data):
             c.update_status_time()
-            # 状态包固定 12 字节 (4 raw + 2 float)，其余为系统信息字符串
             if len(data) == 12:
-                for i in range(STATUS_FIELD_COUNT):
-                    if i < 4:
-                        self.data_show.set_status(i, data[i])
-                    else:
-                        val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
-                        self.data_show.set_status(i, val)
-                self.data_show.show_status()
-            else:
-                msg = "".join(ch for ch in data.decode(errors="ignore") if 32 <= ord(ch) <= 126)
-                parts = msg.split(",")
-                self.IAP.set_current_version(parts[0].strip() + " " + parts[1].strip())
-                labels = ["Device", "Version", "Author", "PWM", "CurLoop",
-                          "SpdLoop", "PosLoop", "MaxCur", "Vin", "MaxTemp"]
-                units = ["", "", "", "Hz", "Hz", "Hz", "Hz", "A", "V", "\u00b0C"]
-                lines = [f"{l}: {p}{u}" for l, p, u in zip(labels, parts, units)]
-                self.system_message = "\n".join(lines)
+                try:
+                    for i in range(STATUS_FIELD_COUNT):
+                        if i < 4:
+                            self.data_show.set_status(i, data[i])
+                        else:
+                            val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
+                            self.data_show.set_status(i, val)
+                    self.data_show.show_status()
+                except Exception:
+                    pass
+            elif len(data) > 0:
+                try:
+                    msg = "".join(ch for ch in data.decode(errors="ignore") if 32 <= ord(ch) <= 126)
+                    if not msg:
+                        return
+                    parts = msg.split(",")
+                    if len(parts) >= 2:
+                        self.IAP.set_current_version(parts[0].strip() + " " + parts[1].strip())
+                    labels = ["Device", "Version", "Author", "PWM", "CurLoop",
+                              "SpdLoop", "PosLoop", "MaxCur", "Vin", "MaxTemp"]
+                    units = ["", "", "", "Hz", "Hz", "Hz", "Hz", "A", "V", "\u00b0C"]
+                    lines = [f"{l}: {p}{u}" for l, p, u in zip(labels, parts, units)]
+                    self.system_message = "\n".join(lines)
+                except Exception:
+                    pass
         c.register_handler(Cidx.UC_CONNECT, _on_connect)
 
         c.register_handler(Cidx.LOG_GET, self.log.add_log)
