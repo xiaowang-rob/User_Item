@@ -8,7 +8,7 @@ from protocol import Cidx
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("Wave")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))
@@ -366,9 +366,7 @@ class Wave:
             layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.waveform_widget)
 
-        # 双向同步
-        self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)
-        self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)
+        # 双向同步（auto_x/auto_y 的 toggled 信号已在上方连接）
         self.waveform_widget.auto_x_state_changed.connect(self._sync_auto_x_button)
         self.waveform_widget.auto_y_state_changed.connect(self._sync_auto_y_button)
 

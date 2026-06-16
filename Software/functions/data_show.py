@@ -3,7 +3,7 @@ from protocol import Midx, Sidx
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("DataShow")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))

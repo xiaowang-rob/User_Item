@@ -22,7 +22,7 @@ from functions.message_show import (
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("ComPort")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter(
@@ -91,7 +91,6 @@ class ComPort(QObject):
         self.FOOT = Pkt.PACKET_TAIL
 
         # 连接信号槽
-        self._handlers = {}
         self._handlers = {}
         self.packet_valid.connect(self.handle_received_data)
         self.connection_lost.connect(self._on_connection_lost_ui)
@@ -483,6 +482,7 @@ class ComPort(QObject):
                         continue
                     self.serial_port.write(packet)
                     self.serial_port.flush()
+                    logger.debug(f"发送成功：packet={packet}")
                 except (serial.SerialTimeoutException, OSError, serial.SerialException) as e:
                     self._handle_connection_lost(f"发送异常：{e}", is_physical=True)
         logger.debug("发送线程退出")
@@ -584,13 +584,15 @@ class ComPort(QObject):
             self._handle_connection_lost("物理连接断开", is_physical=True)
             return
 
-        now = time.time()
-        timeout = self._status_timeout
-        if self._last_status_time > 0:
-            if now - self._last_status_time > timeout:
-                self._handle_connection_lost(f"状态包超时（{timeout}秒）", is_physical=False)
-        elif now - self._connect_time > timeout * 2:
-            self._handle_connection_lost(f"连接后{timeout*2}秒未收到首个状态包", is_physical=False)
+        # [DEBUG] 临时禁用状态包超时断开，方便调试
+        # now = time.time()
+        # timeout = self._status_timeout
+        # if self._last_status_time > 0:
+        #     if now - self._last_status_time > timeout:
+        #         self._handle_connection_lost(f"状态包超时（{timeout}秒）", is_physical=False)
+        # elif now - self._connect_time > timeout * 2:
+        #     self._handle_connection_lost(f"连接后{timeout*2}秒未收到首个状态包", is_physical=False)
+        logger.debug(f"[DEBUG] 超时监测已禁用, last_status={self._last_status_time:.1f}")
 
     def update_status_time(self):
         """收到有效状态包时更新最后活跃时间"""

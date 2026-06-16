@@ -18,7 +18,7 @@ from functions.message_show import (
 
 # ---------- 日志配置 ----------
 logger = logging.getLogger("Config")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     _handler = logging.StreamHandler()
     _handler.setFormatter(logging.Formatter("[%(levelname)s] %(name)s: %(message)s"))

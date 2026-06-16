@@ -83,11 +83,14 @@ class MainWindow(QMainWindow):
         c = self.comport
 
         # UC_CONNECT: status or system info
+        # 状态包字段数量：前4字节(int) + 2个float = 6个字段
+        STATUS_FIELD_COUNT = 4 + 2  # tune/foc/fault/warning + temp/vbus
+
         def _on_connect(data):
             c.update_status_time()
-            byte_len = len(data) // 4 + 3
-            if byte_len == 6:
-                for i in range(byte_len):
+            # 状态包固定 12 字节 (4 raw + 2 float)，其余为系统信息字符串
+            if len(data) == 12:
+                for i in range(STATUS_FIELD_COUNT):
                     if i < 4:
                         self.data_show.set_status(i, data[i])
                     else:

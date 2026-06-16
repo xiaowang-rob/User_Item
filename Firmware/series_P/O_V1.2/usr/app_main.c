@@ -1,5 +1,6 @@
 
 #include "bsp_adc.h"
+#include "bsp_usb.h"        // [DEBUG] BSP_USB_CDC_Transmit_FS
 #include "usr_config.h"
 #include "main.h"
 
@@ -8,6 +9,7 @@
 #include "log.h"
 #include "protection_manager.h"
 #include "port_mapping.h"
+#include "usb_port.h"        // [DEBUG] fUSB_SendFrame
 #include "device.h"
 
 #ifdef __DEBUG__ //***********调试************
@@ -41,8 +43,24 @@ flash和参数一起-通讯-保护-日志-adc -foc初始化
 }
 void BSP_AppMain(void)
 {
+    // [DEBUG] USB 通信测试：每隔 2 秒主动发送一帧测试数据
+    static u32 _dbg_last_send = 0;
+    static u8 _dbg_counter = 0;
+
     while (1)
     {
+        // [DEBUG] USB 发送测试
+        if (BSP_GetTick() - _dbg_last_send > 2000)
+        {
+            _dbg_last_send = BSP_GetTick();
+            _dbg_counter++;
+            u8 test_data[5] = {0xDE, 0xAD, _dbg_counter, 0x00, 0x00};
+            bool ok = fUSB_SendFrame(0xF0, test_data, sizeof(test_data));
+            // 也尝试裸 CDC 发送
+            u8 raw_msg[] = "HELLO_USB_TEST\r\n";
+            BSP_USB_CDC_Transmit_FS(raw_msg, sizeof(raw_msg) - 1);
+        }
+
         //	编码器主循环
         fEncoderMainLoopTask();
         // 通讯层运行
