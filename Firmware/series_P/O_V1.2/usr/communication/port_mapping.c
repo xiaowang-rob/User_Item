@@ -150,7 +150,7 @@ static void _FrameDataDeal()
         switch (com_frame.cmd_id)
         {
         case CMD_REFVALUE_SET:
-            fFocSetTargetValue((float *)com_frame.rxdata);
+            foc_set_target((float *)com_frame.rxdata);
             break;
         case CMD_ENABLE:
             fFocStateUpdate(FOC_ENABLE);
@@ -159,7 +159,7 @@ static void _FrameDataDeal()
             fFocStateUpdate(FOC_DISABLE);
             break;
         case CMD_MODE_SET:
-            fFocSetRunMode(com_frame.rxdata[0]);
+            foc_set_run_mode(com_frame.rxdata[0]);
             break;
         case CMD_STREAM_GET:
             data_id = com_frame.rxdata[0];
@@ -170,10 +170,10 @@ static void _FrameDataDeal()
             BSP_SystemReset();
             break;
         case CMD_SET_ZERO_POS:
-            fFocSetZeroPos(); // 以当前位置为0点
+            foc_set_zero_pos(); // 以当前位置为0点
             break;
         case CMD_SET_LIMIT_POS:
-            fFocSetLimitPos();
+            foc_set_limit_pos();
             break;
         default:
             break;
@@ -240,10 +240,10 @@ static void _FrameDataDeal()
                 com_frame.stream_num = 0;
                 break;
             case CMD_SET_ZERO_POS:
-                fFocSetZeroPos(); // 以当前位置为0点
+                foc_set_zero_pos(); // 以当前位置为0点
                 break;
             case CMD_SET_LIMIT_POS:
-                fFocSetLimitPos(); // 以当前位置为极限位置
+                foc_set_limit_pos(); // 以当前位置为极限位置
                 break;
             case CMD_SYSTEM_RESET: // 系统复位
                 BSP_SystemReset();
@@ -281,10 +281,10 @@ static void _FrameDataDeal()
             case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
                 memcpy(value_ref, com_frame.rxdata, 4);
                 value_ref[1] = 0.0f;
-                fFocSetTargetValue(value_ref);
+                foc_set_target(value_ref);
                 break;
             case CMD_MODE_SET: // 模式设置 1byte
-                fFocSetRunMode(com_frame.rxdata[0]);
+                foc_set_run_mode(com_frame.rxdata[0]);
                 break;
             case CMD_STREAM_GET: // 监测值获取 单个值直接获取 1byte
                 fStreamDataGet(com_frame.rxdata[1], (float *)com_frame.txdata);

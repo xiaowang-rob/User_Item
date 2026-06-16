@@ -62,35 +62,27 @@ typedef struct
 
 extern tFOC_Core g_foc_core;
 
-// TODO(xdr): 命名规范说明 — fFoc 前缀应改为 foc_
-// VESC风格: <模块>_<动作>，全小写下划线
-//   fFocCoreInit()      → foc_core_init()
-//   fFocValueUpdate()   → foc_value_update()
-//   fFocSetTargetValue() → foc_set_target()
-//   fFocSetRunMode()    → foc_set_run_mode()
-// 类似的: fFilterReset() → filter_reset(), fSetThetaOffset() → foc_set_theta_offset()
 
+void foc_core_init();
+void foc_param_update(tParameter *param);
+void foc_core_reset();
 
-void fFocCoreInit();
-void fFocParamUpdate(tParameter *param);
-void fFocCoreReset();
-
-void fFocValueUpdate();
-void fFocMainLoopTask();
-bool fFocShutdown();
+void foc_value_update();
+void foc_main_loop_task();
+bool foc_shutdown();
 bool fAutoCalibrationUpdate();
 
 // 辅助整定 函数
-void fFilterReset();
-void fFocSetUalphaBeta(float Ualpha, float Ubeta);
-void fFocSetIdIq(float id, float iq);
-void fSetThetaOffset(float thetaoffset);
+void filter_reset();
+void foc_set_ualpha_beta(float Ualpha, float Ubeta);
+void foc_set_id_iq(float id, float iq);
+void foc_set_theta_offset(float thetaoffset);
 
 // 主要函数
 
-void fFocSetTargetValue(float *value);
-void fFocSetSensorMode(eSensorMode mode);
-void fFocSetRunMode(eRunMode mode);
-void fFocSetZeroPos();
-void fFocSetLimitPos();
+void foc_set_target(float *value);
+void foc_set_sensor_mode(eSensorMode mode);
+void foc_set_run_mode(eRunMode mode);
+void foc_set_zero_pos();
+void foc_set_limit_pos();
 #endif // __FOC_CORE_H

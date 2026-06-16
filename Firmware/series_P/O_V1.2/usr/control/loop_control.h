@@ -57,14 +57,7 @@ typedef struct
 } tLoopControl;
 
 
-// TODO(xdr): 命名规范说明
-// 以下函数中 PI_init/PI_update/PID_init 使用全大写前缀，
-// 在C语言中全大写通常留给 #define 宏。
-// VESC风格建议改为小写下划线 + 模块前缀:
-//   PI_init()           → loop_pi_init()
-//   PI_update()         → loop_pi_update()
-//   PID_init()          → loop_pid_init()
-// 函数不应使用全大写命名。
+
 void fFrequencyDivisionUpdate(void);
 void fLoopControlInit(tParameter *param, float Udc);
 void fLoopReset(float Udc);
@@ -73,7 +66,6 @@ float fMagLoopUpdate(float ref, float fb);
 float fWeakMagLoopUpdate(float ud, float uq);
 float fSpeedLoopUpdate(float ref, float fb);
 float fPositionRelLoopUpdate(float ref, float fb);
-
 
 #endif
 extern tLoopControl g_loop_con;

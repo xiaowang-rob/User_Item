@@ -76,13 +76,6 @@ typedef struct
 } tSMO;
 
 
-// TODO(xdr): 命名规范说明 — f 前缀无统一含义
-// VESC风格: 去掉无意义f前缀，模块名+动作 小写下划线:
-//   fSmoInit()        → smo_init()
-//   fSmoMainLoop()    → smo_main_loop()
-//   fSmoGetThetaDeg() → smo_get_theta()
-// 好处: 看函数名 smo_xxx 就知道是 smo 模块的，见名知意。
-
 
 // === 接口函数 ===
 void fSmoInit(tMotor *motor);

@@ -37,7 +37,7 @@ typedef struct
     u8 spi_CPHA;             /* SPI 时钟相位 */
     u8 spi_data_size;        /* SPI 数据宽度 */
     bool (*parse_and_check)(uint16_t raw_high, uint16_t raw_low, uint16_t *angle_out);
-    bool (*use_dma_state_machine)(void);  // 是否使用DMA状态机
+    bool use_dma_state_machine;  // 是否使用DMA状态机
     void (*dma_state_entry)(void *enc);   // DMA状态机入口（按芯片不同）
 } tEncoderChipDesc;
 

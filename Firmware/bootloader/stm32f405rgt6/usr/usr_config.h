@@ -94,8 +94,8 @@
 
 
 /* ---------- USB 协议格式 ---------- */
-#define USB_PACKET_HEAD          0x3A
-#define USB_PACKET_TAIL          0x0D
+#define USB_PACKET_HEAD          0x55
+#define USB_PACKET_TAIL          0xAA
 
 
 /* ---------- UART 协议格式 ---------- */

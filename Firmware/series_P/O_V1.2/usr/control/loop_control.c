@@ -47,7 +47,7 @@ void fFrequencyDivisionUpdate(void)
 }
 
 // PI初始化
-void PI_init(tPI *pi, float kp, float ki, float output_limit, float dt)
+void loop_pi_init(tPI *pi, float kp, float ki, float output_limit, float dt)
 {
     memset(pi, 0, sizeof(tPI));
     pi->kp = kp;
@@ -59,7 +59,7 @@ void PI_init(tPI *pi, float kp, float ki, float output_limit, float dt)
 }
 
 // PI更新（带抗积分饱和）
-float PI_update(tPI *pi, float ref, float fb)
+float loop_pi_update(tPI *pi, float ref, float fb)
 {
     float error = ref - fb;
 
@@ -81,7 +81,7 @@ void PI_reset(tPI *pi)
 }
 
 // PID初始化
-void PID_init(tPID *pid, float kp, float ki_cont, float kd_cont,
+void loop_pid_init(tPID *pid, float kp, float ki_cont, float kd_cont,
               float output_limit, float dt)
 {
     memset(pid, 0, sizeof(tPID));
@@ -142,13 +142,13 @@ void fLoopControlInit(tParameter *param, float Udc)
     // 先初始化分频器
     fFrequencyDivisionInit();
     g_loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
-    PI_init(&g_loop_con.PI_iq, param->kp_Q, param->ki_Q, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
-    PI_init(&g_loop_con.PI_id, param->kp_D, param->ki_D, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
-    PI_init(&g_loop_con.PI_speed, param->kp_speed, param->ki_speed, param->limit_current, g_loop_con.fd.t_spd);
+    loop_pi_init(&g_loop_con.PI_iq, param->kp_Q, param->ki_Q, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
+    loop_pi_init(&g_loop_con.PI_id, param->kp_D, param->ki_D, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
+    loop_pi_init(&g_loop_con.PI_speed, param->kp_speed, param->ki_speed, param->limit_current, g_loop_con.fd.t_spd);
     param->kp_weakmag = param->kp_speed / 2;
     param->ki_weakmag = param->ki_speed / 2;
-    PI_init(&g_loop_con.PI_weakmag, param->kp_weakmag, param->ki_weakmag, param->limit_current, g_loop_con.fd.t_spd);
-    PID_init(&g_loop_con.PID_pos, param->kp_position, param->ki_position, param->kd_position, param->limit_omega, g_loop_con.fd.t_pos);
+    loop_pi_init(&g_loop_con.PI_weakmag, param->kp_weakmag, param->ki_weakmag, param->limit_current, g_loop_con.fd.t_spd);
+    loop_pid_init(&g_loop_con.PID_pos, param->kp_position, param->ki_position, param->kd_position, param->limit_omega, g_loop_con.fd.t_pos);
     g_loop_con.position_min = param->limit_position_min;
     g_loop_con.position_max = param->limit_position_max;
 }
@@ -167,13 +167,13 @@ void fLoopReset(float Udc)
 // q轴电流环
 float fCurrentLoopUpdate(float current_ref, float current_fb)
 {
-    return PI_update(&g_loop_con.PI_iq, current_ref, current_fb);
+    return loop_pi_update(&g_loop_con.PI_iq, current_ref, current_fb);
 }
 
 // d轴磁链环
 float fMagLoopUpdate(float id_ref, float id_fb)
 {
-    return PI_update(&g_loop_con.PI_id, id_ref, id_fb);
+    return loop_pi_update(&g_loop_con.PI_id, id_ref, id_fb);
 }
 
 // 弱磁控制：电压超限时通过负Id削弱磁链
@@ -184,13 +184,13 @@ float fWeakMagLoopUpdate(float ud, float uq)
     float error = g_loop_con.max_Vs - vout;
     if (error > 0)
         return 0; // 未超限，无需弱磁
-    return PI_update(&g_loop_con.PI_weakmag, g_loop_con.max_Vs, vout);
+    return loop_pi_update(&g_loop_con.PI_weakmag, g_loop_con.max_Vs, vout);
 }
 
 // 速度环
 float fSpeedLoopUpdate(float speed_ref, float speed_fb)
 {
-    return PI_update(&g_loop_con.PI_speed, speed_ref, speed_fb);
+    return loop_pi_update(&g_loop_con.PI_speed, speed_ref, speed_fb);
 }
 
 // 相对位置环（带指令限幅）

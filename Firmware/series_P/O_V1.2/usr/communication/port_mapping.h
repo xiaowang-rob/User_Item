@@ -34,12 +34,6 @@ typedef struct
 } tCommunicationState;
 extern tCommunicationState g_com_state;
 
-// TODO(xdr): 命名规范说明 — 全局变量加 g_ 前缀是好习惯
-// 但 com_frame 未加 g_ 前缀（在 port_mapping.c 定义），
-// 全局变量应统一加 g_ 前缀避免与局部变量混淆:
-//   com_frame  → g_com_frame (在 port_mapping.c 中定义)
-//   EXECUTE/FAILURE const → 全大写常量最好也用模块前缀
-
 
 void fCommunicateInit();
 void fCommunicateMainLoop();

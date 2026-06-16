@@ -87,8 +87,8 @@ class ComPort(QObject):
         self._handshake_timer = None
 
         # 包头尾常量 默认 USB 协议 蓝牙模式下 切换 串口的协议包头尾
-        self.HEAD = Pkt.USB_PACKET_HEAD
-        self.FOOT = Pkt.USB_PACKET_TAIL
+        self.HEAD = Pkt.PACKET_HEAD
+        self.FOOT = Pkt.PACKET_TAIL
 
         # 连接信号槽
         self._handlers = {}
@@ -289,16 +289,9 @@ class ComPort(QObject):
             self._connect_time = time.time()
             self._last_status_time = 0.0
 
-            # 根据端口类型切换帧格式
-            # USB: HEAD=0x3A TAIL=0x0D, UART/蓝牙: HEAD=0x55 TAIL=0xAA
-            if port_type == "bluetooth":
-                self.HEAD = Pkt.PACKET_HEAD
-                self.FOOT = Pkt.PACKET_TAIL
-            else:
-                self.HEAD = Pkt.USB_PACKET_HEAD
-                self.FOOT = Pkt.USB_PACKET_TAIL
-
-            # 启动收发线程
+            # 帧格式统一为 0x55/0xAA
+            self.HEAD = Pkt.PACKET_HEAD
+            self.FOOT = Pkt.PACKET_TAIL
             self._stop_recv.clear()
             self._stop_sender.clear()
             self._recv_thread = threading.Thread(

@@ -205,7 +205,7 @@ static bool _TuneRs(float i_alpha, tTuneParams *params)
                     return true;
                 }
 
-                fFocSetUalphaBeta(0, 0);
+                foc_set_ualpha_beta(0, 0);
                 return true; // 辨识完成
             }
         }
@@ -217,7 +217,7 @@ static bool _TuneRs(float i_alpha, tTuneParams *params)
     }
 
     // === 6. 输出电压 ===
-    fFocSetUalphaBeta(v_out, 0);
+    foc_set_ualpha_beta(v_out, 0);
 
     return false; // 辨识进行中
 }
@@ -299,7 +299,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
         // 生成旋转电压 (αβ 旋转，使电流幅值与转子位置无关)
         v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
         v_beta_cmd = ctx->ls_ctx.v_inj * arm_sin_f32(inj_angle);
-        fFocSetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
 
         // 更新注入相位
         inj_angle += omega_dt;
@@ -344,7 +344,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
                     ctx->ls_ctx.state = 1; // 进入转子预定位
                     ctx->steady_tick = 0;  // 重置定时器
                     ctx->ls_ctx.cycle_cnt = 0;
-                    fFocSetUalphaBeta(0, 0); // 先关断电压
+                    foc_set_ualpha_beta(0, 0); // 先关断电压
                     return false;
                 }
 
@@ -364,12 +364,12 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
         if (ramp > 1.0f)
             ramp = 1.0f;
         float v_align = ctx->ls_ctx.v_inj * ramp;
-        fFocSetUalphaBeta(v_align, 0.0f);
+        foc_set_ualpha_beta(v_align, 0.0f);
 
         if (ctx->steady_tick > ctx->align_total_ticks)
         {
             // 对齐完成，断电
-            fFocSetUalphaBeta(0, 0);
+            foc_set_ualpha_beta(0, 0);
             // 等待电流衰减后再进入测量
             if (ctx->steady_tick > ctx->align_total_ticks + MS_TO_TICK(WAIT_AFTER_ALIGN_MS))
             {
@@ -393,7 +393,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
 
         v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
         v_beta_cmd = 0.0f;
-        fFocSetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
 
         inj_angle += omega_dt;
         if (inj_angle > MATH_2PI)
@@ -429,7 +429,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
                 // 测量完成，进入状态3：旋转转子至90°
                 ctx->ls_ctx.state = 3;
                 ctx->steady_tick = 0;
-                fFocSetUalphaBeta(0, 0);
+                foc_set_ualpha_beta(0, 0);
             }
         }
         return false;
@@ -444,12 +444,12 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
             ramp = 1.0f;
         float v_align = ctx->ls_ctx.v_inj * ramp;
         // 施加β轴直流电压，使转子从0°转到90°电角度
-        fFocSetUalphaBeta(0.0f, v_align);
+        foc_set_ualpha_beta(0.0f, v_align);
 
         if (ctx->steady_tick > ctx->align_total_ticks)
         {
             // 对齐完成，断电
-            fFocSetUalphaBeta(0, 0);
+            foc_set_ualpha_beta(0, 0);
             // 等待电流衰减后再进入测量
             if (ctx->steady_tick > ctx->align_total_ticks + MS_TO_TICK(WAIT_AFTER_ALIGN_MS))
             {
@@ -472,7 +472,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
         // 依旧在α轴注入正弦（此时转子90°，α轴对准q轴）
         v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
         v_beta_cmd = 0.0f;
-        fFocSetUalphaBeta(v_alpha_cmd, v_beta_cmd);
+        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
 
         inj_angle += omega_dt;
         if (inj_angle > MATH_2PI)
@@ -502,7 +502,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta, tTuneParams *p
                 params->lq = L;
                 // 测量完成，进入状态5
                 ctx->ls_ctx.state = 5;
-                fFocSetUalphaBeta(0, 0);
+                foc_set_ualpha_beta(0, 0);
             }
         }
         return false;
@@ -551,7 +551,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
                 ramp = 1.0f;
             v_alpha = ctx->encoder_ctx.v_out * ramp;
             v_beta = 0.0f;
-            fFocSetUalphaBeta(v_alpha, v_beta);
+            foc_set_ualpha_beta(v_alpha, v_beta);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -567,7 +567,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
                 ramp = 1.0f;
             v_alpha = -ctx->encoder_ctx.v_out * ramp;
             v_beta = 0.0f;
-            fFocSetUalphaBeta(v_alpha, v_beta);
+            foc_set_ualpha_beta(v_alpha, v_beta);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -584,7 +584,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
                 ramp = 1.0f;
             v_alpha = ctx->encoder_ctx.v_out * ramp;
             v_beta = 0.0f;
-            fFocSetUalphaBeta(v_alpha, v_beta);
+            foc_set_ualpha_beta(v_alpha, v_beta);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -625,7 +625,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
             ramp = 1.0f;
         v_alpha = ctx->encoder_ctx.v_out * ramp;
         v_beta = 0.0f;
-        fFocSetUalphaBeta(v_alpha, v_beta);
+        foc_set_ualpha_beta(v_alpha, v_beta);
 
         if (ctx->steady_tick >= EC_ALIGN_ms)
         { // 对齐完成
@@ -660,7 +660,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
         float cos_theta_e = 0.0f;
         arm_sin_cos_f32(ctx->encoder_ctx.theta_elec, &sin_theta_e, &cos_theta_e);
         fInvParkTransform(ctx->encoder_ctx.v_out, 0.0f, sin_theta_e, cos_theta_e, &v_alpha, &v_beta);
-        fFocSetUalphaBeta(v_alpha, v_beta);
+        foc_set_ualpha_beta(v_alpha, v_beta);
 
         ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * fGetEncoderNumTurns();
 
@@ -706,7 +706,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
             ramp = 1.0f;
         v_beta = ctx->encoder_ctx.v_out * ramp;
         v_alpha = 0.0f;
-        fFocSetUalphaBeta(v_alpha, v_beta);
+        foc_set_ualpha_beta(v_alpha, v_beta);
 
         if (ctx->steady_tick >= EC_ALIGN_ms)
         { // 对齐 300ms
@@ -780,7 +780,7 @@ bool _TuneEncoder(float theta_m, tTuneParams *params)
 
     // === STATE 6: 完成 (Done) ===
     case 6:
-        fFocSetUalphaBeta(0, 0); // 停机
+        foc_set_ualpha_beta(0, 0); // 停机
         return true;             // 返回 true 表示流程结束
     }
 
@@ -825,8 +825,8 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
     {
     case TUNE_INIT:
         fMotorParamTuneInit();
-        fFocSetSensorMode(ENCODER_CONTROL);
-        fFocSetRunMode(OPEN_LOOP);
+        foc_set_sensor_mode(ENCODER_CONTROL);
+        foc_set_run_mode(OPEN_LOOP);
         ctx->steady_tick = 0;
         ctx->state = TUNE_IDLE;
         break;
@@ -844,7 +844,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
 
         if (false == BSP_AdcCalibrateCurrent(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
             break;      // 电流校准
-        fFilterReset(); // 对电流滤波器进行复位
+        filter_reset(); // 对电流滤波器进行复位
 
         // ========== 预计算：Rs 校准阶段所需阈值 (一次计算，整个阶段不变) ==========
         {
@@ -945,7 +945,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
             ctx->encoder_ctx.step = 0;
             ctx->steady_tick = 0;
 
-            fFocSetUalphaBeta(0, 0);
+            foc_set_ualpha_beta(0, 0);
             // 编码器校准电压预计算 (Rs 已知)
             {
                 float cur_lim = params->tune_cur_limit;
@@ -977,7 +977,7 @@ eTuneState fMotorParamTuneUpdate(tFOC_val foc_val)
                 break;
             }
             // todo:写入参数
-            //            fSetThetaOffset(temp_params.theta_offset, temp_params.theta_elec_need_180); // 应用于目前计算
+            //            foc_set_theta_offset(temp_params.theta_offset, temp_params.theta_elec_need_180); // 应用于目前计算
 
             //  极对数完成：初始化磁链上下文
             ctx->psi_ctx.sum_e_mag = 0;

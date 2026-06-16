@@ -48,12 +48,6 @@ typedef struct
 } tHFI_Handle;
 
 
-// TODO(xdr): 命名规范说明 — 与 smo.h 同理
-//   fHfiInit()                → hfi_init()
-//   fHfiStep()                → hfi_step()
-//   fHfiGetThetaElec()        → hfi_get_theta()
-//   fHfiDetectInitialPosition() → hfi_detect_initial_pos()
-
 // ================= 函数声明 =================
 void fHfiInit();
 void fHfiStep(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h);

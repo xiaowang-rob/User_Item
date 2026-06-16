@@ -84,12 +84,12 @@ static void _FilterInit(tParameter *param)
     fFirstOrderLagInit(&_omega_filter, alpha_spd, 0);
 }
 
-void fFilterReset()
+void filter_reset()
 {
     _FilterInit(&g_Param);
 }
 // FOC参数更新（外部调用，参数修改后需调用）
-void fFocParamUpdate(tParameter *param)
+void foc_param_update(tParameter *param)
 {
     BSP_SetAdcCurrentOffset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
     fEncoder_Init((eEncoderChip)param->encoder_chip);
@@ -101,15 +101,15 @@ void fFocParamUpdate(tParameter *param)
     _TrajectoryInit(param);
 
     fSmoInit(&g_motor);
-    fFocSetSensorMode(param->sensor_mode);
+    foc_set_sensor_mode(param->sensor_mode);
     g_foc_mode.run_mode = param->run_mode;
     g_foc_mode.pvt_mode = param->sw_pvt;
-    fFocCoreReset();
+    foc_core_reset();
 }
 // FOC核心初始化
-void fFocCoreInit(void)
+void foc_core_init(void)
 {
-    fFocParamUpdate(&g_Param); // 参数加载
+    foc_param_update(&g_Param); // 参数加载
     fHfiInit();
     _FilterInit(&g_Param);
 }
@@ -130,7 +130,7 @@ static void _FocValReset(void)
 }
 
 // FOC 复位
-void fFocCoreReset(void)
+void foc_core_reset(void)
 {
     fHfiResetInitialPosition();
     fMotorParamTuneReset();
@@ -188,7 +188,7 @@ static inline void _CurrentReconstruction(void)
     fClarkTransform(g_foc_val.iu, g_foc_val.iv, g_foc_val.iw, &g_foc_val.ialpha, &g_foc_val.ibeta);
 }
 
-void fFocValueUpdate(void)
+void foc_value_update(void)
 {
     fFrequencyDivisionUpdate();
     BSP_AdcGetVoltage(&g_foc_val.udc);
@@ -250,11 +250,8 @@ void fFocValueUpdate(void)
     fParkTransform(g_foc_val.ialpha, g_foc_val.ibeta, sin_theta_e, cos_theta_e, &g_foc_val.id_fb, &g_foc_val.iq_fb);
 }
 // 使能后执行：按模式运行对应控制环
-// TODO(xdr): 此函数展示了switch-case的fall-through(穿透)设计:
-// POSITION_MODE → SPEED_MODE → CURRENT_MODE 逐级穿透。
-// 位置环输出→速度环输入→电流环输入，这是级联控制的标准结构。
-// 注意每个case结尾没有break，依靠穿透传递数据。
-void fFocMainLoopTask(void)
+// switch-case fall-through: POSITION→SPEED→CURRENT 级联控制
+void foc_main_loop_task(void)
 {
     if (g_foc_mode.sensor_mode >= SENSORLESS_CONTROL)
     {
@@ -324,7 +321,7 @@ void fFocMainLoopTask(void)
 }
 
 // 设置各环指令值
-void fFocSetTargetValue(float *value)
+void foc_set_target(float *value)
 {
     switch (g_foc_mode.run_mode)
     {
@@ -350,65 +347,65 @@ bool fAutoCalibrationUpdate(void)
 {
     if (TUNE_DONE == fMotorParamTuneUpdate(g_foc_val))
     {
-        fFocCoreInit();
+        foc_core_init();
         return true;
     }
     return false;
 }
 // 设置 αβ 电压
-void fFocSetUalphaBeta(float Ualpha, float Ubeta)
+void foc_set_ualpha_beta(float Ualpha, float Ubeta)
 {
     g_foc_val.ualpha = Ualpha;
     g_foc_val.ubeta = Ubeta;
 }
 // 设置 dq 电流
-void fFocSetIdIq(float id, float iq)
+void foc_set_id_iq(float id, float iq)
 {
     g_foc_val.id_ref = id;
     g_foc_val.iq_ref = iq;
 }
 // 设置编码器零点偏移
-void fSetThetaOffset(float thetaoffset)
+void foc_set_theta_offset(float thetaoffset)
 {
     g_motor.mech_offset = thetaoffset;
 }
 
 // 切换传感模式
-void fFocSetSensorMode(eSensorMode mode)
+void foc_set_sensor_mode(eSensorMode mode)
 {
-    fFocCoreReset();
+    foc_core_reset();
     g_foc_mode.sensor_mode = mode;
 }
 // 切换控制模式
-void fFocSetRunMode(eRunMode mode)
+void foc_set_run_mode(eRunMode mode)
 {
     _FocValReset();
     g_foc_mode.run_mode = mode;
 }
 
 // 强制刹车
-bool fFocShutdown(void)
+bool foc_shutdown(void)
 {
     if (fabsf(g_foc_val.rpm_fb) < 0.1f)
         return true;
     if (g_foc_mode.run_mode != SPEED_MODE)
-        fFocSetRunMode(SPEED_MODE);
+        foc_set_run_mode(SPEED_MODE);
     float omega_shutdown = -g_foc_val.rpm_fb * 0.5f;
-    fFocSetTargetValue(&omega_shutdown);
+    foc_set_target(&omega_shutdown);
     return false;
 }
 // 设置位置零点
-void fFocSetZeroPos()
+void foc_set_zero_pos()
 {
     fSetEncoderAngleZero();
 }
 // 设置限位位置
-void fFocSetLimitPos()
+void foc_set_limit_pos()
 {
     if (g_foc_val.pos_fb > 0)
         g_Param.limit_position_max = g_foc_val.pos_fb;
     else
         g_Param.limit_position_min = g_foc_val.pos_fb;
-    fFocCoreInit();
+    foc_core_init();
     fProSetLimitPosition(g_Param.limit_position_min, g_Param.limit_position_max);
 }

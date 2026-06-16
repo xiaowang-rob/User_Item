@@ -9,6 +9,7 @@
 #include "math_fast.h"
 #include "parameter_manager.h"
 #include "device.h"
+#include "smo.h"
 
 #include "bsp_adc.h"
 
@@ -42,7 +43,7 @@ void fFocInit()
     g_foc.core->foc_mode->run_mode = OPEN_LOOP;
     g_foc.foc_enable = false;
     g_foc.state = FOC_IDLE;
-    fFocCoreInit();
+    foc_core_init();
     BSP_POWER_12V_Control(true);
     g_foc.foc_init = true;
 }
@@ -52,7 +53,7 @@ void fFocStateMachineMainLoop()
 {
     if (!g_foc.foc_init)
         return;
-    fFocValueUpdate();
+    foc_value_update();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -61,15 +62,15 @@ void fFocStateMachineMainLoop()
         if (!g_foc.foc_enable)
         {
             g_foc.foc_enable = true;
-            fFocCoreReset();
+            foc_core_reset();
             BSP_PWM_Enable();
         }
         if (fAutoCalibrationUpdate())
             fFocStateUpdate(FOC_DISABLE);
-        fFocMainLoopTask();
+        foc_main_loop_task();
         break;
     case FOC_RESET:
-        fFocCoreReset();
+        foc_core_reset();
         fFocStateUpdate(FOC_IDLE);
         g_foc.foc_enable = false;
         BSP_PWM_Disable();
@@ -103,7 +104,7 @@ void fFocStateMachineMainLoop()
             float u_beta = OL_START_CURRENT * sinf(g_foc.ol_angle * 0.0174533f);
             fSvpwmRun(u_alpha, u_beta);
 
-            // SMO 在后台同时运行（在 fFocMainLoopTask 中调用）
+            // SMO 在后台同时运行（在 foc_main_loop_task 中调用）
             // 条件满足时切闭环
             if (elapsed > (OL_START_LOCK_MS + OL_START_RAMP_MS + 200)) {
                 if (FABSF(smo_get_omega()) > OL_START_RPM * 0.5f * g_Param.motor_polepairs) {
@@ -124,10 +125,10 @@ void fFocStateMachineMainLoop()
         fFocStateUpdate(FOC_RESET);
         break;
     case FOC_RUNNING:
-        fFocMainLoopTask();
+        foc_main_loop_task();
         break;
     case FOC_SHUTDOWN:
-        if (fFocShutdown())
+        if (foc_shutdown())
             fFocStateUpdate(FOC_FAULT);
         break;
     case FOC_FAULT:

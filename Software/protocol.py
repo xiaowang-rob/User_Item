@@ -116,8 +116,8 @@ class Fidx:
     FEEDBACK_FAILURE = 0xfe  # 失败
 
 class Pkt:
-    USB_PACKET_HEAD  = 0x3A
-    USB_PACKET_TAIL  = 0x0D
+    USB_PACKET_HEAD  = 0x55
+    USB_PACKET_TAIL  = 0xAA
     PACKET_HEAD      = 0x55
     PACKET_TAIL      = 0xAA
     MAX_FRAME_LENGTH = 128

@@ -140,11 +140,11 @@
     ],
     "usb_format": {
         "USB_PACKET_HEAD": {
-            "value": "0x3A",
+            "value": "0x55",
             "comment": ""
         },
         "USB_PACKET_TAIL": {
-            "value": "0x0D",
+            "value": "0xAA",
             "comment": ""
         }
     },
