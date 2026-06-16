@@ -67,6 +67,16 @@ typedef struct
     bool first_run;
     uint8_t valid;
     uint8_t rubbish_data_tic;
+
+    /* PLL 角度/速度联合估计 */
+    float pll_theta;       /* PLL 输出角度 [deg] */
+    float pll_omega_rpm;   /* PLL 输出速度 [rpm] */
+    float pll_kp;          /* PLL 比例增益 */
+    float pll_ki;          /* PLL 积分增益 */
+    float pll_integ;       /* PLL 积分累加 */
+
+    /* SPI 通信错误率 (指数移动平均) */
+    float spi_error_rate;
 } tEncoderInstance;
 // 全局唯一实例
 extern tEncoderInstance g_encoder;

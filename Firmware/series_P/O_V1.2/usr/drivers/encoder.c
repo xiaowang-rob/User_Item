@@ -170,6 +170,27 @@ void BSP_Encoder_SPI_ErrorCallback(void)
     Encoder_RecoverFromError();
 }
 
+/* PLL 更新：给定观测角度 (deg)，更新 PLL 估计角度和速度 */
+static void Encoder_PllUpdate(tEncoderInstance *enc, float angle_obs_deg, float dt)
+{
+    float delta = angle_obs_deg - enc->pll_theta;
+    /* 角度归一化到 [-180, 180) */
+    if (delta > 180.0f)  delta -= 360.0f;
+    if (delta < -180.0f) delta += 360.0f;
+
+    enc->pll_theta += (enc->pll_omega_rpm * 6.0f * dt + enc->pll_kp * delta) * dt;
+    enc->pll_integ += enc->pll_ki * delta * dt;
+    enc->pll_omega_rpm += enc->pll_integ * dt;
+
+    /* 限幅防止发散 */
+    if (enc->pll_omega_rpm > 100000.0f) enc->pll_omega_rpm = 100000.0f;
+    if (enc->pll_omega_rpm < -100000.0f) enc->pll_omega_rpm = -100000.0f;
+
+    /* 角度归一化 */
+    if (enc->pll_theta > 360.0f)  enc->pll_theta -= 360.0f;
+    if (enc->pll_theta < 0.0f)    enc->pll_theta += 360.0f;
+}
+
 /* ========== 通用角度/速度更新 (所有芯片共用) ========== */
 static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 {
@@ -191,6 +212,12 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
         enc->omega_rpm = 0;
         enc->pos = 0;
         enc->pos_last = 0;
+        /* PLL 初始化 */
+        enc->pll_theta = enc->angle_abs;
+        enc->pll_omega_rpm = 0;
+        enc->pll_kp = 160.0f;   /* PLL 比例增益 (对应带宽 ~80 rad/s) */
+        enc->pll_ki = 6400.0f;  /* PLL 积分增益 (临界阻尼: ki = kp²/4) */
+        enc->pll_integ = 0.0f;
 
         if (enc->rubbish_data_tic++ > 3)
         {
@@ -202,8 +229,9 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
     {
         int32_t angle_raw_delta = (int32_t)enc->angle_raw - enc->angle_raw_last;
 
-        /* 根据当前转速选择过零判断阈值 */
-        if (FABSF(enc->omega_rpm) > 2900)
+        /* 根据当前转速选择过零判断阈值（保留累计圈数） */
+        float speed_ref = FABSF(enc->pll_omega_rpm > 1.0f ? enc->pll_omega_rpm : enc->omega_rpm);
+        if (speed_ref > 2900)
         {
             if (angle_raw_delta < -4096)
                 enc->num_turns++;
@@ -220,6 +248,9 @@ static void Common_AngleVelocityUpdate(tEncoderInstance *enc)
 
         enc->pos = enc->chip_desc->deg_per_lsb * (int32_t)(enc->angle_raw - enc->pos_offset) + enc->num_turns * 360.0f;
         enc->angle_raw_last = enc->angle_raw;
+
+        /* PLL 角度/速度估计 (dt ≈ 100us, 对应 10kHz 编码器更新率) */
+        Encoder_PllUpdate(enc, enc->angle_abs, 0.0001f);
     }
 }
 
@@ -294,6 +325,7 @@ static void MT6816_ProcessData(void)
     if (!enc->chip_desc->parse_and_check(enc->data_raw[0], enc->data_raw[1], &angle_raw))
     {
         enc->valid = CLAMP(enc->valid + 10, 0, 110);
+        enc->spi_error_rate += (1.0f - enc->spi_error_rate) * 0.01f;  /* EMA */
         if (enc->valid > 100)
         {
             g_device_status.encoder_state = RUN_ERROR;
@@ -304,6 +336,7 @@ static void MT6816_ProcessData(void)
     }
 
     enc->valid = CLAMP(enc->valid - 1, 0, 110);
+    enc->spi_error_rate *= 0.999f;  /* 成功时衰减 */
     enc->angle_raw = angle_raw;
     Common_AngleVelocityUpdate(enc);
     enc->state = ENCODER_STATE_START_READ;
@@ -402,6 +435,7 @@ static void AS5047_ProcessData(void)
     if (!enc->chip_desc->parse_and_check(enc->data_raw[0], 0, &angle_raw))
     {
         enc->valid = CLAMP(enc->valid + 10, 0, 110);
+        enc->spi_error_rate += (1.0f - enc->spi_error_rate) * 0.01f;  /* EMA */
         if (enc->valid > 100)
         {
             g_device_status.encoder_state = RUN_ERROR;
@@ -412,6 +446,7 @@ static void AS5047_ProcessData(void)
     }
 
     enc->valid = CLAMP(enc->valid - 1, 0, 110);
+    enc->spi_error_rate *= 0.999f;  /* 成功时衰减 */
 
     enc->angle_raw = angle_raw;
     Common_AngleVelocityUpdate(enc);
@@ -503,6 +538,7 @@ static void MT6835_MainLoop(void *arg)
         uint16_t angle_raw;
         if (!enc->chip_desc->parse_and_check(0, 0, &angle_raw)) {
             enc->valid = CLAMP(enc->valid + 10, 0, 110);
+            enc->spi_error_rate += (1.0f - enc->spi_error_rate) * 0.01f;  /* EMA */
             if (enc->valid > 100) {
                 g_device_status.encoder_state = RUN_ERROR;
                 enc->valid = 0;
@@ -511,6 +547,7 @@ static void MT6835_MainLoop(void *arg)
             return;
         }
         enc->valid = CLAMP(enc->valid - 1, 0, 110);
+        enc->spi_error_rate *= 0.999f;
         enc->angle_raw = angle_raw;
         Common_AngleVelocityUpdate(enc);
         enc->state = ENCODER_STATE_START_READ;
@@ -535,16 +572,21 @@ float fGetEncoderAngle_ABS(void) { return g_encoder.angle_abs; }
 float fGetEncoderAngle_INC(void) { return g_encoder.pos; }
 float fGetEncoderRPM(float f_speed)
 {
-    float pos_delta = g_encoder.pos - g_encoder.pos_last;
-    if (FABSF(pos_delta) <= g_encoder.chip_desc->deg_per_lsb)
-    {
-        g_encoder.omega_rpm = 0;
+    /* PLL 已收敛时优先使用 PLL 输出 */
+    if (g_encoder.pll_omega_rpm > 1.0f || g_encoder.pll_omega_rpm < -1.0f) {
+        g_encoder.omega_rpm = g_encoder.pll_omega_rpm;
+    } else {
+        float pos_delta = g_encoder.pos - g_encoder.pos_last;
+        if (FABSF(pos_delta) <= g_encoder.chip_desc->deg_per_lsb)
+        {
+            g_encoder.omega_rpm = 0;
+        }
+        else
+        {
+            g_encoder.omega_rpm = pos_delta * f_speed * 0.16666666667f;
+        }
+        g_encoder.pos_last = g_encoder.pos;
     }
-    else
-    {
-        g_encoder.omega_rpm = pos_delta * f_speed * 0.16666666667f;
-    }
-    g_encoder.pos_last = g_encoder.pos;
     return g_encoder.omega_rpm;
 }
 int fGetEncoderNumTurns(void) { return g_encoder.num_turns; }
