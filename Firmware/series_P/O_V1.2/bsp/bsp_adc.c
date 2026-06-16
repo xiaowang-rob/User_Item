@@ -54,96 +54,8 @@ static const u8 g_adc_to_temp[256] = {
  * @param arr 待排序的数组
  * @param n 数组大小
  */
-static void vBubbleSort(int arr[], int n)
-{
-    if (arr == NULL || n <= 1)
-    {
-        return; // 如果数组为空或只有一个元素，直接返回
-    }
 
-    int i, j;
-    int temp;
-    int swapped; // 优化标志，如果某一轮没有交换，说明已经有序
 
-    for (i = 0; i < n - 1; i++)
-    {
-        swapped = 0; // 每轮开始前重置交换标志
-
-        // 每轮将最大的元素"冒泡"到末尾
-        for (j = 0; j < n - 1 - i; j++)
-        {
-            if (arr[j] > arr[j + 1])
-            {
-                // 交换相邻元素
-                temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
-                swapped = 1; // 标记发生了交换
-            }
-        }
-
-        // 如果这一轮没有发生交换，说明数组已经有序，可以提前结束
-        if (!swapped)
-        {
-            break;
-        }
-    }
-}
-typedef struct
-{
-    int *buffer; // 数据缓冲区
-    int size;    // 缓冲区大小
-    int index;   // 当前索引
-} tMedianFilter;
-/**
- * @brief 中位值滤波法初始化
- * @param filter 滤波器结构体指针
- * @param buffer 数据缓冲区指针
- * @param size 缓冲区大小
- */
-static void fMedianFilterInit(tMedianFilter *filter, int *buffer, int size)
-{
-    filter->buffer = buffer;
-    filter->size = size;
-    filter->index = 0;
-    memset(buffer, 0, size * sizeof(int));
-}
-
-/**
- * @brief 中位值滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
-static int fMedianFilter(tMedianFilter *filter, int new_value)
-{
-    int i;
-    int buf[filter->size];
-
-    // 更新缓冲区
-    filter->buffer[filter->index] = new_value;
-    filter->index = (filter->index + 1) % filter->size;
-
-    // 复制数据到临时数组
-    for (i = 0; i < filter->size; i++)
-    {
-        buf[i] = filter->buffer[i];
-    }
-
-    // 排序
-    vBubbleSort(buf, filter->size);
-
-    // 返回中值
-    return buf[(filter->size - 1) / 2];
-}
-
-tMedianFilter Ia_Filter;
-tMedianFilter Ib_Filter;
-tMedianFilter Ic_Filter;
-
-int Ia_buf[MED_FILTER_SIZE];
-int Ib_buf[MED_FILTER_SIZE];
-int Ic_buf[MED_FILTER_SIZE];
 /**
  * @brief ADC转换完成回调函数
  * @param hadc ADC句柄指针
@@ -152,9 +64,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc->Instance == ADC1)
     {
-        adc1_buffer[0] = fMedianFilter(&Ia_Filter, adc1_buffer[0]);
-        adc1_buffer[1] = fMedianFilter(&Ib_Filter, adc1_buffer[1]);
-        adc1_buffer[2] = fMedianFilter(&Ic_Filter, adc1_buffer[2]);
+        /* ADC 原始值直接使用，降噪由触发/上溢回调中的 2-shunt 逻辑处理 */
     }
     if (hadc->Instance == ADC2)
     {
@@ -175,9 +85,7 @@ void BSP_AdcInit(void)
     HAL_TIM_PWM_Start(&PWM_GET_HTIM, TIM_CHANNEL_4);
     HAL_ADC_Start_DMA(&hadc1, (u32 *)adc1_buffer, 3);
     HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
-    fMedianFilterInit(&Ia_Filter, Ia_buf, MED_FILTER_SIZE);
-    fMedianFilterInit(&Ib_Filter, Ib_buf, MED_FILTER_SIZE);
-    fMedianFilterInit(&Ic_Filter, Ic_buf, MED_FILTER_SIZE);
+
     while (!is_adc_init)
     {
         BSP_Delay(1);
@@ -190,6 +98,35 @@ void BSP_AdcInit(void)
 void BSP_TempVbusSample(void)
 {
     HAL_ADC_Start_DMA(&hadc2, (u32 *)adc2_buffer, 2);
+}
+
+// 2-shunt + Clarke：在上溢中断中调用，根据扇区采两相并直接计算 Ialpha/Ibeta
+// 省掉一路 ADC + 扇区重构查表
+void BSP_SampleCurrent2Shunt(u8 sector, float *ialpha, float *ibeta)
+{
+    /* 读取 ADC 原始值 */
+    float ui = ((float)(adc1_buffer[0] - ADC_VAL_ZERO_U) * ADC_VAL_TO_CUR_FACTOR);
+    float vi = ((float)(adc1_buffer[1] - ADC_VAL_ZERO_V) * ADC_VAL_TO_CUR_FACTOR);
+    float wi = ((float)(adc1_buffer[2] - ADC_VAL_ZERO_W) * ADC_VAL_TO_CUR_FACTOR);
+    float iu, iv, iw;
+
+    /* 根据扇区确定两相：最短导通相由另两相推导 (Ia+Ib+Ic=0) */
+    if (sector == 1 || sector == 6) {           /* 最短相=W */
+        iv = -vi;  iw = -wi;
+        iu = -(iv + iw);
+    } else if (sector == 2 || sector == 3) {     /* 最短相=U */
+        iu = -ui;  iw = -wi;
+        iv = -(iu + iw);
+    } else if (sector == 4 || sector == 5) {     /* 最短相=V */
+        iu = -ui;  iv = -vi;
+        iw = -(iu + iv);
+    } else {                                      /* sector 0/7: 零矢量 */
+        iu = ui;  iv = vi;  iw = wi;
+    }
+
+    /* Clarke 变换 */
+    *ialpha = iu;
+    *ibeta = (iu + 2.0f * iv) * 0.57735027f;
 }
 
 /**
@@ -228,21 +165,18 @@ void BSP_AdcGetTemp(float *temperature)
     *temperature = Tempture;
 }
 
-// 校准电流偏移
+// VESC 式 DC 校准：使能前一阶 LPF 快速收敛
 bool BSP_AdcCalibrateCurrent(float *ui_offset, float *vi_offset, float *wi_offset)
 {
-    adc_zero_u += (float)adc1_buffer[0] * 0.001;
-    adc_zero_v += (float)adc1_buffer[1] * 0.001;
-    adc_zero_w += (float)adc1_buffer[2] * 0.001;
-    if (++sample_counter >= 1000)
+    const float calib_k = 0.01f;  /* LPF 系数 */
+    adc_zero_u += ((float)adc1_buffer[0] - adc_zero_u) * calib_k;
+    adc_zero_v += ((float)adc1_buffer[1] - adc_zero_v) * calib_k;
+    adc_zero_w += ((float)adc1_buffer[2] - adc_zero_w) * calib_k;
+    if (++sample_counter >= 300)
     {
         ADC_VAL_ZERO_U = adc_zero_u;
         ADC_VAL_ZERO_V = adc_zero_v;
         ADC_VAL_ZERO_W = adc_zero_w;
-        adc_zero_u = 0;
-        adc_zero_v = 0;
-        adc_zero_w = 0;
-        sample_counter = 0;
         *ui_offset = ADC_VAL_ZERO_U;
         *vi_offset = ADC_VAL_ZERO_V;
         *wi_offset = ADC_VAL_ZERO_W;
@@ -252,6 +186,15 @@ bool BSP_AdcCalibrateCurrent(float *ui_offset, float *vi_offset, float *wi_offse
     *vi_offset = 0.0f;
     *wi_offset = 0.0f;
     return false;
+}
+
+// 空闲时零点漂移跟踪：电机停止时持续慢速 LPF 跟踪
+void BSP_AdcIdleTrack(void)
+{
+    const float idle_k = 0.002f;
+    ADC_VAL_ZERO_U += ((float)adc1_buffer[0] - ADC_VAL_ZERO_U) * idle_k;
+    ADC_VAL_ZERO_V += ((float)adc1_buffer[1] - ADC_VAL_ZERO_V) * idle_k;
+    ADC_VAL_ZERO_W += ((float)adc1_buffer[2] - ADC_VAL_ZERO_W) * idle_k;
 }
 
 void BSP_SetAdcCurrentOffset(float ui_offset, float vi_offset, float wi_offset)

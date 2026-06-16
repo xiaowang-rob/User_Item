@@ -149,43 +149,15 @@ void foc_core_reset(void)
         fTraj_Reset(g_foc_val.rpm_fb);
 }
 
-// 电流重构：根据扇区将线电流转换为相电流
+// 电流采样：上溢中断已通过 2-shunt 完成 Clarke，此处直接使用
 static inline void _CurrentReconstruction(void)
 {
-    float ui, vi, wi;
-    BSP_AdcGetCurrent(&ui, &vi, &wi);
-
-    switch (fSvpwmGetSector())
-    {
-    case 1:
-    case 6:
-        g_foc_val.iu_im = vi + wi;
-        g_foc_val.iv_im = -vi;
-        g_foc_val.iw_im = -wi;
-        break;
-    case 2:
-    case 3:
-        g_foc_val.iu_im = -ui;
-        g_foc_val.iv_im = ui + wi;
-        g_foc_val.iw_im = -wi;
-        break;
-    case 4:
-    case 5:
-        g_foc_val.iu_im = -ui;
-        g_foc_val.iv_im = -vi;
-        g_foc_val.iw_im = ui + vi;
-        break;
-    default:
-        g_foc_val.iu_im = ui;
-        g_foc_val.iv_im = vi;
-        g_foc_val.iw_im = wi;
-        break;
-    }
-    g_foc_val.iu = fFirstOrderLagFilter(&_i_u_filter, g_foc_val.iu_im);
-    g_foc_val.iv = fFirstOrderLagFilter(&_i_v_filter, g_foc_val.iv_im);
-    g_foc_val.iw = fFirstOrderLagFilter(&_i_w_filter, g_foc_val.iw_im);
-
-    fClarkTransform(g_foc_val.iu, g_foc_val.iv, g_foc_val.iw, &g_foc_val.ialpha, &g_foc_val.ibeta);
+    /* ialpha/ibeta 已由 BSP_SampleCurrent2Shunt 在上溢 ISR 中设置 */
+    /* 仍保留一阶 LPF 去除采样噪声 */
+    g_foc_val.iu = fFirstOrderLagFilter(&_i_u_filter, g_foc_val.ialpha);
+    g_foc_val.iv = fFirstOrderLagFilter(&_i_v_filter, g_foc_val.ibeta);
+    g_foc_val.ialpha = g_foc_val.iu;
+    g_foc_val.ibeta = g_foc_val.iv;
 }
 
 void foc_value_update(void)
@@ -261,7 +233,7 @@ void foc_main_loop_task(void)
         { // todo:使能之后 直接跑电压环
             fHfiDetectInitialPosition(g_foc_val.id_fb, &g_foc_val.ualpha, &g_foc_val.ubeta);
             fSvpwmRun(g_foc_val.ualpha + g_foc_val.ualpha_hfi, g_foc_val.ubeta + g_foc_val.ubeta_hfi);
-            fSamplePointCalibration();
+            // fSamplePointCalibration();  /* 暂不使用采样点调整 */
             return;
         }
                 fSmoMainLoop(g_foc_val.ualpha, g_foc_val.ubeta, g_foc_val.ialpha, g_foc_val.ibeta);
@@ -317,7 +289,7 @@ void foc_main_loop_task(void)
     }
 
     fSvpwmRun(g_foc_val.ualpha + g_foc_val.ualpha_hfi, g_foc_val.ubeta + g_foc_val.ubeta_hfi);
-    fSamplePointCalibration();
+    // fSamplePointCalibration();  /* 暂不使用采样点调整 */
 }
 
 // 设置各环指令值

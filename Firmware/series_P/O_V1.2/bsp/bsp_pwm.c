@@ -1,8 +1,13 @@
 #include "bsp_pwm.h"
+#include "bsp_adc.h"
 #include "tim.h"
 #include "config.h"
 
 __weak void BSP_FOC_ITCallback(void)
+{
+}
+// 2-shunt 电流采样回调（由 usr 层实现，避免 bsp 依赖 usr 头文件）
+__weak void BSP_CurrentSampleISR(void)
 {
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -12,6 +17,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         if (TIM8->CR1 & TIM_CR1_DIR)
         {
             // ========== 上溢中断 ==========
+            BSP_CurrentSampleISR();
             return;
         }
         else

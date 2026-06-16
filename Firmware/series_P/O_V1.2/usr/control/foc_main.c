@@ -12,6 +12,15 @@
 #include "smo.h"
 
 #include "bsp_adc.h"
+#include "svpwm.h"
+
+// 2-shunt 电流采样：在上溢中断中调用
+extern tSvpwm g_svpwm;
+extern tFOC_val g_foc_val;
+void BSP_CurrentSampleISR(void)
+{
+    BSP_SampleCurrent2Shunt(g_svpwm.sector, &g_foc_val.ialpha, &g_foc_val.ibeta);
+}
 
 FOC_t g_foc = {.core = &g_foc_core, .tun = &g_tune_ctx};
 
@@ -57,6 +66,7 @@ void fFocStateMachineMainLoop()
     switch (g_foc.state)
     {
     case FOC_IDLE:
+        BSP_AdcIdleTrack();
         break;
     case FOC_TUNE:
         if (!g_foc.foc_enable)
