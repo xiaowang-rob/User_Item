@@ -25,6 +25,15 @@ tFOC_Mode foc_mode = {0};
 tFOC_val foc_val = {0};
 tMotor motor = {0};
 
+tFOC_Mode *get_foc_mode_adr()
+{
+    return &foc_mode;
+}
+tFOC_val *get_foc_val_adr()
+{
+    return &foc_val;
+}
+
 /* 滤波器实例 */
 static tFirstOrderLagFilter _omega_filter;
 
@@ -102,7 +111,7 @@ void foc_core_init(tParameter *param)
     BSP_SetAdcCurrentOffset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
     encoder_init((eEncoderChip)param->encoder_chip);
     _motor_init(param);
-    foc_update_vol_temp();
+    BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
     svpwm_init(foc_val.udc);
     loop_control_init(param, foc_val.udc);
     mit_init(param->kp_MIT, param->kd_MIT, param->tff_MIT, param->tmax_MIT);
@@ -140,7 +149,7 @@ void foc_core_reset(void)
 
     _foc_val_reset();
     // 刷新电压，确保参数更新后电压环能正确工作
-    foc_update_vol_temp();
+    BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
     loop_control_reset(foc_val.udc);
     svpwm_init(foc_val.udc);
 
@@ -191,18 +200,32 @@ static inline void _CurrentReconstruction(void)
     clarke_transform(foc_val.iu, foc_val.iv, foc_val.iw, &foc_val.ialpha, &foc_val.ibeta);
 }
 
-// 更新电压和温度
-void foc_update_vol_temp()
-{
-    BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
-}
+static bool loop_speed_update_flag = false;
+static bool loop_position_update_flag = false;
 
-// 更新foc核心变量
+// 更新foc核心变量 20khz
 void foc_update_val(void)
 {
     freq_div_update();
     _CurrentReconstruction();
 
+    //  这样可以保证速度环计算和位置环计算 与 中频低频值计算 不在同一周期执行 且数据在前一周期完成计算
+    if (g_loop_con.fd.speed_update)
+    {
+        loop_speed_update_flag = true;
+        encoder_pll_update(g_loop_con.fd.t_spd);
+        foc_val.pos_fb = encoder_get_angle_inc();
+        // foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
+        foc_val.rpm_fb = encoder_get_rpm(F_SPEED);
+    }
+    // 位置低频循环执行
+    if (g_loop_con.fd.position_update)
+    {
+        loop_position_update_flag = true;
+        BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
+    }
+
+    // 高频数据刷新
     switch (foc_mode.sensor_mode)
     {
     case ENCODER_CONTROL: // 获取编码器数据
@@ -210,10 +233,6 @@ void foc_update_val(void)
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
         foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
 
-        if (!g_loop_con.fd.speed_update)
-            break;
-        foc_val.pos_fb = encoder_get_angle_inc();
-        foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
         break;
 
     case SENSORLESS_CONTROL:
@@ -290,15 +309,16 @@ void foc_main_loop_task(void)
     switch (foc_mode.run_mode)
     {
     case POSITION_MODE:
-        if (!g_loop_con.fd.position_update)
+        if (!loop_position_update_flag)
             break;
-
+        loop_position_update_flag = false;
         traj_out = fTraj_Update(g_loop_con.fd.t_pos);
         foc_val.pos_ref = traj_out.value;
         foc_val.rpm_ref = loop_position_update(foc_val.pos_ref, foc_val.pos_fb);
     case SPEED_MODE:
-        if (!g_loop_con.fd.speed_update)
+        if (!loop_speed_update_flag)
             break;
+        loop_speed_update_flag = false;
         if (foc_mode.run_mode == SPEED_MODE)
         {
             traj_out = fTraj_Update(g_loop_con.fd.t_spd);
@@ -308,8 +328,6 @@ void foc_main_loop_task(void)
         foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
 
     case CURRENT_MODE:
-        if (!g_loop_con.fd.current_update)
-            break;
 
         foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
@@ -317,18 +335,17 @@ void foc_main_loop_task(void)
         break;
 
     case MIT_MODE:
-        if (g_loop_con.fd.speed_update)
+        if (loop_speed_update_flag)
         {
             foc_val.tau_ref = mit_loop_update(foc_val.pos_ref, foc_val.pos_fb, foc_val.rpm_ref, foc_val.rpm_fb);
             foc_val.iq_ref = foc_val.tau_ref / motor.ke; // V·s/rad (或 V/(rad/s)) 整定出的ke要做单位换算
             foc_val.id_ref = 0;
         }
-        if (g_loop_con.fd.current_update)
-        {
-            foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
-            foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
-            inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
-        }
+
+        foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
+        foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
+        inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
+
         break;
 
     default: // 开环模式

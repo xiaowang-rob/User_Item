@@ -5,7 +5,7 @@
 #include "log.h"
 #include "bsp_adc.h"
 
-tDeviceStatus g_device_status = {.encoder_state = ONLINE};
+tDeviceStatus g_device_status;
 tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
 // 容忍度检测
 static bool _tolerance_check(float value, float max_value, float min_value)
@@ -17,6 +17,10 @@ static bool _tolerance_check(float value, float max_value, float min_value)
 
 void pro_manager_init(tParameter *param)
 {
+
+    g_pro_manager.foc_mode = get_foc_mode_adr();
+    g_pro_manager.foc_val = get_foc_val_adr();
+
     g_pro_manager.fault = FAULT_NONE;
     g_pro_manager.warning = WARNING_NONE;
     g_pro_manager.fault_flag = false;

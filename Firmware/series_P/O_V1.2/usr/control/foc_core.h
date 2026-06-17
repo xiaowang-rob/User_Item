@@ -53,11 +53,14 @@ typedef struct
     bool elec_pi_offset; // 电角度180°偏差
 } tMotor;
 
-void foc_core_init();
+tFOC_Mode *get_foc_mode_adr();
+tFOC_val *get_foc_val_adr();
+
+void foc_core_init(tParameter *param);
 void foc_param_update(tParameter *param);
 void foc_core_reset();
 
-void foc_value_update();
+void foc_update_val();
 void foc_main_loop_task();
 bool foc_shutdown();
 bool auto_calibration_update();
@@ -69,6 +72,7 @@ void foc_set_id_iq(float id, float iq);
 void foc_set_theta_offset(float thetaoffset);
 
 // 主要函数
+
 void foc_set_target(float *value);
 void foc_set_sensor_mode(eSensorMode mode);
 void foc_set_run_mode(eRunMode mode);

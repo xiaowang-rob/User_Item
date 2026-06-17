@@ -82,7 +82,7 @@ void PI_reset(tPI *pi)
 
 // PID初始化
 void loop_pid_init(tPID *pid, float kp, float ki_cont, float kd_cont,
-              float output_limit, float dt)
+                   float output_limit, float dt)
 {
     memset(pid, 0, sizeof(tPID));
 

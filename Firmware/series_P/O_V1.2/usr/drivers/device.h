@@ -37,9 +37,9 @@ typedef struct
     u8 spi_CPHA;             /* SPI 时钟相位 */
     u8 spi_data_size;        /* SPI 数据宽度 */
     bool (*parse_and_check)(uint16_t raw_high, uint16_t raw_low, uint16_t *angle_out);
-    bool use_dma_state_machine;  // 是否使用DMA状态机
-    void (*dma_state_entry)(void *enc);   // DMA状态机入口（按芯片不同）
-    u8 dma_post_high_state;  // WAIT_HIGH 完成后的下一个状态
+    bool use_dma_state_machine;         // 是否使用DMA状态机
+    void (*dma_state_entry)(void *enc); // DMA状态机入口（按芯片不同）
+    u8 dma_post_high_state;             // WAIT_HIGH 完成后的下一个状态
 } tEncoderChipDesc;
 
 /* 编码器全局实例 */
@@ -69,6 +69,7 @@ typedef struct
     uint8_t rubbish_data_tic;
 
     /* PLL 角度/速度联合估计 */
+    float pll_theta_delta; /* PLL 误差 [deg] */
     float pll_theta;       /* PLL 输出角度 [deg] */
     float pll_omega_rpm;   /* PLL 输出速度 [rpm] */
     float pll_kp;          /* PLL 比例增益 */
@@ -79,10 +80,11 @@ typedef struct
     float spi_error_rate;
 } tEncoderInstance;
 // 全局唯一实例
-extern tEncoderInstance g_encoder;
+extern tEncoderInstance enc;
 
 bool encoder_init(eEncoderChip type);
 void encoder_main_loop_task(void);
+void encoder_pll_update(float dt);
 float encoder_get_angle_abs(void);
 float encoder_get_angle_inc(void);
 float encoder_get_rpm(float f_speed);
@@ -107,4 +109,5 @@ bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
 bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
 
 void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state);
+
 #endif

@@ -6,13 +6,10 @@
 
 #include "usb_port.h"
 #include "string.h"
-#include "device.h"
 #include "math_fast.h"
 /* USB协议帧全局变量 */
 tUSB_Frame UsbTxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///< 发送帧结构体
 tUSB_Frame UsbRxFrame = {.head = USB_PACKET_HEAD, .tail = USB_PACKET_TAIL}; ///< 接收帧结构体
-
-/* 传输错误计数器（用于重发机制） */
 
 // 上拉 让上位机识别到USB口
 void usb_init(void)
@@ -32,12 +29,15 @@ void usb_init(void)
  */
 bool usb_send_data(u8 *data, u8 len)
 {
-    for (int i = 0; i <= 5; i++) {
-        if (BSP_USB_CDC_Transmit_FS(data, len)) {
+    for (int i = 0; i <= 5; i++)
+    {
+        if (BSP_USB_CDC_Transmit_FS(data, len))
+        {
             return true;
         }
-        if (i < 5) {
-            BSP_Delay(1);  // 等待 1ms 再重试
+        if (i < 5)
+        {
+            BSP_Delay(1); // 等待 1ms 再重试
         }
     }
     return false;

@@ -1,5 +1,5 @@
 /* ===== 此文件由 build.py 自动生成，请勿手动修改，相关配置在 usr_config.json 中 ===== */
-/* 生成时间: 2026-06-17 06:00:02 */
+/* 生成时间: 2026-06-18 00:14:47 */
 #ifndef __USR_CONFIG_H
 #define __USR_CONFIG_H
 
@@ -7,7 +7,7 @@
 /* ---------- 版本信息 ---------- */
 #define FIRM_NAME      "XDr-P"
 #define FIRM_AUTHOR    "wxd"
-#define FIRM_V_DATE    "O_V1.2_260617"
+#define FIRM_V_DATE    "O_V1.2_260618"
 #define FIRM_VERSION   FIRM_NAME " " FIRM_V_DATE
 
 /* ---------- 启动配置 ---------- */

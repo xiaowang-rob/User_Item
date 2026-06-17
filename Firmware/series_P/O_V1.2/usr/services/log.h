@@ -2,6 +2,7 @@
 #define __LOG_H
 
 #include "bsp.h"
+#include "protection_manager.h"
 
 #define MAX_log_NUM 9
 

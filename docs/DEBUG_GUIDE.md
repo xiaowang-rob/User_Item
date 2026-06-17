@@ -32,7 +32,7 @@
 | 2 | 串口/USB 通信 | `bsp_uart.c`, `bsp_usb.c`, `uart_port.c`, `usb_port.c` | ✅ |
 | 3 | Flash 读写 | `bsp_flash.c`, `flashDr.c`, `bsp_spi.c` | ✅ |
 | 4 | 参数管理器 | `parameter_manager.c` | ✅ |
-| 5 | CAN 通信 | `bsp_can.c`, `can_port.c`, `port_mapping.c` | ✅ |
+| 5 | CAN 通信 | `bsp_can.c`, `can_port.c`, `port_mapping.c` |  ☐  |
 | 6 | 编码器 | `encoder.c`, `bsp_spi.c` | ✅ |
 | 7 | ADC 电流采样 | `bsp_adc.c` | ⚠️ |
 | 8 | PWM 输出 | `bsp_pwm.c`, `svpwm.c` | ☐ (需电机电源) |

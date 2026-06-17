@@ -1,13 +1,9 @@
 #include "foc_main.h"
 #include "svpwm.h"
 
-// 开环启动参数
-#define OL_START_LOCK_MS 200  // 锁定时间 [ms]
-#define OL_START_RAMP_MS 500  // 斜坡时间 [ms]
-#define OL_START_RPM 200.0f   // 开环目标转速 [rpm]
-#define OL_START_CURRENT 1.0f // 开环电流 [A]
 #include "math_fast.h"
 #include "parameter_manager.h"
+#include "protection_manager.h"
 #include "device.h"
 #include "smo.h"
 
@@ -16,15 +12,7 @@
 
 FOC_t g_foc;
 
-// 主循环为pwm 20khz
-// 加两个低频循环：中频1khz 低频100hz
 static void loop_main_update_task();
-static void loop_middle_update_task();
-static void loop_low_update_task();
-
-static u8 loop_count = 0;
-static bool loop_middle_update = false;
-static bool loop_low_update = false;
 
 #ifdef __DEBUG__
 u32 _time_focit_start = 0;
@@ -43,27 +31,6 @@ void bsp_foc_it_callback()
 
     loop_main_update_task();
 
-    loop_count++;
-    if (loop_count % 20 == 0)
-    {
-        loop_middle_update = true;
-        if (loop_count >= 200)
-        {
-            loop_low_update = true;
-            loop_count = 0;
-        }
-    }
-    if (loop_middle_update)
-    {
-        loop_middle_update_task();
-        loop_middle_update = false;
-    }
-    if (loop_low_update)
-    {
-        loop_low_update_task();
-        loop_low_update = false;
-    }
-
 #ifdef __DEBUG__
     _time_foc_T = BSP_GetTick_us() - _time_focit_end;
     _time_focit_end = BSP_GetTick_us();
@@ -75,7 +42,7 @@ void foc_init()
 {
     g_foc.foc_enable = false;
     g_foc.state = FOC_IDLE;
-    foc_core_init();
+    foc_core_init(&g_Param);
     BSP_POWER_12V_Control(true);
     g_foc.foc_init = true;
 }
@@ -85,7 +52,7 @@ static void loop_main_update_task()
 {
     if (!g_foc.foc_init)
         return;
-    foc_value_update();
+    foc_update_val();
     switch (g_foc.state)
     {
     case FOC_IDLE:
@@ -140,15 +107,6 @@ static void loop_main_update_task()
     default:
         break;
     }
-}
-// 1khz 中频循环
-static void loop_middle_update_task()
-{
-}
-
-// 100hz 低频循环
-static void loop_low_update_task()
-{
 }
 
 // FOC 状态更新函数

@@ -10,7 +10,7 @@ typedef struct
     u8 tic;
     u8 current_steps;
     u8 speed_steps;
-    u8 current_update_steps; // 修正拼写：updata → update
+    u8 current_update_steps;
     u8 speed_update_steps;
     u8 position_update_steps;
     bool current_update;
@@ -55,8 +55,6 @@ typedef struct
     float max_Vs;
     float position_min, position_max;
 } tLoopControl;
-
-
 
 void freq_div_update(void);
 void loop_control_init(tParameter *param, float Udc);

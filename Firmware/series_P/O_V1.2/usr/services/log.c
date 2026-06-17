@@ -1,6 +1,5 @@
 #include "log.h"
 #include "device.h"
-#include "protection_manager.h"
 #include "string.h"
 #include "math_fast.h"
 #include "foc_main.h"

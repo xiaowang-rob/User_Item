@@ -6,7 +6,6 @@
 
 #include "can_port.h"
 #include "usr_config.h"
-#include "device.h"
 #include "protocol.h"
 
 #define STD_ID_MASK 0x7FF      // 标准帧11位ID掩码 [31:21]（32位模式）或 [15:5]（16位模式）
@@ -31,14 +30,14 @@ tCAN_handle can = {.queue_head = 0xE5, .queue_tail = 0x5E};
  *         3. 若启用队列模式，初始化静态接收队列
  *         4. 初始化完成后自动发送一条执行指令
  */
-void can_port_init(u32 CAN_ID, bool canQUEUE)
+bool can_port_init(u32 CAN_ID, bool canQUEUE)
 {
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
-    g_device_status.can_state = ONLINE;
     if (false == BSP_CanInit(CAN_ID))
     {
-        g_device_status.can_state = OFFLINE;
+
+        return false;
     }
 
     /* 初始化接收队列（若启用） */
@@ -46,13 +45,14 @@ void can_port_init(u32 CAN_ID, bool canQUEUE)
     {
         if (QUEUE_STATUS_ERROR == fStaticQueueInit(&can.rx_queue, CanRxData, sizeof(CanRxData)))
         {
-            g_device_status.can_state = OFFLINE;
+            return false;
         }
     }
 
     /* 初始化完成后发送执行指令 */
     u8 answer = FEEDBACK_EXECUTE;
     can_send_data((u8 *)&answer, 1);
+    return true;
 }
 
 /**
@@ -64,25 +64,25 @@ void can_port_init(u32 CAN_ID, bool canQUEUE)
  *         3. 重启CAN外设并恢复中断使能
  *         4. 队列模式切换时重新初始化静态队列
  */
-void can_set_config(u32 CAN_ID, bool canQUEUE)
+bool can_set_config(u32 CAN_ID, bool canQUEUE)
 {
 
     can.id = CAN_ID;
     can.queue_flag = canQUEUE;
-    g_device_status.can_state = ONLINE;
 
     if (false == BSP_CanSetConfig(CAN_ID))
     {
-        g_device_status.can_state = OFFLINE;
+        return false;
     }
     /* 重新初始化接收队列（若启用） */
     if (can.queue_flag)
     {
         if (QUEUE_STATUS_ERROR == fStaticQueueInit(&can.rx_queue, CanRxData, sizeof(CanRxData)))
         {
-            g_device_status.can_state = OFFLINE;
+            return false;
         }
     }
+    return true;
 }
 
 /**
@@ -97,7 +97,6 @@ void can_set_config(u32 CAN_ID, bool canQUEUE)
  */
 bool can_send_data(u8 *msg, u8 len)
 {
-    g_device_status.can_state = RUNNING;
     return BSP_CanSendData(can.id, msg, len);
 }
 
@@ -114,11 +113,15 @@ __weak void can_rx_data_callback(u8 *RxData, u8 len)
     // 用户重写此函数以实现具体协议解析
 }
 
+__weak void can_rx_error_callback(void)
+{
+    // 用户重写此函数以实现具体协议解析
+}
+
 void bsp_can_rx_callback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
 {
     if (*recv_ok)
     {
-        g_device_status.can_state = RUNNING;
         /* 仅处理匹配本节点ID的标准数据帧 */
         if (*id == can.id)
         {
@@ -152,7 +155,7 @@ void bsp_can_rx_callback(bool *recv_ok, u32 *id, u8 *RxData, u32 *len)
         /* 根据错误计数更新设备状态 */
         if (can.err_count >= 50)
         {
-            g_device_status.can_state = RUN_ERROR;
+            can_rx_error_callback();
         }
     }
 }

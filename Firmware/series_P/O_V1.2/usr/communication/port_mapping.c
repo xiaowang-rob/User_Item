@@ -21,7 +21,7 @@ USB、串口、CAN 端口映射
 #define STR(x) #x
 #define XSTR(x) STR(x)
 
-// 多端口接收缓冲 — 每个端口独立，避免 is_busy 互斥
+// 多端口接收缓冲 — 每个端口独立，避免互斥
 #define PORT_NUM 3
 static struct
 {
@@ -49,10 +49,13 @@ static bool system_message_send_flag = false;
 // 通讯层初始化
 void comm_init()
 {
-    can_port_init(g_Param.can_id, g_Param.sw_canqueue);
+    if (can_port_init(g_Param.can_id, g_Param.sw_canqueue))
+        g_device_status.can_state = ONLINE;
+    else
+        g_device_status.can_state = OFFLINE;
+
     uart_port_init();
     usb_init();
-    g_device_status.usb_state = ONLINE;
     g_com_state.Host_port = NONE_port;
 }
 // 上位机发送 缓存中的数据
@@ -128,8 +131,9 @@ static inline void _status_send()
         com_frame.txdata[1] = g_foc.state;
         com_frame.txdata[2] = g_pro_manager.fault;
         com_frame.txdata[3] = g_pro_manager.warning;
-        memcpy(&com_frame.txdata[4], &g_pro_manager.temperature, sizeof(float));
-        memcpy(&com_frame.txdata[8], &g_foc.core->foc_val->udc, sizeof(float));
+
+        memcpy(&com_frame.txdata[4], &g_pro_manager.foc_val->temp, sizeof(float));
+        memcpy(&com_frame.txdata[8], &g_pro_manager.foc_val->udc, sizeof(float));
         com_frame.txdatalen = 12;
     }
     // 超时检测：基于实际时间（5秒无心跳断开）
@@ -192,12 +196,15 @@ static void _frame_data_deal()
             case UC_CONNECT:
                 if (g_com_state.Host_port == NONE_port)
                 {
+                    if (com_frame.com_port == USB_port)
+                        g_device_status.usb_state = ONLINE;
                     g_com_state.Host_port = com_frame.com_port;
                 }
                 _last_host_ping_ms = BSP_GetTick();
                 break;
             case UC_DISCONNECT:
                 system_message_send_flag = false;
+                g_device_status.usb_state = OFFLINE;
                 g_com_state.Host_port = NONE_port;
                 com_frame.stream_num = 0;
                 break;
@@ -314,6 +321,7 @@ void can_rx_data_callback(u8 *RxData, u8 len)
         return;
 
     // 拷贝数据到端口自己的缓冲
+    g_device_status.can_state = RUNNING;
     memcpy(g_port_rx[0].rxbuffer, RxData, len);
     g_port_rx[0].rxlen = len;
     g_port_rx[0].pending = true;
