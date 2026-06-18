@@ -56,6 +56,8 @@ typedef struct
     float position_min, position_max;
 } tLoopControl;
 
+extern tLoopControl g_loop_con;
+
 void freq_div_update(void);
 void loop_control_init(tParameter *param, float Udc);
 void loop_control_reset(float Udc);
@@ -65,5 +67,6 @@ float loop_weak_mag_update(float ud, float uq);
 float loop_speed_update(float ref, float fb);
 float loop_position_update(float ref, float fb);
 
+void loop_set_position_out_limit(float limit);
+
 #endif
-extern tLoopControl g_loop_con;

@@ -34,8 +34,8 @@ typedef struct
 } tCommunicationState;
 extern tCommunicationState g_com_state;
 
-
 void comm_init();
+void comm_write_can_config(u32 CAN_ID, bool canQUEUE);
 void comm_main_loop();
 
 #endif

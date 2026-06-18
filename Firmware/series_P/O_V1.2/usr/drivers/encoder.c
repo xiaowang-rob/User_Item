@@ -139,12 +139,17 @@ static void encoder_recover_from_error(void)
     if (!BSP_Encoder_SPI_IS_READY())
     {
         BSP_Encoder_SPI_Abort();
+        g_device_status.encoder_state = RUN_ERROR;
     }
     BSP_Encoder_SPI_CLEAR_DMA_error_flags();
-    g_device_status.encoder_state = RUN_ERROR;
+    g_device_status.encoder_state = ONLINE;
     enc.state = ENCODER_STATE_START_READ;
 }
 
+void encode_clear_error_flag(void)
+{
+    g_device_status.encoder_state = ONLINE;
+}
 /* ========== DMA 完成回调（不再启动任何 SPI 传输） ========== */
 void bsp_encoder_spi_txrx_cplt_callback(void)
 {
@@ -188,6 +193,8 @@ void encoder_pll_update(float dt)
     enc.pll_theta = normalize_angle_0_360(enc.pll_theta);
 
     enc.pll_omega_rpm = estimated_speed_deg_s / 6.0f;
+    if (FABSF(enc.pll_omega_rpm) <= 0.5f)
+        enc.pll_omega_rpm = 0.0f;
 }
 
 /* ========== 通用角度/速度更新 (所有芯片共用) ========== */
@@ -575,21 +582,7 @@ void encoder_main_loop_task(void)
 /* ========== 对外数据接口 ========== */
 float encoder_get_angle_abs(void) { return enc.angle_abs; }
 float encoder_get_angle_inc(void) { return enc.pos; }
-float encoder_get_rpm(float f_speed)
-{
-    float pos_delta = enc.pos - enc.pos_last;
-    if (FABSF(pos_delta) <= enc.chip_desc->deg_per_lsb)
-    {
-        enc.omega_rpm = 0;
-    }
-    else
-    {
-        enc.omega_rpm = pos_delta * f_speed * 0.16666666667f;
-    }
-    enc.pos_last = enc.pos;
-
-    return enc.omega_rpm;
-}
+float encoder_get_rpm(void) { return enc.pll_omega_rpm; }
 int encoder_get_num_turns(void) { return enc.num_turns; }
 
 void encoder_set_angle_zero(void)

@@ -14,7 +14,8 @@ void stream_data_get(eData_stream stream, float *data)
     {
     case CURRENT_U:
         //        temp_val = fGetVoltage_u();
-        temp_val = foc_val->iu;
+        //  temp_val = foc_val->iu;
+        temp_val = enc.pll_theta;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_V:

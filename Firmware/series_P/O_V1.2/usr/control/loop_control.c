@@ -202,3 +202,10 @@ float loop_position_update(float position_ref, float position_fb)
         position_ref = g_loop_con.position_min;
     return PID_update(&g_loop_con.PID_pos, position_ref, position_fb);
 }
+
+void loop_set_position_out_limit(float limit)
+{
+    g_loop_con.PID_pos.output_limit = limit;
+    g_loop_con.PID_pos.integral_limit = (g_loop_con.PID_pos.ki > 1e-6f) ? (limit / g_loop_con.PID_pos.ki) : limit;
+    g_loop_con.PID_pos.derivative_limit = limit * 3.0f; // 微分限幅可略大
+}

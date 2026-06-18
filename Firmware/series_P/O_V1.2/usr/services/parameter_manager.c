@@ -38,7 +38,6 @@ const tParamEntry g_param_table[] = {
     PARAM_ENTRY(KD_POSITION, kd_position),
     PARAM_ENTRY(MIT_KP, kp_MIT),
     PARAM_ENTRY(MIT_KD, kd_MIT),
-    PARAM_ENTRY(MIT_TFF, tff_MIT),
     PARAM_ENTRY(MIT_TMAX, tmax_MIT),
     PARAM_ENTRY(TUNE_CURRENT, tune_current),
     PARAM_ENTRY(LIMIT_CURRENT, limit_current),
@@ -47,9 +46,9 @@ const tParamEntry g_param_table[] = {
     PARAM_ENTRY(LIMIT_POSITION_MAX, limit_position_max),
     PARAM_ENTRY(TOLERANCE_TIME, tolerance_time),
     PARAM_ENTRY(TOLERANCE_LIMIT, tolerance_limit),
-    PARAM_ENTRY(TRAJ_MAX_RATE, traj_max_rate),
-    PARAM_ENTRY(TRAJ_MAX_ACC, traj_max_acc),
-    PARAM_ENTRY(TRAJ_MAX_JERK, traj_max_jerk),
+    PARAM_ENTRY(TRAJ_LIMIT_D1, traj_limit_d1),
+    PARAM_ENTRY(TRAJ_LIMIT_D2, traj_limit_d2),
+    PARAM_ENTRY(TRAJ_LIMIT_D3, traj_limit_d3),
     PARAM_ENTRY(TRAJ_TOLERANCE, tolerance),
 };
 
@@ -57,6 +56,9 @@ void param_set(eParameter para, u8 *value)
 {
     if (para >= PARAM_NUM)
     {
+        comm_write_can_config(g_Param.can_id, g_Param.sw_canqueue);
+        pro_manager_config(&g_Param);
+        foc_core_init(&g_Param);
         return;
     }
     u8 *dst = (u8 *)&g_Param + g_param_table[para].offset;
@@ -115,9 +117,9 @@ bool param_init()
         g_Param.limit_position_max = 15000;
         g_Param.tolerance_time = 1;
         g_Param.tolerance_limit = 1.1f;
-        g_Param.traj_max_rate = 1000;
-        g_Param.traj_max_acc = 1000;
-        g_Param.traj_max_jerk = 1000;
+        g_Param.traj_limit_d1 = 1000;
+        g_Param.traj_limit_d2 = 1000;
+        g_Param.traj_limit_d3 = 1000;
         g_Param.tolerance = 0.1f;
         g_Param.kp_Q = 1.1f;
         g_Param.ki_Q = 1.1f;

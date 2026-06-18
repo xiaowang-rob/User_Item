@@ -36,6 +36,7 @@ typedef struct
     float pos_ref;
     float pos_fb;
     float tau_ref;
+    float tau_ff_ref;
 } tFOC_val;
 
 typedef struct
@@ -63,7 +64,6 @@ void foc_core_reset();
 void foc_update_val();
 void foc_main_loop_task();
 bool foc_shutdown();
-bool auto_calibration_update();
 
 // 辅助整定 函数
 void filter_reset();

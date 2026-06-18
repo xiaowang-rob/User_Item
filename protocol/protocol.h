@@ -28,20 +28,19 @@ typedef enum {
     KD_POSITION        = 22,  /* 位置环微分 */
     MIT_KP             = 23,  /* MIT刚度 */
     MIT_KD             = 24,  /* MIT阻尼 */
-    MIT_TFF            = 25,  /* MIT前馈扭矩 */
-    MIT_TMAX           = 26,  /* MIT最大扭矩 */
-    TUNE_CURRENT       = 27,  /* 校准电流 */
-    LIMIT_CURRENT      = 28,  /* 电流限幅 */
-    LIMIT_SPEED        = 29,  /* 速度限幅 */
-    LIMIT_POSITION_MIN = 30,  /* 位置限幅最小值 */
-    LIMIT_POSITION_MAX = 31,  /* 位置限幅最大值 */
-    TOLERANCE_TIME     = 32,  /* 容忍时间 */
-    TOLERANCE_LIMIT    = 33,  /* 超限容忍度 */
-    TRAJ_MAX_RATE      = 34,  /* 轨迹最大变化率 */
-    TRAJ_MAX_ACC       = 35,  /* 轨迹最大加速度 */
-    TRAJ_MAX_JERK      = 36,  /* 轨迹最大加加速度 */
-    TRAJ_TOLERANCE     = 37,  /* 轨迹规划容差 */
-    PARAM_NUM          = 38
+    MIT_TMAX           = 25,  /* MIT最大扭矩 */
+    TUNE_CURRENT       = 26,  /* 校准电流 */
+    LIMIT_CURRENT      = 27,  /* 电流限幅 */
+    LIMIT_SPEED        = 28,  /* 速度限幅 */
+    LIMIT_POSITION_MIN = 29,  /* 位置限幅最小值 */
+    LIMIT_POSITION_MAX = 30,  /* 位置限幅最大值 */
+    TOLERANCE_TIME     = 31,  /* 容忍时间 */
+    TOLERANCE_LIMIT    = 32,  /* 超限容忍度 */
+    TRAJ_LIMIT_D1      = 33,  /* 一阶限幅 */
+    TRAJ_LIMIT_D2      = 34,  /* 二阶限幅 */
+    TRAJ_LIMIT_D3      = 35,  /* 三阶限幅 */
+    TRAJ_TOLERANCE     = 36,  /* 轨迹规划容差 */
+    PARAM_NUM          = 37
 } eParameter;
 
 typedef enum {
@@ -81,11 +80,13 @@ typedef enum {
 
 
 typedef enum {
-    CURRENT_MODE  = 0,  /* 电流模式 */
-    SPEED_MODE    = 1,  /* 速度模式 */
-    POSITION_MODE = 2,  /* 位置模式 */
-    MIT_MODE      = 3,  /* MIT模式 */
-    OPEN_LOOP     = 4,  /* 开环模式 */
+    OPEN_LOOP    = 0,  /* 开环模式 */
+    CURRENT_MODE = 1,  /* 电流模式 */
+    PID_SPEED    = 2,  /* PID速度模式 */
+    PID_POSITION = 3,  /* PID位置模式 */
+    MIT_SPEED    = 4,  /* MIT速度模式 */
+    MIT_POSITION = 5,  /* MIT位置模式 */
+    MIT_TRAJ     = 6,  /* MIT轨迹模式 */
 } eRunMode;
 
 
@@ -139,33 +140,33 @@ typedef enum {
 
 
 typedef enum {
-    FOC_IDLE     =  0,  /* IDLE */
-    FOC_TUNE     =  1,  /* TUNE */
-    FOC_RESET    =  2,  /* RESET */
-    FOC_ENABLE   =  3,  /* ENABLE */
-    FOC_DISABLE  =  4,  /* DISABLE */
-    FOC_RUNNING  =  5,  /* RUNNING */
-    FOC_SHUTDOWN =  9,  /* SHUTDOWN */
-    FOC_FAULT    = 10,  /* FAULT */
-    FOC_WARNING  = 11,  /* WARNING */
+    FOC_IDLE     = 0,  /* IDLE */
+    FOC_TUNE     = 1,  /* TUNE */
+    FOC_RESET    = 2,  /* RESET */
+    FOC_ENABLE   = 3,  /* ENABLE */
+    FOC_DISABLE  = 4,  /* DISABLE */
+    FOC_RUNNING  = 5,  /* RUNNING */
+    FOC_SHUTDOWN = 6,  /* SHUTDOWN */
+    FOC_FAULT    = 7,  /* FAULT */
+    FOC_WARNING  = 8,  /* WARNING */
 } eFocState;
 
 
 typedef enum {
-    FAULT_NONE               =  0,  /* NONE */
-    FAULT_FLASH_OFFLINE      =  1,  /* FLASH离线 */
-    FAULT_TUNE_CURRENT_ERR   =  2,  /* 整定电流异常 */
-    FAULT_POLE_PAIR_MISMATCH =  3,  /* 极对数不匹配 */
-    FAULT_MOTOR_LOCK         =  4,  /* 电机堵转 */
-    FAULT_RS_LS_CAL_FAIL     =  5,  /* 电阻电感校准失败 */
-    FAULT_ENCODER_CAL_FAIL   =  6,  /* 编码器校准失败 */
-    FAULT_ELEC_PARAM_FAIL    =  7,  /* 电气参数校准失败 */
-    FAULT_MECH_PARAM_FAIL    =  8,  /* 机械参数校准失败 */
-    FAULT_OVERVOLTAGE        =  9,  /* 过电压 */
-    FAULT_UNDERVOLTAGE       = 10,  /* 低电压 */
-    FAULT_OVERCURRENT        = 11,  /* 过电流 */
-    FAULT_CAN_INIT_FAIL      = 12,  /* CAN初始化失败 */
-    FAULT_CAN_COMM_ERR       = 13,  /* CAN通信异常 */
+    FAULT_NONE                   =  0,  /* NONE */
+    FAULT_FLASH_OFFLINE          =  1,  /* FLASH离线 */
+    FAULT_TUNE_CURRENT_VIBRATION =  2,  /* 整定电流振荡 */
+    FAULT_POLE_PAIR_MISMATCH     =  3,  /* 极对数不匹配 */
+    FAULT_MOTOR_LOCK             =  4,  /* 电机堵转 */
+    FAULT_RS_LS_CAL_FAIL         =  5,  /* 内参校准失败 */
+    FAULT_ENCODER_CAL_FAIL       =  6,  /* 编码器校准失败 */
+    FAULT_ELEC_PARAM_FAIL        =  7,  /* 电气参数校准失败 */
+    FAULT_MECH_PARAM_FAIL        =  8,  /* 机械参数校准失败 */
+    FAULT_OVERVOLTAGE            =  9,  /* 过电压 */
+    FAULT_UNDERVOLTAGE           = 10,  /* 低电压 */
+    FAULT_OVERCURRENT            = 11,  /* 过电流 */
+    FAULT_CAN_INIT_FAIL          = 12,  /* CAN初始化失败 */
+    FAULT_CAN_COMM_ERR           = 13,  /* CAN通信异常 */
 } eFaultState;
 
 

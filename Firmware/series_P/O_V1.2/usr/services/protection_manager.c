@@ -4,6 +4,7 @@
 #include "foc_main.h"
 #include "log.h"
 #include "bsp_adc.h"
+#include "tune.h"
 
 tDeviceStatus g_device_status;
 tProtectionManager g_pro_manager = {.com_state = &g_com_state, .drive_state = &g_device_status};
@@ -14,7 +15,7 @@ static bool _tolerance_check(float value, float max_value, float min_value)
         return true;
     return false;
 }
-
+// 保护程序 初始化
 void pro_manager_init(tParameter *param)
 {
 
@@ -32,6 +33,18 @@ void pro_manager_init(tParameter *param)
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
     g_pro_manager.tolerance_limit = param->tolerance_limit;
 }
+
+// 保护程序配置参数
+void pro_manager_config(tParameter *param)
+{
+    g_pro_manager.max_current = param->limit_current;
+    g_pro_manager.max_omega = param->limit_omega;
+    g_pro_manager.min_position = param->limit_position_min;
+    g_pro_manager.max_position = param->limit_position_max;
+    g_pro_manager.tolerance_time_ms = param->tolerance_time;
+    g_pro_manager.tolerance_limit = param->tolerance_limit;
+}
+// 设置保护程序的限位位置
 void pro_set_limit_position(float min_position, float max_position)
 {
     g_pro_manager.min_position = min_position;
@@ -118,24 +131,9 @@ void pro_manager_main_loop()
     if (g_foc.foc_enable)
     {
         // 1.整定
-        if (g_foc.tun->fault != TUNE_FAULT_NONE)
+        if (tune_get_fault() != FAULT_NONE)
         {
-            switch (g_foc.tun->fault)
-            {
-                // todo:还有很多错误待扩充
-            case TUNE_FAULT_CURRENT_VIBRATION:
-                g_pro_manager.fault = FAULT_TUNE_CURRENT_ERR;
-                break;
-            case TUNE_FAULT_POLEPAIRS_MISMATCH:
-                g_pro_manager.fault = FAULT_POLE_PAIR_MISMATCH;
-                break;
-            case TUNE_FAULT_MECH_LOCKED:
-                g_pro_manager.fault = FAULT_MOTOR_LOCK;
-                break;
-            default:
-                g_pro_manager.fault = FAULT_RS_LS_CAL_FAIL + g_foc.tun->fault - 4;
-                break;
-            }
+            g_pro_manager.fault = tune_get_fault();
             g_pro_manager.fault_flag = true;
         }
         // 2.电压异常
@@ -146,7 +144,7 @@ void pro_manager_main_loop()
                 g_pro_manager.fault = FAULT_OVERVOLTAGE;
                 g_pro_manager.fault_flag = true;
             }
-            if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
+            if (g_pro_manager.foc_val->udc < MIN_VOLTAGE)
             {
                 g_pro_manager.fault = FAULT_UNDERVOLTAGE;
                 g_pro_manager.fault_flag = true;
@@ -160,7 +158,7 @@ void pro_manager_main_loop()
             g_pro_manager.warning_flag = true;
         }
         // 3位置检测 位置模式下监测
-        if (g_pro_manager.foc_mode->run_mode == POSITION_MODE)
+        if (g_pro_manager.foc_mode->run_mode == PID_POSITION || g_pro_manager.foc_mode->run_mode == MIT_POSITION)
         {
             if (_tolerance_check(g_pro_manager.foc_val->pos_fb, g_pro_manager.max_position, g_pro_manager.min_position))
             {

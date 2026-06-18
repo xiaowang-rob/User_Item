@@ -34,7 +34,7 @@
 | 4 | 参数管理器 | `parameter_manager.c` | ✅ |
 | 5 | CAN 通信 | `bsp_can.c`, `can_port.c`, `port_mapping.c` |  ☐  |
 | 6 | 编码器 | `encoder.c`, `bsp_spi.c` | ✅ |
-| 7 | ADC 电流采样 | `bsp_adc.c` | ⚠️ |
+| 7 | ADC 电流采样 | `bsp_adc.c` | ✅ |
 | 8 | PWM 输出 | `bsp_pwm.c`, `svpwm.c` | ☐ (需电机电源) |
 | 9 | FOC 开环启动 | `foc_main.c` (OPENLOOP) | ☐ (需电机) |
 | 10 | 自动整定 | `tune.c`, `foc_main.c` (TUNE) | ☐ |

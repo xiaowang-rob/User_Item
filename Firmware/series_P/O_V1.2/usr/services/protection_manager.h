@@ -29,6 +29,7 @@ extern tProtectionManager g_pro_manager;
 
 // functions
 void pro_manager_init(tParameter *param);
+void pro_manager_config(tParameter *param);
 void pro_manager_clear_flag();
 void pro_manager_main_loop();
 

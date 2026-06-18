@@ -14,7 +14,7 @@ USB、串口、CAN 端口映射
 #include "uart_port.h"
 #include "string.h"
 #include "stdio.h"
-
+#include "tune.h"
 #include "bsp.h"
 #include "bsp_flash.h"
 
@@ -57,6 +57,15 @@ void comm_init()
     uart_port_init();
     usb_init();
     g_com_state.Host_port = NONE_port;
+}
+
+// 写入can配置参数
+void comm_write_can_config(u32 CAN_ID, bool canQUEUE)
+{
+    if (can_set_config(CAN_ID, canQUEUE))
+        g_device_status.can_state = ONLINE;
+    else
+        g_device_status.can_state = OFFLINE;
 }
 // 上位机发送 缓存中的数据
 void comm_host_send()
@@ -127,7 +136,7 @@ static inline void _status_send()
     else
     {
         // 状态包 对应 usr_config.json 中的状态包顺序
-        com_frame.txdata[0] = g_foc.tun->state;
+        com_frame.txdata[0] = tune_get_fault();
         com_frame.txdata[1] = g_foc.state;
         com_frame.txdata[2] = g_pro_manager.fault;
         com_frame.txdata[3] = g_pro_manager.warning;
@@ -288,7 +297,7 @@ static void _frame_data_deal()
                 param_get(com_frame.rxdata[0], com_frame.txdata, &com_frame.txdatalen);
                 comm_host_send();
                 break;
-            case CMD_REFVALUE_SET: // 参考值设置 4byte||8byte
+            case CMD_REFVALUE_SET: // 目标值设置 4byte||8byte
                 memcpy(value_ref, com_frame.rxdata, 4);
                 value_ref[1] = 0.0f;
                 foc_set_target(value_ref);

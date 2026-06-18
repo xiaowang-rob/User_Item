@@ -83,11 +83,12 @@ typedef struct
 extern tEncoderInstance enc;
 
 bool encoder_init(eEncoderChip type);
+void encode_clear_error_flag(void);
 void encoder_main_loop_task(void);
 void encoder_pll_update(float dt);
 float encoder_get_angle_abs(void);
 float encoder_get_angle_inc(void);
-float encoder_get_rpm(float f_speed);
+float encoder_get_rpm(void);
 int encoder_get_num_turns(void);
 
 void encoder_set_angle_zero(void);

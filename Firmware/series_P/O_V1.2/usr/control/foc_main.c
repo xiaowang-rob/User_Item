@@ -40,6 +40,9 @@ void bsp_foc_it_callback()
 // FOC 主初始化函数
 void foc_init()
 {
+    g_foc.val = get_foc_val_adr();
+    g_foc.mode = get_foc_mode_adr();
+
     g_foc.foc_enable = false;
     g_foc.state = FOC_IDLE;
     foc_core_init(&g_Param);
@@ -65,12 +68,15 @@ static void loop_main_update_task()
             foc_core_reset();
             BSP_PWM_Enable();
         }
-        if (auto_calibration_update())
+        if (TUNE_DONE == tune_main_loop(g_foc.val))
+        {
+            foc_core_init(&g_Param);
             foc_state_update(FOC_DISABLE);
+        }
+
         foc_main_loop_task();
         break;
     case FOC_RESET:
-        pro_manager_clear_flag();
         foc_core_reset();
         foc_state_update(FOC_IDLE);
         g_foc.foc_enable = false;
@@ -119,5 +125,10 @@ void foc_state_update(eFocState state)
     // 2、使能状态只能从空闲进入
     if (state == FOC_ENABLE && g_foc.state != FOC_IDLE)
         return; // 只能从DISABLE进入ENABLE
+    if (state == FOC_RESET)
+    {
+        pro_manager_clear_flag();
+        encode_clear_error_flag();
+    }
     g_foc.state = state;
 }

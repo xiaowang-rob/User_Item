@@ -40,7 +40,6 @@ class Data_UI_Map:
             Pidx.KD_POSITION: data_page.position_loop_D_input,
             Pidx.MIT_KP: data_page.mit_kp_input,
             Pidx.MIT_KD: data_page.mit_kd_input,
-            Pidx.MIT_TFF: data_page.mit_tau_ff_input,
             Pidx.MIT_TMAX: data_page.mit_tau_max_input,
             Pidx.TUNE_CURRENT: data_page.tune_current,
             Pidx.LIMIT_CURRENT: data_page.limit_current,
@@ -49,9 +48,9 @@ class Data_UI_Map:
             Pidx.LIMIT_POSITION_MAX: data_page.max_position,
             Pidx.TOLERANCE_TIME: data_page.tolerance_time,
             Pidx.TOLERANCE_LIMIT: data_page.tolerance_limit,
-            Pidx.TRAJ_MAX_RATE: data_page.traj_max_rate,
-            Pidx.TRAJ_MAX_ACC: data_page.traj_max_acc,
-            Pidx.TRAJ_MAX_JERK: data_page.traj_max_jerk,
+            Pidx.TRAJ_LIMIT_D1: data_page.traj_limit_d1,
+            Pidx.TRAJ_LIMIT_D2: data_page.traj_limit_d2,
+            Pidx.TRAJ_LIMIT_D3: data_page.traj_limit_d3,
             Pidx.TRAJ_TOLERANCE: data_page.traj_tolerance,
         }
 

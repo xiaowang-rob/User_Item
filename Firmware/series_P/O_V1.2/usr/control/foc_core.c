@@ -35,19 +35,31 @@ tFOC_val *get_foc_val_adr()
 }
 
 /* 滤波器实例 */
-static tFirstOrderLagFilter _omega_filter;
-
 static tFirstOrderLagFilter _i_u_filter;
 static tFirstOrderLagFilter _i_v_filter;
 static tFirstOrderLagFilter _i_w_filter;
+
+// 轨迹规划实例
+static tTraj_PosOut traj_posout;
+static tTraj_VelOut traj_velout;
+
+// mit 参数
+struct
+{
+    float acc;      // 加速度 (rad/s^2)
+    float vel;      // 速度 (rad/s)
+    float pos;      // 位置 (rad)
+    float tau_ff;   // 转矩前馈
+} mit_target = {0}; // 其中 要么加速度、速度、位置，要么位置、速度，转矩前馈（加速度和转矩前馈不同时使用）
+// 转矩前馈为0,则使用加速度 转矩前馈不为0,则使用转矩前馈
 
 // 启动器初始化
 static void _trajectory_init(tParameter *param)
 {
     tTraj_Config traj_cfg;
-    traj_cfg.max_rate = param->traj_max_rate;
-    traj_cfg.max_acc = param->traj_max_acc;
-    traj_cfg.max_jerk = param->traj_max_jerk;
+    traj_cfg.limit_d1 = param->traj_limit_d1;
+    traj_cfg.limit_d2 = param->traj_limit_d2;
+    traj_cfg.limit_d3 = param->traj_limit_d3;
     traj_cfg.tolerance = param->tolerance;
     traj_cfg.type = param->traj_type;
     traj_init(traj_cfg);
@@ -74,21 +86,16 @@ static void _filter_init(tParameter *param)
 {
     // 从 Hz 计算 alpha = dt / (dt + 1/(2*PI*fc))
     float dt_cur = T_PWM;
-    float dt_spd = T_PWM * FREQ_SPEED;
 
     float alpha_cur = dt_cur / (dt_cur + 1.0f / (6.2831853f * CUR_LPF_HZ));
-    float alpha_spd = dt_spd / (dt_spd + 1.0f / (6.2831853f * SPEED_LPF_HZ));
 
     // 参数中若配置了有效 alpha 值则覆盖
     if (param->cur_filter_alpha > 0.01f && param->cur_filter_alpha < 1.0f)
         alpha_cur = param->cur_filter_alpha;
-    if (param->speed_filter_alpha > 0.01f && param->speed_filter_alpha < 1.0f)
-        alpha_spd = param->speed_filter_alpha;
 
     filter_first_order_lag_init(&_i_u_filter, alpha_cur, 0);
     filter_first_order_lag_init(&_i_v_filter, alpha_cur, 0);
     filter_first_order_lag_init(&_i_w_filter, alpha_cur, 0);
-    filter_first_order_lag_init(&_omega_filter, alpha_spd, 0);
 }
 
 // 模式初始化
@@ -114,7 +121,7 @@ void foc_core_init(tParameter *param)
     BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
     svpwm_init(foc_val.udc);
     loop_control_init(param, foc_val.udc);
-    mit_init(param->kp_MIT, param->kd_MIT, param->tff_MIT, param->tmax_MIT);
+    mit_init(param->kp_MIT, param->kd_MIT, motor.j, motor.b, param->tmax_MIT);
     _trajectory_init(param);
 
     smo_init(&motor);
@@ -154,14 +161,12 @@ void foc_core_reset(void)
     svpwm_init(foc_val.udc);
 
     foc_val.pos_fb = encoder_get_angle_inc();
-    foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
-    if (foc_mode.run_mode == POSITION_MODE)
-        traj_reset(foc_val.pos_fb);
-    else if (foc_mode.run_mode == SPEED_MODE)
-        traj_reset(foc_val.rpm_fb);
+    foc_val.rpm_fb = encoder_get_rpm();
+    traj_posreset(foc_val.pos_fb);
+    traj_velreset(foc_val.rpm_fb);
 }
 
-// 电流采样：上溢中断已通过 2-shunt 完成 Clarke，此处直接使用
+// 电流重构 稳定的两相电流重构 + clark 变换
 static inline void _CurrentReconstruction(void)
 {
     float ui, vi, wi;
@@ -206,18 +211,6 @@ static bool loop_position_update_flag = false;
 // 更新foc核心变量 20khz
 void foc_update_val(void)
 {
-    freq_div_update();
-    _CurrentReconstruction();
-
-    //  这样可以保证速度环计算和位置环计算 与 中频低频值计算 不在同一周期执行 且数据在前一周期完成计算
-    if (g_loop_con.fd.speed_update)
-    {
-        loop_speed_update_flag = true;
-        encoder_pll_update(g_loop_con.fd.t_spd);
-        foc_val.pos_fb = encoder_get_angle_inc();
-        // foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
-        foc_val.rpm_fb = encoder_get_rpm(F_SPEED);
-    }
     // 位置低频循环执行
     if (g_loop_con.fd.position_update)
     {
@@ -226,12 +219,23 @@ void foc_update_val(void)
     }
 
     // 高频数据刷新
+    freq_div_update();
+    _CurrentReconstruction();
     switch (foc_mode.sensor_mode)
     {
     case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = encoder_get_angle_abs();
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
         foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
+
+        //  这样可以保证速度环计算和位置环计算 与 中频低频值计算 不在同一周期执行 且数据在前一周期完成计算
+        if (g_loop_con.fd.speed_update)
+        {
+            loop_speed_update_flag = true;
+            encoder_pll_update(g_loop_con.fd.t_spd);
+            foc_val.pos_fb = encoder_get_angle_inc();
+            foc_val.rpm_fb = encoder_get_rpm();
+        }
 
         break;
 
@@ -273,10 +277,13 @@ void foc_update_val(void)
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
         foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
 
-        foc_val.pos_fb = encoder_get_angle_inc();
-        foc_val.rpm_fb = filter_first_order_lag(&_omega_filter, encoder_get_rpm(F_SPEED));
-        foc_val.rpm_fb = FABSF(foc_val.rpm_fb) < 0.1 ? 0 : foc_val.rpm_fb;
-
+        if (g_loop_con.fd.speed_update)
+        {
+            loop_speed_update_flag = true;
+            encoder_pll_update(g_loop_con.fd.t_spd);
+            foc_val.pos_fb = encoder_get_angle_inc();
+            foc_val.rpm_fb = encoder_get_rpm();
+        }
         break;
     default:
         break;
@@ -284,6 +291,7 @@ void foc_update_val(void)
     arm_sin_cos_f32(foc_val.theta_elec, &sin_theta_e, &cos_theta_e);
     park_transform(foc_val.ialpha, foc_val.ibeta, sin_theta_e, cos_theta_e, &foc_val.id_fb, &foc_val.iq_fb);
 }
+
 // 使能后执行：按模式运行对应控制环
 // switch-case fall-through: POSITION→SPEED→CURRENT 级联控制
 void foc_main_loop_task(void)
@@ -304,51 +312,95 @@ void foc_main_loop_task(void)
         // SMO 无感观测器
         smo_main_loop(foc_val.ualpha, foc_val.ubeta, foc_val.ialpha, foc_val.ibeta);
     }
-    tTraj_Out traj_out;
 
     switch (foc_mode.run_mode)
     {
-    case POSITION_MODE:
-        if (!loop_position_update_flag)
-            break;
-        loop_position_update_flag = false;
-        traj_out = fTraj_Update(g_loop_con.fd.t_pos);
-        foc_val.pos_ref = traj_out.value;
-        foc_val.rpm_ref = loop_position_update(foc_val.pos_ref, foc_val.pos_fb);
-    case SPEED_MODE:
-        if (!loop_speed_update_flag)
-            break;
-        loop_speed_update_flag = false;
-        if (foc_mode.run_mode == SPEED_MODE)
+
+    case PID_POSITION:
+        if (g_loop_con.fd.position_update) // 前一周期计算
         {
-            traj_out = fTraj_Update(g_loop_con.fd.t_spd);
-            foc_val.rpm_ref = traj_out.value;
+            traj_posout = traj_PosUpdate(g_loop_con.fd.t_pos);
+            foc_val.pos_ref = traj_posout.value;
         }
-        foc_val.iq_ref = loop_speed_update(foc_val.rpm_ref, foc_val.rpm_fb);
-        foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
-
-    case CURRENT_MODE:
-
-        foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
-        foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
-        inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
-        break;
-
-    case MIT_MODE:
+        if (loop_position_update_flag)
+        {
+            loop_position_update_flag = false;
+            foc_val.rpm_ref = loop_position_update(foc_val.pos_ref, foc_val.pos_fb);
+        }
         if (loop_speed_update_flag)
         {
-            foc_val.tau_ref = mit_loop_update(foc_val.pos_ref, foc_val.pos_fb, foc_val.rpm_ref, foc_val.rpm_fb);
+            loop_speed_update_flag = false;
+            foc_val.iq_ref = loop_speed_update(foc_val.rpm_ref, foc_val.rpm_fb);
+            foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
+        }
+        goto current_loop;
+        break;
+    case PID_SPEED:
+        if (g_loop_con.fd.speed_update) // 前一周期计算
+        {
+            traj_velout = traj_VelUpdate(g_loop_con.fd.t_spd);
+            foc_val.rpm_ref = traj_velout.value;
+        }
+        if (loop_speed_update_flag)
+        {
+            loop_speed_update_flag = false;
+            foc_val.iq_ref = loop_speed_update(foc_val.rpm_ref, foc_val.rpm_fb);
+            foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
+        }
+        goto current_loop;
+        break;
+    case MIT_POSITION:                  // TODO: 要做单位换算
+        if (g_loop_con.fd.speed_update) // 前一周期计算
+        {
+            traj_posout = traj_PosUpdate(g_loop_con.fd.t_spd);
+            foc_val.pos_ref = traj_posout.value;
+        }
+        if (loop_speed_update_flag)
+        {
+            loop_speed_update_flag = false;
+            foc_val.tau_ref = mit_pos_update(traj_posout.accel, foc_val.pos_ref, foc_val.pos_fb, foc_val.rpm_fb);
             foc_val.iq_ref = foc_val.tau_ref / motor.ke; // V·s/rad (或 V/(rad/s)) 整定出的ke要做单位换算
             foc_val.id_ref = 0;
         }
+        goto current_loop;
+        break;
+    case MIT_SPEED:
+        if (g_loop_con.fd.speed_update) // 前一周期计算
+        {
+            traj_velout = traj_VelUpdate(g_loop_con.fd.t_spd);
+            foc_val.rpm_ref = traj_velout.value;
+        }
+        if (loop_speed_update_flag)
+        {
+            loop_speed_update_flag = false;
+            foc_val.tau_ref = mit_vel_update(traj_velout.accel, foc_val.rpm_ref, foc_val.rpm_fb);
+            foc_val.iq_ref = foc_val.tau_ref / motor.ke; // V·s/rad (或 V/(rad/s)) 整定出的ke要做单位换算
+            foc_val.id_ref = 0;
+        }
+        goto current_loop;
+        break;
+    case MIT_TRAJ: // 不能用轨迹规划
+        if (loop_speed_update_flag)
+        {
+            foc_val.tau_ref = mit_track_update(traj_posout.accel, foc_val.tau_ff_ref, foc_val.pos_ref, foc_val.pos_fb, foc_val.rpm_ref, foc_val.rpm_fb);
+            foc_val.iq_ref = foc_val.tau_ref / motor.ke; // V·s/rad (或 V/(rad/s)) 整定出的ke要做单位换算
+            foc_val.id_ref = 0;
+        }
+        goto current_loop;
+        break;
 
+        // 电流环
+    case CURRENT_MODE:
+    current_loop:
         foc_val.uq = loop_current_update(foc_val.iq_ref, foc_val.iq_fb);
         foc_val.ud = loop_mag_update(foc_val.id_ref, foc_val.id_fb);
         inv_park_transform(foc_val.ud, foc_val.uq, sin_theta_e, cos_theta_e, &foc_val.ualpha, &foc_val.ubeta);
+        break;
+        // 开环测试
+    case OPEN_LOOP:
 
         break;
-
-    default: // 开环模式
+    default:
         break;
     }
 
@@ -365,29 +417,45 @@ void foc_set_target(float *value)
         foc_val.iq_ref = value[0];
         foc_val.id_ref = value[1];
         break;
-    case SPEED_MODE:
-        traj_set_target(value[0]);
+    case PID_SPEED:
+        traj_set_veltarget(value[0]);
         break;
-    case POSITION_MODE:
-        traj_set_target(value[0]);
-        if (foc_mode.pvt_mode)
-            traj_set_rate(value[1]);
+    case PID_POSITION:
+        if (foc_mode.pvt_mode == PVT_PV)
+        { // TODO: 实现 PV闭环控制 不能与 轨迹规划同时使用
+            float max_rpm = FABSF(value[1]);
+
+            if (max_rpm <= 0.01f)
+                max_rpm = 0.01f;
+            if (max_rpm > g_Param.limit_omega)
+                max_rpm = g_Param.limit_omega;
+            loop_set_position_out_limit(max_rpm);
+        }
+        else if (foc_mode.pvt_mode == PVT_PT)
+        { // TODO: 实现 PT闭环控制
+        }
+        else
+            traj_set_postarget(value[0]);
+        break;
+    case MIT_POSITION:
+        traj_set_postarget(value[0]);
+        break;
+    case MIT_SPEED:
+        traj_set_veltarget(value[0]);
+        break;
+    case MIT_TRAJ:
+        // TODO:  到时候四个can帧发送完成后同时写入 目标位置 目标速度 目标加速度 前馈扭矩
+        // 不能用内置轨迹规划器
+        mit_target.acc = value[0];
+        mit_target.vel = value[1];
+        mit_target.pos = value[2];
+        mit_target.tau_ff = value[3];
         break;
     default: // IDLE 可以直接设置ualpha和ubeta
         break;
     }
 }
 
-// 参数自动校准
-bool auto_calibration_update(void)
-{
-    if (TUNE_DONE == fMotorParamTuneUpdate(foc_val))
-    {
-        foc_core_init(&g_Param);
-        return true;
-    }
-    return false;
-}
 // 设置 αβ 电压
 void foc_set_ualpha_beta(float Ualpha, float Ubeta)
 {
@@ -424,8 +492,7 @@ bool foc_shutdown(void)
 {
     if (fabsf(foc_val.rpm_fb) < 0.1f)
         return true;
-    if (foc_mode.run_mode != SPEED_MODE)
-        foc_set_run_mode(SPEED_MODE);
+    foc_set_run_mode(PID_SPEED);
     float omega_shutdown = -foc_val.rpm_fb * 0.5f;
     foc_set_target(&omega_shutdown);
     return false;

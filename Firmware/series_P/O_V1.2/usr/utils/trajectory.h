@@ -10,9 +10,9 @@
 /* === 配置参数 === */
 typedef struct
 {
-    float max_rate;  // 最大变化率 [unit/s]
-    float max_acc;   // 最大加速度 [unit/s²]
-    float max_jerk;  // 最大加加速度 [unit/s³] (仅 S 型有效)
+    float limit_d1;  // 一阶限幅 [unit/s]
+    float limit_d2;  // 二阶限幅 [unit/s²]
+    float limit_d3;  // 三阶限幅 [unit/s³] (仅 S 型有效)
     float tolerance; // 到达容差 [unit]
     eTrajType type;
     uint8_t reserved[3];
@@ -27,22 +27,44 @@ typedef struct
     float accel;   // 当前加速度 (仅 S 型需要)
     bool busy;
     uint8_t reserved[3];
-} tTraj_State;
+} tTraj_PosState;
+
+typedef struct
+{
+    float target;  // 目标值
+    float current; // 当前规划值 (输出值)
+    float accel;   // 当前加速度
+    float jerk;    // 当前加加速度 (仅 S 型需要)
+    bool busy;
+    uint8_t reserved[3];
+} tTraj_VelState;
 
 /* === 输出结果 === */
 typedef struct
 {
     float value; // 核心输出：平滑后的值
     float rate;  // 当前变化率 (用于前馈)
+    float accel; // 当前加速度 (仅 S 型有输出) (用于前馈)
     bool done;   // 到达标志
     uint8_t reserved[3];
-} tTraj_Out;
+} tTraj_PosOut;
+
+typedef struct
+{
+    float value; // 核心输出：平滑后的值
+    float accel; // 当前加速度 (用于前馈)
+    float jerk;  // 当前加加速度 (仅 S 型有输出) (用于前馈)(一般用不上 除了更高阶的控制)
+    bool done;   // 到达标志
+    uint8_t reserved[3];
+} tTraj_VelOut;
 
 /* === 核心 API  === */
 void traj_init(tTraj_Config cfg);
-void traj_reset(float current_value);
-void traj_set_target(float target);
-void traj_set_rate(float rate);
-tTraj_Out fTraj_Update(float dt);
+void traj_posreset(float current_value);
+void traj_velreset(float current_value);
+void traj_set_postarget(float target);
+void traj_set_veltarget(float target);
+tTraj_PosOut traj_PosUpdate(float dt);
+tTraj_VelOut traj_VelUpdate(float dt);
 
 #endif /* __TRAJECTORY_H */

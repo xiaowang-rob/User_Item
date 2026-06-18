@@ -26,20 +26,19 @@ class Pidx:
     KD_POSITION        = 22  # 位置环微分
     MIT_KP             = 23  # MIT刚度
     MIT_KD             = 24  # MIT阻尼
-    MIT_TFF            = 25  # MIT前馈扭矩
-    MIT_TMAX           = 26  # MIT最大扭矩
-    TUNE_CURRENT       = 27  # 校准电流
-    LIMIT_CURRENT      = 28  # 电流限幅
-    LIMIT_SPEED        = 29  # 速度限幅
-    LIMIT_POSITION_MIN = 30  # 位置限幅最小值
-    LIMIT_POSITION_MAX = 31  # 位置限幅最大值
-    TOLERANCE_TIME     = 32  # 容忍时间
-    TOLERANCE_LIMIT    = 33  # 超限容忍度
-    TRAJ_MAX_RATE      = 34  # 轨迹最大变化率
-    TRAJ_MAX_ACC       = 35  # 轨迹最大加速度
-    TRAJ_MAX_JERK      = 36  # 轨迹最大加加速度
-    TRAJ_TOLERANCE     = 37  # 轨迹规划容差
-    NUM_OF_PARAM       = 38  # 参数总数
+    MIT_TMAX           = 25  # MIT最大扭矩
+    TUNE_CURRENT       = 26  # 校准电流
+    LIMIT_CURRENT      = 27  # 电流限幅
+    LIMIT_SPEED        = 28  # 速度限幅
+    LIMIT_POSITION_MIN = 29  # 位置限幅最小值
+    LIMIT_POSITION_MAX = 30  # 位置限幅最大值
+    TOLERANCE_TIME     = 31  # 容忍时间
+    TOLERANCE_LIMIT    = 32  # 超限容忍度
+    TRAJ_LIMIT_D1      = 33  # 一阶限幅
+    TRAJ_LIMIT_D2      = 34  # 二阶限幅
+    TRAJ_LIMIT_D3      = 35  # 三阶限幅
+    TRAJ_TOLERANCE     = 36  # 轨迹规划容差
+    NUM_OF_PARAM       = 37  # 参数总数
 
 class Lidx:
     num             = 0  # 序号
@@ -133,7 +132,7 @@ class Sidx:
 class Midx:
     sensor_mode = ["编码反馈", "无感观测", "混合模式"]
     encoder_chip = ["MT6816", "MT6835", "AS5047", "芯片数量"]
-    run_mode = ["电流模式", "速度模式", "位置模式", "MIT模式", "开环模式"]
+    run_mode = ["开环模式", "电流模式", "PID速度模式", "PID位置模式", "MIT速度模式", "MIT位置模式", "MIT轨迹模式"]
     target_type = ["拖动电流/A", "目标速度/rpm", "目标位置/deg", "无"]
     can_mode = ["实时处理", "队列处理", "实时反馈", "队列反馈"]
     vague_PID_mode = ["禁用", "启动"]
@@ -141,7 +140,7 @@ class Midx:
     traj_type = ["禁用", "梯形", "S形"]
     tune_state = ["INIT", "IDLE", "电阻校准", "电感校准", "编码器校准", "电气参数校准", "机械参数校准", "完成", "失败"]
     foc_state = ["IDLE", "TUNE", "RESET", "ENABLE", "DISABLE", "RUNNING", "SHUTDOWN", "FAULT", "WARNING"]
-    fault_state = ["NONE", "FLASH离线", "整定电流异常", "极对数不匹配", "电机堵转", "电阻电感校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
+    fault_state = ["NONE", "FLASH离线", "整定电流振荡", "极对数不匹配", "电机堵转", "内参校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
     warning_state = ["NONE", "过温", "超速", "位置超限", "编码器无响应", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]
     data_select = ["NONE", "U相电流", "V相电流", "W相电流", "q轴电压", "d轴电压", "α轴电流", "β轴电流", "q轴电流", "d轴电流", "Iq_ref", "Id_ref", "速度", "目标速度", "电角度", "机械角度", "位置", "目标位置"]

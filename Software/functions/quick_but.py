@@ -108,7 +108,7 @@ class QuickBut:
     def value_slider_mapping(self, rel_value):
         """将滑块相对值 (0-1000) 映射到实际值"""
         max_val = float(self.MAX_val_input.text())
-        return (rel_value / 1000) * max_val
+        return int((rel_value / 1000) * max_val)
 
     def MAX_value_changed(self, text):
         """最大值输入变更时重置滑块"""

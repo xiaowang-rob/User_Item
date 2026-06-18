@@ -46,7 +46,6 @@ typedef struct
     float kd_position;
     float kp_MIT;
     float kd_MIT;
-    float tff_MIT;
     float tmax_MIT;
     float tune_current;
     float limit_current;
@@ -56,9 +55,9 @@ typedef struct
     float tolerance_time;
     float tolerance_limit;
 
-    float traj_max_rate;
-    float traj_max_acc;
-    float traj_max_jerk;
+    float traj_limit_d1;
+    float traj_limit_d2;
+    float traj_limit_d3;
     float tolerance;
 
     // 不需要上位机改写的参数可以放在这里，避免误改
@@ -71,9 +70,9 @@ typedef struct
 
     float cur_filter_alpha;   // 电流滤波系数
     float speed_filter_alpha; // 速度滤波系数
-    float adc_U_zero_offset; // ADC零点补偿
-    float adc_V_zero_offset; // ADC零点补偿
-    float adc_W_zero_offset; // ADC零点补偿
+    float adc_U_zero_offset;  // ADC零点补偿
+    float adc_V_zero_offset;  // ADC零点补偿
+    float adc_W_zero_offset;  // ADC零点补偿
 } tParameter;
 
 extern tParameter g_Param;
@@ -85,7 +84,8 @@ void param_erase(); // 一键擦除
 bool param_init();
 
 // 参数描述符表 — 用 memcpy+offsetof 替代 switch-case
-typedef struct {
+typedef struct
+{
     u16 offset;
     u8 size;
 } tParamEntry;

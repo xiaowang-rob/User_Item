@@ -22,14 +22,13 @@
 // ================== 电阻整定系数 ==================
 #define RS_FREQ_F 10                      // 电阻整定分频系数
 #define RS_TIMEOUT_TICKS MS_TO_TICK(2000) // 整定超时时间 (500ms)
-#define RS_I_TARGET_1_COEF 0.4f           // 第一点目标电流 = tune_cur_limit × 0.4
-#define RS_I_TARGET_2_COEF 0.8f           // 第二点目标电流 = tune_cur_limit × 0.8
+#define RS_I_TARGET_1_COEF 0.2f           // 第一点目标电流 = tune_cur_limit × 0.2
+#define RS_I_TARGET_2_COEF 0.6f           // 第二点目标电流 = tune_cur_limit × 0.6
 #define RS_HYST_BAND_COEF 0.12f           // 滞环带宽 = tune_cur_limit × 0.12
-#define RS_V_LIMIT_COEF 0.5f              // 电压限幅 = bus_voltage × 0.5 (最高50%母线)
-#define RS_V_LIMIT_ABS 2.0f               // 电压限幅绝对值下限 (V)，小电机也能用
+#define RS_V_LIMIT_COEF 0.1f              // 电压限幅 = bus_voltage × 0.1 (最高10%母线)
 #define RS_V_HOLD_MAX_TICKS 5             // 误差带内保持最大周期数 (防静差)
 #define RS_V_STEP_MIN 0.01f               // 保持超时后微调步长 (V)
-#define RS_STEADY_ERR_THR_COEF 0.05f      // 稳态电流误差阈值 = tune_cur_limit × 0.05
+#define RS_STEADY_ERR_THR_COEF 0.02f      // 稳态电流误差阈值 = tune_cur_limit × 0.02
 #define RS_STEADY_TICKS MS_TO_TICK(7)     // 稳态持续周期数 (7ms@20kHz)
 #define RS_TRACK_TIMEOUT MS_TO_TICK(40)   // 单点跟踪超时 (40ms)
 #define RS_MIN_DELTA_I_COEF 0.25f         // 最小电流变化量 = tune_cur_limit × 0.25
@@ -43,17 +42,17 @@
 #define LS_INJECT_AMP_V (LS_INJECT_FREQ_TICK * T_PWM)   // 注入周期
 #define LS_INJECT_FREQ_HZ (F_PWM / LS_INJECT_FREQ_TICK) // 注入频率 (Hz)
 
-#define LS_V_COEF 1.2f            // Ls注入电压系数 = Rs × tune_cur_limit × 系数
-#define LS_V_START_COEF 0.15f     // 起始电压 = Rs × tune_cur_limit × 0.15
-#define LS_V_MAX_COEF 0.6f        // 最大电压 = Rs × tune_cur_limit × 0.6
-#define LS_V_LIMIT_BUS_COEF 0.8f  // 电压上限不超过母线 × 0.8
-#define LS_I_TARGET_COEF 0.3f     // 目标电流 = tune_cur_limit × 0.3
-#define LS_I_TARGET_HYST 0.1f     // 目标电流滞环 ±10%
+#define LS_V_START_MIN 0.2f       // 注入电压最小值 (V)
+#define LS_V_START_COEF 0.4f      // 起始电压 = Rs × tune_cur_limit × 0.15
+#define LS_V_MAX_COEF 0.8f        // 最大电压 = Rs × tune_cur_limit × 0.6
+#define LS_V_LIMIT_BUS_COEF 0.1f  // 电压上限不超过母线 × 0.1
+#define LS_I_TARGET_COEF 0.2f     // 目标电流 = tune_cur_limit × 0.2
+#define LS_I_TARGET_HYST 0.05f    // 目标电流滞环 ±10%
 #define LS_I_STEP_MIN_COEF 0.005f // 微调步长 = tune_cur_limit × 0.005
-#define LS_V_ADJ_STEP 0.2f        // 电压自适应调整步长 (V)
+#define LS_V_ADJ_STEP 0.01f       // 电压自适应调整步长 (V)
 
 // ================== 转子预定位 ==================
-#define ALIGN_TIME_MS_BASE 500  // 定位基础持续时间(ms)
+#define ALIGN_TIME_MS_BASE 200  // 定位基础持续时间(ms)
 #define WAIT_AFTER_ALIGN_MS 200 // 定位后等待电流衰减时间(ms)
 #define ALIGN_CUR_REF 10.0f     // 对齐时间参照电流 (A)
 
@@ -70,10 +69,11 @@
 #define EC_ALIGN_ms MS_TO_TICK(300) // 编码器校准等待时间
 #define EC_OPEN_LOOP_OMEGA 1000.0f  // 开环角速度 (°/s)
 
-#define EC_UQ_MIN_COEF 0.15f      // 起始uq = Rs × tune_cur_limit × 0.15
+#define EC_UQ_MIN 0.2f            // 起始最小uq
+#define EC_UQ_MIN_COEF 0.4f       // 起始uq = Rs × tune_cur_limit × 0.15
 #define EC_UQ_MAX_COEF 0.8f       // 最大uq = Rs × tune_cur_limit × 0.6
 #define EC_UQ_STEP 0.2f           // 施加uq步长 (V)
-#define EC_UQ_BUS_LIMIT_COEF 0.5f // uq上限不超过母线 × 0.5
+#define EC_UQ_BUS_LIMIT_COEF 0.4f // uq上限不超过母线 × 0.5
 
 #define EC_FIT_MAX_ERROR 100.0f // 最大拟合误差
 #define EC_MIN_POLE_PAIRS 1     // 最小极对数
@@ -138,28 +138,12 @@ typedef struct
 
 } tTuneParams;
 
-/* ================================= 整定状态枚举 ================================= */
-
-typedef enum
-{
-    TUNE_FAULT_NONE = 0,
-    TUNE_FAULT_CURRENT_VIBRATION,  // 电流震荡,不稳定
-    TUNE_FAULT_POLEPAIRS_MISMATCH, // 极对数不匹配,校准失败
-    TUNE_FAULT_MECH_LOCKED,        // 电机堵转
-
-    TUNE_FAULT_RSLS_INVALID,    // 电阻电感校准失败
-    TUNE_FAULT_ENCODER_INVALID, // 编码器校准失败
-    TUNE_FAULT_ELECTRI_INVALID, // 电气参数校准失败
-    TUNE_FAULT_MECH_INVALID,    // 机械参数校准失败
-
-} eTuneFault;
-
 /* ================================= 整定上下文(内部状态) ================================= */
 typedef struct
 {
     // 通用状态
     eTuneState state;
-    eTuneFault fault;
+    eFaultState fault;
     u8 freq_tick;          // 频率计数
     u32 steady_tick;       // 稳态计数
     u32 timeout_tick;      // 超时计数
@@ -274,14 +258,11 @@ typedef struct
     bool temp_flag[4];
 } tTuneContext;
 
-/* ================================= 全局变量声明 ================================= */
-extern tTuneContext g_tune_ctx;
-
 /* ================================= 公共接口 ================================= */
 void motor_param_tune_init();
 void motor_param_tune_reset();
-eTuneState fMotorParamTuneUpdate(tFOC_val foc_val);
+eTuneState tune_main_loop(tFOC_val *foc_val);
 u8 motor_param_tune_get_progress(void);
-eTuneFault fMotorParamTuneGetFault(void);
+eFaultState tune_get_fault(void);
 
 #endif /* __TUNE_H */

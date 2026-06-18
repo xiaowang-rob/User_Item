@@ -24,9 +24,9 @@ class WaveformWidget(QWidget):
         super().__init__(parent)
 
         # 核心配置
-        self.max_points = 10000              # 每通道最大缓存点数
-        self.min_view_points = 3000          # X轴最小显示点数
-        self.max_view_points = 5000          # X轴最大显示点数
+        self.max_points = 4000              # 每通道最大缓存点数
+        self.min_view_points = 1000          # X轴最小显示点数
+        self.max_view_points = 3000          # X轴最大显示点数
         self.colors = [
             (88, 230, 217),
             (255, 170, 51),
