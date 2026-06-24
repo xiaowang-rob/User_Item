@@ -44,23 +44,23 @@ typedef enum {
 } eParameter;
 
 typedef enum {
-    CURRENT_U     =  0,  /* U相电流 */
-    CURRENT_V     =  1,  /* V相电流 */
-    CURRENT_W     =  2,  /* W相电流 */
-    VOLTAGE_Q     =  3,  /* q轴电压 */
-    VOLTAGE_D     =  4,  /* d轴电压 */
-    CURRENT_ALPHA =  5,  /* α轴电流 */
-    CURRENT_BETA  =  6,  /* β轴电流 */
-    CURRENT_Q     =  7,  /* q轴电流 */
-    CURRENT_D     =  8,  /* d轴电流 */
+    CURRENT_U     =  0,  /* I_u */
+    CURRENT_V     =  1,  /* I_v */
+    CURRENT_W     =  2,  /* I_w */
+    VOLTAGE_Q     =  3,  /* V_q */
+    VOLTAGE_D     =  4,  /* V_d */
+    CURRENT_ALPHA =  5,  /* I_α */
+    CURRENT_BETA  =  6,  /* I_β */
+    CURRENT_Q     =  7,  /* I_q */
+    CURRENT_D     =  8,  /* I_d */
     CURRENT_Q_REF =  9,  /* Iq_ref */
     CURRENT_D_REF = 10,  /* Id_ref */
-    SPEED         = 11,  /* 速度 */
-    SPEED_REF     = 12,  /* 目标速度 */
-    THETA_ELEC    = 13,  /* 电角度 */
-    THETA_MECH    = 14,  /* 机械角度 */
-    POSITION      = 15,  /* 位置 */
-    POSITION_REF  = 16,  /* 目标位置 */
+    SPEED         = 11,  /* rpm */
+    SPEED_REF     = 12,  /* rpm_ref */
+    THETA_ELEC    = 13,  /* theta_e */
+    THETA_MECH    = 14,  /* theta_m */
+    POSITION      = 15,  /* pos */
+    POSITION_REF  = 16,  /* pos_ref */
     DATA_NUM      = 17
 } eData_stream;
 

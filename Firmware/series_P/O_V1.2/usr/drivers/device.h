@@ -79,8 +79,6 @@ typedef struct
     /* SPI 通信错误率 (指数移动平均) */
     float spi_error_rate;
 } tEncoderInstance;
-// 全局唯一实例
-extern tEncoderInstance enc;
 
 bool encoder_init(eEncoderChip type);
 void encode_clear_error_flag(void);

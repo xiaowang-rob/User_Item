@@ -3,7 +3,7 @@
  * @file    bsp_flash.c
  * @brief   STM32F4xx MCU 内置 Flash 驱动
  * @details 提供擦除、编程、读取、升级标志管理、跳转等功能
- * @note    需在 config.h 中定义：APP_START_ADDR, FLAG_ADDRESS, CONFIG_SECTOR
+ * @note    需在 config.h 中定义：APP_START_ADDR, IAP_FLAG_ADDRESS, CONFIG_SECTOR
  ******************************************************************************
  */
 
@@ -107,7 +107,7 @@ bool BSP_FLASH_EraseRange(u32 start_addr, u32 end_addr)
         start_sector = bl_sectors; // 至少从 Bootloader 后面的扇区开始，避开该区域
 
     // 保护配置扇区（存升级标志）
-    u8 cfg_sector = Flash_GetSectorNum(FLAG_ADDRESS);
+    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
     if (end_sector >= cfg_sector)
         end_sector = cfg_sector - 1;
 
@@ -229,7 +229,7 @@ bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len)
     // 限制字符串长度不超过 23 字符（留一个字节给 '\0'）
     if (version_len > 23)
         version_len = 23;
-    u8 cfg_sector = Flash_GetSectorNum(FLAG_ADDRESS);
+    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
     // 先擦除配置扇区
     if (!Flash_EraseSectorByNum(cfg_sector))
         return false;
@@ -240,7 +240,7 @@ bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len)
     // 确保以 '\0' 结尾（便于作为字符串读取）
     buf[version_len] = '\0';
 
-    return BSP_FLASH_WriteWord(buf, FLAG_ADDRESS, 24);
+    return BSP_FLASH_WriteWord(buf, IAP_FLAG_ADDRESS, 24);
 }
 
 /**
@@ -252,7 +252,7 @@ bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len)
 bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len)
 {
     u8 raw[24];
-    if (!BSP_FLASH_ReadData(raw, FLAG_ADDRESS, 24))
+    if (!BSP_FLASH_ReadData(raw, IAP_FLAG_ADDRESS, 24))
         return false;
 
     // 判断是否全为 0xFF（未编程）或全为 0
@@ -280,8 +280,52 @@ bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len)
  */
 bool BSP_ClearUpgradeFlag(void)
 {
-    u8 cfg_sector = Flash_GetSectorNum(FLAG_ADDRESS);
+    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
     return Flash_EraseSectorByNum(cfg_sector);
+}
+
+// 读取参数
+bool BSP_read_param(u8 *pBuffer, u16 NumByteToRead)
+{
+    if (!pBuffer || NumByteToRead > PARAMETER_SIZE_KB * 1024)
+        return false;
+    return BSP_FLASH_ReadData(pBuffer, PARAMETER_LOAD_ADDR, NumByteToRead);
+}
+
+// 擦除参数
+bool BSP_erase_param(void)
+{
+    return Flash_EraseSectorByNum(PARAMETER_SECTOR);
+}
+
+// 写入参数
+bool BSP_write_param(u8 *pBuffer, u16 NumByteToWrite)
+{
+    if (!pBuffer || NumByteToWrite > PARAMETER_SIZE_KB * 1024)
+        return false;
+    return BSP_FLASH_WriteWord(pBuffer, PARAMETER_LOAD_ADDR, NumByteToWrite);
+}
+
+// 写入日志
+bool BSP_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite)
+{
+    if (!pBuffer || NumByteToWrite > LOG_SIZE_KB * 1024)
+        return false;
+    return BSP_FLASH_WriteWord(pBuffer, LOG_START_ADDR + num * NumByteToWrite, NumByteToWrite); // 参数空间后移
+}
+
+// 读取日志
+bool BSP_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead)
+{
+    if (!pBuffer || NumByteToRead > LOG_SIZE_KB * 1024)
+        return false;
+    return BSP_FLASH_ReadData(pBuffer, LOG_START_ADDR + num * NumByteToRead, NumByteToRead);
+}
+
+// 擦除日志
+bool BSP_erase_log(void)
+{
+    return Flash_EraseSectorByNum(LOG_SECTOR);
 }
 
 /* 私有函数实现 ------------------------------------------------------------*/

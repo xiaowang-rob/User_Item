@@ -123,14 +123,14 @@ void flash_erase_one_sector(u32 Address)
 {
     flash_write_enable();        // 使能写操作
     flash_wait_busy();           // 等待空闲
-    flash_cs_enable();              // 片选
+    flash_cs_enable();           // 片选
     spi_transmit_one_byte(0x20); // Sector Erase命令（4KB）
     // 发送24位地址（MSB first）
     spi_transmit_one_byte((u8)((Address) >> 16));
     spi_transmit_one_byte((u8)((Address) >> 8));
     spi_transmit_one_byte((u8)Address);
-    flash_cs_disable();   // 取消片选
-    flash_wait_busy(); // 等待擦除完成（典型时间45ms）
+    flash_cs_disable(); // 取消片选
+    flash_wait_busy();  // 等待擦除完成（典型时间45ms）
 }
 
 /**
@@ -150,7 +150,7 @@ void flash_erase_sector(u32 Address, u32 Write_data_NUM)
     for (u16 i = 0; i <= Num_Sector; i++)
     {
         flash_erase_one_sector(Address); // 擦除当前扇区
-        Address += 4096;          // 移动到下一个扇区
+        Address += 4096;                 // 移动到下一个扇区
     }
 }
 
@@ -163,9 +163,9 @@ void flash_erase_chip(void)
 {
     flash_write_enable();        // 写使能
     flash_wait_busy();           // 等待空闲
-    flash_cs_enable();              // 片选
+    flash_cs_enable();           // 片选
     spi_transmit_one_byte(0x60); // Chip Erase命令
-    flash_cs_disable();             // 取消片选
+    flash_cs_disable();          // 取消片选
     flash_wait_busy();           // 等待擦除完成
 }
 
@@ -179,7 +179,7 @@ void flash_erase_chip(void)
 bool flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
 {
     u16 i = 0;
-    flash_cs_enable();                   // 片选
+    flash_cs_enable();                // 片选
     if (!spi_transmit_one_byte(0x03)) // Read Data命令
     {
         g_device_status.flash_state = RUN_ERROR;
@@ -215,7 +215,7 @@ bool flash_write_word(u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     u16 i;
     flash_write_enable(); // 写使能
-    flash_cs_enable();       // 片选
+    flash_cs_enable();    // 片选
 
     if (!spi_transmit_one_byte(0x02)) // Page Program命令
     {
@@ -286,7 +286,7 @@ void flash_init(void)
 {
     u8 id[3] = {0};
     flash_cs_enable(); // 片选
-    BSP_Delay(10);  // 上电延时
+    BSP_Delay(10);     // 上电延时
 
     spi_transmit_one_byte(0x9F);    // Read JEDEC ID命令
     id[0] = spi_receive_one_byte(); // Manufacturer ID

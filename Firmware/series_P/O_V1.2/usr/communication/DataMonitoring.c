@@ -2,7 +2,9 @@
 #include "foc_main.h"
 #include "svpwm.h"
 #include "string.h"
-#include "device.h"
+
+#include "hfi.h"
+
 static float temp_val = 0;
 
 static u8 txdata_queue[64];
@@ -15,7 +17,7 @@ void stream_data_get(eData_stream stream, float *data)
     case CURRENT_U:
         //        temp_val = fGetVoltage_u();
         //  temp_val = foc_val->iu;
-        temp_val = enc.pll_theta;
+        temp_val = g_hfi.omega_filtered;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_V:

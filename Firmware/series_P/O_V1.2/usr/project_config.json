@@ -13,7 +13,7 @@
     },
     "filter": {
         "hfi_inj_freq_hz": 5000,
-        "pll_bandwidth_hz": 40,
+        "pll_bandwidth_hz": 60,
         "speed_lpf_factor": 2.0
     },
     "debugger": {

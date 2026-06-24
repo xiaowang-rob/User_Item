@@ -10,7 +10,7 @@
 #include "usr_config.h"
 
 /*================ 全局/静态变量 =================*/
-static tHFI_Handle g_hfi;
+tHFI_Handle g_hfi;
 
 tBW_FilterInstance speed_lpf_inst;
 tFirstOrderLagFilter speed_lpf;
@@ -38,8 +38,8 @@ void hfi_init()
  * @note   流程：高频电流提取 → 位置误差解耦 → PLL → 角度更新 → 注入电压生成
  */
 
-volatile float Hfi_Kp = 2 * 1.0f * 250;
-volatile float Hfi_Ki = 100 * 100 * T_CON;
+volatile float Hfi_Kp = 2 * 1.0f * 200;
+volatile float Hfi_Ki = 5000 * T_CON;
 
 void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 {
@@ -63,8 +63,12 @@ void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
     float sin_theta, cos_theta;
     arm_sin_cos_f32(g_hfi.theta_e, &sin_theta, &cos_theta);
 
-    g_hfi.pll_error = g_hfi.i_hf_alpha * sin_theta -
+    float pll_error = g_hfi.i_hf_alpha * sin_theta -
                       g_hfi.i_hf_beta * cos_theta;
+
+    g_hfi.pll_error = g_hfi.pll_error * 0.9f + pll_error * 0.1f;
+    // g_hfi.pll_error = g_hfi.i_hf_alpha * sin_theta -
+    //                   g_hfi.i_hf_beta * cos_theta;
 
     /* 3. PLL跟踪 (PI控制器) */
     float pll_prop = g_hfi.pll_error * Hfi_Kp;
@@ -76,7 +80,8 @@ void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
     g_hfi.omega_filtered = fButterworthFilter_Process(&speed_lpf_inst, g_hfi.omega_e);
 
     /* 5. 角度更新 (积分 + 归一化) */
-    g_hfi.theta_e += g_hfi.omega_e * T_CON;
+    g_hfi.theta_e += g_hfi.omega_filtered * T_CON;
+    // g_hfi.theta_e += g_hfi.omega_e * T_CON;
     g_hfi.theta_e = normalize_angle_0_360(g_hfi.theta_e);
 
     /* 6. 更新方波注入信号 (+1/-1 交替) */

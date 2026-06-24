@@ -242,8 +242,10 @@ static void _frame_data_deal()
                 comm_host_send();
                 break;
             case PARAM_ERASE:
-                param_erase();
-                com_frame.txdata[0] = EXECUTE;
+                if (param_erase())
+                    com_frame.txdata[0] = EXECUTE;
+                else
+                    com_frame.txdata[0] = FAILURE;
                 com_frame.txdatalen = 1;
                 comm_host_send();
                 break;

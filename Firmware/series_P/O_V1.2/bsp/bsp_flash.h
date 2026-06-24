@@ -14,4 +14,12 @@ bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len);
 bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len);
 bool BSP_ClearUpgradeFlag(void);
 
+bool BSP_read_param(u8 *pBuffer, u16 NumByteToRead);
+bool BSP_erase_param(void);
+bool BSP_write_param(u8 *pBuffer, u16 NumByteToWrite);
+
+bool BSP_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite);
+bool BSP_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead);
+bool BSP_erase_log(void);
+
 #endif /* __BSP_FLASH_H */

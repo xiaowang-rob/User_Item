@@ -1,6 +1,6 @@
 
 #include "bsp_adc.h"
-#include "bsp_usb.h"        // [DEBUG] BSP_USB_CDC_Transmit_FS
+#include "bsp_usb.h" // [DEBUG] BSP_USB_CDC_Transmit_FS
 #include "usr_config.h"
 #include "main.h"
 
@@ -9,7 +9,7 @@
 #include "log.h"
 #include "protection_manager.h"
 #include "port_mapping.h"
-#include "usb_port.h"        // [DEBUG] usb_send_frame
+#include "usb_port.h" // [DEBUG] usb_send_frame
 #include "device.h"
 
 #ifdef __DEBUG__ //***********调试************
@@ -37,7 +37,6 @@ flash和参数一起-通讯-保护-日志-adc -foc初始化
         BSP_Error_Handler();
     comm_init();
     pro_manager_init(&g_Param);
-    log_init();
     BSP_AdcInit(); // 这里就启动了foc的定时器
     foc_init();
 }

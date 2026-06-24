@@ -4,25 +4,12 @@
 #include "math_fast.h"
 #include "foc_main.h"
 
-tLogindex Index;
 tLog Log;
+static u8 num_tic = 0;
 
-void log_init(void)
-{
-    flash_read_data((u8 *)&Index, Log_start_addr, sizeof(Index));
-    if (Index.num == 0xff)
-    { // 日志被擦除过 或 第一次上电
-        Index.num = 0;
-        Index.log_addr = Log_start_addr;
-    }
-    else
-    {
-        Index.log_addr = Log_start_addr + Index.num * sizeof(Log);
-    }
-}
 void log_data_save(tProtectionManager *pro_manager)
 {
-    Log.num = Index.num;
+    Log.num = num_tic;
     Log.minutes = BSP_GetTick() / 1000 / 60;
     Log.vbus = pro_manager->foc_val->udc;
     Log.temp = pro_manager->foc_val->temp;
@@ -48,14 +35,12 @@ void log_data_save(tProtectionManager *pro_manager)
 
 void log_data_write(void)
 {
-    flash_write_word((u8 *)&Log, Index.log_addr, sizeof(Log));
-    if (Index.num >= MAX_log_NUM)
+    BSP_write_log((u8 *)&Log, num_tic, sizeof(Log));
+    if (num_tic >= MAX_log_NUM)
     { // 日志满了后 循环覆盖最后一条日志
         return;
     }
-    Index.num++;
-    Index.log_addr += sizeof(Log);
-    return;
+    num_tic++;
 }
 
 static u8 read_index = 0;
@@ -63,7 +48,7 @@ bool log_read_flash(u8 *data, u8 *len)
 {
     if (read_index < MAX_log_NUM)
     {
-        flash_read_data((u8 *)&Log, Log_start_addr + read_index * sizeof(Log), sizeof(Log));
+        BSP_read_log((u8 *)&Log, read_index, sizeof(Log));
         if (Log.num == read_index)
         {
             *len = sizeof(Log);
@@ -85,10 +70,12 @@ bool log_read_flash(u8 *data, u8 *len)
     }
 }
 
-void log_erase()
+bool log_erase(void)
 {
-    flash_erase_sector(Log_start_addr, MAX_log_NUM * sizeof(Log));
-    flash_erase_sector(Log_Index_start_addr, sizeof(Index));
-    Index.num = 0;
-    Index.log_addr = Log_start_addr;
+    if (BSP_erase_log())
+    {
+        num_tic = 0;
+        return true;
+    }
+    return false;
 }

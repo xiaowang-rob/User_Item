@@ -65,23 +65,23 @@ class Lidx:
     log_num         = 21  # 日志字段数量
 
 class Didx:
-    CURRENT_U     = 0  # U相电流
-    CURRENT_V     = 1  # V相电流
-    CURRENT_W     = 2  # W相电流
-    VOLTAGE_Q     = 3  # q轴电压
-    VOLTAGE_D     = 4  # d轴电压
-    CURRENT_ALPHA = 5  # α轴电流
-    CURRENT_BETA  = 6  # β轴电流
-    CURRENT_Q     = 7  # q轴电流
-    CURRENT_D     = 8  # d轴电流
+    CURRENT_U     = 0  # I_u
+    CURRENT_V     = 1  # I_v
+    CURRENT_W     = 2  # I_w
+    VOLTAGE_Q     = 3  # V_q
+    VOLTAGE_D     = 4  # V_d
+    CURRENT_ALPHA = 5  # I_α
+    CURRENT_BETA  = 6  # I_β
+    CURRENT_Q     = 7  # I_q
+    CURRENT_D     = 8  # I_d
     CURRENT_Q_REF = 9  # Iq_ref
     CURRENT_D_REF = 10  # Id_ref
-    SPEED         = 11  # 速度
-    SPEED_REF     = 12  # 目标速度
-    THETA_ELEC    = 13  # 电角度
-    THETA_MECH    = 14  # 机械角度
-    POSITION      = 15  # 位置
-    POSITION_REF  = 16  # 目标位置
+    SPEED         = 11  # rpm
+    SPEED_REF     = 12  # rpm_ref
+    THETA_ELEC    = 13  # theta_e
+    THETA_MECH    = 14  # theta_m
+    POSITION      = 15  # pos
+    POSITION_REF  = 16  # pos_ref
 
 class Cidx:
     UC_CONNECT           = 0xf0  # 上位机连接
@@ -123,7 +123,7 @@ class Pkt:
 
 class Sidx:
     TUNE_STATE  = 0  # 整定状态
-    FOC_STATE   = 1  # FOC状态
+    FOC_STATE   = 1  # 状态
     FAULT       = 2  # 故障
     WARNING     = 3  # 警告
     TEMPERATURE = 4  # 温度
@@ -143,5 +143,5 @@ class Midx:
     fault_state = ["NONE", "FLASH离线", "整定电流振荡", "极对数不匹配", "电机堵转", "内参校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
     warning_state = ["NONE", "过温", "超速", "位置超限", "编码器无响应", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]
-    data_select = ["NONE", "U相电流", "V相电流", "W相电流", "q轴电压", "d轴电压", "α轴电流", "β轴电流", "q轴电流", "d轴电流", "Iq_ref", "Id_ref", "速度", "目标速度", "电角度", "机械角度", "位置", "目标位置"]
+    data_select = ["NONE", "I_u", "I_v", "I_w", "V_q", "V_d", "I_α", "I_β", "I_q", "I_d", "Iq_ref", "Id_ref", "rpm", "rpm_ref", "theta_e", "theta_m", "pos", "pos_ref"]
 

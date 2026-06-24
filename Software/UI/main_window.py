@@ -90,12 +90,16 @@ class MainWindow(QMainWindow):
             c.update_status_time()
             if len(data) == 12:
                 try:
+                    # 预先解包两个 float，避免循环内重复 unpack
+                    temp_val = struct.unpack("<f", data[4:8])[0]
+                    vbus_val = struct.unpack("<f", data[8:12])[0]
                     for i in range(STATUS_FIELD_COUNT):
                         if i < 4:
                             self.data_show.set_status(i, data[i])
+                        elif i == 4:
+                            self.data_show.set_status(i, temp_val)
                         else:
-                            val = struct.unpack("<f", data[(i-3)*4:(i-2)*4])[0]
-                            self.data_show.set_status(i, val)
+                            self.data_show.set_status(i, vbus_val)
                     self.data_show.show_status()
                 except Exception:
                     pass

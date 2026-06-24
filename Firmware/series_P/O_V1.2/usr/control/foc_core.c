@@ -310,7 +310,7 @@ void foc_main_loop_task(void)
             return;
         }
         // SMO 无感观测器
-        smo_main_loop(foc_val.ualpha, foc_val.ubeta, foc_val.ialpha, foc_val.ibeta);
+        // smo_main_loop(foc_val.ualpha, foc_val.ubeta, foc_val.ialpha, foc_val.ibeta);
     }
 
     switch (foc_mode.run_mode)

@@ -39,6 +39,9 @@ class WaveformWidget(QWidget):
         self.auto_x = True
         self.auto_y = True
 
+        # 批量更新优化：标记有变化的通道，定时刷新
+        self._dirty_channels = set()
+
         # UI
         self.init_ui()
 
@@ -65,10 +68,15 @@ class WaveformWidget(QWidget):
             self.plot_widget.addItem(label)
             self.value_labels.append(label)
 
-        # 定时器
+        # ── 批量更新定时器（33ms ≈ 30fps，替代逐点更新） ──
+        self._batch_timer = QTimer()
+        self._batch_timer.timeout.connect(self._batch_update_plot)
+        self._batch_timer.start(33)
+
+        # ── 自动缩放定时器（降低到 200ms，减少计算频率） ──
         self.auto_scale_timer = QTimer()
         self.auto_scale_timer.timeout.connect(self.auto_scale_axes)
-        self.auto_scale_timer.start(100)
+        self.auto_scale_timer.start(200)
 
         # 交互
         self.plot_widget.setMouseEnabled(x=True, y=True)
@@ -156,18 +164,27 @@ class WaveformWidget(QWidget):
             self.auto_scale_x_axis()
 
     def auto_scale_y_axis(self):
-        all_data = []
+        """Y轴自动缩放 — 使用 numpy 向量化加速"""
+        min_val = float('inf')
+        max_val = float('-inf')
+        has_data = False
+
         for wave in self.wave_data:
             if wave:
-                valid = [y for y in wave if np.isfinite(y)]
-                if valid:
-                    all_data.extend(valid)
+                arr = np.array(wave)
+                finite_mask = np.isfinite(arr)
+                if np.any(finite_mask):
+                    has_data = True
+                    vmin = arr[finite_mask].min()
+                    vmax = arr[finite_mask].max()
+                    if vmin < min_val:
+                        min_val = vmin
+                    if vmax > max_val:
+                        max_val = vmax
 
-        if not all_data:
+        if not has_data:
             return
 
-        min_val = min(all_data)
-        max_val = max(all_data)
         if max_val == min_val:
             margin = 1.0
         else:
@@ -175,8 +192,9 @@ class WaveformWidget(QWidget):
         self.plot_widget.setYRange(min_val - margin, max_val + margin)
 
     def auto_scale_x_axis(self):
-        """X轴自动缩放：先固定最小范围，超出后动态视野"""
-        total_points = max((len(wave) for wave in self.wave_data), default=0)
+        """X轴自动缩放 — 用 max()/len() 替代全数据 np.std() 计算"""
+        lens = [len(w) for w in self.wave_data]
+        total_points = max(lens) if lens else 0
         if total_points <= 0:
             return
 
@@ -185,29 +203,32 @@ class WaveformWidget(QWidget):
             self.plot_widget.setXRange(0, self.min_view_points)
             return
 
-        # 阶段2：已超出 → 基于密度动态调整视野
-        all_points = []
+        # 阶段2：用数据波动程度（极差/均值）估算密度，避免昂贵的 np.std()
+        # 只采样最近 min_view_points 个点来估算
+        ranges = []
         for wave in self.wave_data:
             if wave:
-                all_points.extend([y for y in wave if np.isfinite(y)])
-        if not all_points:
-            return
+                sample = wave[-self.min_view_points:]
+                r = max(sample) - min(sample)
+                if r > 1e-10:
+                    ranges.append(r)
 
-        # 密度指标（标准差/极差）
-        if len(all_points) > 1:
-            global_std = np.std(all_points)
-            range_val = max(all_points) - min(all_points)
-            density = global_std / range_val if range_val > 0 else 0
+        if ranges:
+            # 用平均波动范围估算密度（波动越大→视野越宽）
+            avg_range = sum(ranges) / len(ranges)
+            # 归一化密度: 波动小(density小) → 窄视野; 波动大 → 宽视野
+            density = min(avg_range / 50.0, 1.0) if avg_range > 0 else 0
         else:
-            density = 0
+            density = 0.5
 
         view_width = int(self.min_view_points + density * (self.max_view_points - self.min_view_points))
         view_width = max(self.min_view_points, min(view_width, self.max_view_points))
 
-        x_max = total_points                     # 右边界紧贴最新点
-        x_min = max(0, x_max - view_width)       # 左边界动态调整
+        x_max = total_points
+        x_min = max(0, x_max - view_width)
 
         self.plot_widget.setXRange(x_min, x_max)
+
     def add_waveform_data(self, channel, data):
         if not (0 <= channel < 5) or not self.is_running:
             return
@@ -221,9 +242,34 @@ class WaveformWidget(QWidget):
         if len(self.wave_data[channel]) > self.max_points:
             self.wave_data[channel] = self.wave_data[channel][-self.max_points:]
 
-        self.update_plot()
+        # 标记该通道有更新（批量定时器会统一刷新）
+        self._dirty_channels.add(channel)
+
+    def _batch_update_plot(self):
+        """批量刷新：仅更新有数据变化的通道（由定时器触发，约30fps）"""
+        if not self.is_running or not self._dirty_channels:
+            return
+
+        for i in list(self._dirty_channels):
+            wave = self.wave_data[i]
+            if wave:
+                y_data = np.array(wave)
+                x_data = np.arange(len(y_data))
+                self.curves[i].setData(x_data, y_data)
+
+                # 末端标签
+                last_x, last_y = x_data[-1], y_data[-1]
+                self.value_labels[i].setText(f"{last_y:.3f}")
+                self.value_labels[i].setPos(last_x + 8, last_y)
+                self.value_labels[i].setVisible(True)
+            else:
+                self.curves[i].setData([], [])
+                self.value_labels[i].setVisible(False)
+
+        self._dirty_channels.clear()
 
     def update_plot(self):
+        """立即强制刷新全部通道（保留对外接口，用于clear等场景）"""
         if not self.is_running:
             return
 
@@ -243,8 +289,11 @@ class WaveformWidget(QWidget):
                 self.curves[i].setData([], [])
                 self.value_labels[i].setVisible(False)
 
+        self._dirty_channels.clear()
+
     def clear_waveforms(self):
         self.wave_data = [[] for _ in range(5)]
+        self._dirty_channels.clear()
         for i in range(5):
             self.curves[i].setData([], [])
             self.value_labels[i].setVisible(False)
@@ -410,11 +459,14 @@ class Wave:
         self.waveform_widget.add_waveform_data(channel, data)
 
     def handle_stream_data(self, data):
-        import struct
+        """批量解析波形数据流（使用 numpy 向量化解包）"""
         count = len(data) // 4
+        if count == 0:
+            return
+        # numpy 批量解包比逐点 struct.unpack 快得多
+        values = np.frombuffer(data, dtype=np.float32, count=count)
         for i in range(count):
-            val = struct.unpack("<f", data[i*4:(i+1)*4])[0]
-            self.add_data_by_index(i, val)
+            self.add_data_by_index(i, float(values[i]))
 
     def add_data_by_index(self, index: int, data):
         id_index = index % len(self.channel_index)

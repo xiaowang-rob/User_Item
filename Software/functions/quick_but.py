@@ -128,7 +128,8 @@ class QuickBut:
         """滑块拖动 → 更新显示值并发送参考值"""
         max_val = float(self.MAX_val_input.text())
         val = (value / 1000) * max_val
-        val = float(f"{val:.3g}")
+        # 四舍五入到3位有效数字，避免 str -> float 反复转换
+        val = round(val, 3) if abs(val) >= 0.001 else val
         self.value_slider.setText(str(val))
         self.target_val_input.setText(str(val))
         self.send_val_ref()

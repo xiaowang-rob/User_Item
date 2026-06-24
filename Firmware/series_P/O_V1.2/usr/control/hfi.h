@@ -47,6 +47,7 @@ typedef struct
 
 } tHFI_Handle;
 
+extern tHFI_Handle g_hfi;
 
 // ================= 函数声明 =================
 void hfi_init();
@@ -57,4 +58,5 @@ bool hfi_get_status(void);
 void hfi_reset_initial_position(void);
 float hfi_get_omega_elec(void);
 float hfi_get_theta_elec(void);
+
 #endif // __HFI_H

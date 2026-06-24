@@ -54,9 +54,9 @@
 #define TIC_PWM 2099
 #define T_CON 0.00005f
 
-#define T_SAMPLE_us 7   // 采样 4-7us
+#define T_SAMPLE_us 7      // 采样 4-7us
 #define T_DEADTIME_us 0.5f // 死区时间
-#define T_NOISE_us 0.5f // 开关噪声时间
+#define T_NOISE_us 0.5f    // 开关噪声时间
 
 #define RATE_CURRENT_SAMPLE 100.0f // 电流采样比率
 #define RATE_VOLTAGE_SAMPLE 16     // 电压采样比率
@@ -71,17 +71,32 @@
 #define FUN_V "O"
 #define FIRM_V "V1.2"
 
-/* ========== Flash 地址规划 ========== */
-#define FIRMWARE_TYPE APP // 固件类型标识，APP表示应用固件，BL表示Bootloader
+/* ========== BSP FLASH ========== */
 
-#define BL_START_ADDR 0x08000000U     // Bootloader 起始地址
-#define BL_SIZE_KB 32                 // Bootloader 大小 (KB)
-#define APP_START_ADDR 0x08008000U    // App 起始地址
-#define FLASH_END_ADDR 0x080FFFFFU    // F405 1MB Flash 结束地址
-#define CONFIG_SECTOR FLASH_SECTOR_11 // 配置扇区 (存升级标志)，不擦除
+#define FLASH_START_ADDR 0x08000000U // Flash 起始地址
+#define FLASH_SIZE_KB 1024           // Flash 大小 (KB)
+#define FLASH_END_ADDR 0x080FFFFFU   // Flash 结束地址
+#define NORMAL_MAGIC 0xFFFFFFFF      // 空数
+/* ========== IAP FLASH 地址规划 ========== */
+#define FIRMWARE_TYPE APP          // 固件类型标识，APP表示应用固件，BL表示Bootloader
+#define BL_START_ADDR 0x08000000U  // Bootloader 起始地址
+#define BL_SIZE_KB 32              // Bootloader 大小 (KB) 两个扇区
+#define APP_START_ADDR 0x08008000U // App 起始地址
+#define APP_SIZE_KB FLASH_SIZE_KB - FLAG_SIZE_KB - PARAMETER_SIZE_KB - LOG_SIZE_KB_MAX - BL_SIZE_KB
+
+/* ========== LOG FLASH 地址规划 ========== */
+#define LOG_SECTOR FLASH_SECTOR_9  // 日志扇区 (存日志)
+#define LOG_START_ADDR 0x080A0000U // 日志起始地址
+#define LOG_SIZE_KB 128            // 日志空间大小 (KB)
+
+/* ========== PARAMETER FLASH 地址规划 ========== */
+#define PARAMETER_SECTOR FLASH_SECTOR_10 // 参数扇区 (存参数)
+#define PARAMETER_LOAD_ADDR 0x080C0000U  // 参数加载/保存地址
+#define PARAMETER_SIZE_KB 128            // 参数空间大小 (KB)
 
 /* ========== 固件升级配置 ========== */
-#define FLAG_ADDRESS 0x080E0000
-#define NORMAL_MAGIC 0xFFFFFFFF
+#define IAP_FLAG_SECTOR FLASH_SECTOR_11 // 固件升级标志扇区 (存固件升级信息)
+#define IAP_FLAG_ADDRESS 0x080E0000
+#define IAP_FLAG_SIZE_KB 128
 
 #endif

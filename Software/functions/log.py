@@ -55,10 +55,16 @@ class LogManager:
         self.logs.append(log_entry)
         logger.debug(f"添加日志 #{len(self.logs)}，编号字段值: {log_entry[Lidx.num]}")
 
-        # 向 ComboBox 添加显示项
+        # 向 ComboBox 添加显示项（限制最大条数防止 UI 卡顿）
+        MAX_LOG_ITEMS = 200
         log_num = log_entry[Lidx.num]
         item_text = f"第 {log_num + 1} 条日志"
         self.log_combo.addItem(item_text)
+
+        if self.log_combo.count() > MAX_LOG_ITEMS:
+            # 移除最旧的条目
+            self.log_combo.removeItem(0)
+            self.logs.pop(0)
 
     def show_log(self):
         """显示当前选中日志的详细信息"""

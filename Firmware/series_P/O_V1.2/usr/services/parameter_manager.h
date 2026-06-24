@@ -1,12 +1,8 @@
 #ifndef __PARAMETER_MANAGER_H
 #define __PARAMETER_MANAGER_H
 
-#include "bsp.h"
+#include "bsp_flash.h"
 #include "protocol.h"
-
-#define PARAMETER_LOAD_block 0
-#define PARAMETER_LOAD_sector 0
-#define PARAMETER_LOAD_ADDr PARAMETER_LOAD_block * 0x00010000 + PARAMETER_LOAD_sector * 0x00001000
 
 typedef struct
 {
@@ -80,7 +76,7 @@ extern tParameter g_Param;
 void param_set(eParameter para, u8 *value);
 void param_get(eParameter para, u8 *value, u8 *len);
 bool param_save();  // 一键保存
-void param_erase(); // 一键擦除
+bool param_erase(); // 一键擦除
 bool param_init();
 
 // 参数描述符表 — 用 memcpy+offsetof 替代 switch-case

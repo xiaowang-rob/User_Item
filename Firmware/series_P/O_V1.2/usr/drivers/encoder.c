@@ -24,7 +24,7 @@ typedef enum
 } eEncoderState_DMA;
 
 /* ----------------------- 全局实例 ------------------------- */
-tEncoderInstance enc = {.chip_type = 0xff};
+static tEncoderInstance enc = {.chip_type = 0xff};
 
 /* ----------------------- 常量定义 ------------------------- */
 #define NO_RESPONSE_MAX_TIC 1000 /* 1000 * 10us = 10ms 超时 */

@@ -55,7 +55,7 @@ const tParamEntry g_param_table[] = {
 void param_set(eParameter para, u8 *value)
 {
     if (para >= PARAM_NUM)
-    {
+    { // 参数应用
         comm_write_can_config(g_Param.can_id, g_Param.sw_canqueue);
         pro_manager_config(&g_Param);
         foc_core_init(&g_Param);
@@ -77,21 +77,17 @@ void param_get(eParameter para, u8 *value, u8 *len)
     *len = g_param_table[para].size;
 }
 
-bool _param_read_flash()
-{
-    return flash_read_data((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
-}
 bool param_save()
 {
-    flash_erase_sector(PARAMETER_LOAD_ADDr, sizeof(g_Param));
-    return flash_write_word((u8 *)&g_Param, PARAMETER_LOAD_ADDr, sizeof(g_Param));
+    BSP_erase_param();
+    return BSP_write_param((u8 *)&g_Param, sizeof(g_Param));
 }
 bool param_init()
 {
     // 先清零，避免 Flash 未写入的字段为 NaN/垃圾值
     memset(&g_Param, 0, sizeof(g_Param));
 
-    if (_param_read_flash() == false)
+    if (false == BSP_read_param((u8 *)&g_Param, sizeof(g_Param)))
         return false;
     if (g_Param.none_flag != 0x0f)
     { // flash中没有参数，初始化默认值
@@ -155,7 +151,7 @@ bool param_init()
     return true;
 }
 
-void param_erase()
+bool param_erase()
 {
-    flash_erase_one_sector(PARAMETER_LOAD_ADDr);
+    return BSP_erase_param();
 }
