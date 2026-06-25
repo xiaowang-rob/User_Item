@@ -29,10 +29,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-/* ============================================
- * GPIO - 通用输入输出映射
- * ============================================ */
-void BSP_POWER_12V_Control(bool on)
+// ============================================
+// GPIO - 通用输入输出映射
+// ============================================
+void bsp_power_12v_control(bool on)
 {
     if (on)
     {
@@ -44,16 +44,16 @@ void BSP_POWER_12V_Control(bool on)
     }
 }
 
-/* ============================================
- * PWM - 电机驱动
- * ============================================ */
-void BSP_PWM_SetCompare(u16 ticA, u16 ticB, u16 ticC)
+// ============================================
+// PWM - 电机驱动
+// ============================================
+void bsp_pwm_set_compare(u16 ticA, u16 ticB, u16 ticC)
 {
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_1, ticC);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_2, ticB);
     __HAL_TIM_SetCompare(&htim8, TIM_CHANNEL_3, ticA);
 }
-void BSP_PWM_Enable(void)
+void bsp_pwm_enable(void)
 {
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
@@ -63,7 +63,7 @@ void BSP_PWM_Enable(void)
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_3);
 }
-void BSP_PWM_Disable(void)
+void bsp_pwm_disable(void)
 {
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_1);
     HAL_TIM_PWM_Stop(&htim8, TIM_CHANNEL_2);

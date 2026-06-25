@@ -20,7 +20,7 @@
 typedef struct
 {
     // 注入状态
-    s8 inj_signal; // 当前注入极性 (+1/-1)
+     s8 inj_signal; // 当前注入极性 (+1/-1)
     u8 inj_count;
     u8 freq_ticks;
 
@@ -42,8 +42,8 @@ typedef struct
     // 初始位置
     float id_h;
     float id_z[2];
-    float init_curr_pos; /**<  +Ud 脉冲响应电流幅值 [A] */
-    float init_curr_neg; /**<  -Ud 脉冲响应电流幅值 [A] */
+    float init_curr_pos; //  +Ud 脉冲响应电流幅值 [A]
+    float init_curr_neg; //  -Ud 脉冲响应电流幅值 [A]
 
 } tHFI_Handle;
 

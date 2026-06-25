@@ -35,4 +35,4 @@ void pro_manager_main_loop();
 
 void pro_set_limit_position(float min_position, float max_position);
 
-#endif /* __PROTECTION_MANAGER_H */
+#endif // __PROTECTION_MANAGER_H

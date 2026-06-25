@@ -5,7 +5,7 @@
 #include "arm_math.h"
 #include "math.h"
 
-/* 数学常量定义 */
+//  数学常量定义 
 #define MATH_PI 3.1415926535f
 #define MATH_2PI 6.2831853f
 #define MATH_SQRT3 1.732050807f
@@ -14,7 +14,7 @@
 #define MATH_1_SQRT2 0.7071067812f
 #define MATH_1_SQRT3 0.5773502691f
 
-/* 函数声明 */
+//  函数声明 
 // 一般函数--大型函数 不经常调用
 
 // 内联函数--小函数 经常调用
@@ -41,7 +41,7 @@ static inline u32 fast_roundf(float x)
 }
 
 // 将角度标准化到 [0, 360) 范围
-static inline float normalize_angle_0_360(float angle)
+static inline float normalize_angle_360(float angle)
 {
     angle = fmodf(angle, 360);
     if (angle < 0.0f)
@@ -51,20 +51,17 @@ static inline float normalize_angle_0_360(float angle)
     return angle;
 }
 // 将角度标准化到[-π, π]范围
-static inline float normalize_angle_180(float angle)
+static inline float normalize_angle_pi(float angle)
 {
-    /* 利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] */
+    //  利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] 
     angle = fmodf(angle + 180, 360);
     if (angle < 0.0f)
         angle += 360;
     return angle - 180;
 }
 
-/**
- * @brief Clark 变换 (abc → αβ)(等幅值)
- * @param ia, ib, ic: 三相电流或电压
- * @param alpha, beta: 输出的 αβ 轴分量
- */
+// Clark 变换 (abc → αβ)(等幅值)
+// ia, ib, ic: 三相电流或电压; alpha, beta: 输出的 αβ 轴分量
 static inline void clarke_transform(float ia, float ib, float ic, float *alpha, float *beta)
 {
     // 使用幅值不变变换（系数 2/3）
@@ -72,34 +69,23 @@ static inline void clarke_transform(float ia, float ib, float ic, float *alpha, 
     *alpha = ia;
     *beta = MATH_INSQRT3 * (ib - ic);
 }
-/**
- * @brief Clark 反变换 (αβ → abc)(等幅值)
- * @param alpha, beta: αβ 轴分量
- * @param ia, ib, ic: 输出的三相值
- */
+// Clark 反变换 (αβ → abc)(等幅值)
+// alpha, beta: αβ 轴分量; ia, ib, ic: 输出的三相值
 static inline void inv_clarke_transform(float alpha, float beta, float *ia, float *ib, float *ic)
 {
     *ia = alpha;
     *ib = -0.5f * alpha + MATH_SQRT3_2 * beta;
     *ic = -0.5f * alpha - MATH_SQRT3_2 * beta;
 }
-/**
- * @brief Park 变换 (αβ → dq)
- * @param alpha, beta: αβ 轴分量
- * @param angle: 电角度（角度）
- * @param d, q: 输出的 dq 轴分量
- */
+// Park 变换 (αβ → dq)
+// alpha, beta: αβ 轴分量; sin/cos: 电角度; d, q: 输出的 dq 轴分量
 static inline void park_transform(float alpha, float beta, float sin_angle, float cos_angle, float *d, float *q)
 {
     *d = alpha * cos_angle + beta * sin_angle;
     *q = -alpha * sin_angle + beta * cos_angle;
 }
-/**
- * @brief Park 反变换 (dq → αβ)
- * @param d, q: dq 轴分量
- * @param angle: 电角度（角度）
- * @param alpha, beta: 输出的 αβ 轴分量
- */
+// Park 反变换 (dq → αβ)
+// d, q: dq 轴分量; sin/cos: 电角度; alpha, beta: 输出的 αβ 轴分量
 static inline void inv_park_transform(float d, float q, float sin_angle, float cos_angle, float *alpha, float *beta)
 {
     *alpha = d * cos_angle - q * sin_angle;
@@ -122,4 +108,4 @@ static inline u8 crc8(const u8 *data, u8 len) {
     return crc;
 }
 
-#endif /* __MATH_FAST_H */
+#endif //  __MATH_FAST_H 

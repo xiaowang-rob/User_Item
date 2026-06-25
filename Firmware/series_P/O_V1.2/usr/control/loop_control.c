@@ -74,7 +74,7 @@ float loop_pi_update(tPI *pi, float ref, float fb)
 }
 
 // 重置PI状态
-void PI_reset(tPI *pi)
+void pi_reset(tPI *pi)
 {
     pi->integral = 0.0f;
     pi->output = 0.0f;
@@ -96,13 +96,13 @@ void loop_pid_init(tPID *pid, float kp, float ki_cont, float kd_cont,
     pid->output_limit = output_limit;
     // 积分限幅：与输出量纲对齐（output = ki * integral）
     pid->integral_limit = (pid->ki > 1e-6f) ? (output_limit / pid->ki) : output_limit;
-    pid->derivative_limit = output_limit * 3.0f; // 微分限幅可略大
+     pid->derivative_limit = output_limit * 3.0f; // 微分限幅可略大
 
     pid->alpha = 0.15f;
 }
 
 // PID更新（含微分滤波）
-float PID_update(tPID *pid, float ref, float fb)
+float pid_update(tPID *pid, float ref, float fb)
 {
     float error = ref - fb;
 
@@ -117,7 +117,7 @@ float PID_update(tPID *pid, float ref, float fb)
     pid->derivative = CLAMP(pid->derivative, -pid->derivative_limit, pid->derivative_limit);
 
     // 4. 合成输出 + 硬限幅
-    pid->output = pid->kp * error + pid->kp * pid->integral + pid->kd * pid->derivative;
+    pid->output = pid->kp * error + pid->ki * pid->integral + pid->kd * pid->derivative;
 
     pid->output = CLAMP(pid->output, -pid->output_limit, pid->output_limit);
 
@@ -127,12 +127,11 @@ float PID_update(tPID *pid, float ref, float fb)
 }
 
 // 重置PID状态
-void PID_reset(tPID *pid)
+void pid_reset(tPID *pid)
 {
     pid->integral = 0.0f;
     pid->derivative = 0.0f;
     pid->last_error = 0.0f;
-    pid->derivative = 0.0f;
     pid->output = 0.0f;
 }
 
@@ -141,7 +140,7 @@ void loop_control_init(tParameter *param, float Udc)
 {
     // 先初始化分频器
     freq_div_init();
-    g_loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
+     g_loop_con.max_Vs = Udc / MATH_SQRT3; // 最大线电压 = DC母线电压 / √3
     loop_pi_init(&g_loop_con.PI_iq, param->kp_Q, param->ki_Q, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
     loop_pi_init(&g_loop_con.PI_id, param->kp_D, param->ki_D, g_loop_con.max_Vs, g_loop_con.fd.t_cur);
     loop_pi_init(&g_loop_con.PI_speed, param->kp_speed, param->ki_speed, param->limit_current, g_loop_con.fd.t_spd);
@@ -157,11 +156,11 @@ void loop_control_init(tParameter *param, float Udc)
 void loop_control_reset(float Udc)
 {
     g_loop_con.max_Vs = Udc / MATH_SQRT3;
-    PI_reset(&g_loop_con.PI_id);
-    PI_reset(&g_loop_con.PI_iq);
-    PI_reset(&g_loop_con.PI_speed);
-    PI_reset(&g_loop_con.PI_weakmag);
-    PID_reset(&g_loop_con.PID_pos);
+    pi_reset(&g_loop_con.PI_id);
+    pi_reset(&g_loop_con.PI_iq);
+    pi_reset(&g_loop_con.PI_speed);
+    pi_reset(&g_loop_con.PI_weakmag);
+    pid_reset(&g_loop_con.PID_pos);
 }
 
 // q轴电流环
@@ -200,12 +199,12 @@ float loop_position_update(float position_ref, float position_fb)
         position_ref = g_loop_con.position_max;
     if (position_ref < g_loop_con.position_min)
         position_ref = g_loop_con.position_min;
-    return PID_update(&g_loop_con.PID_pos, position_ref, position_fb);
+    return pid_update(&g_loop_con.PID_pos, position_ref, position_fb);
 }
 
 void loop_set_position_out_limit(float limit)
 {
     g_loop_con.PID_pos.output_limit = limit;
     g_loop_con.PID_pos.integral_limit = (g_loop_con.PID_pos.ki > 1e-6f) ? (limit / g_loop_con.PID_pos.ki) : limit;
-    g_loop_con.PID_pos.derivative_limit = limit * 3.0f; // 微分限幅可略大
+     g_loop_con.PID_pos.derivative_limit = limit * 3.0f; // 微分限幅可略大
 }

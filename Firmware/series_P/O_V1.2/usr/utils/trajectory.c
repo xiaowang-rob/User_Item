@@ -1,21 +1,21 @@
 #include "trajectory.h"
 
-/* === 常量定义 (放 Flash) === */
+//  === 常量定义 (放 Flash) === 
 static const float TRAJ_EPSILON = 1.0e-6f;
 static const float TRAJ_TOL_DEFAULT = 0.001f;
 
-/* === 全局静态变量  === */
+//  === 全局静态变量  === 
 static tTraj_Config traj_cfg = {0};
 static tTraj_PosState traj_posstate = {0};
 static tTraj_VelState traj_velstate = {0};
 
-/* === 初始化 === */
+//  === 初始化 === 
 void traj_init(tTraj_Config cfg)
 {
     traj_cfg = cfg;
 }
 
-/* === 重置状态 === */
+//  === 重置状态 === 
 void traj_posreset(float current_value)
 {
     traj_posstate.target = current_value;
@@ -34,7 +34,7 @@ void traj_velreset(float current_value)
     traj_velstate.busy = false;
 }
 
-/* === 设置目标 === */
+//  === 设置目标 === 
 void traj_set_postarget(float target)
 {
     traj_posstate.target = target;
@@ -49,7 +49,7 @@ void traj_set_veltarget(float target)
     traj_velstate.busy = (err > TRAJ_TOL_DEFAULT);
 }
 
-/* === 核心更新函数  === */
+//  === 核心更新函数  === 
 tTraj_PosOut traj_PosUpdate(float dt)
 {
     tTraj_PosOut out = {0};
@@ -63,21 +63,21 @@ tTraj_PosOut traj_PosUpdate(float dt)
         return out;
     }
 
-    /* === 1. 误差计算 === */
+    //  === 1. 误差计算 === 
     float error = traj_posstate.target - traj_posstate.current;
     float dist = FABSF(error);
     float dir = FSIGN(error);
 
-    /* === 2. 刹车距离计算 (rate² / 2a) === */
+    //  === 2. 刹车距离计算 (rate² / 2a) === 
     float rate_abs = FABSF(traj_posstate.rate);
     float stop_dist = (traj_cfg.limit_d2 > TRAJ_EPSILON)
                           ? (rate_abs * rate_abs) / (2.0f * traj_cfg.limit_d2)
                           : 0.0f;
-    /* === 3. 计算允许的最大变化率 === */
+    //  === 3. 计算允许的最大变化率 === 
     float rate_limit;
     if (dist <= stop_dist)
     {
-        /* 减速段：使用 ARM 优化 sqrt */
+        //  减速段：使用 ARM 优化 sqrt 
         arm_sqrt_f32(2.0f * traj_cfg.limit_d2 * dist, &rate_limit);
     }
     else
@@ -85,30 +85,30 @@ tTraj_PosOut traj_PosUpdate(float dt)
         rate_limit = traj_cfg.limit_d1;
     }
 
-    /* === 4. 分支：T 型 vs S 型 === */
+    //  === 4. 分支：T 型 vs S 型 === 
     if (traj_cfg.type == TRAJ_TRAPEZOID)
     {
-        /* === 梯形轨迹 === */
+        //  === 梯形轨迹 === 
         float target_rate = rate_limit * dir;
         float rate_diff = target_rate - traj_posstate.rate;
         float max_rate_step = traj_cfg.limit_d2 * dt;
 
-        /* 变化率斜坡 (分支消除) */
+        //  变化率斜坡 (分支消除) 
         float rate_step = (FABSF(rate_diff) > max_rate_step) ? FSIGN(rate_diff) * max_rate_step : rate_diff;
 
         traj_posstate.rate += rate_step;
     }
     else
     {
-        /* === S 型轨迹 === */
+        //  === S 型轨迹 === 
         float target_rate = rate_limit * dir;
         float rate_err = target_rate - traj_posstate.rate;
 
-        /* 目标加速度 */
+        //  目标加速度 
         float target_accel = (dt > TRAJ_EPSILON) ? (rate_err / dt) : 0.0f;
         target_accel = CLAMP(target_accel, -traj_cfg.limit_d2, traj_cfg.limit_d2);
 
-        /* Jerk 限制 */
+        //  Jerk 限制 
         float accel_err = target_accel - traj_posstate.accel;
         float max_accel_step = traj_cfg.limit_d3 * dt;
 
@@ -118,20 +118,20 @@ tTraj_PosOut traj_PosUpdate(float dt)
         traj_posstate.rate += traj_posstate.accel * dt;
     }
 
-    /* === 5. 积分得到规划值 === */
+    //  === 5. 积分得到规划值 === 
     traj_posstate.current += traj_posstate.rate * dt;
 
-    /* === 6. 输出赋值 === */
-    out.value = traj_posstate.current; // 核心输出
-    out.rate = traj_posstate.rate;     // 可选：变化率前馈
-    out.accel = traj_posstate.accel;   // 可选：加速度前馈
-    /* === 7. 到达判断 === */
+    //  === 6. 输出赋值 === 
+     out.value = traj_posstate.current; // 核心输出
+     out.rate = traj_posstate.rate;     // 可选：变化率前馈
+     out.accel = traj_posstate.accel;   // 可选：加速度前馈
+    //  === 7. 到达判断 === 
     float tol = (traj_cfg.tolerance > 0.0f) ? traj_cfg.tolerance : TRAJ_TOL_DEFAULT;
     bool done = (dist <= tol) && (FABSF(traj_posstate.rate) <= tol);
 
     if (done)
     {
-        traj_posstate.current = traj_posstate.target; // 修正累积误差
+         traj_posstate.current = traj_posstate.target; // 修正累积误差
         traj_posstate.rate = 0.0f;
         traj_posstate.accel = 0.0f;
         traj_posstate.busy = false;

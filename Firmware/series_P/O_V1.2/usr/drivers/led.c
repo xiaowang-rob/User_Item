@@ -6,7 +6,7 @@ void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state)
     static u32 led_base_time = 0;
     static bool half_blink_flag = false;
 
-    u32 now = BSP_GetTick();
+    u32 now = bsp_get_tick();
     u32 elapsed = now - led_base_time;
 
     if (elapsed >= 300)
@@ -14,9 +14,9 @@ void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state)
         if (!half_blink_flag)
         { // 快闪
             if (can_state == RUNNING)
-                BSP_LED_CanTogglePin();
+                bsp_led_can_toggle_pin();
             if (encoder_state == RUNNING)
-                BSP_LED_EncoderTogglePin();
+                bsp_led_encoder_toggle_pin();
             half_blink_flag = true;
         }
         if (elapsed > 600)
@@ -24,25 +24,25 @@ void led_control(eDeviceStatus can_state, eDeviceStatus encoder_state)
             switch (can_state)
             {
             case OFFLINE:
-                BSP_LED_CanSetPin(false);
+                bsp_led_can_set_pin(false);
                 break;
             case ONLINE:
-                BSP_LED_CanSetPin(true);
+                bsp_led_can_set_pin(true);
                 break;
             default:
-                BSP_LED_CanTogglePin();
+                bsp_led_can_toggle_pin();
                 break;
             }
             switch (encoder_state)
             {
             case OFFLINE:
-                BSP_LED_EncoderSetPin(false);
+                bsp_led_encoder_set_pin(false);
                 break;
             case ONLINE:
-                BSP_LED_EncoderSetPin(true);
+                bsp_led_encoder_set_pin(true);
                 break;
             default:
-                BSP_LED_EncoderTogglePin();
+                bsp_led_encoder_toggle_pin();
                 break;
             }
             led_base_time = now;

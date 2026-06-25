@@ -79,15 +79,15 @@ void param_get(eParameter para, u8 *value, u8 *len)
 
 bool param_save()
 {
-    BSP_erase_param();
-    return BSP_write_param((u8 *)&g_Param, sizeof(g_Param));
+    bsp_erase_param();
+    return bsp_write_param((u8 *)&g_Param, sizeof(g_Param));
 }
 bool param_init()
 {
     // 先清零，避免 Flash 未写入的字段为 NaN/垃圾值
     memset(&g_Param, 0, sizeof(g_Param));
 
-    if (false == BSP_read_param((u8 *)&g_Param, sizeof(g_Param)))
+    if (false == bsp_read_param((u8 *)&g_Param, sizeof(g_Param)))
         return false;
     if (g_Param.none_flag != 0x0f)
     { // flash中没有参数，初始化默认值
@@ -153,5 +153,5 @@ bool param_init()
 
 bool param_erase()
 {
-    return BSP_erase_param();
+    return bsp_erase_param();
 }

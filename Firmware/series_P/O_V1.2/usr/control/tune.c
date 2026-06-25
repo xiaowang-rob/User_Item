@@ -5,12 +5,12 @@
 #include "device.h"
 #include "parameter_manager.h"
 #include "filter.h"
-/* ================================= 全局变量定义 ================================= */
+// ================================= 全局变量定义 =================================
 static tTuneParams temp_params = {0};
 static tTuneContext tune_ctx = {0};
 
 static tFirstOrderLagFilter rs_i_filter;
-/* ================================= 辅助函数 ================================= */
+// ================================= 辅助函数 =================================
 // sum型线性拟合
 static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx, u16 n,
                            float *k, float *b, float *mse)
@@ -74,7 +74,7 @@ void calculate_control_params()
     temp_params.cur_filter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
 }
 
-/* ================================= 参数访问实现 ================================= */
+// ================================= 参数访问实现 =================================
 void motor_param_tune_force_save(void)
 {
 
@@ -103,7 +103,7 @@ void motor_param_tune_force_save(void)
     g_Param.adc_W_zero_offset = temp_params.wadc_offset;
 }
 
-/* ================================= 初始化与重置 ================================= */
+// ================================= 初始化与重置 =================================
 // todo:后续添加无感整定，根据选择的感应模式校准，无感只校准电机，有感校准电机和编码器，直接校准电机，直接用HFI、SMO做精准的控制
 void motor_param_tune_init()
 {
@@ -112,7 +112,7 @@ void motor_param_tune_init()
     memset(&temp_params, 0, sizeof(tTuneParams));
     temp_params.kv = g_Param.motor_kv;
     temp_params.dt = T_CON;
-    temp_params.tune_cur_limit = g_Param.tune_current; // 从用户配置获取校准电流锚点
+     temp_params.tune_cur_limit = g_Param.tune_current; // 从用户配置获取校准电流锚点
     filter_first_order_lag_init(&rs_i_filter, 0.04f, 0);
 }
 
@@ -121,7 +121,7 @@ void motor_param_tune_reset()
     tune_ctx.fault = FAULT_NONE;
     tune_ctx.state = TUNE_INIT;
 }
-/* ================================= 电阻整定 (开环 + 滤波 + 差分) ================================= */
+// ================================= 电阻整定 (开环 + 滤波 + 差分) =================================
 
 static bool _tune_rs(float i_alpha)
 {
@@ -164,7 +164,7 @@ static bool _tune_rs(float i_alpha)
             {
                 // 记录第一点
                 ctx->rs_ctx.i_meas[0] = i_a;
-                ctx->rs_ctx.v_meas[0] = v_out; // 记录实际输出电压
+                 ctx->rs_ctx.v_meas[0] = v_out; // 记录实际输出电压
 
                 // 切换到第二点
                 ctx->rs_ctx.step = 1;
@@ -222,15 +222,13 @@ static bool _tune_rs(float i_alpha)
     return false; // 辨识进行中
 }
 
-/**
- * @brief 累加当前采样点对DFT的贡献（无缓冲区）
- * @param i_alpha    α轴电流
- * @param i_beta     β轴电流
- * @param omega_dt   ω_inj * dt (rad) 每次固定角度增量
- * @param sum_re     实部累加器指针
- * @param sum_im     虚部累加器指针
- * @param cnt        当前周期内已采样点数指针（从0开始递增）
- */
+// 累加当前采样点对DFT的贡献（无缓冲区）
+// i_alpha    α轴电流
+// i_beta     β轴电流
+// omega_dt   ω_inj * dt (rad) 每次固定角度增量
+// sum_re     实部累加器指针
+// sum_im     虚部累加器指针
+// cnt        当前周期内已采样点数指针（从0开始递增）
 static void dft_accumulate(float i_alpha, float i_beta, float omega_dt,
                            float *sum_re, float *sum_im, uint16_t *cnt)
 {
@@ -243,13 +241,11 @@ static void dft_accumulate(float i_alpha, float i_beta, float omega_dt,
     *sum_im += i_alpha * s + i_beta * c;
     (*cnt)++;
 }
-/**
- * @brief 根据累加和计算电流幅值
- * @param sum_re   实部累加和
- * @param sum_im   虚部累加和
- * @param samples  该周期内的采样点数（恒为 SAMPLES_PER_CYCLE）
- * @return 电流基波幅值 (A)
- */
+// 根据累加和计算电流幅值
+// sum_re   实部累加和
+// sum_im   虚部累加和
+// samples  该周期内的采样点数（恒为 SAMPLES_PER_CYCLE）
+// 电流基波幅值 (A)
 static float dft_get_amplitude(float sum_re, float sum_im, uint16_t samples)
 {
     float scale = 2.0f / samples;
@@ -264,7 +260,7 @@ static void dft_reset_accumulator(float *sum_re, float *sum_im, uint16_t *cnt)
     *cnt = 0;
 }
 
-/* ================================= 电感整定（alpha beta轴方波注入） ================================= */
+// ================================= 电感整定（alpha beta轴方波注入） =================================
 static bool
 _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
 {
@@ -341,10 +337,10 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
                 else
                 {
                     // 电压已合适，结束自适应阶段
-                    ctx->ls_ctx.state = 1; // 进入转子预定位
-                    ctx->steady_tick = 0;  // 重置定时器
+                     ctx->ls_ctx.state = 1; // 进入转子预定位
+                     ctx->steady_tick = 0;  // 重置定时器
                     ctx->ls_ctx.cycle_cnt = 0;
-                    foc_set_ualpha_beta(0, 0); // 先关断电压
+                     foc_set_ualpha_beta(0, 0); // 先关断电压
                     return false;
                 }
 
@@ -423,7 +419,7 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
                 }
                 else
                 {
-                    L = 0.0f; // 不合理，置0
+                     L = 0.0f; // 不合理，置0
                 }
                 temp_params.ld = L;
                 // 测量完成，进入状态3：旋转转子至90°
@@ -636,11 +632,11 @@ bool _tune_encoder(float theta_m)
             ctx->encoder_ctx.theta_e_acc = 0.0f;
             ctx->encoder_ctx.theta_e_raw = 0.0f;
             if (!ctx->encoder_ctx.forward_done)
-                ctx->encoder_ctx.step = 2; // 进入正向扫描
+                 ctx->encoder_ctx.step = 2; // 进入正向扫描
             else if (!ctx->encoder_ctx.backward_done)
-                ctx->encoder_ctx.step = 3; // 进入反向扫描
+                 ctx->encoder_ctx.step = 3; // 进入反向扫描
             else
-                ctx->encoder_ctx.step = 4; // 进入方向校准
+                 ctx->encoder_ctx.step = 4; // 进入方向校准
         }
         break;
     }
@@ -650,10 +646,10 @@ bool _tune_encoder(float theta_m)
     {
         // 2.1 计算电角度增量
         if (ctx->encoder_ctx.step == 3)
-            ctx->encoder_ctx.theta_e_acc -= THETA_STEP; // 反向取负
+             ctx->encoder_ctx.theta_e_acc -= THETA_STEP; // 反向取负
         else
             ctx->encoder_ctx.theta_e_acc += THETA_STEP;
-        ctx->encoder_ctx.theta_elec = normalize_angle_0_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
+         ctx->encoder_ctx.theta_elec = normalize_angle_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
 
         // 2.2 施加开环电压 对应角度的ud
         float sin_theta_e = 0.0f;
@@ -684,14 +680,14 @@ bool _tune_encoder(float theta_m)
             { // 正向完成，保存结果并启动反向
 
                 ctx->encoder_ctx.forward_done = true;
-                ctx->encoder_ctx.step = 1; // 切到重新对齐0度
+                 ctx->encoder_ctx.step = 1; // 切到重新对齐0度
                 ctx->steady_tick = 0;
             }
             else
             { // 反向完成，进入计算
 
                 ctx->encoder_ctx.backward_done = true;
-                ctx->encoder_ctx.step = 1; // 切方向校准
+                 ctx->encoder_ctx.step = 1; // 切方向校准
                 ctx->steady_tick = 0;
             }
         }
@@ -723,7 +719,7 @@ bool _tune_encoder(float theta_m)
                 ctx->state = TUNE_FAILED;
                 return true;
             }
-            ctx->encoder_ctx.step = 5; // 进入拟合
+             ctx->encoder_ctx.step = 5; // 进入拟合
         }
         break;
     }
@@ -743,7 +739,7 @@ bool _tune_encoder(float theta_m)
         {
             ctx->fault = FAULT_ENCODER_CAL_FAIL;
             ctx->state = TUNE_FAILED;
-            ctx->encoder_ctx.step = 0; // 失败复位
+             ctx->encoder_ctx.step = 0; // 失败复位
             return true;
         }
 
@@ -772,22 +768,22 @@ bool _tune_encoder(float theta_m)
         // 4.5 计算零位偏移 (截距平均，抵消负载角)
         float o_est_f = -(ctx->encoder_ctx.b[0] / ctx->encoder_ctx.k[0]);
         float o_est_b = -(ctx->encoder_ctx.b[1] / ctx->encoder_ctx.k[1]);
-        temp_params.theta_offset = normalize_angle_0_360((o_est_f + o_est_b) * 0.5f);
+        temp_params.theta_offset = normalize_angle_360((o_est_f + o_est_b) * 0.5f);
 
-        ctx->encoder_ctx.step = 6; // 进入完成态
+         ctx->encoder_ctx.step = 6; // 进入完成态
         break;
     }
 
     // === STATE 6: 完成 (Done) ===
     case 6:
-        foc_set_ualpha_beta(0, 0); // 停机
+         foc_set_ualpha_beta(0, 0); // 停机
         return true;               // 返回 true 表示流程结束
     }
 
     return false; // 返回 false 表示流程未结束，需下次继续调用
 }
 
-/* ================================= 磁链整定 (SMO 框架) ================================= */
+// ================================= 磁链整定 (SMO 框架) =================================
 static bool _tune_psi_f()
 {
     // TODO: SMO 高速整定框架
@@ -801,7 +797,7 @@ static bool _tune_psi_f()
     return true;
 }
 
-/* ================================= 转动惯量/摩擦系数整定 (框架) ================================= */
+// ================================= 转动惯量/摩擦系数整定 (框架) =================================
 static bool _tune_jb()
 {
     // TODO: 阶跃响应法框架
@@ -815,11 +811,11 @@ static bool _tune_jb()
     return true;
 }
 
-/* ================================= 整定主循环 (状态切换时初始化) ================================= */
+// ================================= 整定主循环 (状态切换时初始化) =================================
 eTuneState tune_main_loop(tFOC_val *foc_val)
 {
     tTuneContext *ctx = &tune_ctx;
-    ctx->steady_tick++; // 作为全局稳态计时器
+     ctx->steady_tick++; // 作为全局稳态计时器
     switch (ctx->state)
     {
     case TUNE_INIT:
@@ -841,9 +837,9 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
             break;
         }
 
-        if (false == BSP_AdcCalibrateCurrent(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
+        if (false == bsp_adc_calibrate_current(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
             break;      // 电流校准
-        filter_reset(); // 对电流滤波器进行复位
+         filter_reset(); // 对电流滤波器进行复位
 
         // ========== 预计算：Rs 校准阶段所需阈值 (一次计算，整个阶段不变) ==========
         {
@@ -925,7 +921,7 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
             calculate_control_params();
             // 电感完成：初始化编码器校准上下文
 
-            encoder_set_angle_zero(); // 编码器圈数归零
+             encoder_set_angle_zero(); // 编码器圈数归零
             ctx->encoder_ctx.theta_elec = 0;
             ctx->encoder_ctx.v_out = 0;
             ctx->encoder_ctx.forward_done = false;
@@ -1022,5 +1018,5 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
     return ctx->state;
 }
 
-/* ================================= 辅助接口 ================================= */
+// ================================= 辅助接口 =================================
 eFaultState tune_get_fault(void) { return tune_ctx.fault; }

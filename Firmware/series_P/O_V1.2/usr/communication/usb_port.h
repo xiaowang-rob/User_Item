@@ -18,4 +18,4 @@ void usb_init(void);
 bool usb_send_frame(u8 id, u8 *data, u8 len);
 void usb_rx_frame_callback(u8 id, u8 *data, u8 len);
 
-#endif /* __USB_INTERFACE_H */
+#endif // __USB_INTERFACE_H

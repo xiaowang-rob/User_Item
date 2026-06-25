@@ -3,10 +3,10 @@
 #include "gpio.h"
 #include "config.h"
 
-/* ============================================
- * USB - USB虚拟串口
- * ============================================ */
-void BSP_USB_CS(bool level)
+// ============================================
+// USB - USB虚拟串口
+// ============================================
+void bsp_usb_cs(bool level)
 {
     if (level)
     {
@@ -17,7 +17,7 @@ void BSP_USB_CS(bool level)
         HAL_GPIO_WritePin(USB_CS_GPIOx, USB_CS_GPIOx_PIN, GPIO_PIN_RESET);
     }
 }
-bool BSP_USB_CDC_Transmit_FS(uint8_t *data, uint16_t len)
+bool bsp_usb_cdc_transmit_fs(uint8_t *data, uint16_t len)
 {
     return CDC_Transmit_FS(data, len) == USBD_OK;
 }

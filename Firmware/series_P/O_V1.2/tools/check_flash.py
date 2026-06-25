@@ -3,7 +3,7 @@ import sys
 import subprocess
 from pathlib import Path
 
-ELF_PATH = Path(__file__).resolve().parent.parent / "build" / "firmware.elf"
+ELF_PATH = Path(__file__).resolve().parent.parent / "build" / "XDr.elf"
 # 可选：保存已烧录文件的 hash 或时间戳，本文简单判断 ELF 是否存在且芯片是否已经有程序
 # 更严谨可以读取芯片 ID 和 ELF 的 Flash 地址比对，简单起见先判断 ELF 是否存在
 

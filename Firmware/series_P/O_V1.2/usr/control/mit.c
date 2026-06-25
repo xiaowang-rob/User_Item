@@ -49,9 +49,9 @@ float mit_track_update(float acc_ref, float tau_ff_sta, float pos_ref, float pos
     float vel_err = vel_ref - vel_fb;
 
     mit.tau_ff_dyn = mit.J * acc_ref + mit.B * vel_ref;
-    mit.tau_ff_sta = tau_ff_sta; // 静态前馈扭矩
+     mit.tau_ff_sta = tau_ff_sta; // 静态前馈扭矩
     float tau_ff = mit.tau_ff_dyn;
-    if (tau_ff_sta > 0.01f) // 静态前馈扭矩大于0.01时，默认认为使用静态前馈扭矩 禁用动态前馈扭矩
+    if (FABSF(tau_ff_sta) > 0.01f) // 静态前馈扭矩大于0.01时，默认认为使用静态前馈扭矩 禁用动态前馈扭矩
         tau_ff = mit.tau_ff_sta;
 
     // 核心公式：τ = Kp·e_p + Kd·e_v + τ_ff

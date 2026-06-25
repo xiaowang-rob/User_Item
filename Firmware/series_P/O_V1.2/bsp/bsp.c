@@ -1,8 +1,5 @@
-/**
- * @file    bsp.c
- * @brief   BSP实现 - 板级支持包
- * @note    薄封装，直接调用CubeMX生成的HAL函数
- */
+// BSP实现 - 板级支持包
+// 薄封装，直接调用CubeMX生成的HAL函数
 
 #include "main.h"
 #include "adc.h"
@@ -19,26 +16,26 @@
 #include "bsp.h"
 #include "config.h"
 
-void BSP_enable_irq()
+void bsp_enable_irq()
 {
     __enable_irq();
 }
-void BSP_disable_irq()
+void bsp_disable_irq()
 {
     __disable_irq();
 }
 // 中断向量表偏移
-void BSP_SetVectorTableOffset(u32 offset)
+void bsp_set_vector_table_offset(u32 offset)
 {
     SCB->VTOR = FLASH_BASE | offset;
 }
 
-u32 BSP_GetTick(void)
+u32 bsp_get_tick(void)
 {
     return HAL_GetTick();
 }
 
-u32 BSP_GetTick_us(void)
+u32 bsp_get_tick_us(void)
 {
     // 获取当前ms
     u32 m = HAL_GetTick();
@@ -50,12 +47,12 @@ u32 BSP_GetTick_us(void)
     return (m * 1000 + (u * 1000) / tms);
 }
 
-void BSP_Delay(u32 ms)
+void bsp_delay(u32 ms)
 {
     HAL_Delay(ms);
 }
 
-void BSP_SystemReset(void)
+void bsp_system_reset(void)
 {
     NVIC_SystemReset();
 }

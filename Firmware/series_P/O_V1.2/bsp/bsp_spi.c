@@ -28,10 +28,10 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
     }
 }
 
-/* ============================================
- * SPI - 编码器接口
- * ============================================ */
-bool BSP_SetEncoder_SPI_Config(u8 CPOL, u8 CPHA, u8 datasize)
+// ============================================
+// SPI - 编码器接口
+// ============================================
+bool bsp_set_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize)
 {
     ENCODER_SPI_CH.Instance = ENCODER_SPI;
     ENCODER_SPI_CH.Init.Mode = SPI_MODE_MASTER;
@@ -60,7 +60,7 @@ bool BSP_SetEncoder_SPI_Config(u8 CPOL, u8 CPHA, u8 datasize)
 }
 
 // 内部接口CS
-void BSP_Encoder_CS(eEncoderType type, bool level)
+void bsp_encoder_cs(eEncoderType type, bool level)
 {
     if (type == INTERNAL)
     {
@@ -86,31 +86,31 @@ void BSP_Encoder_CS(eEncoderType type, bool level)
     }
 }
 
-bool BSP_Encoder_SPI_IS_READY()
+bool bsp_encoder_spi_is_ready()
 {
     return HAL_SPI_GetState(&ENCODER_SPI_CH) == HAL_SPI_STATE_READY;
 }
 
-bool BSP_Encoder_SPI_TransmitReceive_DMA(u8 *tx, u8 *rx, u16 len)
+bool bsp_encoder_spi_transmit_receive_dma(u8 *tx, u8 *rx, u16 len)
 {
     return HAL_SPI_TransmitReceive_DMA(&ENCODER_SPI_CH, tx, rx, len) == HAL_OK;
 }
 
-void BSP_Encoder_SPI_Abort()
+void bsp_encoder_spi_abort()
 {
     HAL_SPI_Abort(&ENCODER_SPI_CH);
 }
 
-void BSP_Encoder_SPI_CLEAR_DMA_error_flags()
+void bsp_encoder_spi_clear_dma_error_flags()
 {
     __HAL_SPI_CLEAR_OVRFLAG(&ENCODER_SPI_CH);
     __HAL_SPI_CLEAR_FREFLAG(&ENCODER_SPI_CH);
 }
 
-/* ============================================
- * SPI - flash接口
- * ============================================ */
-void BSP_Flash_CS(bool level)
+// ============================================
+// SPI - flash接口
+// ============================================
+void bsp_flash_cs(bool level)
 {
     if (level)
     {
@@ -121,11 +121,11 @@ void BSP_Flash_CS(bool level)
         HAL_GPIO_WritePin(FLASH_CS_GPIOx, FLASH_CS_GPIOx_PIN, GPIO_PIN_RESET);
     }
 }
-bool BSP_Flash_SPI_Transmit(u8 *tx, u16 len, u32 timeout)
+bool bsp_flash_spi_transmit(u8 *tx, u16 len, u32 timeout)
 {
     return HAL_SPI_Transmit(&FLASH_SPI_CH, tx, len, timeout) == HAL_OK;
 }
-bool BSP_Flash_SPI_Receive(u8 *rx, u16 len, u32 timeout)
+bool bsp_flash_spi_receive(u8 *rx, u16 len, u32 timeout)
 {
     return HAL_SPI_TransmitReceive(&FLASH_SPI_CH, rx, rx, len, timeout) == HAL_OK;
 }

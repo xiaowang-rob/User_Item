@@ -15,18 +15,18 @@ void stream_data_get(eData_stream stream, float *data)
     switch (stream)
     {
     case CURRENT_U:
-        //        temp_val = fGetVoltage_u();
+        //        temp_val = get_voltage_u();
         //  temp_val = foc_val->iu;
         temp_val = g_hfi.omega_filtered;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_V:
-        //        temp_val = fGetVoltage_v();
+        //        temp_val = get_voltage_v();
         temp_val = foc_val->iv;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_W:
-        //        temp_val = fGetVoltage_w();
+        //        temp_val = get_voltage_w();
         temp_val = foc_val->iw;
         memcpy(data, &temp_val, 4);
         break;

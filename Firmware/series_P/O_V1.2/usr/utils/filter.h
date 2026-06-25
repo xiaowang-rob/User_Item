@@ -3,7 +3,7 @@
 
 #include "bsp.h"
 #include "math_fast.h"
-/* 限幅滤波法 */
+//  限幅滤波法 
 typedef struct
 {
     int max_deviation; // 最大允许偏差值
@@ -13,7 +13,7 @@ typedef struct
 void filter_amplitude_limiting_init(tAmplitudeLimitingFilter *filter, int max_deviation, int initial_value);
 int filter_amplitude_limiting(tAmplitudeLimitingFilter *filter, int new_value);
 
-/* 中位值滤波法 */
+//  中位值滤波法 
 typedef struct
 {
     int *buffer; // 数据缓冲区
@@ -24,7 +24,7 @@ typedef struct
 void filter_median_init(tMedianFilter *filter, int *buffer, int size);
 int filter_median(tMedianFilter *filter, int new_value);
 
-/* 滑动平均滤波法 */
+//  滑动平均滤波法 
 typedef struct
 {
     float32_t *buffer; // 数据缓冲区
@@ -35,9 +35,9 @@ typedef struct
 } tMovingAverageFilter;
 
 void filter_moving_avg_init(tMovingAverageFilter *filter, float32_t *buffer, int size);
-float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value);
+float32_t filter_moving_average(tMovingAverageFilter *filter, float32_t new_value);
 
-/* 加权滑动平均滤波法 */
+//  加权滑动平均滤波法 
 typedef struct
 {
     int *buffer;      // 数据缓冲区
@@ -51,7 +51,7 @@ void filter_weighted_moving_avg_init(tWeightedMovingAverageFilter *filter,
                                 int *buffer, int *coefficient, int size);
 int filter_weighted_moving_avg(tWeightedMovingAverageFilter *filter, int new_value);
 
-/* 一阶滞后滤波法（低通滤波） */
+//  一阶滞后滤波法（低通滤波） 
 typedef struct
 {
     float alpha;      // 滤波系数(0~1)
@@ -61,7 +61,7 @@ typedef struct
 void filter_first_order_lag_init(tFirstOrderLagFilter *filter, float alpha, float initial_value);
 float filter_first_order_lag(tFirstOrderLagFilter *filter, float new_value);
 
-/* 卡尔曼滤波 */
+//  卡尔曼滤波 
 typedef struct
 {
     float q; // 过程噪声协方差
@@ -74,7 +74,7 @@ typedef struct
 void filter_kalman_init(tKalmanFilter *filter, float q, float r, float initial_value);
 float filter_kalman(tKalmanFilter *filter, float measurement);
 
-/* 防脉冲干扰平均滤波法 */
+//  防脉冲干扰平均滤波法 
 typedef struct
 {
     u16 *buffer; // 数据缓冲区
@@ -85,10 +85,10 @@ typedef struct
 void filter_pulse_init(tPulseInterferenceFilter *filter, u16 *buffer, u8 size);
 u16 filter_pulse(tPulseInterferenceFilter *filter, u16 new_value);
 
-/* 算术平均滤波法（静态函数，不需要状态） */
-int fArithmeticMeanFilter(const int *data_buf, int size);
+//  算术平均滤波法（静态函数，不需要状态） 
+int filter_arithmetic_mean(const int *data_buf, int size);
 
-/* 巴特沃斯低通滤波器*/
+//  巴特沃斯低通滤波器
 typedef struct
 {
     arm_biquad_casd_df1_inst_f32 inst;
@@ -97,6 +97,6 @@ typedef struct
 } tBW_FilterInstance;
 
 void filter_butterworth_init(tBW_FilterInstance *f, float32_t *coeffs);
-float32_t fButterworthFilter_Process(tBW_FilterInstance *f, float32_t input);
+float32_t filter_butterworth_process(tBW_FilterInstance *f, float32_t input);
 void filter_butterworth_reset(tBW_FilterInstance *f);
 #endif

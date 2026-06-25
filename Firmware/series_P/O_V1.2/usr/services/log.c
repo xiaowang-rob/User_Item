@@ -10,7 +10,7 @@ static u8 num_tic = 0;
 void log_data_save(tProtectionManager *pro_manager)
 {
     Log.num = num_tic;
-    Log.minutes = BSP_GetTick() / 1000 / 60;
+    Log.minutes = bsp_get_tick() / 1000 / 60;
     Log.vbus = pro_manager->foc_val->udc;
     Log.temp = pro_manager->foc_val->temp;
     Log.iu = pro_manager->foc_val->iu;
@@ -35,7 +35,7 @@ void log_data_save(tProtectionManager *pro_manager)
 
 void log_data_write(void)
 {
-    BSP_write_log((u8 *)&Log, num_tic, sizeof(Log));
+    bsp_write_log((u8 *)&Log, num_tic, sizeof(Log));
     if (num_tic >= MAX_log_NUM)
     { // 日志满了后 循环覆盖最后一条日志
         return;
@@ -48,7 +48,7 @@ bool log_read_flash(u8 *data, u8 *len)
 {
     if (read_index < MAX_log_NUM)
     {
-        BSP_read_log((u8 *)&Log, read_index, sizeof(Log));
+        bsp_read_log((u8 *)&Log, read_index, sizeof(Log));
         if (Log.num == read_index)
         {
             *len = sizeof(Log);
@@ -72,7 +72,7 @@ bool log_read_flash(u8 *data, u8 *len)
 
 bool log_erase(void)
 {
-    if (BSP_erase_log())
+    if (bsp_erase_log())
     {
         num_tic = 0;
         return true;

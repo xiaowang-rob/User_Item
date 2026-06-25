@@ -1,6 +1,4 @@
-/*
-USB、串口、CAN 端口映射
-*/
+// USB、串口、CAN 端口映射
 #include "port_mapping.h"
 #include "usr_config.h"
 
@@ -146,7 +144,7 @@ static inline void _status_send()
         com_frame.txdatalen = 12;
     }
     // 超时检测：基于实际时间（5秒无心跳断开）
-    if (_last_host_ping_ms > 0 && BSP_GetTick() - _last_host_ping_ms > 5000)
+    if (_last_host_ping_ms > 0 && bsp_get_tick() - _last_host_ping_ms > 5000)
     {
         g_com_state.Host_port = NONE_port;
         system_message_send_flag = false;
@@ -184,10 +182,10 @@ static void _frame_data_deal()
             can_send_data(com_frame.txdata, 4);
             break;
         case CMD_SYSTEM_RESET:
-            BSP_SystemReset();
+            bsp_system_reset();
             break;
         case CMD_SET_ZERO_POS:
-            foc_set_zero_pos(); // 以当前位置为0点
+             foc_set_zero_pos(); // 以当前位置为0点
             break;
         case CMD_SET_LIMIT_POS:
             foc_set_limit_pos();
@@ -209,7 +207,7 @@ static void _frame_data_deal()
                         g_device_status.usb_state = ONLINE;
                     g_com_state.Host_port = com_frame.com_port;
                 }
-                _last_host_ping_ms = BSP_GetTick();
+                _last_host_ping_ms = bsp_get_tick();
                 break;
             case UC_DISCONNECT:
                 system_message_send_flag = false;
@@ -261,18 +259,19 @@ static void _frame_data_deal()
                 com_frame.stream_num = 0;
                 break;
             case CMD_SET_ZERO_POS:
-                foc_set_zero_pos(); // 以当前位置为0点
+                 foc_set_zero_pos(); // 以当前位置为0点
                 break;
             case CMD_SET_LIMIT_POS:
-                foc_set_limit_pos(); // 以当前位置为极限位置
+                 foc_set_limit_pos(); // 以当前位置为极限位置
                 break;
             case CMD_SYSTEM_RESET: // 系统复位
-                BSP_SystemReset();
+                bsp_system_reset();
                 break;
 
             case CMD_IAP_ENTER:
+                memset(com_frame.txdata, 0, 24);
                 strcat((char *)com_frame.txdata, FIRM_VERSION);
-                if (BSP_JumpToBootloader(com_frame.txdata, 24))
+                if (bsp_jump_to_bootloader(com_frame.txdata, 24))
                     com_frame.txdata[0] = EXECUTE;
                 else
                     com_frame.txdata[0] = FAILURE;
@@ -330,7 +329,8 @@ void can_rx_data_callback(u8 *RxData, u8 len)
 {
     if (g_port_rx[0].pending) // CAN is index 0
         return;
-
+    if (len > MAX_FRAME_LENGTH)
+        return;
     // 拷贝数据到端口自己的缓冲
     g_device_status.can_state = RUNNING;
     memcpy(g_port_rx[0].rxbuffer, RxData, len);
@@ -342,7 +342,8 @@ void usb_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
     if (g_port_rx[1].pending) // USB is index 1
         return;
-
+    if (len > MAX_FRAME_LENGTH)
+        return;
     g_device_status.usb_state = RUNNING;
     g_port_rx[1].cmd_id = id;
     memcpy(g_port_rx[1].rxbuffer, data, len);
@@ -354,7 +355,8 @@ void uart_rx_frame_callback(u8 id, u8 *data, u8 len)
 {
     if (g_port_rx[2].pending) // UART is index 2
         return;
-
+    if (len > MAX_FRAME_LENGTH)
+        return;
     g_port_rx[2].cmd_id = id;
     memcpy(g_port_rx[2].rxbuffer, data, len);
     g_port_rx[2].rxlen = len;
@@ -369,10 +371,10 @@ void _stream_data_trans()
 {
     if (com_frame.is_busy) // 端口忙
     {
-        _state_prev_ms = BSP_GetTick();
+        _state_prev_ms = bsp_get_tick();
         return;
     }
-    _time_ms = BSP_GetTick();
+    _time_ms = bsp_get_tick();
 
     // 参数发送
     if (param_send_flag)
@@ -380,7 +382,7 @@ void _stream_data_trans()
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
         _all_params_send();
-        _time_prev_ms = BSP_GetTick();
+        _time_prev_ms = bsp_get_tick();
         return;
     }
     // 日志发送
@@ -389,7 +391,7 @@ void _stream_data_trans()
         if (_time_ms - _time_prev_ms < T_DATA_STREAM)
             return;
         _all_log_send();
-        _time_prev_ms = BSP_GetTick();
+        _time_prev_ms = bsp_get_tick();
         return;
     }
 

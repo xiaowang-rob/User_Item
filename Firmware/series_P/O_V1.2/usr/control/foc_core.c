@@ -9,13 +9,11 @@
 #include "mit.h"
 
 // HFI→SMO 融合切换速度阈值 [rpm]
-#define HFI_TO_SMO_RPM 300.0f
+
 #include "filter.h"
 #include "protection_manager.h"
 #include "hfi.h"
 #include "usr_config.h"
-#include "usr_config.h"
-
 #include "bsp_adc.h"
 
 static float sin_theta_e = 0.0f;
@@ -34,7 +32,7 @@ tFOC_val *get_foc_val_adr()
     return &foc_val;
 }
 
-/* 滤波器实例 */
+// 滤波器实例
 static tFirstOrderLagFilter _i_u_filter;
 static tFirstOrderLagFilter _i_v_filter;
 static tFirstOrderLagFilter _i_w_filter;
@@ -115,10 +113,10 @@ void filter_reset()
 // FOC核心初始化
 void foc_core_init(tParameter *param)
 {
-    BSP_SetAdcCurrentOffset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
+    bsp_set_adc_current_offset(param->adc_U_zero_offset, param->adc_V_zero_offset, param->adc_W_zero_offset);
     encoder_init((eEncoderChip)param->encoder_chip);
     _motor_init(param);
-    BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
+    bsp_adc_get_voltage_temp(&foc_val.udc, &foc_val.temp);
     svpwm_init(foc_val.udc);
     loop_control_init(param, foc_val.udc);
     mit_init(param->kp_MIT, param->kd_MIT, motor.j, motor.b, param->tmax_MIT);
@@ -156,7 +154,7 @@ void foc_core_reset(void)
 
     _foc_val_reset();
     // 刷新电压，确保参数更新后电压环能正确工作
-    BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
+    bsp_adc_get_voltage_temp(&foc_val.udc, &foc_val.temp);
     loop_control_reset(foc_val.udc);
     svpwm_init(foc_val.udc);
 
@@ -167,32 +165,32 @@ void foc_core_reset(void)
 }
 
 // 电流重构 稳定的两相电流重构 + clark 变换
-static inline void _CurrentReconstruction(void)
+static inline void current_reconstruction(void)
 {
     float ui, vi, wi;
-    BSP_AdcGetCurrent(&ui, &vi, &wi);
+    bsp_adc_get_current(&ui, &vi, &wi);
     u8 sector = svpwm_get_sector();
-    /* 根据扇区确定两相：最短导通相由另两相推导 (Ia+Ib+Ic=0) */
+    // 根据扇区确定两相：最短导通相由另两相推导 (Ia+Ib+Ic=0)
     if (sector == 1 || sector == 6)
-    { /* 最短相=W */
+    { // 最短相=W
         foc_val.iu_im = vi + wi;
         foc_val.iv_im = -vi;
         foc_val.iw_im = -wi;
     }
     else if (sector == 2 || sector == 3)
-    { /* 最短相=U */
+    { // 最短相=U
         foc_val.iu_im = -ui;
         foc_val.iv_im = ui + wi;
         foc_val.iw_im = -wi;
     }
     else if (sector == 4 || sector == 5)
-    { /* 最短相=V */
+    { // 最短相=V
         foc_val.iu_im = -ui;
         foc_val.iv_im = -vi;
         foc_val.iw_im = ui + vi;
     }
     else
-    { /* sector 0/7: 零矢量 */
+    { // sector 0/7: 零矢量
         foc_val.iu_im = ui;
         foc_val.iv_im = vi;
         foc_val.iw_im = wi;
@@ -201,7 +199,7 @@ static inline void _CurrentReconstruction(void)
     foc_val.iu = filter_first_order_lag(&_i_u_filter, foc_val.iu_im);
     foc_val.iv = filter_first_order_lag(&_i_v_filter, foc_val.iv_im);
     foc_val.iw = filter_first_order_lag(&_i_w_filter, foc_val.iw_im);
-    /* Clarke 变换 */
+    // Clarke 变换
     clarke_transform(foc_val.iu, foc_val.iv, foc_val.iw, &foc_val.ialpha, &foc_val.ibeta);
 }
 
@@ -215,18 +213,18 @@ void foc_update_val(void)
     if (g_loop_con.fd.position_update)
     {
         loop_position_update_flag = true;
-        BSP_AdcGetVoltage_Temp(&foc_val.udc, &foc_val.temp);
+        bsp_adc_get_voltage_temp(&foc_val.udc, &foc_val.temp);
     }
 
     // 高频数据刷新
     freq_div_update();
-    _CurrentReconstruction();
+    current_reconstruction();
     switch (foc_mode.sensor_mode)
     {
     case ENCODER_CONTROL: // 获取编码器数据
         foc_val.theta_mech = encoder_get_angle_abs();
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
-        foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
+        foc_val.theta_elec = normalize_angle_360(foc_val.theta_elec);
 
         //  这样可以保证速度环计算和位置环计算 与 中频低频值计算 不在同一周期执行 且数据在前一周期完成计算
         if (g_loop_con.fd.speed_update)
@@ -248,34 +246,34 @@ void foc_update_val(void)
         float hfi_theta = hfi_get_theta_elec();
         float rpm_abs = FABSF(smo_rpm);
 
-        if (rpm_abs < HFI_TO_SMO_RPM)
-        {
-            // 低速：用 HFI
-            foc_val.theta_elec = hfi_theta;
-            foc_val.rpm_fb = hfi_get_omega_elec() / motor.pole_pairs;
-        }
-        else if (rpm_abs < HFI_TO_SMO_RPM * 1.5f)
-        {
-            // 过渡区：线性融合
-            float ratio = (rpm_abs - HFI_TO_SMO_RPM) / (HFI_TO_SMO_RPM * 0.5f);
-            if (ratio > 1.0f)
-                ratio = 1.0f;
-            float hfi_omega = hfi_get_omega_elec() / motor.pole_pairs;
-            foc_val.theta_elec = hfi_theta * (1.0f - ratio) + smo_theta * ratio;
-            foc_val.rpm_fb = hfi_omega * (1.0f - ratio) + smo_rpm * ratio;
-        }
-        else
-        {
-            // 高速：用 SMO
-            foc_val.theta_elec = smo_theta;
-            foc_val.rpm_fb = smo_rpm;
-        }
+        // if (rpm_abs < HFI_TO_SMO_RPM)
+        // {
+        //     // 低速：用 HFI
+        //     foc_val.theta_elec = hfi_theta;
+        //     foc_val.rpm_fb = hfi_get_omega_elec() / motor.pole_pairs;
+        // }
+        // else if (rpm_abs < HFI_TO_SMO_RPM * 1.5f)
+        // {
+        //     // 过渡区：线性融合
+        //     float ratio = (rpm_abs - HFI_TO_SMO_RPM) / (HFI_TO_SMO_RPM * 0.5f);
+        //     if (ratio > 1.0f)
+        //         ratio = 1.0f;
+        //     float hfi_omega = hfi_get_omega_elec() / motor.pole_pairs;
+        //     foc_val.theta_elec = hfi_theta * (1.0f - ratio) + smo_theta * ratio;
+        //     foc_val.rpm_fb = hfi_omega * (1.0f - ratio) + smo_rpm * ratio;
+        // }
+        // else
+        // {
+        //     // 高速：用 SMO
+        //     foc_val.theta_elec = smo_theta;
+        //     foc_val.rpm_fb = smo_rpm;
+        // }
         break;
     }
     case MERGE_CONTROL:
         foc_val.theta_mech = encoder_get_angle_abs();
         foc_val.theta_elec = (foc_val.theta_mech - motor.mech_offset) * motor.pole_pairs * (motor.forward_dir ? 1 : -1) + (motor.elec_pi_offset ? 180 : 0);
-        foc_val.theta_elec = normalize_angle_0_360(foc_val.theta_elec);
+        foc_val.theta_elec = normalize_angle_360(foc_val.theta_elec);
 
         if (g_loop_con.fd.speed_update)
         {
@@ -293,7 +291,6 @@ void foc_update_val(void)
 }
 
 // 使能后执行：按模式运行对应控制环
-// switch-case fall-through: POSITION→SPEED→CURRENT 级联控制
 void foc_main_loop_task(void)
 {
     if (foc_mode.sensor_mode >= SENSORLESS_CONTROL) // 无感和融合控制
@@ -306,7 +303,7 @@ void foc_main_loop_task(void)
             // todo:使能之后 直接跑电压环
             hfi_detect_initial_position(foc_val.id_fb, &foc_val.ualpha, &foc_val.ubeta);
             svpwm_run(foc_val.ualpha + foc_val.ualpha_hfi, foc_val.ubeta + foc_val.ubeta_hfi);
-            // svpwm_sample_point_calibration();  /* 暂不使用采样点调整 */
+            // svpwm_sample_point_calibration();  // 暂不使用采样点调整
             return;
         }
         // SMO 无感观测器
@@ -334,7 +331,7 @@ void foc_main_loop_task(void)
             foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
         }
         goto current_loop;
-        break;
+
     case PID_SPEED:
         if (g_loop_con.fd.speed_update) // 前一周期计算
         {
@@ -348,7 +345,7 @@ void foc_main_loop_task(void)
             foc_val.id_ref = loop_weak_mag_update(foc_val.ud, foc_val.uq);
         }
         goto current_loop;
-        break;
+
     case MIT_POSITION:                  // TODO: 要做单位换算
         if (g_loop_con.fd.speed_update) // 前一周期计算
         {
@@ -363,7 +360,7 @@ void foc_main_loop_task(void)
             foc_val.id_ref = 0;
         }
         goto current_loop;
-        break;
+
     case MIT_SPEED:
         if (g_loop_con.fd.speed_update) // 前一周期计算
         {
@@ -378,7 +375,7 @@ void foc_main_loop_task(void)
             foc_val.id_ref = 0;
         }
         goto current_loop;
-        break;
+
     case MIT_TRAJ: // 不能用轨迹规划
         if (loop_speed_update_flag)
         {
@@ -387,7 +384,6 @@ void foc_main_loop_task(void)
             foc_val.id_ref = 0;
         }
         goto current_loop;
-        break;
 
         // 电流环
     case CURRENT_MODE:
@@ -405,7 +401,7 @@ void foc_main_loop_task(void)
     }
 
     svpwm_run(foc_val.ualpha + foc_val.ualpha_hfi, foc_val.ubeta + foc_val.ubeta_hfi);
-    // svpwm_sample_point_calibration();  /* 暂不使用采样点调整 */
+    // svpwm_sample_point_calibration();  // 暂不使用采样点调整
 }
 
 // 设置各环指令值

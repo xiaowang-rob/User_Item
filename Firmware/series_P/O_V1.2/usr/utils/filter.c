@@ -2,16 +2,11 @@
 #include "stddef.h"
 #include "string.h"
 
-/**
- * @file filter.c
- * @brief 各种数字滤波算法实现
- */
+// 各种数字滤波算法实现
 
-/**
- * @brief 冒泡排序函数
- * @param arr 待排序的数组
- * @param n 数组大小
- */
+// 冒泡排序函数
+// arr 待排序的数组
+// n 数组大小
 static void bubble_sort(int arr[], int n)
 {
     if (arr == NULL || n <= 1)
@@ -25,7 +20,7 @@ static void bubble_sort(int arr[], int n)
 
     for (i = 0; i < n - 1; i++)
     {
-        swapped = 0; // 每轮开始前重置交换标志
+         swapped = 0; // 每轮开始前重置交换标志
 
         // 每轮将最大的元素"冒泡"到末尾
         for (j = 0; j < n - 1 - i; j++)
@@ -36,7 +31,7 @@ static void bubble_sort(int arr[], int n)
                 temp = arr[j];
                 arr[j] = arr[j + 1];
                 arr[j + 1] = temp;
-                swapped = 1; // 标记发生了交换
+                 swapped = 1; // 标记发生了交换
             }
         }
 
@@ -48,24 +43,20 @@ static void bubble_sort(int arr[], int n)
     }
 }
 
-/**
- * @brief 限幅滤波法初始化
- * @param filter 滤波器结构体指针
- * @param max_deviation 最大允许偏差值
- * @param initial_value 初始值
- */
+// 限幅滤波法初始化
+// filter 滤波器结构体指针
+// max_deviation 最大允许偏差值
+// initial_value 初始值
 void filter_amplitude_limiting_init(tAmplitudeLimitingFilter *filter, int max_deviation, int initial_value)
 {
     filter->max_deviation = max_deviation;
     filter->last_value = initial_value;
 }
 
-/**
- * @brief 限幅滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
+// 限幅滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
 int filter_amplitude_limiting(tAmplitudeLimitingFilter *filter, int new_value)
 {
     if ((new_value - filter->last_value > filter->max_deviation) ||
@@ -77,12 +68,10 @@ int filter_amplitude_limiting(tAmplitudeLimitingFilter *filter, int new_value)
     return new_value;
 }
 
-/**
- * @brief 中位值滤波法初始化
- * @param filter 滤波器结构体指针
- * @param buffer 数据缓冲区指针
- * @param size 缓冲区大小
- */
+// 中位值滤波法初始化
+// filter 滤波器结构体指针
+// buffer 数据缓冲区指针
+// size 缓冲区大小
 void filter_median_init(tMedianFilter *filter, int *buffer, int size)
 {
     filter->buffer = buffer;
@@ -91,12 +80,10 @@ void filter_median_init(tMedianFilter *filter, int *buffer, int size)
     memset(buffer, 0, size * sizeof(int));
 }
 
-/**
- * @brief 中位值滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
+// 中位值滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
 int filter_median(tMedianFilter *filter, int new_value)
 {
     int i;
@@ -119,12 +106,10 @@ int filter_median(tMedianFilter *filter, int new_value)
     return buf[(filter->size - 1) / 2];
 }
 
-/**
- * @brief 滑动平均滤波法初始化
- * @param filter 滤波器结构体指针
- * @param buffer 数据缓冲区指针
- * @param size 缓冲区大小
- */
+// 滑动平均滤波法初始化
+// filter 滤波器结构体指针
+// buffer 数据缓冲区指针
+// size 缓冲区大小
 void filter_moving_avg_init(tMovingAverageFilter *filter, float32_t *buffer, int size)
 {
     filter->buffer = buffer;
@@ -135,13 +120,11 @@ void filter_moving_avg_init(tMovingAverageFilter *filter, float32_t *buffer, int
     memset(buffer, 0, size * sizeof(float32_t));
 }
 
-/**
- * @brief 滑动平均滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
-float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value)
+// 滑动平均滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
+float32_t filter_moving_average(tMovingAverageFilter *filter, float32_t new_value)
 {
     // 减去即将被替换的值（如果缓冲区已满）
     if (filter->is_full)
@@ -173,13 +156,11 @@ float32_t fMovingAverageFilter(tMovingAverageFilter *filter, float32_t new_value
     }
 }
 
-/**
- * @brief 加权滑动平均滤波法初始化
- * @param filter 滤波器结构体指针
- * @param buffer 数据缓冲区指针
- * @param coefficient 加权系数数组指针
- * @param size 缓冲区大小
- */
+// 加权滑动平均滤波法初始化
+// filter 滤波器结构体指针
+// buffer 数据缓冲区指针
+// coefficient 加权系数数组指针
+// size 缓冲区大小
 void filter_weighted_moving_avg_init(tWeightedMovingAverageFilter *filter,
                                 int *buffer, int *coefficient, int size)
 {
@@ -198,12 +179,10 @@ void filter_weighted_moving_avg_init(tWeightedMovingAverageFilter *filter,
     memset(buffer, 0, size * sizeof(int));
 }
 
-/**
- * @brief 加权滑动平均滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
+// 加权滑动平均滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
 int filter_weighted_moving_avg(tWeightedMovingAverageFilter *filter, int new_value)
 {
     int sum = 0;
@@ -224,37 +203,31 @@ int filter_weighted_moving_avg(tWeightedMovingAverageFilter *filter, int new_val
     return sum / filter->coeff_sum;
 }
 
-/**
- * @brief 一阶滞后滤波法初始化
- * @param filter 滤波器结构体指针
- * @param alpha 滤波系数(0~1)
- * @param initial_value 初始值
- */
+// 一阶滞后滤波法初始化
+// filter 滤波器结构体指针
+// alpha 滤波系数(0~1)
+// initial_value 初始值
 void filter_first_order_lag_init(tFirstOrderLagFilter *filter, float alpha, float initial_value)
 {
     filter->alpha = alpha;
     filter->last_value = initial_value;
 }
 
-/**
- * @brief 一阶滞后滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
+// 一阶滞后滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
 float filter_first_order_lag(tFirstOrderLagFilter *filter, float new_value)
 {
     filter->last_value = filter->alpha * new_value + (1 - filter->alpha) * filter->last_value;
     return filter->last_value;
 }
 
-/**
- * @brief 卡尔曼滤波初始化
- * @param filter 滤波器结构体指针
- * @param q 过程噪声协方差
- * @param r 测量噪声协方差
- * @param initial_value 初始值
- */
+// 卡尔曼滤波初始化
+// filter 滤波器结构体指针
+// q 过程噪声协方差
+// r 测量噪声协方差
+// initial_value 初始值
 void filter_kalman_init(tKalmanFilter *filter, float q, float r, float initial_value)
 {
     filter->q = q;
@@ -264,12 +237,10 @@ void filter_kalman_init(tKalmanFilter *filter, float q, float r, float initial_v
     filter->k = 0.0f;
 }
 
-/**
- * @brief 卡尔曼滤波处理
- * @param filter 滤波器结构体指针
- * @param measurement 测量值
- * @return 滤波后的值
- */
+// 卡尔曼滤波处理
+// filter 滤波器结构体指针
+// measurement 测量值
+// 滤波后的值
 float filter_kalman(tKalmanFilter *filter, float measurement)
 {
     // 预测
@@ -283,12 +254,10 @@ float filter_kalman(tKalmanFilter *filter, float measurement)
     return filter->x;
 }
 
-/**
- * @brief 防脉冲干扰平均滤波法初始化
- * @param filter 滤波器结构体指针
- * @param buffer 数据缓冲区指针
- * @param size 缓冲区大小
- */
+// 防脉冲干扰平均滤波法初始化
+// filter 滤波器结构体指针
+// buffer 数据缓冲区指针
+// size 缓冲区大小
 void filter_pulse_init(tPulseInterferenceFilter *filter, u16 *buffer, u8 size)
 {
     filter->buffer = buffer;
@@ -297,12 +266,10 @@ void filter_pulse_init(tPulseInterferenceFilter *filter, u16 *buffer, u8 size)
     memset(buffer, 0, size * sizeof(u16));
 }
 
-/**
- * @brief 防脉冲干扰平均滤波法处理
- * @param filter 滤波器结构体指针
- * @param new_value 新的采样值
- * @return 滤波后的值
- */
+// 防脉冲干扰平均滤波法处理
+// filter 滤波器结构体指针
+// new_value 新的采样值
+// 滤波后的值
 u16 filter_pulse(tPulseInterferenceFilter *filter, u16 new_value)
 {
     int i, sum = 0;
@@ -330,13 +297,11 @@ u16 filter_pulse(tPulseInterferenceFilter *filter, u16 new_value)
     return sum / (filter->size - 2);
 }
 
-/**
- * @brief 算术平均滤波法处理
- * @param data_buf 数据数组指针
- * @param size 数组大小
- * @return 平均值
- */
-int fArithmeticMeanFilter(const int *data_buf, int size)
+// 算术平均滤波法处理
+// data_buf 数据数组指针
+// size 数组大小
+// 平均值
+int filter_arithmetic_mean(const int *data_buf, int size)
 {
     int sum = 0;
 
@@ -347,59 +312,48 @@ int fArithmeticMeanFilter(const int *data_buf, int size)
 
     return sum / size;
 }
-/**
- * @brief 巴特沃斯滤波器初始化
- * @param[in] f       滤波器实例指针，指向tBW_FilterInstance结构体
- * @param[in] coeffs  滤波器系数数组指针，格式为{b0, b1, b2, a1, a2}
- * @retval 无
- * @note 系数需预先通过双线性变换法计算（推荐使用Python scipy.signal.butter生成）
- */
+// 巴特沃斯滤波器初始化
+// f       滤波器实例指针，指向tBW_FilterInstance结构体
+// coeffs  滤波器系数数组指针，格式为{b0, b1, b2, a1, a2}
+// 系数需预先通过双线性变换法计算（推荐使用Python scipy.signal.butter生成）
 void filter_butterworth_init(tBW_FilterInstance *f, float32_t *coeffs)
 {
     memset(f, 0, sizeof(tBW_FilterInstance));
-    /* 拷贝系数到实例内部缓冲区，避免外部数组被意外修改 */
+    // 拷贝系数到实例内部缓冲区，避免外部数组被意外修改
     for (int i = 0; i < 5; i++)
     {
         f->coeffs[i] = coeffs[i];
     }
 
-    /* 初始化CMSIS-DSP滤波器结构体
-     * 参数说明：
-     *   &f->inst  : 滤波器实例
-     *   1         : 二阶节数量（2阶巴特沃斯对应1个二阶节）
-     *   f->coeffs : 系数数组
-     *   f->state  : 状态变量缓冲区（长度=2*numStages=4）
-     */
+    // 初始化CMSIS-DSP滤波器结构体
+    // 参数说明：
+    //   &f->inst  : 滤波器实例
+    //   1         : 二阶节数量（2阶巴特沃斯对应1个二阶节）
+    //   f->coeffs : 系数数组
+    //   f->state  : 状态变量缓冲区（长度=2*numStages=4）
     arm_biquad_cascade_df1_init_f32(&f->inst, 1, f->coeffs, f->state);
 }
 
-/**
- * @brief 巴特沃斯滤波器单步处理
- * @param[in] f     滤波器实例指针
- * @param[in] input 当前采样输入值
- * @retval float32_t 滤波后的输出值
- * @note 该函数为实时调用，执行时间约几十 cycles（FPU使能）
- */
-float32_t fButterworthFilter_Process(tBW_FilterInstance *f, float32_t input)
+// 巴特沃斯滤波器单步处理
+// f: 滤波器实例指针
+// input: 当前采样输入值
+// 返回 float32_t 滤波后的输出值
+// 该函数为实时调用，执行时间约几十 cycles（FPU使能）
+float32_t filter_butterworth_process(tBW_FilterInstance *f, float32_t input)
 {
     float32_t output;
 
-    /* 调用CMSIS-DSP优化函数执行滤波
-     * 输入输出指针传递，长度为1（单通道单采样）
-     */
+    // 调用CMSIS-DSP优化函数执行滤波，输入输出指针传递，长度为1（单通道单采样）
     arm_biquad_cascade_df1_f32(&f->inst, &input, &output, 1);
 
     return output;
 }
 
-/**
- * @brief 滤波器状态清零（用于启动或重置）
- * @param[in] f 滤波器实例指针
- * @retval 无
- * @note 避免重启时状态变量残留导致输出跳变
- */
+// 滤波器状态清零（用于启动或重置）
+// f: 滤波器实例指针
+// 避免重启时状态变量残留导致输出跳变
 void filter_butterworth_reset(tBW_FilterInstance *f)
 {
-    /* 清空状态缓冲区，共4个float32_t（2阶*2状态） */
+    // 清空状态缓冲区，共4个float32_t（2阶*2状态）
     memset(f->state, 0, sizeof(float32_t) * 4);
 }

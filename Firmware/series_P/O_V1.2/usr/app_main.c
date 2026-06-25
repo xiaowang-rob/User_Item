@@ -1,6 +1,5 @@
 
 #include "bsp_adc.h"
-#include "bsp_usb.h" // [DEBUG] BSP_USB_CDC_Transmit_FS
 #include "usr_config.h"
 #include "main.h"
 
@@ -9,7 +8,6 @@
 #include "log.h"
 #include "protection_manager.h"
 #include "port_mapping.h"
-#include "usb_port.h" // [DEBUG] usb_send_frame
 #include "device.h"
 
 #ifdef __DEBUG__ //***********调试************
@@ -18,29 +16,27 @@ u32 time_while_zero = 0;
 u32 time_while_T = 0;
 #endif
 
-void BSP_Init_Front(void)
+void bsp_init_front(void)
 {
-    BSP_SetVectorTableOffset(VECT_TABLE_OFFSET);
-    BSP_enable_irq(); // 使能全局中断,bl中关断了
+    bsp_set_vector_table_offset(VECT_TABLE_OFFSET);
+     bsp_enable_irq(); // 使能全局中断,bl中关断了
 }
-void BSP_Init_Back(void)
+void bsp_init_back(void)
 {
-    /*
-这里的顺序不能乱，因为里面有一些初始化函数，如果顺序不对，会导致一些变量没有初始化，导致程序出错
-参数必须尽早出现 flash在其之前，初始化的时候最好不要有其他中断干涉，所有adc得往后放，但是foc初始化必须得有adc值，故最后
-正确的顺序应该是：
-flash和参数一起-通讯-保护-日志-adc -foc初始化
-*/
+    //这里的顺序不能乱，因为里面有一些初始化函数，如果顺序不对，会导致一些变量没有初始化，导致程序出错
+    //参数必须尽早出现 flash在其之前，初始化的时候最好不要有其他中断干涉，所有adc得往后放，但是foc初始化必须得有adc值，故最后
+    //正确的顺序应该是：
+    //flash和参数一起-通讯-保护-日志-adc -foc初始化
 
     flash_init();
     if (!param_init())
-        BSP_Error_Handler();
+        bsp_error_handler();
     comm_init();
     pro_manager_init(&g_Param);
-    BSP_AdcInit(); // 这里就启动了foc的定时器
+     bsp_adc_init(); // 这里就启动了foc的定时器
     foc_init();
 }
-void BSP_AppMain(void)
+void bsp_app_main(void)
 {
     while (1)
     {
@@ -54,15 +50,15 @@ void BSP_AppMain(void)
         status_feedback_main_loop();
 #ifdef __DEBUG__ //***********调试************
 
-        time_while_T = BSP_GetTick_us() - time_while_zero;
-        time_while_zero = BSP_GetTick_us();
+        time_while_T = bsp_get_tick_us() - time_while_zero;
+        time_while_zero = bsp_get_tick_us();
 #endif
     }
 }
 
-void BSP_Error_Handler()
+void bsp_error_handler()
 {
-    BSP_disable_irq();
+    bsp_disable_irq();
     while (1)
     {
         system_fault_feedback();

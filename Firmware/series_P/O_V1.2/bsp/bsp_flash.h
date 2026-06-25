@@ -3,23 +3,23 @@
 
 #include "bsp.h"
 
-bool BSP_FLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
-bool BSP_FLASH_WriteWord(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
-bool BSP_FLASH_EraseRange(u32 start_addr, u32 end_addr);
-bool BSP_Flash_EraseApp(void);
-bool BSP_Flash_WriteApp(u32 addr, const u8 *data, u16 len);
-bool BSP_Flash_Verify(u32 addr, const u8 *data, u16 len);
-bool BSP_JumpToApp(void);
-bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len);
-bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len);
-bool BSP_ClearUpgradeFlag(void);
+bool bsp_flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead);
+bool bsp_flash_write_word(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite);
+bool bsp_flash_erase_range(u32 start_addr, u32 end_addr);
+bool bsp_flash_erase_app(void);
+bool bsp_flash_write_app(u32 addr, const u8 *data, u16 len);
+bool bsp_flash_verify(u32 addr, const u8 *data, u16 len);
+bool bsp_jump_to_app(void);
+bool bsp_jump_to_bootloader(const u8 *firm_version, u16 version_len);
+bool bsp_get_upgrade_flag(u8 *firm_version, u16 *version_len);
+bool bsp_clear_upgrade_flag(void);
 
-bool BSP_read_param(u8 *pBuffer, u16 NumByteToRead);
-bool BSP_erase_param(void);
-bool BSP_write_param(u8 *pBuffer, u16 NumByteToWrite);
+bool bsp_read_param(u8 *pBuffer, u16 NumByteToRead);
+bool bsp_erase_param(void);
+bool bsp_write_param(u8 *pBuffer, u16 NumByteToWrite);
 
-bool BSP_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite);
-bool BSP_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead);
-bool BSP_erase_log(void);
+bool bsp_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite);
+bool bsp_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead);
+bool bsp_erase_log(void);
 
-#endif /* __BSP_FLASH_H */
+#endif // __BSP_FLASH_H

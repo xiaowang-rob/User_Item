@@ -26,14 +26,14 @@ volatile u32 _time_foc_T = 0;
 void bsp_foc_it_callback()
 {
 #ifdef __DEBUG__
-    _time_focit_start = BSP_GetTick_us();
+    _time_focit_start = bsp_get_tick_us();
 #endif
 
     loop_main_update_task();
 
 #ifdef __DEBUG__
-    _time_foc_T = BSP_GetTick_us() - _time_focit_end;
-    _time_focit_end = BSP_GetTick_us();
+    _time_foc_T = bsp_get_tick_us() - _time_focit_end;
+    _time_focit_end = bsp_get_tick_us();
     _time_focit_run = _time_focit_end - _time_focit_start;
 #endif
 }
@@ -46,7 +46,7 @@ void foc_init()
     g_foc.foc_enable = false;
     g_foc.state = FOC_IDLE;
     foc_core_init(&g_Param);
-    BSP_POWER_12V_Control(true);
+    bsp_power_12v_control(true);
     g_foc.foc_init = true;
 }
 
@@ -59,14 +59,14 @@ static void loop_main_update_task()
     switch (g_foc.state)
     {
     case FOC_IDLE:
-        BSP_AdcIdleTrack();
+        bsp_adc_idle_track();
         break;
     case FOC_TUNE:
         if (!g_foc.foc_enable)
         {
             g_foc.foc_enable = true;
             foc_core_reset();
-            BSP_PWM_Enable();
+            bsp_pwm_enable();
         }
         if (TUNE_DONE == tune_main_loop(g_foc.val))
         {
@@ -80,19 +80,19 @@ static void loop_main_update_task()
         foc_core_reset();
         foc_state_update(FOC_IDLE);
         g_foc.foc_enable = false;
-        BSP_PWM_Disable();
-        BSP_POWER_12V_Control(true);
+        bsp_pwm_disable();
+        bsp_power_12v_control(true);
 
         break;
 
     case FOC_ENABLE:
         g_foc.foc_enable = true;
-        BSP_PWM_Enable();
+        bsp_pwm_enable();
         foc_state_update(FOC_RUNNING);
         break;
     case FOC_DISABLE:
         g_foc.foc_enable = false;
-        BSP_PWM_Disable();
+        bsp_pwm_disable();
         foc_state_update(FOC_RESET);
         break;
     case FOC_RUNNING:
@@ -106,8 +106,8 @@ static void loop_main_update_task()
         if (g_foc.foc_enable)
         {
             g_foc.foc_enable = false;
-            BSP_PWM_Disable();
-            BSP_POWER_12V_Control(false);
+            bsp_pwm_disable();
+            bsp_power_12v_control(false);
         }
         break;
     default:

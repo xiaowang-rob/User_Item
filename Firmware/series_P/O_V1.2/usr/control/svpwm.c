@@ -130,14 +130,14 @@ void svpwm_run(float ualpha, float ubeta)
     }
 
     // 更新比较值
-    BSP_PWM_SetCompare(g_svpwm.ticu, g_svpwm.ticv, g_svpwm.ticw);
+    bsp_pwm_set_compare(g_svpwm.ticu, g_svpwm.ticv, g_svpwm.ticw);
 }
 // 电流采样点改变
 u8 change_Index = 0;
-const u16 ticTs = T_SAMPLE_us * TIC_PWM / (T_PWM * 1000000); // 采样时间提前量（计数值）
-const u16 ticTn = T_NOISE_us * TIC_PWM / (T_PWM * 1000000);  // 噪声时间（计数值）
-const u16 ticTd = T_DEADTIME_us * TIC_PWM / (T_PWM * 1000000);  // 死区时间（计数值）
-const u16 ticAll = ticTs + ticTn + ticTd;                    // 总时间（计数值
+const u16 ticTs = T_SAMPLE_us * TIC_PWM / (T_PWM * 1000000);   // 采样时间提前量（计数值）
+const u16 ticTn = T_NOISE_us * TIC_PWM / (T_PWM * 1000000);    // 噪声时间（计数值）
+const u16 ticTd = T_DEADTIME_us * TIC_PWM / (T_PWM * 1000000); // 死区时间（计数值）
+const u16 ticAll = ticTs + ticTn + ticTd;                      // 总时间（计数值
 
 void svpwm_sample_point_calibration()
 {
@@ -149,7 +149,6 @@ void svpwm_sample_point_calibration()
     case 0:
     case 7:
         tic_ref = TIC_PWM / 2;
-        break;
         break;
     case 1:
     case 6:
@@ -167,15 +166,15 @@ void svpwm_sample_point_calibration()
     // 根据参考相占空比判断调制深度
     if (tic_ref > ticTd + ticTn)
     {
-        change_Index = 1; // 低调制
+         change_Index = 1; // 低调制
     }
     else if (ticAll > 2 * tic_ref)
     {
-        change_Index = 3; // 高调制
+         change_Index = 3; // 高调制
     }
     else
     {
-        change_Index = 2; // 中调制
+         change_Index = 2; // 中调制
     }
 
     // 设置ADC采样触发点
@@ -183,32 +182,32 @@ void svpwm_sample_point_calibration()
     {
     case 1:
         //        fAdcSampleChange(ticpwm - 1);
-        BSP_AdcSampleChange(tic_ref - ticTs);
+        bsp_adc_sample_change(tic_ref - ticTs);
         break;
     case 2:
         //        fAdcSampleChange(tic_ref + ticTs);
-        BSP_AdcSampleChange(tic_ref - ticTs);
+        bsp_adc_sample_change(tic_ref - ticTs);
         break;
     case 3:
         // 确保减后不溢出（可根据实际需求加限幅）
         if (tic_ref >= ticTd + ticTn)
-            BSP_AdcSampleChange(tic_ref - ticTd - ticTn);
+            bsp_adc_sample_change(tic_ref - ticTd - ticTn);
         else
-            BSP_AdcSampleChange(0);
+            bsp_adc_sample_change(0);
         break;
     default:
         break;
     }
 }
-float fGetVoltage_u()
+float get_voltage_u()
 {
     return g_svpwm.ticu * MATH_SQRT3 / g_svpwm.k;
 }
-float fGetVoltage_v()
+float get_voltage_v()
 {
     return g_svpwm.ticv * MATH_SQRT3 / g_svpwm.k;
 }
-float fGetVoltage_w()
+float get_voltage_w()
 {
     return g_svpwm.ticw * MATH_SQRT3 / g_svpwm.k;
 }

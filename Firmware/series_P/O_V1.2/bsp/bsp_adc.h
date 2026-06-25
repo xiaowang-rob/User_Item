@@ -3,14 +3,14 @@
 
 #include "bsp.h"
 
-void BSP_AdcInit(void);
+void bsp_adc_init(void);
 
-void BSP_AdcGetVoltage_Temp(float *voltage, float *temperature);
+void bsp_adc_get_voltage_temp(float *voltage, float *temperature);
 
-void BSP_AdcSampleChange(u16 compare);
-void BSP_AdcGetCurrent(float *ui, float *vi, float *wi);
-bool BSP_AdcCalibrateCurrent(float *ui_offset, float *vi_offset, float *wi_offset);
-void BSP_SetAdcCurrentOffset(float ui_offset, float vi_offset, float wi_offset);
-void BSP_AdcIdleTrack(void);
+void bsp_adc_sample_change(u16 compare);
+void bsp_adc_get_current(float *ui, float *vi, float *wi);
+bool bsp_adc_calibrate_current(float *ui_offset, float *vi_offset, float *wi_offset);
+void bsp_set_adc_current_offset(float ui_offset, float vi_offset, float wi_offset);
+void bsp_adc_idle_track(void);
 
-#endif /* __BSP_ADC_H */
+#endif // __BSP_ADC_H

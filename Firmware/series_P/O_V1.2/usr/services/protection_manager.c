@@ -31,6 +31,10 @@ void pro_manager_init(tParameter *param)
     g_pro_manager.min_position = param->limit_position_min;
     g_pro_manager.max_position = param->limit_position_max;
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
+    if (param->tolerance_limit < 0.6f)
+    {
+        param->tolerance_limit = 0.6f;
+    }
     g_pro_manager.tolerance_limit = param->tolerance_limit;
 }
 
@@ -42,6 +46,10 @@ void pro_manager_config(tParameter *param)
     g_pro_manager.min_position = param->limit_position_min;
     g_pro_manager.max_position = param->limit_position_max;
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
+    if (param->tolerance_limit < 0.6f)
+    {
+        param->tolerance_limit = 0.6f;
+    }
     g_pro_manager.tolerance_limit = param->tolerance_limit;
 }
 // 设置保护程序的限位位置
@@ -107,7 +115,7 @@ void pro_manager_main_loop()
         }
     }
     // 3.电流过大
-    if (g_pro_manager.foc_val->iu > MAX_CURRENT || g_pro_manager.foc_val->iv > MAX_CURRENT || g_pro_manager.foc_val->iw > MAX_CURRENT ||
+    if (FABSF(g_pro_manager.foc_val->iu) > MAX_CURRENT || FABSF(g_pro_manager.foc_val->iv) > MAX_CURRENT || FABSF(g_pro_manager.foc_val->iw) > MAX_CURRENT ||
         _tolerance_check(g_pro_manager.foc_val->iq_fb, g_pro_manager.max_current, -g_pro_manager.max_current))
     {
         g_pro_manager.fault = FAULT_OVERCURRENT;
@@ -121,12 +129,7 @@ void pro_manager_main_loop()
         g_pro_manager.warning = WARNING_OVERTEMP;
         g_pro_manager.warning_flag = true;
     }
-    // 电压过大
-    if (g_pro_manager.foc_val->udc > MAX_VOLTAGE)
-    {
-        g_pro_manager.fault = FAULT_OVERVOLTAGE;
-        g_pro_manager.fault_flag = true;
-    }
+
     // 使能之后保护
     if (g_foc.foc_enable)
     {
@@ -173,6 +176,7 @@ void pro_manager_main_loop()
     {
         log_data_save(&g_pro_manager);
         foc_state_update(FOC_FAULT);
-        // log_data_write();
+        // TODO: 添加警告处理
+        //  log_data_write();
     }
 }

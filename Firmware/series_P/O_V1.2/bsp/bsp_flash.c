@@ -1,18 +1,17 @@
-/**
- ******************************************************************************
- * @file    bsp_flash.c
- * @brief   STM32F4xx MCU 内置 Flash 驱动
- * @details 提供擦除、编程、读取、升级标志管理、跳转等功能
- * @note    需在 config.h 中定义：APP_START_ADDR, IAP_FLAG_ADDRESS, CONFIG_SECTOR
- ******************************************************************************
- */
+//
+// ******************************************************************************
+// STM32F4xx MCU 内置 Flash 驱动
+// 提供擦除、编程、读取、升级标志管理、跳转等功能
+// 需在 config.h 中定义：APP_START_ADDR, IAP_FLAG_ADDRESS, CONFIG_SECTOR
+// ******************************************************************************
+//
 
 #include "stm32f4xx_hal.h"
 #include "bsp_flash.h"
 #include <string.h>
 #include "config.h"
 
-/* 私有宏 ------------------------------------------------------------------*/
+// 私有宏 ------------------------------------------------------------------
 #define FLASH_SECTOR_16KB (16 * 1024)
 #define FLASH_SECTOR_64KB (64 * 1024)
 #define FLASH_SECTOR_128KB (128 * 1024)
@@ -33,21 +32,19 @@ static const u32 sector_start_addr[] = {
     0x080E0000, // Sector 11 128KB
 };
 
-/* 私有函数声明 ------------------------------------------------------------*/
+// 私有函数声明 ------------------------------------------------------------
 static bool Flash_WaitReady(u32 timeout_ms);
 static u8 Flash_GetSectorNum(u32 addr);
 static bool Flash_EraseSectorByNum(u8 sector_num);
 
-/* 公有函数 ----------------------------------------------------------------*/
+// 公有函数 ----------------------------------------------------------------
 
-/**
- * @brief 读取 Flash 数据
- * @param pBuffer 输出缓冲区
- * @param ReadAddr 起始地址
- * @param NumByteToRead 读取字节数
- * @retval true 成功
- */
-bool BSP_FLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
+// 读取 Flash 数据
+// pBuffer 输出缓冲区
+// ReadAddr 起始地址
+// NumByteToRead 读取字节数
+// true 成功
+bool bsp_flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
 {
     if (!pBuffer || ReadAddr < FLASH_BASE || (ReadAddr + NumByteToRead) > FLASH_END_ADDR)
         return false;
@@ -55,14 +52,12 @@ bool BSP_FLASH_ReadData(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
     return true;
 }
 
-/**
- * @brief 以字（32位）为单位写入 Flash（地址需4字节对齐，长度需4的倍数）
- * @param pBuffer 数据缓冲区（至少 NumByteToWrite 字节）
- * @param WriteAddr 起始地址（4字节对齐）
- * @param NumByteToWrite 写入字节数（4的倍数）
- * @retval true 成功
- */
-bool BSP_FLASH_WriteWord(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
+// 以字（32位）为单位写入 Flash（地址需4字节对齐，长度需4的倍数）
+// pBuffer 数据缓冲区（至少 NumByteToWrite 字节）
+// WriteAddr 起始地址（4字节对齐）
+// NumByteToWrite 写入字节数（4的倍数）
+// true 成功
+bool bsp_flash_write_word(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
 {
     if ((WriteAddr & 3) || (NumByteToWrite & 3))
         return false; // 未4字节对齐或长度不是4倍数
@@ -85,13 +80,11 @@ bool BSP_FLASH_WriteWord(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
     return true;
 }
 
-/**
- * @brief 擦除指定地址范围涉及的所有扇区（地址边界自动对齐到扇区）
- * @param start_addr 起始地址（包含）
- * @param end_addr   结束地址（包含）
- * @retval true 成功
- */
-bool BSP_FLASH_EraseRange(u32 start_addr, u32 end_addr)
+// 擦除指定地址范围涉及的所有扇区（地址边界自动对齐到扇区）
+// start_addr 起始地址（包含）
+// end_addr   结束地址（包含）
+// true 成功
+bool bsp_flash_erase_range(u32 start_addr, u32 end_addr)
 {
     if (start_addr > end_addr)
         return false;
@@ -104,7 +97,7 @@ bool BSP_FLASH_EraseRange(u32 start_addr, u32 end_addr)
     // 保护 Bootloader 区域（根据 BL_SIZE_KB 动态计算占用的扇区数量）
     u8 bl_sectors = (BL_SIZE_KB * 1024 + FLASH_SECTOR_16KB - 1) / FLASH_SECTOR_16KB; // 向上取整
     if (start_sector < bl_sectors)
-        start_sector = bl_sectors; // 至少从 Bootloader 后面的扇区开始，避开该区域
+         start_sector = bl_sectors; // 至少从 Bootloader 后面的扇区开始，避开该区域
 
     // 保护配置扇区（存升级标志）
     u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
@@ -127,24 +120,20 @@ bool BSP_FLASH_EraseRange(u32 start_addr, u32 end_addr)
     return true;
 }
 
-/**
- * @brief 擦除整个 App 区（从 APP_START_ADDR 到 FLASH_END_ADDR，避开配置扇区）
- * @note   BSP_Flash_CalcEraseSectors 不再需要，直接调用本函数即可
- * @retval true 成功
- */
-bool BSP_Flash_EraseApp(void)
+// 擦除整个 App 区（从 APP_START_ADDR 到 FLASH_END_ADDR，避开配置扇区）
+// bsp_flash_calc_erase_sectors 不再需要，直接调用本函数即可
+// true 成功
+bool bsp_flash_erase_app(void)
 {
-    return BSP_FLASH_EraseRange(APP_START_ADDR, FLASH_END_ADDR);
+    return bsp_flash_erase_range(APP_START_ADDR, FLASH_END_ADDR);
 }
 
-/**
- * @brief 写入 APP 固件（自动处理非4字节对齐的尾部，但建议以4字节块调用）
- * @param addr 目标地址（必须 >= APP_START_ADDR）
- * @param data 数据指针
- * @param len  数据长度（字节）
- * @retval true 成功
- */
-bool BSP_Flash_WriteApp(u32 addr, const u8 *data, u16 len)
+// 写入 APP 固件（自动处理非4字节对齐的尾部，但建议以4字节块调用）
+// addr 目标地址（必须 >= APP_START_ADDR）
+// data 数据指针
+// len  数据长度（字节）
+// true 成功
+bool bsp_flash_write_app(u32 addr, const u8 *data, u16 len)
 {
     if (addr < APP_START_ADDR || addr + len > FLASH_END_ADDR)
         return false;
@@ -178,14 +167,12 @@ bool BSP_Flash_WriteApp(u32 addr, const u8 *data, u16 len)
     return true;
 }
 
-/**
- * @brief 校验 Flash 内容与给定数据是否一致
- * @param addr 起始地址
- * @param data 数据缓冲区
- * @param len  长度
- * @retval true 一致
- */
-bool BSP_Flash_Verify(u32 addr, const u8 *data, u16 len)
+// 校验 Flash 内容与给定数据是否一致
+// addr 起始地址
+// data 数据缓冲区
+// len  长度
+// true 一致
+bool bsp_flash_verify(u32 addr, const u8 *data, u16 len)
 {
     for (u16 i = 0; i < len; i++)
     {
@@ -195,11 +182,9 @@ bool BSP_Flash_Verify(u32 addr, const u8 *data, u16 len)
     return true;
 }
 
-/**
- * @brief 跳转到 App 执行
- * @retval true 跳转成功（实际不会返回）
- */
-bool BSP_JumpToApp(void)
+// 跳转到 App 执行
+// true 跳转成功（实际不会返回）
+bool bsp_jump_to_app(void)
 {
     u32 app_stack = *(__IO u32 *)APP_START_ADDR;
     u32 app_reset = *(__IO u32 *)(APP_START_ADDR + 4);
@@ -218,13 +203,11 @@ bool BSP_JumpToApp(void)
     return false;
 }
 
-/**
- * @brief 设置升级标志（写入版本字符串到标志区）
- * @param firm_version 版本字符串
- * @param version_len  字符串长度（不含终止符）
- * @retval true 成功
- */
-bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len)
+// 设置升级标志（写入版本字符串到标志区）
+// firm_version 版本字符串
+// version_len  字符串长度（不含终止符）
+// true 成功
+bool bsp_jump_to_bootloader(const u8 *firm_version, u16 version_len)
 {
     // 限制字符串长度不超过 23 字符（留一个字节给 '\0'）
     if (version_len > 23)
@@ -240,19 +223,17 @@ bool BSP_JumpToBootloader(const u8 *firm_version, u16 version_len)
     // 确保以 '\0' 结尾（便于作为字符串读取）
     buf[version_len] = '\0';
 
-    return BSP_FLASH_WriteWord(buf, IAP_FLAG_ADDRESS, 24);
+    return bsp_flash_write_word(buf, IAP_FLAG_ADDRESS, 24);
 }
 
-/**
- * @brief 获取升级标志（读取版本字符串）
- * @param firm_version 输出缓冲区（至少 24 字节）
- * @param version_len  输出实际长度
- * @retval true 存在有效的升级标志
- */
-bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len)
+// 获取升级标志（读取版本字符串）
+// firm_version 输出缓冲区（至少 24 字节）
+// version_len  输出实际长度
+// true 存在有效的升级标志
+bool bsp_get_upgrade_flag(u8 *firm_version, u16 *version_len)
 {
     u8 raw[24];
-    if (!BSP_FLASH_ReadData(raw, IAP_FLAG_ADDRESS, 24))
+    if (!bsp_flash_read_data(raw, IAP_FLAG_ADDRESS, 24))
         return false;
 
     // 判断是否全为 0xFF（未编程）或全为 0
@@ -274,65 +255,61 @@ bool BSP_GetUpgradeFlag(u8 *firm_version, u16 *version_len)
     return (*version_len > 0);
 }
 
-/**
- * @brief 清除升级标志（擦除配置扇区）
- * @retval true 成功
- */
-bool BSP_ClearUpgradeFlag(void)
+// 清除升级标志（擦除配置扇区）
+// true 成功
+bool bsp_clear_upgrade_flag(void)
 {
     u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
     return Flash_EraseSectorByNum(cfg_sector);
 }
 
 // 读取参数
-bool BSP_read_param(u8 *pBuffer, u16 NumByteToRead)
+bool bsp_read_param(u8 *pBuffer, u16 NumByteToRead)
 {
     if (!pBuffer || NumByteToRead > PARAMETER_SIZE_KB * 1024)
         return false;
-    return BSP_FLASH_ReadData(pBuffer, PARAMETER_LOAD_ADDR, NumByteToRead);
+    return bsp_flash_read_data(pBuffer, PARAMETER_LOAD_ADDR, NumByteToRead);
 }
 
 // 擦除参数
-bool BSP_erase_param(void)
+bool bsp_erase_param(void)
 {
     return Flash_EraseSectorByNum(PARAMETER_SECTOR);
 }
 
 // 写入参数
-bool BSP_write_param(u8 *pBuffer, u16 NumByteToWrite)
+bool bsp_write_param(u8 *pBuffer, u16 NumByteToWrite)
 {
     if (!pBuffer || NumByteToWrite > PARAMETER_SIZE_KB * 1024)
         return false;
-    return BSP_FLASH_WriteWord(pBuffer, PARAMETER_LOAD_ADDR, NumByteToWrite);
+    return bsp_flash_write_word(pBuffer, PARAMETER_LOAD_ADDR, NumByteToWrite);
 }
 
 // 写入日志
-bool BSP_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite)
+bool bsp_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite)
 {
     if (!pBuffer || NumByteToWrite > LOG_SIZE_KB * 1024)
         return false;
-    return BSP_FLASH_WriteWord(pBuffer, LOG_START_ADDR + num * NumByteToWrite, NumByteToWrite); // 参数空间后移
+    return bsp_flash_write_word(pBuffer, LOG_START_ADDR + num * NumByteToWrite, NumByteToWrite); // 参数空间后移
 }
 
 // 读取日志
-bool BSP_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead)
+bool bsp_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead)
 {
     if (!pBuffer || NumByteToRead > LOG_SIZE_KB * 1024)
         return false;
-    return BSP_FLASH_ReadData(pBuffer, LOG_START_ADDR + num * NumByteToRead, NumByteToRead);
+    return bsp_flash_read_data(pBuffer, LOG_START_ADDR + num * NumByteToRead, NumByteToRead);
 }
 
 // 擦除日志
-bool BSP_erase_log(void)
+bool bsp_erase_log(void)
 {
     return Flash_EraseSectorByNum(LOG_SECTOR);
 }
 
-/* 私有函数实现 ------------------------------------------------------------*/
+// 私有函数实现 ------------------------------------------------------------
 
-/**
- * @brief 等待 Flash 就绪并清除错误标志
- */
+// 等待 Flash 就绪并清除错误标志
 static bool Flash_WaitReady(u32 timeout_ms)
 {
     while ((__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) && (timeout_ms-- > 0))
@@ -343,11 +320,9 @@ static bool Flash_WaitReady(u32 timeout_ms)
     return true;
 }
 
-/**
- * @brief 根据 Flash 地址获取扇区编号（0~11）
- * @param addr Flash 地址
- * @retval 扇区编号，无效返回 0xFF
- */
+// 根据 Flash 地址获取扇区编号（0~11）
+// addr Flash 地址
+// 扇区编号，无效返回 0xFF
 static u8 Flash_GetSectorNum(u32 addr)
 {
     for (u8 i = 0; i < 12; i++)
@@ -363,11 +338,9 @@ static u8 Flash_GetSectorNum(u32 addr)
     return 0xFF;
 }
 
-/**
- * @brief 擦除指定的扇区（通过扇区号）
- * @param sector_num 扇区号（0~11）
- * @retval true 成功
- */
+// 擦除指定的扇区（通过扇区号）
+// sector_num 扇区号（0~11）
+// true 成功
 static bool Flash_EraseSectorByNum(u8 sector_num)
 {
     if (sector_num > 11)

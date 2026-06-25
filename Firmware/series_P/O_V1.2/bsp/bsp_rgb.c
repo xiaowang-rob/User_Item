@@ -2,7 +2,7 @@
 #include "tim.h"
 #include "config.h"
 
-/* ========== 64点正弦查找表 ========== */
+// ========== 64点正弦查找表 ==========
 static const u8 SINE_TABLE[64] = {
     128, 140, 153, 165, 177, 188, 199, 209,
     218, 226, 234, 240, 245, 250, 253, 254,
@@ -13,10 +13,11 @@ static const u8 SINE_TABLE[64] = {
     2, 3, 6, 11, 16, 22, 30, 38,
     47, 57, 68, 79, 91, 103, 116, 128};
 
-/* ========== 颜色常量 ========== */
+// ========== 颜色常量 ==========
 const tRGBColor RED = {255, 0, 0};
 const tRGBColor GREEN = {0, 255, 0};
 const tRGBColor BLUE = {0, 0, 255};
+const tRGBColor YELLOW = {255, 255, 0};
 
 const tRGBColor CHINA_RED = {230, 0, 0};        // 中国红
 const tRGBColor KLEIN_BLUE = {0, 47, 167};      // 克莱因蓝
@@ -33,14 +34,12 @@ const tRGBColor ORANGE = {232, 88, 39};         // 品红
 // === 关键修复：改用u32作为DMA缓冲区！ ===
 #define WS2812_BUF_SIZE ((WS2812_NUM_LEDS * WS2812_BITS_PER_LED) + WS2812_RESET_BITS)
 
-/*
- * 每个元素对应CCR寄存器的比较值
- * 因为HAL_TIM_PWM_Start_DMA需要把每个bit变成一个完整的PWM周期
- * 所以我们这里存储的是占空比值的编码：
- * CODE_1 → 逻辑1的占空比(75)
- * CODE_0 → 逻辑0的占空比(35)
- * 0      → 复位信号的低电平
- */
+// 每个元素对应CCR寄存器的比较值
+// 因为HAL_TIM_PWM_Start_DMA需要把每个bit变成一个完整的PWM周期
+// 所以我们这里存储的是占空比值的编码：
+// CODE_1 → 逻辑1的占空比(75)
+// CODE_0 → 逻辑0的占空比(35)
+// 0      → 复位信号的低电平
 static u32 ws2812_dma_buf[WS2812_BUF_SIZE];
 
 static tRGBColor led_cache[WS2812_NUM_LEDS];
@@ -94,7 +93,7 @@ static void StartDMA(void)
                           (u32 *)ws2812_dma_buf, WS2812_BUF_SIZE);
 }
 
-void BSP_RGBInit(void)
+void bsp_rgb_init(void)
 {
     for (u32 i = 0; i < WS2812_BUF_SIZE; i++)
         ws2812_dma_buf[i] = 0;
@@ -106,7 +105,7 @@ void BSP_RGBInit(void)
     StartDMA();
 }
 
-bool BSP_RGB_SetAllColor(tRGBColor color)
+bool bsp_rgb_set_all_color(tRGBColor color)
 {
     if (breath_active)
         return false;
@@ -120,7 +119,7 @@ bool BSP_RGB_SetAllColor(tRGBColor color)
     return true;
 }
 
-void BSP_RGB_Breathe(tRGBColor Color)
+void bsp_rgb_breathe(tRGBColor Color)
 {
     if (!breath_active)
     {

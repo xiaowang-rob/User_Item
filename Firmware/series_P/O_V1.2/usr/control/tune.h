@@ -6,7 +6,7 @@
 #include "usr_config.h"
 #include "protocol.h"
 
-/* ================================= 整定参数配置 ================================= */
+// ================================= 整定参数配置 =================================
 // 通用时间转换 (假设 20kHz 中断，1 tick = 50us)
 
 #define TICK_TO_MS(tick) ((tick) * 0.05f)
@@ -85,7 +85,7 @@
 #define THETA_DELTA_MAX 0.05f                // 静止判断阈值 (°)
 #define THETA_STEADY_WIN MS_TO_TICK(100)     // 静止等待时间 (100ms)
 
-/* ================================= 电机参数结构(独立存储) ================================= */
+// ================================= 电机参数结构(独立存储) =================================
 typedef struct
 {
     // 系统参数
@@ -116,7 +116,7 @@ typedef struct
     float pos_ki;
     float pos_kd;
 
-    /* ================================= 电机参数 ========== */
+    // ================================= 电机参数 ==========
     // 电气参数
     float kv; // 电压转化器增益 (V/V) 用于检验参数有效性
 
@@ -130,7 +130,7 @@ typedef struct
     float j; // 转动惯量 (kg·m²)
     float b; // 摩擦系数 (N·m·s/rad)
 
-    /* ========== 编码器参数 =====*/
+    // ========== 编码器参数 =====
     float theta_offset; // 编码器角度偏移 (rad)
     u8 pole_pairs;      // 极对数
     bool direction;     // 转动方向 (true:逆 false 顺)
@@ -138,7 +138,7 @@ typedef struct
 
 } tTuneParams;
 
-/* ================================= 整定上下文(内部状态) ================================= */
+// ================================= 整定上下文(内部状态) =================================
 typedef struct
 {
     // 通用状态
@@ -185,11 +185,11 @@ typedef struct
         // ----- DFT 累加器（无缓冲区，周期累加）-----
         float sum_re;        // 实部累加和
         float sum_im;        // 虚部累加和
-        uint16_t sample_cnt; // 当前周期已采样点数
+         uint16_t sample_cnt; // 当前周期已采样点数
 
         // ----- 多周期平均 -----
         float amp_sum;     // 多个周期的幅值累加
-        uint8_t cycle_cnt; // 已完成的有效周期数
+         uint8_t cycle_cnt; // 已完成的有效周期数
 
     } ls_ctx;
 
@@ -258,11 +258,11 @@ typedef struct
     bool temp_flag[4];
 } tTuneContext;
 
-/* ================================= 公共接口 ================================= */
+// ================================= 公共接口 =================================
 void motor_param_tune_init();
 void motor_param_tune_reset();
 eTuneState tune_main_loop(tFOC_val *foc_val);
 u8 motor_param_tune_get_progress(void);
 eFaultState tune_get_fault(void);
 
-#endif /* __TUNE_H */
+#endif // __TUNE_H

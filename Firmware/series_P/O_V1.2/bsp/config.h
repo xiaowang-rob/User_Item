@@ -17,7 +17,7 @@
 #define FLASH_CS_GPIOx GPIOB
 #define FLASH_CS_GPIOx_PIN GPIO_PIN_12
 
-/*RGB LED*/
+// RGB LED
 #define RGB_PWM_GET_HTIM (htim4)
 #define RGB_PWM_CHANNEL1 TIM_CHANNEL_2
 #define Pixel_NUM 2 // RGB数量宏定义
@@ -29,19 +29,19 @@
 #define LED_CANrx_GPIOx GPIOB
 #define LED_CANrx_GPIOx_PIN GPIO_PIN_3
 
-/*12V POWER*/
+// 12V POWER
 #define POWER12V_GPIOx GPIOC
 #define POWER12V_GPIOx_PIN GPIO_PIN_13
 
-/*USB cs pin*/
+// USB cs pin
 #define USB_CS_GPIOx GPIOA
 #define USB_CS_GPIOx_PIN GPIO_PIN_8
 
-/*串口*/
+// 串口
 #define UART_CH (huart1)
 #define UART_INSTANCE USART1
 
-/*CAN*/
+// CAN
 #define STD_ID_MASK 0x7FF      // 标准帧11位ID掩码 [31:21]（32位模式）或 [15:5]（16位模式）
 #define EXT_ID_MASK 0xFFFFFFFF // 扩展帧29位ID掩码 [31:3]
 
@@ -65,36 +65,36 @@
 #define MIN_VOLTAGE 20             // 最小电压 20V
 #define MAX_TEMPERATURE 80         // 最大工作温度
 
-/* ---------- 硬件版本与产品信息 ---------- */
+// ---------- 硬件版本与产品信息 ----------
 
 #define PROD_SERIES "P"
 #define FUN_V "O"
 #define FIRM_V "V1.2"
 
-/* ========== BSP FLASH ========== */
+// ========== BSP FLASH ==========
 
 #define FLASH_START_ADDR 0x08000000U // Flash 起始地址
 #define FLASH_SIZE_KB 1024           // Flash 大小 (KB)
 #define FLASH_END_ADDR 0x080FFFFFU   // Flash 结束地址
 #define NORMAL_MAGIC 0xFFFFFFFF      // 空数
-/* ========== IAP FLASH 地址规划 ========== */
+// ========== IAP FLASH 地址规划 ==========
 #define FIRMWARE_TYPE APP          // 固件类型标识，APP表示应用固件，BL表示Bootloader
 #define BL_START_ADDR 0x08000000U  // Bootloader 起始地址
 #define BL_SIZE_KB 32              // Bootloader 大小 (KB) 两个扇区
 #define APP_START_ADDR 0x08008000U // App 起始地址
 #define APP_SIZE_KB FLASH_SIZE_KB - FLAG_SIZE_KB - PARAMETER_SIZE_KB - LOG_SIZE_KB_MAX - BL_SIZE_KB
 
-/* ========== LOG FLASH 地址规划 ========== */
+// ========== LOG FLASH 地址规划 ==========
 #define LOG_SECTOR FLASH_SECTOR_9  // 日志扇区 (存日志)
 #define LOG_START_ADDR 0x080A0000U // 日志起始地址
 #define LOG_SIZE_KB 128            // 日志空间大小 (KB)
 
-/* ========== PARAMETER FLASH 地址规划 ========== */
+// ========== PARAMETER FLASH 地址规划 ==========
 #define PARAMETER_SECTOR FLASH_SECTOR_10 // 参数扇区 (存参数)
 #define PARAMETER_LOAD_ADDR 0x080C0000U  // 参数加载/保存地址
 #define PARAMETER_SIZE_KB 128            // 参数空间大小 (KB)
 
-/* ========== 固件升级配置 ========== */
+// ========== 固件升级配置 ==========
 #define IAP_FLAG_SECTOR FLASH_SECTOR_11 // 固件升级标志扇区 (存固件升级信息)
 #define IAP_FLAG_ADDRESS 0x080E0000
 #define IAP_FLAG_SIZE_KB 128

@@ -72,7 +72,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  BSP_Init_Front(); // 前置初始化
+  bsp_init_front(); // 前置初始化
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -104,8 +104,8 @@ int main(void)
   MX_TIM8_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  BSP_Init_Back(); // 后置初始化
-  BSP_AppMain();   // 主函数
+  bsp_init_back(); // 后置初始化
+  bsp_app_main();   // 主函数
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -174,7 +174,7 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  BSP_Error_Handler();
+  bsp_error_handler();
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)

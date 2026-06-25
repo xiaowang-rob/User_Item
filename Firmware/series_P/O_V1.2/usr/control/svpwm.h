@@ -22,8 +22,8 @@ void svpwm_set_vbus(float Vbus);
 u8 svpwm_get_sector(void);
 
 // 调试接口（理论电压）
-float fGetVoltage_u(void);
-float fGetVoltage_v(void);
-float fGetVoltage_w(void);
+float get_voltage_u(void);
+float get_voltage_v(void);
+float get_voltage_w(void);
 
-#endif /* __SVPWM_H */
+#endif // __SVPWM_H

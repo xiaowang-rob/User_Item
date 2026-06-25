@@ -39,4 +39,4 @@ void log_data_write(void);
 bool log_read_flash(u8 *data, u8 *len);
 bool log_erase(void);
 
-#endif /* __LOG_H */
+#endif // __LOG_H

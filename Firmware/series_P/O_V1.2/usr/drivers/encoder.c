@@ -1,7 +1,7 @@
-/* ============================================================
- * 编码器抽象驱动 (支持 MT6816 / AS5047 / MT6835)
- * 使用全局实例 g_encoder，初始化时选择芯片型号
- * ============================================================ */
+// ============================================================
+// 编码器抽象驱动 (支持 MT6816 / AS5047 / MT6835)
+// 使用全局实例 g_encoder，初始化时选择芯片型号
+// ============================================================
 
 #include "device.h"
 #include "string.h"
@@ -12,26 +12,26 @@ volatile u32 encoder_ts_us = 0;
 u32 time_zero;
 #endif
 
-/* ----------------------- 类型定义 ------------------------- */
+// ----------------------- 类型定义 -------------------------
 typedef enum
 {
     ENCODER_STATE_START_READ,
     ENCODER_STATE_WAIT_HIGH,
     ENCODER_STATE_WAIT_LOW,
     ENCODER_STATE_PROCESS_DATA,
-    ENCODER_STATE_START_LOW, /* MT6816 专用：准备读低字节 */
-    ENCODER_STATE_START_NOP  /* AS5047 专用：准备发 NOP 命令 */
+    ENCODER_STATE_START_LOW, // MT6816 专用：准备读低字节
+    ENCODER_STATE_START_NOP  // AS5047 专用：准备发 NOP 命令
 } eEncoderState_DMA;
 
-/* ----------------------- 全局实例 ------------------------- */
+// ----------------------- 全局实例 -------------------------
 static tEncoderInstance enc = {.chip_type = 0xff};
 
-/* ----------------------- 常量定义 ------------------------- */
-#define NO_RESPONSE_MAX_TIC 1000 /* 1000 * 10us = 10ms 超时 */
+// ----------------------- 常量定义 -------------------------
+#define NO_RESPONSE_MAX_TIC 1000 // 1000 * 10us = 10ms 超时
 #define MT6816_NO_MAG_WARNING (1 << 1)
 #define MT6816_PARITY_CHECK (1 << 0)
 
-/* ----------------------- 芯片描述表 ----------------------- */
+// ----------------------- 芯片描述表 -----------------------
 static bool mt6816_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
 static bool as5047_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
 static bool mt6835_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle);
@@ -39,7 +39,7 @@ static void mt6816_main_loop(void *arg);
 static void as5047_main_loop(void *arg);
 static void mt6835_main_loop(void *arg);
 
-/* MT6835: 连续读角度 5-byte 命令 + 接收缓冲 */
+// MT6835: 连续读角度 5-byte 命令 + 接收缓冲
 static uint8_t mt6835_rx_buf[5] __attribute__((aligned(4)));
 static const uint8_t mt6835_cmd_buf[5] __attribute__((aligned(4))) = {0xA0, 0x03, 0x00, 0x00, 0x00};
 
@@ -63,7 +63,7 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .deg_per_lsb = 360.0f / 16384.0f,
         .cmd_high = 0,
         .cmd_low = 0,
-        .cmd_read_angle = 0x7FFF, /* 读角度寄存器命令 */
+        .cmd_read_angle = 0x7FFF, // 读角度寄存器命令
         .spi_CPOL = 0,
         .spi_CPHA = 1,
         .spi_data_size = 16,
@@ -73,22 +73,22 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .dma_state_entry = as5047_main_loop,
     },
     [MT6835] = {
-        .resolution = 16384, /* 14-bit 输出 (21-bit 原始 >> 7) */
+         .resolution = 16384, // 14-bit 输出 (21-bit 原始 >> 7)
         .deg_per_lsb = 360.0f / 2097152.0f,
         .cmd_high = 0,
         .cmd_low = 0,
         .cmd_read_angle = 0,
-        .spi_CPOL = 1, /* Mode 3 */
+        .spi_CPOL = 1, // Mode 3
         .spi_CPHA = 1,
-        .spi_data_size = 8, /* 8-bit 模式 */
+         .spi_data_size = 8, // 8-bit 模式
         .parse_and_check = mt6835_parse_and_check,
         .use_dma_state_machine = true,
-        .dma_post_high_state = ENCODER_STATE_PROCESS_DATA, /* 单次交易完成即处理 */
+         .dma_post_high_state = ENCODER_STATE_PROCESS_DATA, // 单次交易完成即处理
         .dma_state_entry = mt6835_main_loop,
     },
 };
 
-/* ------------------ 内部函数前向声明 --------------------- */
+// ------------------ 内部函数前向声明 ---------------------
 static void encoder_recover_from_error(void);
 static void common_angle_velocity_update(void);
 
@@ -100,7 +100,7 @@ static void as5047_start_command(void);
 static void as5047_start_nop(void);
 static void as5047_process_data(void);
 
-/* ========== 初始化 ========== */
+// ========== 初始化 ==========
 bool encoder_init(eEncoderChip type)
 {
     if (type >= CHIP_COUNT)
@@ -112,7 +112,7 @@ bool encoder_init(eEncoderChip type)
         return true;
     }
 
-    /* 清空全局实例并赋初值 */
+    // 清空全局实例并赋初值
     memset((void *)&enc, 0, sizeof(enc));
     enc.chip_desc = &chip_descs[type];
     enc.chip_type = type;
@@ -121,8 +121,8 @@ bool encoder_init(eEncoderChip type)
     enc.valid = 0;
     enc.rubbish_data_tic = 0;
 
-    /* 根据型号动态配置 SPI3 模式 (CPOL/CPHA) */
-    if (false == BSP_SetEncoder_SPI_Config(enc.chip_desc->spi_CPOL, enc.chip_desc->spi_CPHA, enc.chip_desc->spi_data_size))
+    // 根据型号动态配置 SPI3 模式 (CPOL/CPHA)
+    if (false == bsp_set_encoder_spi_config(enc.chip_desc->spi_CPOL, enc.chip_desc->spi_CPHA, enc.chip_desc->spi_data_size))
     {
         g_device_status.encoder_state = OFFLINE;
         return false;
@@ -132,16 +132,16 @@ bool encoder_init(eEncoderChip type)
     return true;
 }
 
-/* ========== 错误恢复 ========== */
+// ========== 错误恢复 ==========
 static void encoder_recover_from_error(void)
 {
-    BSP_Encoder_CS(EXTERNAL, true);
-    if (!BSP_Encoder_SPI_IS_READY())
+    bsp_encoder_cs(EXTERNAL, true);
+    if (!bsp_encoder_spi_is_ready())
     {
-        BSP_Encoder_SPI_Abort();
+        bsp_encoder_spi_abort();
         g_device_status.encoder_state = RUN_ERROR;
     }
-    BSP_Encoder_SPI_CLEAR_DMA_error_flags();
+    bsp_encoder_spi_clear_dma_error_flags();
     g_device_status.encoder_state = ONLINE;
     enc.state = ENCODER_STATE_START_READ;
 }
@@ -150,10 +150,10 @@ void encode_clear_error_flag(void)
 {
     g_device_status.encoder_state = ONLINE;
 }
-/* ========== DMA 完成回调（不再启动任何 SPI 传输） ========== */
+// ========== DMA 完成回调（不再启动任何 SPI 传输） ==========
 void bsp_encoder_spi_txrx_cplt_callback(void)
 {
-    BSP_Encoder_CS(EXTERNAL, true);
+    bsp_encoder_cs(EXTERNAL, true);
 
     if (enc.state == ENCODER_STATE_WAIT_HIGH)
     {
@@ -162,49 +162,49 @@ void bsp_encoder_spi_txrx_cplt_callback(void)
     }
     else if (enc.state == ENCODER_STATE_WAIT_LOW)
     {
-        BSP_disable_irq();
+        bsp_disable_irq();
         enc.data_raw[0] = enc.shadow_raw[0];
         enc.data_raw[1] = enc.shadow_raw[1];
-        BSP_enable_irq();
+        bsp_enable_irq();
         enc.state = ENCODER_STATE_PROCESS_DATA;
         enc.no_resp_tic = 0;
     }
 }
 
-/* ========== DMA 错误回调 ========== */
+// ========== DMA 错误回调 ==========
 void bsp_encoder_spi_error_callback(void)
 {
     encoder_recover_from_error();
 }
 
-/* PLL 更新：给定观测角度 (deg)，更新 PLL 估计角度和速度 */
+// PLL 更新：给定观测角度 (deg)，更新 PLL 估计角度和速度
 void encoder_pll_update(float dt)
 {
     enc.pll_theta_delta = enc.angle_abs - enc.pll_theta;
-    /* 角度归一化到 [-180, 180) */
-    enc.pll_theta_delta = normalize_angle_180(enc.pll_theta_delta);
+    // 角度归一化到 [-180, 180)
+    enc.pll_theta_delta = normalize_angle_pi(enc.pll_theta_delta);
 #define INTEG_LIMIT 10.0f
     enc.pll_integ += enc.pll_theta_delta * dt;
-    enc.pll_integ = CLAMP(enc.pll_integ, -INTEG_LIMIT, INTEG_LIMIT); /* 限幅 */
+     enc.pll_integ = CLAMP(enc.pll_integ, -INTEG_LIMIT, INTEG_LIMIT); // 限幅
 
     float estimated_speed_deg_s = enc.pll_kp * enc.pll_theta_delta + enc.pll_ki * enc.pll_integ;
 
     enc.pll_theta += estimated_speed_deg_s * dt;
-    enc.pll_theta = normalize_angle_0_360(enc.pll_theta);
+    enc.pll_theta = normalize_angle_360(enc.pll_theta);
 
     enc.pll_omega_rpm = estimated_speed_deg_s / 6.0f;
     if (FABSF(enc.pll_omega_rpm) <= 0.5f)
         enc.pll_omega_rpm = 0.0f;
 }
 
-/* ========== 通用角度/速度更新 (所有芯片共用) ========== */
+// ========== 通用角度/速度更新 (所有芯片共用) ==========
 static void common_angle_velocity_update()
 {
     g_device_status.encoder_state = RUNNING;
     enc.angle_abs = enc.angle_raw * enc.chip_desc->deg_per_lsb;
 
 #ifdef __DEBUG__
-    volatile u32 current_time_us = BSP_GetTick_us();
+    volatile u32 current_time_us = bsp_get_tick_us();
     encoder_ts_us = current_time_us - time_zero;
     time_zero = current_time_us;
 #endif
@@ -217,7 +217,7 @@ static void common_angle_velocity_update()
         enc.omega_rpm = 0;
         enc.pos = 0;
         enc.pos_last = 0;
-        /* PLL 初始化 */
+        // PLL 初始化
         enc.pll_theta = enc.angle_abs;
         enc.pll_omega_rpm = 0;
         // Kp = 2 * ζ * ω_n，Ki = ω_n² (ω_n取决于 采样频率 电机最大速度 速度环带宽）
@@ -233,7 +233,7 @@ static void common_angle_velocity_update()
     }
     else
     {
-        /* PLL 发散检测：速度饱和时重置PLL */
+        // PLL 发散检测：速度饱和时重置PLL
         if (enc.pll_omega_rpm >= 99999.0f || enc.pll_omega_rpm <= -99999.0f)
         {
             enc.pll_integ = 0.0f;
@@ -243,29 +243,18 @@ static void common_angle_velocity_update()
 
         int32_t angle_raw_delta = (int32_t)enc.angle_raw - enc.angle_raw_last;
 
-        /* 根据当前转速选择过零判断阈值（保留累计圈数） */
-        float speed_ref = FABSF(enc.pll_omega_rpm > 1.0f ? enc.pll_omega_rpm : enc.omega_rpm);
-        if (speed_ref > 2900)
-        {
-            if (angle_raw_delta < -4096)
-                enc.num_turns++;
-            else if (angle_raw_delta > 4096)
-                enc.num_turns--;
-        }
-        else
-        {
-            if (angle_raw_delta < -8192)
-                enc.num_turns++;
-            else if (angle_raw_delta > 8192)
-                enc.num_turns--;
-        }
+        // 不需要高转速的检测 位置模式下不可能高转速
+        if (angle_raw_delta < -8192)
+            enc.num_turns++;
+        else if (angle_raw_delta > 8192)
+            enc.num_turns--;
 
         enc.pos = enc.chip_desc->deg_per_lsb * (int32_t)(enc.angle_raw - enc.pos_offset) + enc.num_turns * 360.0f;
         enc.angle_raw_last = enc.angle_raw;
     }
 }
 
-/* ====== MT6816 驱动 ====== */
+// ====== MT6816 驱动 ======
 static bool mt6816_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle)
 {
     bool parity_check = (low & MT6816_PARITY_CHECK) ? true : false;
@@ -275,21 +264,21 @@ static bool mt6816_parse_and_check(uint16_t high, uint16_t low, uint16_t *angle)
 
     if (expected_parity != parity_check)
         return false;
-    *angle = data_bits >> 1; /* 14-bit 原始角度 */
+    *angle = data_bits >> 1; // 14-bit 原始角度
     return true;
 }
 
 static void mt6816_start_high_read(void)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (!bsp_encoder_spi_is_ready())
     {
         encoder_recover_from_error();
         return;
     }
-    BSP_Encoder_CS(EXTERNAL, false);
+    bsp_encoder_cs(EXTERNAL, false);
 
     enc.cmd_reg = enc.chip_desc->cmd_high;
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc.cmd_reg,
+    if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
@@ -300,15 +289,15 @@ static void mt6816_start_high_read(void)
 
 static void mt6816_start_low_read(void)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (!bsp_encoder_spi_is_ready())
     {
         encoder_recover_from_error();
         return;
     }
-    BSP_Encoder_CS(EXTERNAL, false);
+    bsp_encoder_cs(EXTERNAL, false);
 
     enc.cmd_reg = enc.chip_desc->cmd_low;
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc.cmd_reg,
+    if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
                                              (u8 *)&enc.shadow_raw[1], 2))
     {
         encoder_recover_from_error();
@@ -321,7 +310,7 @@ static void mt6816_process_data(void)
 {
     uint16_t angle_raw;
 
-    /* 弱磁检测 */
+    // 弱磁检测
     if (enc.data_raw[1] & MT6816_NO_MAG_WARNING)
     {
         g_device_status.encoder_state = OFFLINE;
@@ -329,11 +318,11 @@ static void mt6816_process_data(void)
         return;
     }
 
-    /* 奇偶校验及数据提取 */
+    // 奇偶校验及数据提取
     if (!enc.chip_desc->parse_and_check(enc.data_raw[0], enc.data_raw[1], &angle_raw))
     {
         enc.valid = CLAMP(enc.valid + 10, 0, 110);
-        enc.spi_error_rate += (1.0f - enc.spi_error_rate) * 0.01f; /* EMA */
+        enc.spi_error_rate += (1.0f - enc.spi_error_rate) * 0.01f; // EMA
         if (enc.valid > 100)
         {
             g_device_status.encoder_state = RUN_ERROR;
@@ -344,7 +333,7 @@ static void mt6816_process_data(void)
     }
 
     enc.valid = CLAMP(enc.valid - 1, 0, 110);
-    enc.spi_error_rate *= 0.999f; /* 成功时衰减 */
+     enc.spi_error_rate *= 0.999f; // 成功时衰减
     enc.angle_raw = angle_raw;
     common_angle_velocity_update();
     enc.state = ENCODER_STATE_START_READ;
@@ -361,7 +350,7 @@ static void mt6816_main_loop(void *arg)
         break;
 
     case ENCODER_STATE_START_LOW:
-        /* 启动低字节读取 (高字节已就绪) */
+        // 启动低字节读取 (高字节已就绪)
         mt6816_start_low_read();
         break;
 
@@ -382,30 +371,30 @@ static void mt6816_main_loop(void *arg)
     }
 }
 
-/* ====== AS5047 驱动 ====== */
+// ====== AS5047 驱动 ======
 static bool as5047_parse_and_check(uint16_t raw, uint16_t unused, uint16_t *angle)
 {
     (void)unused;
-    /* 检查错误标志 (EF, bit14) */
+    // 检查错误标志 (EF, bit14)
     if (raw & 0x4000)
         return false;
 
-    /* 提取14位角度数据 */
+    // 提取14位角度数据
     *angle = raw & 0x3FFF;
     return true;
 }
 
 static void as5047_start_command(void)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (!bsp_encoder_spi_is_ready())
     {
         encoder_recover_from_error();
         return;
     }
-    BSP_Encoder_CS(EXTERNAL, false);
+    bsp_encoder_cs(EXTERNAL, false);
 
     enc.cmd_reg = enc.chip_desc->cmd_read_angle;
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc.cmd_reg,
+    if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
@@ -416,15 +405,15 @@ static void as5047_start_command(void)
 
 static void as5047_start_nop(void)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (!bsp_encoder_spi_is_ready())
     {
         encoder_recover_from_error();
         return;
     }
-    BSP_Encoder_CS(EXTERNAL, false);
+    bsp_encoder_cs(EXTERNAL, false);
 
-    enc.cmd_reg = 0x0000; /* NOP 命令 */
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)&enc.cmd_reg,
+     enc.cmd_reg = 0x0000; // NOP 命令
+    if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
@@ -441,7 +430,7 @@ static void as5047_process_data(void)
     if (!enc.chip_desc->parse_and_check(enc.data_raw[0], 0, &angle_raw))
     {
         enc.valid = CLAMP(enc.valid + 10, 0, 110);
-        enc.spi_error_rate += (1.0f - enc.spi_error_rate) * 0.01f; /* EMA */
+        enc.spi_error_rate += (1.0f - enc.spi_error_rate) * 0.01f; // EMA
         if (enc.valid > 100)
         {
             g_device_status.encoder_state = RUN_ERROR;
@@ -452,7 +441,7 @@ static void as5047_process_data(void)
     }
 
     enc.valid = CLAMP(enc.valid - 1, 0, 110);
-    enc.spi_error_rate *= 0.999f; /* 成功时衰减 */
+     enc.spi_error_rate *= 0.999f; // 成功时衰减
 
     enc.angle_raw = angle_raw;
     common_angle_velocity_update();
@@ -470,7 +459,7 @@ static void as5047_main_loop(void *arg)
         break;
 
     case ENCODER_STATE_START_NOP:
-        /* 命令帧已发送，现在发送 NOP 接收数据 */
+        // 命令帧已发送，现在发送 NOP 接收数据
         as5047_start_nop();
         break;
 
@@ -491,34 +480,34 @@ static void as5047_main_loop(void *arg)
     }
 }
 
-/* ====== MT6835 驱动 (SPI Mode 3, 8-bit, 连续读角度) ====== */
+// ====== MT6835 驱动 (SPI Mode 3, 8-bit, 连续读角度) ======
 static bool mt6835_parse_and_check(uint16_t raw, uint16_t unused, uint16_t *angle)
 {
     (void)unused;
-    /* mt6835_rx_buf[2] = ANGLE[20:13], [3] = ANGLE[12:5], [4] = ANGLE[4:0] + STATUS[2:0] */
+    // mt6835_rx_buf[2] = ANGLE[20:13], [3] = ANGLE[12:5], [4] = ANGLE[4:0] + STATUS[2:0]
     uint32_t angle_21 = ((uint32_t)mt6835_rx_buf[2] << 13) | ((uint32_t)mt6835_rx_buf[3] << 5) | (mt6835_rx_buf[4] >> 3);
 
-    /* STATUS 检查 */
+    // STATUS 检查
     uint8_t status = mt6835_rx_buf[4] & 0x07;
     if (status & 0x02)
-    { /* STATUS[1]: 磁场太弱 */
+    { // STATUS[1]: 磁场太弱
         g_device_status.encoder_state = OFFLINE;
         return false;
     }
 
-    *angle = (uint16_t)(angle_21 >> 7); /* 21-bit → 14-bit (16384) */
+    *angle = (uint16_t)(angle_21 >> 7); // 21-bit → 14-bit (16384)
     return true;
 }
 
 static void mt6835_start_read(void)
 {
-    if (!BSP_Encoder_SPI_IS_READY())
+    if (!bsp_encoder_spi_is_ready())
     {
         encoder_recover_from_error();
         return;
     }
-    BSP_Encoder_CS(EXTERNAL, false);
-    if (!BSP_Encoder_SPI_TransmitReceive_DMA((u8 *)mt6835_cmd_buf,
+    bsp_encoder_cs(EXTERNAL, false);
+    if (!bsp_encoder_spi_transmit_receive_dma((u8 *)mt6835_cmd_buf,
                                              (u8 *)mt6835_rx_buf, 5))
     {
         encoder_recover_from_error();
@@ -548,7 +537,7 @@ static void mt6835_main_loop(void *arg)
         if (!enc->chip_desc->parse_and_check(0, 0, &angle_raw))
         {
             enc->valid = CLAMP(enc->valid + 10, 0, 110);
-            enc->spi_error_rate += (1.0f - enc->spi_error_rate) * 0.01f; /* EMA */
+            enc->spi_error_rate += (1.0f - enc->spi_error_rate) * 0.01f; // EMA
             if (enc->valid > 100)
             {
                 g_device_status.encoder_state = RUN_ERROR;
@@ -570,7 +559,7 @@ static void mt6835_main_loop(void *arg)
     }
 }
 
-/* ========== 主循环任务 ========== */
+// ========== 主循环任务 ==========
 void encoder_main_loop_task(void)
 {
     if (enc.chip_desc && enc.chip_desc->dma_state_entry)
@@ -579,7 +568,7 @@ void encoder_main_loop_task(void)
     }
 }
 
-/* ========== 对外数据接口 ========== */
+// ========== 对外数据接口 ==========
 float encoder_get_angle_abs(void) { return enc.angle_abs; }
 float encoder_get_angle_inc(void) { return enc.pos; }
 float encoder_get_rpm(void) { return enc.pll_omega_rpm; }

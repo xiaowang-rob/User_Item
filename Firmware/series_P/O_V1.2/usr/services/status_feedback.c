@@ -9,16 +9,19 @@ void status_feedback_main_loop()
     switch (g_foc.state)
     {
     case FOC_TUNE:
-        BSP_RGB_Breathe(TIFFANY_BLUE);
+        bsp_rgb_breathe(TIFFANY_BLUE);
         break;
     case FOC_IDLE:
-        BSP_RGB_Breathe(KLEIN_BLUE);
+        bsp_rgb_breathe(KLEIN_BLUE);
         break;
     case FOC_RUNNING:
-        BSP_RGB_Breathe(MARS_GREEN);
+        bsp_rgb_breathe(MARS_GREEN);
         break;
     case FOC_FAULT:
-        BSP_RGB_Breathe(CHINA_RED);
+        bsp_rgb_breathe(CHINA_RED);
+        break;
+    case FOC_WARNING:
+        bsp_rgb_breathe(YELLOW);
         break;
     default:
         break;
@@ -27,8 +30,8 @@ void status_feedback_main_loop()
 }
 void system_fault_feedback()
 {
-    BSP_RGB_Breathe(RED);
-    BSP_Delay(500);
-    BSP_RGB_Breathe((tRGBColor){0, 0, 0});
-    BSP_Delay(500);
+    bsp_rgb_breathe(RED);
+    bsp_delay(500);
+    bsp_rgb_breathe((tRGBColor){0, 0, 0});
+    bsp_delay(500);
 }
