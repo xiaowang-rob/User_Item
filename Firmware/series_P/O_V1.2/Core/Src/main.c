@@ -105,7 +105,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   bsp_init_back(); // 后置初始化
-  bsp_app_main();   // 主函数
+  bsp_app_main();  // 主函数
   /* USER CODE END 2 */
 
   /* Infinite loop */

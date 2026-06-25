@@ -53,10 +53,10 @@ extern "C"
   void Error_Handler(void);
 
   /* USER CODE BEGIN EFP */
-  void BSP_Init_Front(void);    // 前置初始化函数声明
-  void BSP_Init_Back(void);     // 后置初始化函数声明
-  void BSP_AppMain(void);       // 主函数声明
-  void BSP_Error_Handler(void); // 错误处理函数声明
+  void bsp_init_front(void);    // 前置初始化函数声明
+  void bsp_init_back(void);     // 后置初始化函数声明
+  void bsp_app_main(void);      // 主函数声明
+  void bsp_error_handler(void); // 错误处理函数声明
   /* USER CODE END EFP */
 
   /* Private defines -----------------------------------------------------------*/

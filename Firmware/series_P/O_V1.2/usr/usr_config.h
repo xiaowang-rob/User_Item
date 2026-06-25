@@ -1,19 +1,18 @@
-/* ===== 此文件由 build.py 自动生成，请勿手动修改，相关配置在 usr_config.json 中 ===== */
-/* 生成时间: 2026-06-26 06:52:47 */
+// 此文件由 build.py 自动生成，请勿手动修改，相关配置在 usr_config.json 中
+// 生成时间: 2026-06-26 07:08:05
 #ifndef __USR_CONFIG_H
 #define __USR_CONFIG_H
 
-
-/* ---------- 版本信息 ---------- */
+// 版本信息
 #define FIRM_NAME      "XDr-P"
 #define FIRM_AUTHOR    "wxd"
 #define FIRM_V_DATE    "O_V1.2_260626"
 #define FIRM_VERSION   FIRM_NAME " " FIRM_V_DATE
 
-/* ---------- 启动配置 ---------- */
+// 启动配置
 #define VECT_TABLE_OFFSET  0x8000U
 
-/* ---------- 控制参数 ---------- */
+// 控制参数
 #define F_PWM               20000.0
 #define T_PWM               0.00005
 #define TIC_PWM             2099
@@ -31,25 +30,24 @@
 #define T_STATE_STREAM      500
 #define TEMP_VBUS_TS_MS     300
 
-/* ---------- 硬件限制参数 (来自 BSP) ---------- */
+// 硬件限制参数 (来自 BSP)
 #define MAX_CURRENT         100
 #define MAX_VOLTAGE         34
 #define MIN_VOLTAGE         20
 #define MAX_TEMPERATURE     80
 #define T_SAMPLE_us         7.0
-#define T_DEADTIME_us          0.5
+#define T_DEADTIME_us       0.5
 #define T_NOISE_us          0.5
 
-/* ---------- 速度 LPF 滤波器系数 (Butterworth) ---------- */
-/* 速度 LPF — 2nd Order Butterworth LPF, fc=120.0Hz, fs=20000Hz */
+// 速度 LPF 滤波器系数 (Butterworth, fc=120.0Hz, fs=20000Hz)
 #define LPF_W_B0    0.0003460413
 #define LPF_W_B1    0.0006920827
 #define LPF_W_B2    0.0003460413
 #define LPF_W_A1    1.9466975408
 #define LPF_W_A2    -0.9480817061
 
-/* ---------- 滤波器截止频率 (Hz) ---------- */
-#define CUR_LPF_HZ    800.0f   /* 电流采样 LPF 截止 */
-#define SPEED_LPF_HZ  50.0f    /* 速度 LPF 截止 */
+// 滤波器截止频率 (Hz)
+#define CUR_LPF_HZ    800.0f
+#define SPEED_LPF_HZ  50.0f
 
-#endif /* __USR_CONFIG_H */
+#endif // __USR_CONFIG_H
