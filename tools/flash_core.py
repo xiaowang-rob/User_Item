@@ -1,9 +1,17 @@
-"""烧录与擦除功能（OpenOCD）"""
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 from utils import get_cmake_project_name
+
+
+def _elf_name(project_root, fw_type):
+    """根据固件类型获取 ELF 文件名"""
+    name = get_cmake_project_name(project_root)
+    if fw_type == "bl":
+        return f"{name}-BL.elf"
+    return f"{name}.elf"
 
 
 def _check_debugger(cfg):
@@ -42,16 +50,18 @@ def _get_nrst_args(project_root):
     return []
 
 
-def cmd_flash(cfg, project_root):
+def cmd_flash(cfg, project_root, fw_type="app"):
     """烧录固件"""
     interface, target = _check_debugger(cfg)
-    elf = project_root / "build" / f"{get_cmake_project_name(project_root)}.elf"
+    elf = project_root / "build" / _elf_name(project_root, fw_type)
     if not elf.exists():
         sys.exit(f"错误: ELF 文件不存在: {elf}，请先编译")
 
     print("烧录中... (使用 ELF 内部地址)")
-    # 不使用 openocd_reset.cfg（reset_config none），
-    # 否则 program 命令的 reset halt 会因无硬件 NRST 超时
+    # 使用 flash write_image erase 代替 program 命令，
+    # program 依赖 reset halt 来验证烧录，但芯片上若有旧程序
+    # 跑着会导致 halt 超时。flash write_image 直接擦除+写入，
+    # 不受已有程序影响。
     r = subprocess.run([
         "openocd", "-f", interface, "-f", target,
         "-c", "init", "-c", "reset halt",
@@ -64,7 +74,7 @@ def cmd_flash(cfg, project_root):
     print("[OK] 烧录完成")
 
 
-def cmd_erase(cfg, project_root):
+def cmd_erase(cfg, project_root, fw_type="app"):
     """擦除芯片"""
     interface, target = _check_debugger(cfg)
     nrst_args = _get_nrst_args(project_root)

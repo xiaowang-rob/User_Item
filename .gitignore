@@ -4,10 +4,25 @@
 # 自动生成的配置文件
 firmware_out/
 
+# 旧固件仓库（独立管理）
+Firmware/
+
 # Python
 __pycache__/
 *.pyc
+*.pyo
+
+# AI代码索引
+.codegraph/
+
+# IDE
+.vscode/
+*.swp
+*.swo
 
 # 调试文件
 *.elf
 *.map
+*.o
+*.d
+*.axf
