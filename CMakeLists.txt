@@ -46,12 +46,15 @@ endif()
 file(GLOB_RECURSE FW_SOURCES ${FW_DIR}/*.c)
 set(MAIN_C ${PLATFORM_DIR}/core/Src/main.c)
 list(APPEND FW_SOURCES ${MAIN_C})
-# 强制把 stm32f4xx_it.c 直接编译进目标（不经过静态库），
-# 因为启动文件提供了 SysTick_Handler 的 weak alias，
-# 链接器不会从 libstm32_core.a 中拉取强定义
+# 强制把 stm32f4xx_it.c 和 syscalls.c 直接编译进目标（不经过静态库），
+# 因为启动文件/nosys 提供了 weak alias，链接器不会从 libstm32_core.a 中拉取强定义
 set(CORE_IT_C ${PLATFORM_DIR}/core/Src/stm32f4xx_it.c)
 if(EXISTS ${CORE_IT_C})
   list(APPEND FW_SOURCES ${CORE_IT_C})
+endif()
+set(CORE_SC_C ${PLATFORM_DIR}/core/Src/syscalls.c)
+if(EXISTS ${CORE_SC_C})
+  list(APPEND FW_SOURCES ${CORE_SC_C})
 endif()
 add_executable(${FW_NAME} ${FW_SOURCES})
 
