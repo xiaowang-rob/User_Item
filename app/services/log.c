@@ -21,8 +21,8 @@ void log_data_save(tProtectionManager *pro_manager)
     Log.id = pro_manager->foc_val->id_fb;
     Log.id_ref = pro_manager->foc_val->id_ref;
     Log.iq_ref = pro_manager->foc_val->iq_ref;
-    Log.speed = pro_manager->foc_val->rpm_fb;
-    Log.speed_ref = pro_manager->foc_val->rpm_ref;
+    Log.speed = pro_manager->foc_val->vel_fb;
+    Log.speed_ref = pro_manager->foc_val->vel_ref;
     Log.position = pro_manager->foc_val->pos_fb;
     Log.position_ref = pro_manager->foc_val->pos_ref;
     Log.run_mode = pro_manager->foc_mode->run_mode;

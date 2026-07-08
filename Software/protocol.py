@@ -24,21 +24,22 @@ class Pidx:
     KP_POSITION        = 20  # 位置环比例
     KI_POSITION        = 21  # 位置环积分
     KD_POSITION        = 22  # 位置环微分
-    MIT_KP             = 23  # MIT刚度
-    MIT_KD             = 24  # MIT阻尼
-    MIT_TMAX           = 25  # MIT最大扭矩
-    TUNE_CURRENT       = 26  # 校准电流
-    LIMIT_CURRENT      = 27  # 电流限幅
-    LIMIT_SPEED        = 28  # 速度限幅
-    LIMIT_POSITION_MIN = 29  # 位置限幅最小值
-    LIMIT_POSITION_MAX = 30  # 位置限幅最大值
-    TOLERANCE_TIME     = 31  # 容忍时间
-    TOLERANCE_LIMIT    = 32  # 超限容忍度
-    TRAJ_LIMIT_D1      = 33  # 一阶限幅
-    TRAJ_LIMIT_D2      = 34  # 二阶限幅
-    TRAJ_LIMIT_D3      = 35  # 三阶限幅
-    TRAJ_TOLERANCE     = 36  # 轨迹规划容差
-    NUM_OF_PARAM       = 37  # 参数总数
+    ALPHA_POSITION     = 23  # 位置环滤波系数
+    MIT_KP             = 24  # MIT刚度
+    MIT_KD             = 25  # MIT阻尼
+    MIT_TMAX           = 26  # MIT最大扭矩
+    TUNE_CURRENT       = 27  # 校准电流
+    LIMIT_CURRENT      = 28  # 电流限幅
+    LIMIT_VELOCITY     = 29  # 速度限幅
+    LIMIT_POSITION_MIN = 30  # 位置限幅最小值
+    LIMIT_POSITION_MAX = 31  # 位置限幅最大值
+    TOLERANCE_TIME     = 32  # 容忍时间
+    TOLERANCE_LIMIT    = 33  # 超限容忍度
+    TRAJ_LIMIT_D1      = 34  # 一阶限幅
+    TRAJ_LIMIT_D2      = 35  # 二阶限幅
+    TRAJ_LIMIT_D3      = 36  # 三阶限幅
+    TRAJ_TOLERANCE     = 37  # 轨迹规划容差
+    NUM_OF_PARAM       = 38  # 参数总数
 
 class Lidx:
     num             = 0  # 序号
@@ -58,8 +59,8 @@ class Lidx:
     id_ref          = 14  # Id_ref
     iq              = 15  # q轴电流
     iq_ref          = 16  # Iq_ref
-    speed           = 17  # 速度
-    target_speed    = 18  # 目标速度
+    vel             = 17  # 速度
+    target_vel      = 18  # 目标速度
     position        = 19  # 位置
     target_position = 20  # 目标位置
     log_num         = 21  # 日志字段数量
@@ -76,8 +77,8 @@ class Didx:
     CURRENT_D     = 8  # I_d
     CURRENT_Q_REF = 9  # Iq_ref
     CURRENT_D_REF = 10  # Id_ref
-    SPEED         = 11  # rpm
-    SPEED_REF     = 12  # rpm_ref
+    SPEED         = 11  # vel
+    SPEED_REF     = 12  # vel_ref
     THETA_ELEC    = 13  # theta_e
     THETA_MECH    = 14  # theta_m
     POSITION      = 15  # pos
@@ -132,7 +133,7 @@ class Sidx:
 class Midx:
     sensor_mode = ["编码反馈", "无感观测", "混合模式"]
     encoder_chip = ["MT6816", "MT6835", "AS5047", "芯片数量"]
-    run_mode = ["开环模式", "电流模式", "PID速度模式", "PID位置模式", "MIT速度模式", "MIT位置模式", "MIT轨迹模式"]
+    run_mode = ["开环电压", "开环电流", "电流模式", "PID速度模式", "PID位置模式", "MIT速度模式", "MIT位置模式", "MIT轨迹模式"]
     target_type = ["拖动电流/A", "目标速度/rpm", "目标位置/deg", "无"]
     can_mode = ["实时处理", "队列处理", "实时反馈", "队列反馈"]
     vague_PID_mode = ["禁用", "启动"]
@@ -143,5 +144,5 @@ class Midx:
     fault_state = ["NONE", "FLASH离线", "整定电流振荡", "极对数不匹配", "电机堵转", "内参校准失败", "编码器校准失败", "电气参数校准失败", "机械参数校准失败", "过电压", "低电压", "过电流", "CAN初始化失败", "CAN通信异常"]
     warning_state = ["NONE", "过温", "超速", "位置超限", "编码器无响应", "编码器通信错误"]
     drive_state = ["离线", "在线", "运行错误", "运行正常"]
-    data_select = ["NONE", "I_u", "I_v", "I_w", "V_q", "V_d", "I_α", "I_β", "I_q", "I_d", "Iq_ref", "Id_ref", "rpm", "rpm_ref", "theta_e", "theta_m", "pos", "pos_ref"]
+    data_select = ["NONE", "I_u", "I_v", "I_w", "V_q", "V_d", "I_α", "I_β", "I_q", "I_d", "Iq_ref", "Id_ref", "vel", "vel_ref", "theta_e", "theta_m", "pos", "pos_ref"]
 

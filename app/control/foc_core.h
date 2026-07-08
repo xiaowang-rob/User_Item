@@ -17,26 +17,42 @@ typedef struct
     eTrajType trajectory_mode;
 } tFOC_Mode;
 
+// mit 参数
 typedef struct
 {
-    float udc, temp;
+    float acc;    // 加速度 (rad/s^2)
+    float vel;    // 速度 (rad/s)
+    float pos;    // 位置 (rad)
+    float tau_ff; // 转矩前馈
+} tMIT_target;
+// 转矩前馈为0,则使用加速度 转矩前馈不为0,则使用转矩前馈 加速度作废
+
+typedef struct
+{
+    float udc, vmax, temp;
     float iu_im, iv_im, iw_im;
     float iu, iv, iw;
     float ialpha, ibeta;
+    float ialpha_ref, ibeta_ref;
+    float ol_cur_ref;
+    float ol_vel_elec;
+    float ol_theta_elec;
     float theta_elec;
     float theta_mech;
-    float iq_ref;
-    float id_ref;
+    float iq_ref, id_ref;
     float iq_fb, id_fb;
     float ud, uq;
     float ualpha, ubeta;
     float ualpha_hfi, ubeta_hfi;
-    float rpm_ref;
-    float rpm_fb;
+    float vel_ref;
+    float vel_fb;
+    float pos_max;
+    float pos_min;
     float pos_ref;
     float pos_fb;
     float tau_ref;
     float tau_ff_ref;
+    tMIT_target mit_target;
 } tFOC_val;
 
 typedef struct
@@ -67,7 +83,10 @@ bool foc_shutdown();
 
 // 辅助整定 函数
 void filter_reset();
-void foc_set_ualpha_beta(float Ualpha, float Ubeta);
+void foc_set_ol_theta_cur(float theta_elec, float cur_ref);
+void foc_set_ol_vel_cur(float vel_elec, float cur_ref);
+void foc_set_cur_loop_param(float Kp_d, float Ki_d, float Kp_q, float Ki_q);
+void foc_set_ualpha_beta(float Ubeta);
 void foc_set_id_iq(float id, float iq);
 void foc_set_theta_offset(float thetaoffset);
 

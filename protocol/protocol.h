@@ -26,21 +26,22 @@ typedef enum {
     KP_POSITION        = 20,  /* 位置环比例 */
     KI_POSITION        = 21,  /* 位置环积分 */
     KD_POSITION        = 22,  /* 位置环微分 */
-    MIT_KP             = 23,  /* MIT刚度 */
-    MIT_KD             = 24,  /* MIT阻尼 */
-    MIT_TMAX           = 25,  /* MIT最大扭矩 */
-    TUNE_CURRENT       = 26,  /* 校准电流 */
-    LIMIT_CURRENT      = 27,  /* 电流限幅 */
-    LIMIT_SPEED        = 28,  /* 速度限幅 */
-    LIMIT_POSITION_MIN = 29,  /* 位置限幅最小值 */
-    LIMIT_POSITION_MAX = 30,  /* 位置限幅最大值 */
-    TOLERANCE_TIME     = 31,  /* 容忍时间 */
-    TOLERANCE_LIMIT    = 32,  /* 超限容忍度 */
-    TRAJ_LIMIT_D1      = 33,  /* 一阶限幅 */
-    TRAJ_LIMIT_D2      = 34,  /* 二阶限幅 */
-    TRAJ_LIMIT_D3      = 35,  /* 三阶限幅 */
-    TRAJ_TOLERANCE     = 36,  /* 轨迹规划容差 */
-    PARAM_NUM          = 37
+    ALPHA_POSITION     = 23,  /* 位置环滤波系数 */
+    MIT_KP             = 24,  /* MIT刚度 */
+    MIT_KD             = 25,  /* MIT阻尼 */
+    MIT_TMAX           = 26,  /* MIT最大扭矩 */
+    TUNE_CURRENT       = 27,  /* 校准电流 */
+    LIMIT_CURRENT      = 28,  /* 电流限幅 */
+    LIMIT_VELOCITY     = 29,  /* 速度限幅 */
+    LIMIT_POSITION_MIN = 30,  /* 位置限幅最小值 */
+    LIMIT_POSITION_MAX = 31,  /* 位置限幅最大值 */
+    TOLERANCE_TIME     = 32,  /* 容忍时间 */
+    TOLERANCE_LIMIT    = 33,  /* 超限容忍度 */
+    TRAJ_LIMIT_D1      = 34,  /* 一阶限幅 */
+    TRAJ_LIMIT_D2      = 35,  /* 二阶限幅 */
+    TRAJ_LIMIT_D3      = 36,  /* 三阶限幅 */
+    TRAJ_TOLERANCE     = 37,  /* 轨迹规划容差 */
+    PARAM_NUM          = 38
 } eParameter;
 
 typedef enum {
@@ -55,8 +56,8 @@ typedef enum {
     CURRENT_D     =  8,  /* I_d */
     CURRENT_Q_REF =  9,  /* Iq_ref */
     CURRENT_D_REF = 10,  /* Id_ref */
-    SPEED         = 11,  /* rpm */
-    SPEED_REF     = 12,  /* rpm_ref */
+    SPEED         = 11,  /* vel */
+    SPEED_REF     = 12,  /* vel_ref */
     THETA_ELEC    = 13,  /* theta_e */
     THETA_MECH    = 14,  /* theta_m */
     POSITION      = 15,  /* pos */
@@ -80,13 +81,14 @@ typedef enum {
 
 
 typedef enum {
-    OPEN_LOOP    = 0,  /* 开环模式 */
-    CURRENT_MODE = 1,  /* 电流模式 */
-    PID_SPEED    = 2,  /* PID速度模式 */
-    PID_POSITION = 3,  /* PID位置模式 */
-    MIT_SPEED    = 4,  /* MIT速度模式 */
-    MIT_POSITION = 5,  /* MIT位置模式 */
-    MIT_TRAJ     = 6,  /* MIT轨迹模式 */
+    OPEN_VOL     = 0,  /* 开环电压 */
+    OPEN_CUR     = 1,  /* 开环电流 */
+    CURRENT_MODE = 2,  /* 电流模式 */
+    PID_SPEED    = 3,  /* PID速度模式 */
+    PID_POSITION = 4,  /* PID位置模式 */
+    MIT_SPEED    = 5,  /* MIT速度模式 */
+    MIT_POSITION = 6,  /* MIT位置模式 */
+    MIT_TRAJ     = 7,  /* MIT轨迹模式 */
 } eRunMode;
 
 

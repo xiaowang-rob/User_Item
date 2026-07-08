@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
-# Enable CMAKE support for ASM and C languages
+# Enable CMake support for ASM and C languages
 enable_language(C ASM)
 # STM32CubeMX generated symbols (macros)
-set(MX_Defines_Syms
-	USE_HAL_DRIVER
+set(MX_Defines_Syms 
+	USE_HAL_DRIVER 
 	STM32F405xx
     $<$<CONFIG:Debug>:DEBUG>
 )
@@ -87,12 +87,11 @@ set(MX_LINK_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/ARM/DSP/Lib
 )
 # Project static libraries
-set(MX_LINK_LIBS
+set(MX_LINK_LIBS  
 	:libarm_cortexM4lf_math.a
     STM32_Drivers
     ${TOOLCHAIN_LINK_LIBRARIES}
-    USB_Device_Library
-
+    USB_Device_Library	
 )
 # Interface library for includes and symbols
 add_library(stm32cubemx INTERFACE)

@@ -41,7 +41,7 @@ static void _fit_from_sums(float sum_x, float sum_y, float sum_xy, float sum_xx,
     *mse = 0.0f;
 }
 // 控制带宽、滤波系数与PID参数的经验公式
-void calculate_control_params()
+static void calculate_control_params()
 {
     // todo:这里对电流环PI进行调节
     float fn_d = 1 / (MATH_2PI * temp_params.ld / temp_params.rs);
@@ -72,154 +72,9 @@ void calculate_control_params()
 
     // 计算一阶低通滤波系数 alpha
     temp_params.cur_filter_alpha = 1.0f - expf(-MATH_2PI * f_filter / f_sw);
-}
 
-// ================================= 参数访问实现 =================================
-void motor_param_tune_force_save(void)
-{
-
-    // 过程中会直接写入motor用于后续控制
-    //  这里是集中写入参数flash中转站
-    g_Param.motor_rs = temp_params.rs;
-    g_Param.motor_ld = temp_params.ld;
-    g_Param.motor_lq = temp_params.lq;
-    g_Param.motor_psif = temp_params.psi_f;
-    g_Param.motor_ke = temp_params.ke;
-    g_Param.motor_j = temp_params.j;
-    g_Param.motor_b = temp_params.b;
-    g_Param.motor_polepairs = temp_params.pole_pairs;
-    g_Param.theta_offset = temp_params.theta_offset;
-    g_Param.theta_elec_offset = temp_params.theta_elec_need_180;
-    g_Param.forward_dir = temp_params.direction;
-
-    g_Param.kp_Q = temp_params.iq_kp;
-    g_Param.ki_Q = temp_params.iq_ki;
-    g_Param.kp_D = temp_params.id_kp;
-    g_Param.ki_D = temp_params.id_ki;
-
-    g_Param.cur_filter_alpha = temp_params.cur_filter_alpha;
-    g_Param.adc_U_zero_offset = temp_params.uadc_offset;
-    g_Param.adc_V_zero_offset = temp_params.vadc_offset;
-    g_Param.adc_W_zero_offset = temp_params.wadc_offset;
-}
-
-// ================================= 初始化与重置 =================================
-// todo:后续添加无感整定，根据选择的感应模式校准，无感只校准电机，有感校准电机和编码器，直接校准电机，直接用HFI、SMO做精准的控制
-void motor_param_tune_init()
-{
-
-    memset(&tune_ctx, 0, sizeof(tTuneContext));
-    memset(&temp_params, 0, sizeof(tTuneParams));
-    temp_params.kv = g_Param.motor_kv;
-    temp_params.dt = T_CON;
-     temp_params.tune_cur_limit = g_Param.tune_current; // 从用户配置获取校准电流锚点
-    filter_first_order_lag_init(&rs_i_filter, 0.04f, 0);
-}
-
-void motor_param_tune_reset()
-{
-    tune_ctx.fault = FAULT_NONE;
-    tune_ctx.state = TUNE_INIT;
-}
-// ================================= 电阻整定 (开环 + 滤波 + 差分) =================================
-
-static bool _tune_rs(float i_alpha)
-{
-    tTuneContext *ctx = &tune_ctx;
-    float i_a = filter_first_order_lag(&rs_i_filter, i_alpha);
-
-    if (ctx->freq_tick++ < RS_FREQ_F)
-        return false; // 跳过不整定
-    ctx->freq_tick = 0;
-
-    //===滞环电流控制=== (阈值在 TUNE_IDLE 时已预计算至 rs_ctx)
-    float err = ctx->rs_ctx.i_target - i_a;
-    if (FABSF(err) > ctx->rs_ctx.hyst_band)
-    {
-        ctx->rs_ctx.v_cmd += (err > 0) ? 10 * RS_V_STEP_MIN : -10 * RS_V_STEP_MIN;
-        ctx->rs_ctx.v_cmd = CLAMP(ctx->rs_ctx.v_cmd, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
-        ctx->rs_ctx.hold_cnt = 0;
-    }
-    else
-    {
-        if (++ctx->rs_ctx.hold_cnt >= RS_V_HOLD_MAX_TICKS)
-        {
-            ctx->rs_ctx.v_cmd += (err > 0) ? RS_V_STEP_MIN : -RS_V_STEP_MIN;
-            ctx->rs_ctx.v_cmd = CLAMP(ctx->rs_ctx.v_cmd, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
-            ctx->rs_ctx.hold_cnt = 0;
-        }
-    }
-    //===死区前馈===
-    float v_dead_comp = (i_a > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
-    float v_out = CLAMP(ctx->rs_ctx.v_cmd + v_dead_comp, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
-
-    // 稳态判断
-    float i_err = FABSF(i_a - ctx->rs_ctx.i_target);
-    if (i_err < ctx->rs_ctx.steady_err)
-    {
-        if (ctx->steady_tick >= RS_STEADY_TICKS)
-        {
-            // === 4. 数据采集 ===
-            if (ctx->rs_ctx.step == 0)
-            {
-                // 记录第一点
-                ctx->rs_ctx.i_meas[0] = i_a;
-                 ctx->rs_ctx.v_meas[0] = v_out; // 记录实际输出电压
-
-                // 切换到第二点
-                ctx->rs_ctx.step = 1;
-                ctx->steady_tick = 0;
-                ctx->rs_ctx.step_ticks = 0;
-
-                // 切换到第二点 (目标电流 = tune_cur_limit × 系数)
-                ctx->rs_ctx.i_target = ctx->rs_ctx.i_target_2;
-                ctx->rs_ctx.v_cmd = 0;
-                ctx->rs_ctx.hold_cnt = 0;
-
-                return false; // 继续第二点
-            }
-            else
-            {
-                // 记录第二点
-                ctx->rs_ctx.i_meas[1] = i_a;
-                ctx->rs_ctx.v_meas[1] = v_out;
-
-                // === 5. 差分计算电阻 ===
-                float delta_i = ctx->rs_ctx.i_meas[1] - ctx->rs_ctx.i_meas[0];
-                float delta_v = ctx->rs_ctx.v_meas[1] - ctx->rs_ctx.v_meas[0];
-
-                // 信噪比检查 (阈值 = tune_cur_limit × 系数)
-                if (FABSF(delta_i) < ctx->rs_ctx.min_delta_i)
-                {
-                    ctx->fault = FAULT_TUNE_CURRENT_VIBRATION;
-                    return true;
-                }
-
-                // 计算电阻
-                temp_params.rs = delta_v / (delta_i + 1e-6f);
-
-                // 合理性校验
-                if (temp_params.rs < RS_RANGE_MIN || temp_params.rs > RS_RANGE_MAX)
-                {
-                    ctx->fault = FAULT_RS_LS_CAL_FAIL;
-                    return true;
-                }
-
-                foc_set_ualpha_beta(0, 0);
-                return true; // 辨识完成
-            }
-        }
-    }
-    else
-    {
-        // 电流波动，重置稳态计数
-        ctx->steady_tick = 0;
-    }
-
-    // === 6. 输出电压 ===
-    foc_set_ualpha_beta(v_out, 0);
-
-    return false; // 辨识进行中
+    // 直接写入
+    foc_set_cur_loop_param(temp_params.id_kp, temp_params.id_ki, temp_params.iq_kp, temp_params.iq_ki);
 }
 
 // 累加当前采样点对DFT的贡献（无缓冲区）
@@ -260,17 +115,248 @@ static void dft_reset_accumulator(float *sum_re, float *sum_im, uint16_t *cnt)
     *cnt = 0;
 }
 
+// ================================= 参数访问实现 =================================
+void motor_param_tune_force_save(void)
+{
+    //  这里是集中写入参数flash中转站
+    g_Param.motor_rs = temp_params.rs;
+    g_Param.motor_ld = temp_params.ld;
+    g_Param.motor_lq = temp_params.lq;
+    g_Param.motor_psif = temp_params.psi_f;
+    g_Param.motor_ke = temp_params.ke;
+    g_Param.motor_j = temp_params.j;
+    g_Param.motor_b = temp_params.b;
+    g_Param.motor_polepairs = temp_params.pole_pairs;
+    g_Param.theta_offset = temp_params.theta_offset;
+    g_Param.theta_elec_offset = temp_params.theta_elec_need_180;
+    g_Param.forward_dir = temp_params.direction;
+
+    g_Param.kp_Q = temp_params.iq_kp;
+    g_Param.ki_Q = temp_params.iq_ki;
+    g_Param.kp_D = temp_params.id_kp;
+    g_Param.ki_D = temp_params.id_ki;
+
+    g_Param.cur_filter_alpha = temp_params.cur_filter_alpha;
+    g_Param.adc_U_zero_offset = temp_params.uadc_offset;
+    g_Param.adc_V_zero_offset = temp_params.vadc_offset;
+    g_Param.adc_W_zero_offset = temp_params.wadc_offset;
+}
+
+// ================================= 初始化与重置 =================================
+// todo:后续添加无感整定，根据选择的感应模式校准，无感只校准电机，有感校准电机和编码器，直接校准电机，直接用HFI、SMO做精准的控制
+void motor_param_tune_init()
+{
+    memset(&tune_ctx, 0, sizeof(tTuneContext));
+    memset(&temp_params, 0, sizeof(tTuneParams));
+    temp_params.kv = g_Param.motor_kv;
+    temp_params.dt = T_CON;
+    temp_params.tune_cur_limit = g_Param.tune_current; // 从用户配置获取校准电流锚点
+    filter_first_order_lag_init(&rs_i_filter, 0.04f, 0);
+}
+
+void motor_param_tune_reset()
+{
+    tune_ctx.fault = FAULT_NONE;
+    tune_ctx.state = TUNE_INIT;
+}
+// ================================= 电阻整定 (开环 + 滤波 + 差分) =================================
+
+// 开环电压测电阻
+static bool _tune_rs_ol_vol(float i_alpha)
+{
+    tTuneContext *ctx = &tune_ctx;
+    float i_a = filter_first_order_lag(&rs_i_filter, i_alpha);
+
+    if (ctx->freq_tick++ < RS_FREQ_F)
+        return false; // 跳过不整定
+    ctx->freq_tick = 0;
+
+    //===滞环电流控制=== (阈值在 TUNE_IDLE 时已预计算至 rs_ctx)
+    float err = ctx->rs_ctx.i_target - i_a;
+    if (FABSF(err) > ctx->rs_ctx.hyst_band)
+    {
+        ctx->rs_ctx.v_cmd += (err > 0) ? 10 * RS_V_STEP_MIN : -10 * RS_V_STEP_MIN;
+        ctx->rs_ctx.v_cmd = CLAMP(ctx->rs_ctx.v_cmd, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
+        ctx->rs_ctx.hold_cnt = 0;
+    }
+    else
+    {
+        if (++ctx->rs_ctx.hold_cnt >= RS_V_HOLD_MAX_TICKS)
+        {
+            ctx->rs_ctx.v_cmd += (err > 0) ? RS_V_STEP_MIN : -RS_V_STEP_MIN;
+            ctx->rs_ctx.v_cmd = CLAMP(ctx->rs_ctx.v_cmd, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
+            ctx->rs_ctx.hold_cnt = 0;
+        }
+    }
+    //===死区前馈===
+    float v_dead_comp = (i_a > 0) ? RS_DEADTIME_VCOMP : -RS_DEADTIME_VCOMP;
+    float v_out_ab[2] = {0};
+    v_out_ab[0] = CLAMP(ctx->rs_ctx.v_cmd + v_dead_comp, -ctx->rs_ctx.v_limit, ctx->rs_ctx.v_limit);
+    v_out_ab[1] = 0;
+
+    // 稳态判断
+    float i_err = FABSF(i_a - ctx->rs_ctx.i_target);
+    if (i_err < ctx->rs_ctx.steady_err)
+    {
+        if (ctx->steady_tick >= RS_STEADY_TICKS)
+        {
+            // === 4. 数据采集 ===
+            if (ctx->rs_ctx.step == 0)
+            {
+                // 记录第一点
+                ctx->rs_ctx.i_meas[0] = i_a;
+                ctx->rs_ctx.v_meas[0] = v_out_ab[0]; // 记录实际输出电压
+
+                // 切换到第二点
+                ctx->rs_ctx.step = 1;
+                ctx->steady_tick = 0;
+                ctx->rs_ctx.step_ticks = 0;
+
+                // 切换到第二点 (目标电流 = tune_cur_limit × 系数)
+                ctx->rs_ctx.i_target = ctx->rs_ctx.i_target_2;
+                ctx->rs_ctx.v_cmd = 0;
+                ctx->rs_ctx.hold_cnt = 0;
+
+                return false; // 继续第二点
+            }
+            else
+            {
+                // 记录第二点
+                ctx->rs_ctx.i_meas[1] = i_a;
+                ctx->rs_ctx.v_meas[1] = v_out_ab[0]; // 记录实际输出电压
+
+                // === 5. 差分计算电阻 ===
+                float delta_i = ctx->rs_ctx.i_meas[1] - ctx->rs_ctx.i_meas[0];
+                float delta_v = ctx->rs_ctx.v_meas[1] - ctx->rs_ctx.v_meas[0];
+
+                // 信噪比检查 (阈值 = tune_cur_limit × 系数)
+                if (FABSF(delta_i) < ctx->rs_ctx.min_delta_i)
+                {
+                    ctx->fault = FAULT_TUNE_CURRENT_VIBRATION;
+                    return true;
+                }
+
+                // 计算电阻
+                temp_params.rs = delta_v / (delta_i + 1e-6f);
+
+                // 合理性校验
+                if (temp_params.rs < RS_RANGE_MIN || temp_params.rs > RS_RANGE_MAX)
+                {
+                    ctx->fault = FAULT_RS_LS_CAL_FAIL;
+                    return true;
+                }
+                v_out_ab[0] = 0;
+                v_out_ab[1] = 0;
+                foc_set_target(v_out_ab);
+                return true; // 辨识完成
+            }
+        }
+    }
+    else
+    {
+        // 电流波动，重置稳态计数
+        ctx->steady_tick = 0;
+    }
+
+    // === 6. 输出电压 ===
+
+    foc_set_target(v_out_ab);
+    return false; // 辨识进行中
+}
+// 开环电流测三相电阻 (双点差分 × 3角度)
+// 在 OPEN_CUR 模式下，施加固定电角度 + q 轴电流，用 αβ 电压幅值计算 Rs
+// 三个电角度 (270°, 30°, 150°) 各 120° 间隔，分别以 U / V / W 相为主载流相
+// 每个角度做两点差分：I₁ = tune_cur × 0.2, I₂ = tune_cur × 0.6
+static bool _tune_rs_ol_cur(tFOC_val *foc_val)
+{
+    tTuneContext *ctx = &tune_ctx;
+
+    // 三个电角度 [rad]，各隔 120° (2.094 rad)，分别使 U/V/W 相为主载流相
+    static const float angles[3] = {4.7124f, 0.5236f, 2.6180f};
+
+    // ol_stage: 0=I₁@U, 1=I₂@U; 2=I₁@V, 3=I₂@V; 4=I₁@W, 5=I₂@W; 6=done
+    u8 stage = ctx->rs_ctx.ol_stage;
+
+    if (stage >= 6)
+    {
+        float rs_sum = ctx->rs_ctx.ol_rs[0] + ctx->rs_ctx.ol_rs[1] + ctx->rs_ctx.ol_rs[2];
+        temp_params.rs = rs_sum / 3.0f;
+
+        if (temp_params.rs < RS_RANGE_MIN || temp_params.rs > RS_RANGE_MAX)
+            ctx->fault = FAULT_RS_LS_CAL_FAIL;
+
+        float v_zero[2] = {0, 0};
+        foc_set_target(v_zero);
+        ctx->rs_ctx.ol_stage = 0;
+        return true;
+    }
+
+    u8 angle_idx = stage / 2; // 0,1,2
+    u8 cur_idx = stage % 2;   // 0=I₁, 1=I₂
+    float cur_lim = temp_params.tune_cur_limit;
+
+    float i_target = (cur_idx == 0) ? (cur_lim * RS_I_TARGET_1_COEF)
+                                    : (cur_lim * RS_I_TARGET_2_COEF);
+    float theta = angles[angle_idx];
+
+    foc_set_ol_theta_cur(theta, i_target);
+
+    // 稳态判断：实际电流 vs 参考电流
+    float i_err_a = FABSF(foc_val->ialpha - foc_val->ialpha_ref);
+    float i_err_b = FABSF(foc_val->ibeta - foc_val->ibeta_ref);
+    float i_err = (i_err_a > i_err_b) ? i_err_a : i_err_b;
+    float steady_thr = cur_lim * RS_STEADY_ERR_THR_COEF;
+
+    if (i_err < steady_thr)
+    {
+        if (ctx->steady_tick >= RS_STEADY_TICKS)
+        {
+            float u_mag = sqrtf(foc_val->ualpha * foc_val->ualpha + foc_val->ubeta * foc_val->ubeta);
+
+            if (cur_idx == 0)
+            {
+                ctx->rs_ctx.ol_u[0] = u_mag;
+                ctx->rs_ctx.ol_stage++;
+            }
+            else
+            {
+                ctx->rs_ctx.ol_u[1] = u_mag;
+
+                float I1 = cur_lim * RS_I_TARGET_1_COEF;
+                float I2 = cur_lim * RS_I_TARGET_2_COEF;
+                float delta_i = I2 - I1;
+                float delta_u = ctx->rs_ctx.ol_u[1] - ctx->rs_ctx.ol_u[0];
+
+                if (FABSF(delta_i) < cur_lim * RS_MIN_DELTA_I_COEF)
+                {
+                    ctx->fault = FAULT_TUNE_CURRENT_VIBRATION;
+                    return true;
+                }
+
+                ctx->rs_ctx.ol_rs[angle_idx] = delta_u / (delta_i + 1e-6f);
+                ctx->rs_ctx.ol_stage++;
+            }
+            ctx->steady_tick = 0;
+        }
+    }
+    else
+    {
+        ctx->steady_tick = 0;
+    }
+
+    return false;
+}
 // ================================= 电感整定（alpha beta轴方波注入） =================================
-static bool
-_TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
+
+static bool _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
 {
 
     tTuneContext *ctx = &tune_ctx;
-    const float omega_inj = MATH_2PI * LS_INJECT_FREQ_HZ; // 注入角频率 (°/s)
+    const float omega_inj = MATH_2PI * LS_INJECT_FREQ_HZ; // 注入角频率 (rad/s)
     const float omega_dt = omega_inj * temp_params.dt;    // 每步相位增量 (°)
 
     static float inj_angle = 0.0f; // 当前注入电压相位
-    float v_alpha_cmd, v_beta_cmd;
+    float v_cmd_ab[2] = {0};
 
     // 为了代码可读性，将上下文指针暂存
     float *sum_re = &ctx->ls_ctx.sum_re;
@@ -293,9 +379,9 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
         }
 
         // 生成旋转电压 (αβ 旋转，使电流幅值与转子位置无关)
-        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
-        v_beta_cmd = ctx->ls_ctx.v_inj * arm_sin_f32(inj_angle);
-        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
+        v_cmd_ab[0] = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_cmd_ab[1] = ctx->ls_ctx.v_inj * arm_sin_f32(inj_angle);
+        foc_set_target(v_cmd_ab);
 
         // 更新注入相位
         inj_angle += omega_dt;
@@ -337,10 +423,12 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
                 else
                 {
                     // 电压已合适，结束自适应阶段
-                     ctx->ls_ctx.state = 1; // 进入转子预定位
-                     ctx->steady_tick = 0;  // 重置定时器
+                    ctx->ls_ctx.state = 1; // 进入转子预定位
+                    ctx->steady_tick = 0;  // 重置定时器
                     ctx->ls_ctx.cycle_cnt = 0;
-                     foc_set_ualpha_beta(0, 0); // 先关断电压
+                    v_cmd_ab[0] = 0;
+                    v_cmd_ab[1] = 0;
+                    foc_set_target(v_cmd_ab);
                     return false;
                 }
 
@@ -360,12 +448,16 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
         if (ramp > 1.0f)
             ramp = 1.0f;
         float v_align = ctx->ls_ctx.v_inj * ramp;
-        foc_set_ualpha_beta(v_align, 0.0f);
+        v_cmd_ab[0] = v_align;
+        v_cmd_ab[1] = 0.0f;
+        foc_set_target(v_cmd_ab);
 
         if (ctx->steady_tick > ctx->align_total_ticks)
         {
             // 对齐完成，断电
-            foc_set_ualpha_beta(0, 0);
+            v_cmd_ab[0] = 0;
+            v_cmd_ab[1] = 0;
+            foc_set_target(v_cmd_ab);
             // 等待电流衰减后再进入测量
             if (ctx->steady_tick > ctx->align_total_ticks + MS_TO_TICK(WAIT_AFTER_ALIGN_MS))
             {
@@ -387,9 +479,9 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
 
         // 注入正弦电压（仅α轴，因转子已在0°，α轴对应d轴）
 
-        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
-        v_beta_cmd = 0.0f;
-        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
+        v_cmd_ab[0] = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_cmd_ab[1] = 0.0f;
+        foc_set_target(v_cmd_ab);
 
         inj_angle += omega_dt;
         if (inj_angle > MATH_2PI)
@@ -419,13 +511,15 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
                 }
                 else
                 {
-                     L = 0.0f; // 不合理，置0
+                    L = 0.0f; // 不合理，置0
                 }
                 temp_params.ld = L;
                 // 测量完成，进入状态3：旋转转子至90°
                 ctx->ls_ctx.state = 3;
                 ctx->steady_tick = 0;
-                foc_set_ualpha_beta(0, 0);
+                v_cmd_ab[0] = 0;
+                v_cmd_ab[1] = 0;
+                foc_set_target(v_cmd_ab);
             }
         }
         return false;
@@ -440,12 +534,16 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
             ramp = 1.0f;
         float v_align = ctx->ls_ctx.v_inj * ramp;
         // 施加β轴直流电压，使转子从0°转到90°电角度
-        foc_set_ualpha_beta(0.0f, v_align);
+        v_cmd_ab[0] = 0.0f;
+        v_cmd_ab[1] = v_align;
+        foc_set_target(v_cmd_ab);
 
         if (ctx->steady_tick > ctx->align_total_ticks)
         {
             // 对齐完成，断电
-            foc_set_ualpha_beta(0, 0);
+            v_cmd_ab[0] = 0;
+            v_cmd_ab[1] = 0;
+            foc_set_target(v_cmd_ab);
             // 等待电流衰减后再进入测量
             if (ctx->steady_tick > ctx->align_total_ticks + MS_TO_TICK(WAIT_AFTER_ALIGN_MS))
             {
@@ -466,9 +564,9 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
     case 4:
 
         // 依旧在α轴注入正弦（此时转子90°，α轴对准q轴）
-        v_alpha_cmd = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
-        v_beta_cmd = 0.0f;
-        foc_set_ualpha_beta(v_alpha_cmd, v_beta_cmd);
+        v_cmd_ab[0] = ctx->ls_ctx.v_inj * arm_cos_f32(inj_angle);
+        v_cmd_ab[1] = 0.0f;
+        foc_set_target(v_cmd_ab);
 
         inj_angle += omega_dt;
         if (inj_angle > MATH_2PI)
@@ -498,7 +596,9 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
                 temp_params.lq = L;
                 // 测量完成，进入状态5
                 ctx->ls_ctx.state = 5;
-                foc_set_ualpha_beta(0, 0);
+                v_cmd_ab[0] = 0;
+                v_cmd_ab[1] = 0;
+                foc_set_target(v_cmd_ab);
             }
         }
         return false;
@@ -519,35 +619,23 @@ _TuneLs(float v_alpha, float v_beta, float i_alpha, float i_beta)
     return false; // 未完成
 }
 
-// 编码器校准
+// 编码器校准 — 使用 OPEN_CUR 模式
 bool _tune_encoder(float theta_m)
 {
-    const float THETA_STEP = EC_OPEN_LOOP_OMEGA * T_CON * EC_FREQ_F;
     tTuneContext *ctx = &tune_ctx;
-    // 1. 频率分频控制
     if (ctx->freq_tick++ < EC_FREQ_F)
-        return false; // 跳过不整定
+        return false;
     ctx->freq_tick = 0;
+    float cur_lim = temp_params.tune_cur_limit;
 
-    // 临时变量声明
-    float v_alpha = 0, v_beta = 0;
-
-    // 2. 状态机跳转
     switch (ctx->encoder_ctx.step)
     {
-        // === STATE 0: 确定要施加的合理电压===
     case 0:
-        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
+        ctx->encoder_ctx.theta_m_unwrap = theta_m + MATH_2PI * encoder_get_num_turns();
         switch (ctx->encoder_ctx.test_step)
         {
-        case 0: // 拉到0°电角度 (缓慢斜坡)
-        {
-            float ramp = (float)ctx->steady_tick / (float)EC_ALIGN_ms;
-            if (ramp > 1.0f)
-                ramp = 1.0f;
-            v_alpha = ctx->encoder_ctx.v_out * ramp;
-            v_beta = 0.0f;
-            foc_set_ualpha_beta(v_alpha, v_beta);
+        case 0:
+            foc_set_ol_theta_cur(4.7124f, ctx->encoder_ctx.cur_test);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -555,15 +643,8 @@ bool _tune_encoder(float theta_m)
                 ctx->encoder_ctx.test_step = 1;
             }
             break;
-        }
-        case 1: // 拉到180°电角度 (缓慢斜坡)
-        {
-            float ramp = (float)ctx->steady_tick / (float)EC_ALIGN_ms;
-            if (ramp > 1.0f)
-                ramp = 1.0f;
-            v_alpha = -ctx->encoder_ctx.v_out * ramp;
-            v_beta = 0.0f;
-            foc_set_ualpha_beta(v_alpha, v_beta);
+        case 1:
+            foc_set_ol_theta_cur(1.5708f, ctx->encoder_ctx.cur_test);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -572,15 +653,8 @@ bool _tune_encoder(float theta_m)
                 ctx->encoder_ctx.test_step = 2;
             }
             break;
-        }
-        case 2: // 拉到0°电角度 (缓慢斜坡)
-        {
-            float ramp = (float)ctx->steady_tick / (float)EC_ALIGN_ms;
-            if (ramp > 1.0f)
-                ramp = 1.0f;
-            v_alpha = ctx->encoder_ctx.v_out * ramp;
-            v_beta = 0.0f;
-            foc_set_ualpha_beta(v_alpha, v_beta);
+        case 2:
+            foc_set_ol_theta_cur(4.7124f, ctx->encoder_ctx.cur_test);
             if (ctx->steady_tick >= EC_ALIGN_ms)
             {
                 ctx->steady_tick = 0;
@@ -589,20 +663,16 @@ bool _tune_encoder(float theta_m)
                 ctx->encoder_ctx.test_step = 3;
             }
             break;
-        }
-        case 3: // 计算角度变化值，如果不达标说明电机没有预期转动，需要加大电压
-        {
-            if (ctx->encoder_ctx.delta_theta[0] < 10.0f || ctx->encoder_ctx.delta_theta[1] < 10.0f)
+        case 3:
+            if (ctx->encoder_ctx.delta_theta[0] < 0.1745f || ctx->encoder_ctx.delta_theta[1] < 0.1745f)
             {
-                ctx->encoder_ctx.v_out += EC_UQ_STEP;
-                if (ctx->encoder_ctx.v_out_max - ctx->encoder_ctx.v_out < 0.01f)
+                ctx->encoder_ctx.cur_test += cur_lim * 0.05f;
+                if (ctx->encoder_ctx.cur_test > cur_lim * 0.3f)
                 {
                     ctx->fault = FAULT_MOTOR_LOCK;
                     ctx->state = TUNE_FAILED;
                     return true;
                 }
-                else
-                    ctx->encoder_ctx.v_out = ctx->encoder_ctx.v_out_max;
                 ctx->encoder_ctx.test_step = 0;
                 break;
             }
@@ -610,108 +680,68 @@ bool _tune_encoder(float theta_m)
             ctx->encoder_ctx.step = 1;
             break;
         }
-        }
         break;
 
-    // === STATE 1: 直流预对齐 (Align) — 缓慢斜坡 ===
     case 1:
-    {
-        float ramp = (float)ctx->steady_tick / (float)EC_ALIGN_ms;
-        if (ramp > 1.0f)
-            ramp = 1.0f;
-        v_alpha = ctx->encoder_ctx.v_out * ramp;
-        v_beta = 0.0f;
-        foc_set_ualpha_beta(v_alpha, v_beta);
-
+        foc_set_ol_theta_cur(4.7124f, ctx->encoder_ctx.cur_test);
         if (ctx->steady_tick >= EC_ALIGN_ms)
-        { // 对齐完成
+        {
             ctx->steady_tick = 0;
-            // 记录起始点
-            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
+            ctx->encoder_ctx.theta_m_unwrap = theta_m + MATH_2PI * encoder_get_num_turns();
             ctx->encoder_ctx.theta_m_start = ctx->encoder_ctx.theta_m_unwrap;
-            ctx->encoder_ctx.theta_e_acc = 0.0f;
-            ctx->encoder_ctx.theta_e_raw = 0.0f;
+            ctx->encoder_ctx.theta_e_acc = 0;
+            ctx->encoder_ctx.theta_e_raw = 0;
             if (!ctx->encoder_ctx.forward_done)
-                 ctx->encoder_ctx.step = 2; // 进入正向扫描
+                ctx->encoder_ctx.step = 2;
             else if (!ctx->encoder_ctx.backward_done)
-                 ctx->encoder_ctx.step = 3; // 进入反向扫描
+                ctx->encoder_ctx.step = 3;
             else
-                 ctx->encoder_ctx.step = 4; // 进入方向校准
+                ctx->encoder_ctx.step = 4;
         }
         break;
-    }
-    // === STATE 2/3: 开环扫描 (正向/反向)  ===
-    case 2: // Forward
-    case 3: // Reverse
+
+    case 2:
+    case 3:
     {
-        // 2.1 计算电角度增量
+        float vel = EC_OPEN_LOOP_OMEGA;
         if (ctx->encoder_ctx.step == 3)
-             ctx->encoder_ctx.theta_e_acc -= THETA_STEP; // 反向取负
-        else
-            ctx->encoder_ctx.theta_e_acc += THETA_STEP;
-         ctx->encoder_ctx.theta_elec = normalize_angle_360(ctx->encoder_ctx.theta_e_acc); // 仅用于三角变换
-
-        // 2.2 施加开环电压 对应角度的ud
-        float sin_theta_e = 0.0f;
-        float cos_theta_e = 0.0f;
-        arm_sin_cos_f32(ctx->encoder_ctx.theta_elec, &sin_theta_e, &cos_theta_e);
-        inv_park_transform(ctx->encoder_ctx.v_out, 0.0f, sin_theta_e, cos_theta_e, &v_alpha, &v_beta);
-        foc_set_ualpha_beta(v_alpha, v_beta);
-
-        ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
-
-        // 2.4 采样存储 累加最小二乘所需量
-        if (FABSF(ctx->encoder_ctx.theta_e_acc - ctx->encoder_ctx.theta_e_raw) >= 10.0f)
+            vel = -vel;
+        foc_set_ol_vel_cur(vel, ctx->encoder_ctx.cur_test);
+        const float STEP = EC_OPEN_LOOP_OMEGA * T_CON * EC_FREQ_F;
+        ctx->encoder_ctx.theta_e_acc += (ctx->encoder_ctx.step == 3) ? -STEP : STEP;
+        ctx->encoder_ctx.theta_m_unwrap = theta_m + MATH_2PI * encoder_get_num_turns();
+        if (FABSF(ctx->encoder_ctx.theta_e_acc - ctx->encoder_ctx.theta_e_raw) >= 0.1745f)
         {
             ctx->encoder_ctx.theta_e_raw = ctx->encoder_ctx.theta_e_acc;
-
-            ctx->encoder_ctx.sum_m[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap;
-            ctx->encoder_ctx.sum_e[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_e_acc;
-            ctx->encoder_ctx.sum_me[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_e_acc;
-            ctx->encoder_ctx.sum_mm[ctx->encoder_ctx.step - 2] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_m_unwrap;
-            ctx->encoder_ctx.cnt[ctx->encoder_ctx.step - 2]++;
+            u8 i = ctx->encoder_ctx.step - 2;
+            ctx->encoder_ctx.sum_m[i] += ctx->encoder_ctx.theta_m_unwrap;
+            ctx->encoder_ctx.sum_e[i] += ctx->encoder_ctx.theta_e_acc;
+            ctx->encoder_ctx.sum_me[i] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_e_acc;
+            ctx->encoder_ctx.sum_mm[i] += ctx->encoder_ctx.theta_m_unwrap * ctx->encoder_ctx.theta_m_unwrap;
+            ctx->encoder_ctx.cnt[i]++;
         }
-
-        // 2.5 扫描结束判断
-        if (FABSF(ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start) > 361.0f)
+        if (FABSF(ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start) > 6.300f)
         {
-            // 执行拟合
             if (ctx->encoder_ctx.step == 2)
-            { // 正向完成，保存结果并启动反向
-
                 ctx->encoder_ctx.forward_done = true;
-                 ctx->encoder_ctx.step = 1; // 切到重新对齐0度
-                ctx->steady_tick = 0;
-            }
             else
-            { // 反向完成，进入计算
-
                 ctx->encoder_ctx.backward_done = true;
-                 ctx->encoder_ctx.step = 1; // 切方向校准
-                ctx->steady_tick = 0;
-            }
+            ctx->encoder_ctx.step = 1;
+            ctx->steady_tick = 0;
         }
         break;
     }
-        // === STATE 4: 方向校准 (缓慢斜坡) ===
-    case 4:
-    {
-        // 施加 beta 轴电压，将转子拉至电气 90度
-        float ramp = (float)ctx->steady_tick / (float)EC_ALIGN_ms;
-        if (ramp > 1.0f)
-            ramp = 1.0f;
-        v_beta = ctx->encoder_ctx.v_out * ramp;
-        v_alpha = 0.0f;
-        foc_set_ualpha_beta(v_alpha, v_beta);
 
+    case 4:
+        foc_set_ol_theta_cur(0.0f, ctx->encoder_ctx.cur_test);
         if (ctx->steady_tick >= EC_ALIGN_ms)
-        { // 对齐 300ms
+        {
             ctx->steady_tick = 0;
-            // 记录起始点
-            ctx->encoder_ctx.theta_m_unwrap = theta_m + 360.0f * encoder_get_num_turns();
-            if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start > 5.0f)
+            ctx->encoder_ctx.theta_m_unwrap = theta_m + MATH_2PI * encoder_get_num_turns();
+            float diff = ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start;
+            if (diff > 0.0873f)
                 temp_params.theta_elec_need_180 = true;
-            else if (ctx->encoder_ctx.theta_m_unwrap - ctx->encoder_ctx.theta_m_start < -5.0f)
+            else if (diff < -0.0873f)
                 temp_params.theta_elec_need_180 = false;
             else
             {
@@ -719,71 +749,51 @@ bool _tune_encoder(float theta_m)
                 ctx->state = TUNE_FAILED;
                 return true;
             }
-             ctx->encoder_ctx.step = 5; // 进入拟合
+            ctx->encoder_ctx.step = 5;
         }
         break;
-    }
-        // === STATE 5: 参数解算 (Fit) ===
+
     case 5:
-    {
         _fit_from_sums(ctx->encoder_ctx.sum_m[0], ctx->encoder_ctx.sum_e[0],
                        ctx->encoder_ctx.sum_me[0], ctx->encoder_ctx.sum_mm[0],
-                       ctx->encoder_ctx.cnt[0], &ctx->encoder_ctx.k[0],
-                       &ctx->encoder_ctx.b[0], &ctx->encoder_ctx.err[0]);
+                       ctx->encoder_ctx.cnt[0], &ctx->encoder_ctx.k[0], &ctx->encoder_ctx.b[0], &ctx->encoder_ctx.err[0]);
         _fit_from_sums(ctx->encoder_ctx.sum_m[1], ctx->encoder_ctx.sum_e[1],
                        ctx->encoder_ctx.sum_me[1], ctx->encoder_ctx.sum_mm[1],
-                       ctx->encoder_ctx.cnt[1], &ctx->encoder_ctx.k[1],
-                       &ctx->encoder_ctx.b[1], &ctx->encoder_ctx.err[1]);
-        // 4.1 误差校验
+                       ctx->encoder_ctx.cnt[1], &ctx->encoder_ctx.k[1], &ctx->encoder_ctx.b[1], &ctx->encoder_ctx.err[1]);
         if (ctx->encoder_ctx.err[0] > EC_FIT_MAX_ERROR || ctx->encoder_ctx.err[1] > EC_FIT_MAX_ERROR)
         {
             ctx->fault = FAULT_ENCODER_CAL_FAIL;
             ctx->state = TUNE_FAILED;
-             ctx->encoder_ctx.step = 0; // 失败复位
+            ctx->encoder_ctx.step = 0;
             return true;
         }
-
-        // 4.2 计算极对数 (斜率绝对值平均 -> 四舍五入)
         float p_est = (fabsf(ctx->encoder_ctx.k[0]) + fabsf(ctx->encoder_ctx.k[1])) * 0.5f;
         temp_params.pole_pairs = (u8)(p_est + 0.5f);
-
-        // 4.3 极对数范围校验
         if (temp_params.pole_pairs < EC_MIN_POLE_PAIRS || temp_params.pole_pairs > EC_MAX_POLE_PAIRS)
         {
-
             ctx->fault = FAULT_ENCODER_CAL_FAIL;
             ctx->state = TUNE_FAILED;
             return true;
         }
-
         if (temp_params.pole_pairs != g_Param.motor_polepairs)
         {
             ctx->fault = FAULT_POLE_PAIR_MISMATCH;
             ctx->state = TUNE_FAILED;
             return true;
         }
-        // 4.4 计算方向 (斜率符号)
-        temp_params.direction = (ctx->encoder_ctx.k[0] > 0) ? true : false;
-
-        // 4.5 计算零位偏移 (截距平均，抵消负载角)
+        temp_params.direction = (ctx->encoder_ctx.k[0] > 0);
         float o_est_f = -(ctx->encoder_ctx.b[0] / ctx->encoder_ctx.k[0]);
         float o_est_b = -(ctx->encoder_ctx.b[1] / ctx->encoder_ctx.k[1]);
         temp_params.theta_offset = normalize_angle_360((o_est_f + o_est_b) * 0.5f);
-
-         ctx->encoder_ctx.step = 6; // 进入完成态
+        ctx->encoder_ctx.step = 6;
         break;
-    }
 
-    // === STATE 6: 完成 (Done) ===
     case 6:
-         foc_set_ualpha_beta(0, 0); // 停机
-        return true;               // 返回 true 表示流程结束
+        foc_set_target((float[2]){0, 0});
+        return true;
     }
-
-    return false; // 返回 false 表示流程未结束，需下次继续调用
+    return false;
 }
-
-// ================================= 磁链整定 (SMO 框架) =================================
 static bool _tune_psi_f()
 {
     // TODO: SMO 高速整定框架
@@ -815,13 +825,14 @@ static bool _tune_jb()
 eTuneState tune_main_loop(tFOC_val *foc_val)
 {
     tTuneContext *ctx = &tune_ctx;
-     ctx->steady_tick++; // 作为全局稳态计时器
+    ctx->steady_tick++; // 作为全局稳态计时器
     switch (ctx->state)
     {
     case TUNE_INIT:
         motor_param_tune_init();
+        // TODO: 后续添加无感整定 可以添加HFI 和 SMO 参数整定
         foc_set_sensor_mode(ENCODER_CONTROL);
-        foc_set_run_mode(OPEN_LOOP);
+        foc_set_run_mode(OPEN_VOL); // 先切开环电压
         ctx->steady_tick = 0;
         ctx->state = TUNE_IDLE;
         break;
@@ -839,7 +850,7 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
 
         if (false == bsp_adc_calibrate_current(&temp_params.uadc_offset, &temp_params.vadc_offset, &temp_params.wadc_offset))
             break;      // 电流校准
-         filter_reset(); // 对电流滤波器进行复位
+        filter_reset(); // 对电流滤波器进行复位
 
         // ========== 预计算：Rs 校准阶段所需阈值 (一次计算，整个阶段不变) ==========
         {
@@ -868,50 +879,70 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
         break;
 
     case TUNE_RESISTANCE:
-
-        // 校准中
-        if (_tune_rs(foc_val->ialpha))
+        if (ctx->tune_round == 0)
         {
-            if (ctx->fault != FAULT_NONE)
+            // 第一轮：开环电压法测 Rs
+            if (_tune_rs_ol_vol(foc_val->ialpha))
             {
-                ctx->state = TUNE_FAILED;
-                break;
+                if (ctx->fault != FAULT_NONE)
+                {
+                    ctx->state = TUNE_FAILED;
+                    break;
+                }
+
+                // 预计算电感阈值
+                {
+                    float cur_lim = temp_params.tune_cur_limit;
+                    float rs_v_ref = temp_params.rs * cur_lim;
+                    float bus_v = foc_val->udc;
+                    ctx->ls_ctx.v_inj = rs_v_ref * LS_V_START_COEF;
+                    if (ctx->ls_ctx.v_inj < LS_V_START_MIN)
+                        ctx->ls_ctx.v_inj = LS_V_START_MIN;
+                    float ls_v_max = rs_v_ref * LS_V_MAX_COEF;
+                    float ls_v_bus = bus_v * LS_V_LIMIT_BUS_COEF;
+                    if (ls_v_max > ls_v_bus)
+                        ls_v_max = ls_v_bus;
+                    ctx->ls_ctx.v_max = ls_v_max;
+                    ctx->ls_ctx.i_target = cur_lim * LS_I_TARGET_COEF;
+                    ctx->ls_ctx.i_hyst_lo = ctx->ls_ctx.i_target * (1.0f - LS_I_TARGET_HYST);
+                    ctx->ls_ctx.i_hyst_hi = ctx->ls_ctx.i_target * (1.0f + LS_I_TARGET_HYST);
+                    ctx->ls_ctx.v_step = LS_V_ADJ_STEP;
+                    ctx->ls_ctx.ready = false;
+                }
+                ctx->steady_tick = 0;
+                ctx->timeout_tick = 0;
+                ctx->state = TUNE_INDUCTANCE;
             }
-
-            // 电阻完成：预计算电感整定阶段所需阈值 (Rs 已知)
+        }
+        else
+        {
+            // 第二轮：开环电流三相电阻评估
+            if (_tune_rs_ol_cur(foc_val))
             {
-                float cur_lim = temp_params.tune_cur_limit;
-                float rs_v_ref = temp_params.rs * cur_lim;
-                float bus_v = foc_val->udc;
+                if (ctx->fault != FAULT_NONE)
+                {
+                    ctx->state = TUNE_FAILED;
+                    break;
+                }
 
-                ctx->ls_ctx.v_inj = rs_v_ref * LS_V_START_COEF;
-                if (ctx->ls_ctx.v_inj < LS_V_START_MIN)
-                    ctx->ls_ctx.v_inj = LS_V_START_MIN;
+                // 更新参数，切回开环电压重跑电感
+                calculate_control_params();
+                motor_param_tune_force_save();
 
-                float ls_v_max = rs_v_ref * LS_V_MAX_COEF;
-                float ls_v_bus = bus_v * LS_V_LIMIT_BUS_COEF;
-                if (ls_v_max > ls_v_bus)
-                    ls_v_max = ls_v_bus;
-                ctx->ls_ctx.v_max = ls_v_max;
-
-                ctx->ls_ctx.i_target = cur_lim * LS_I_TARGET_COEF;
-                ctx->ls_ctx.i_hyst_lo = ctx->ls_ctx.i_target * (1.0f - LS_I_TARGET_HYST);
-                ctx->ls_ctx.i_hyst_hi = ctx->ls_ctx.i_target * (1.0f + LS_I_TARGET_HYST);
-                ctx->ls_ctx.v_step = LS_V_ADJ_STEP;
+                foc_set_run_mode(OPEN_VOL);
+                ctx->ls_ctx.state = 0;
                 ctx->ls_ctx.ready = false;
+                ctx->steady_tick = 0;
+                ctx->timeout_tick = 0;
+                ctx->state = TUNE_INDUCTANCE;
             }
-            ctx->steady_tick = 0;
-            ctx->timeout_tick = 0;
-            ctx->state = TUNE_INDUCTANCE;
         }
         break;
 
     case TUNE_INDUCTANCE:
         if (_TuneLs(foc_val->ualpha, foc_val->ubeta, foc_val->ialpha, foc_val->ibeta))
         {
-            // 电阻上下文复位
             ctx->rs_ctx.step_ticks = 0;
-
             if (ctx->fault != FAULT_NONE)
             {
                 ctx->state = TUNE_FAILED;
@@ -919,36 +950,32 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
             }
 
             calculate_control_params();
-            // 电感完成：初始化编码器校准上下文
+            motor_param_tune_force_save();
 
-             encoder_set_angle_zero(); // 编码器圈数归零
-            ctx->encoder_ctx.theta_elec = 0;
-            ctx->encoder_ctx.v_out = 0;
-            ctx->encoder_ctx.forward_done = false;
-            ctx->encoder_ctx.backward_done = false;
-            ctx->encoder_ctx.step = 0;
-            ctx->steady_tick = 0;
-
-            foc_set_ualpha_beta(0, 0);
-            // 编码器校准电压预计算 (Rs 已知)
+            if (ctx->tune_round == 0)
             {
-                float cur_lim = temp_params.tune_cur_limit;
-                float rs_v_ref = temp_params.rs * cur_lim;
-                float bus_v = foc_val->udc;
-
-                ctx->encoder_ctx.v_out = rs_v_ref * EC_UQ_MIN_COEF;
-                if (ctx->encoder_ctx.v_out < EC_UQ_MIN)
-                    ctx->encoder_ctx.v_out = EC_UQ_MIN;
-
-                float ec_v_max = rs_v_ref * EC_UQ_MAX_COEF;
-                float ec_v_bus = bus_v * EC_UQ_BUS_LIMIT_COEF;
-                if (ec_v_max > ec_v_bus)
-                    ec_v_max = ec_v_bus;
-                ctx->encoder_ctx.v_out_max = ec_v_max;
+                // 第一轮结束 → 第二轮：切开环电流做三相电阻评估
+                ctx->tune_round = 1;
+                foc_set_run_mode(OPEN_CUR);
+                ctx->rs_ctx.ol_stage = 0;
+                ctx->steady_tick = 0;
+                ctx->timeout_tick = 0;
+                ctx->state = TUNE_RESISTANCE;
             }
-
-            ctx->timeout_tick = 0;
-            ctx->state = TUNE_ENCODER;
+            else
+            {
+                // 第二轮结束 → 编码器校准
+                foc_set_run_mode(OPEN_CUR);
+                encoder_set_angle_zero();
+                ctx->encoder_ctx.theta_elec = 0;
+                ctx->encoder_ctx.cur_test = temp_params.tune_cur_limit * 0.1f;
+                ctx->encoder_ctx.forward_done = false;
+                ctx->encoder_ctx.backward_done = false;
+                ctx->encoder_ctx.step = 0;
+                ctx->steady_tick = 0;
+                ctx->timeout_tick = 0;
+                ctx->state = TUNE_ENCODER;
+            }
         }
         break;
 
@@ -960,12 +987,9 @@ eTuneState tune_main_loop(tFOC_val *foc_val)
                 ctx->state = TUNE_FAILED;
                 break;
             }
-            // todo:写入参数
-            //            foc_set_theta_offset(temp_params.theta_offset, temp_params.theta_elec_need_180); // 应用于目前计算
 
-            //  极对数完成：初始化磁链上下文
             ctx->psi_ctx.sum_e_mag = 0;
-            ctx->psi_ctx.sum_omega = 0;
+            ctx->psi_ctx.sum_vel = 0;
             ctx->psi_ctx.valid_cnt = 0;
             ctx->psi_ctx.ready = false;
             ctx->steady_tick = 0;

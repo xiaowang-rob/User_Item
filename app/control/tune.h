@@ -21,7 +21,6 @@
 
 // ================== 电阻整定系数 ==================
 #define RS_FREQ_F 10                      // 电阻整定分频系数
-#define RS_TIMEOUT_TICKS MS_TO_TICK(2000) // 整定超时时间 (500ms)
 #define RS_I_TARGET_1_COEF 0.2f           // 第一点目标电流 = tune_cur_limit × 0.2
 #define RS_I_TARGET_2_COEF 0.6f           // 第二点目标电流 = tune_cur_limit × 0.6
 #define RS_HYST_BAND_COEF 0.12f           // 滞环带宽 = tune_cur_limit × 0.12
@@ -30,16 +29,13 @@
 #define RS_V_STEP_MIN 0.01f               // 保持超时后微调步长 (V)
 #define RS_STEADY_ERR_THR_COEF 0.02f      // 稳态电流误差阈值 = tune_cur_limit × 0.02
 #define RS_STEADY_TICKS MS_TO_TICK(7)     // 稳态持续周期数 (7ms@20kHz)
-#define RS_TRACK_TIMEOUT MS_TO_TICK(40)   // 单点跟踪超时 (40ms)
 #define RS_MIN_DELTA_I_COEF 0.25f         // 最小电流变化量 = tune_cur_limit × 0.25
 #define RS_RANGE_MIN 0.02f                // 电阻合理下限 (Ω)
 #define RS_RANGE_MAX 0.5f                 // 电阻合理上限 (Ω)
 #define RS_DEADTIME_VCOMP 0.04f           // 死区补偿电压 (V)
 
 // ================== 电感整定系数 ==================
-#define LS_TIMEOUT_TICKS MS_TO_TICK(500)                // 整定超时时间 (500ms)
 #define LS_INJECT_FREQ_TICK 20                          // 注入分频
-#define LS_INJECT_AMP_V (LS_INJECT_FREQ_TICK * T_PWM)   // 注入周期
 #define LS_INJECT_FREQ_HZ (F_PWM / LS_INJECT_FREQ_TICK) // 注入频率 (Hz)
 
 #define LS_V_START_MIN 0.2f       // 注入电压最小值 (V)
@@ -48,7 +44,6 @@
 #define LS_V_LIMIT_BUS_COEF 0.1f  // 电压上限不超过母线 × 0.1
 #define LS_I_TARGET_COEF 0.2f     // 目标电流 = tune_cur_limit × 0.2
 #define LS_I_TARGET_HYST 0.05f    // 目标电流滞环 ±10%
-#define LS_I_STEP_MIN_COEF 0.005f // 微调步长 = tune_cur_limit × 0.005
 #define LS_V_ADJ_STEP 0.01f       // 电压自适应调整步长 (V)
 
 // ================== 转子预定位 ==================
@@ -59,31 +54,20 @@
 // ================== DFT测量 ==================
 #define DFT_AVG_CYCLES 20 // 取20个注入周期的平均
 
-#define LS_MIN_DI_DT 100.0f   // 最小信噪比要求
-#define LS_MAX_DI_DT 60000.0f // 最大信噪比要求
 #define LS_RANGE_MIN 20e-6f   // 电感合理下限(H)
 #define LS_RANGE_MAX 300e-6f  // 电感合理上限 (H)
 
 // ================== 编码器校准系数 ==================
 #define EC_FREQ_F 10                // 编码器校准分频系数
 #define EC_ALIGN_ms MS_TO_TICK(300) // 编码器校准等待时间
-#define EC_OPEN_LOOP_OMEGA 1000.0f  // 开环角速度 (°/s)
+#define EC_OPEN_LOOP_OMEGA 17.4533f // 开环角速度 (rad/s), 原 1000°/s
 
-#define EC_UQ_MIN 0.2f            // 起始最小uq
-#define EC_UQ_MIN_COEF 0.4f       // 起始uq = Rs × tune_cur_limit × 0.15
-#define EC_UQ_MAX_COEF 0.8f       // 最大uq = Rs × tune_cur_limit × 0.6
-#define EC_UQ_STEP 0.2f           // 施加uq步长 (V)
-#define EC_UQ_BUS_LIMIT_COEF 0.4f // uq上限不超过母线 × 0.5
 
 #define EC_FIT_MAX_ERROR 100.0f // 最大拟合误差
 #define EC_MIN_POLE_PAIRS 1     // 最小极对数
 #define EC_MAX_POLE_PAIRS 16    // 最大极对数
 
 // ================== 角度偏移 (开环强励磁) ==================
-#define THETA_TIMEOUT_TICKS MS_TO_TICK(1000) // 整定超时时间 (1000ms)
-#define THETA_VOLT_AMP 0.6f                  // 强励磁电压幅值 (V)
-#define THETA_DELTA_MAX 0.05f                // 静止判断阈值 (°)
-#define THETA_STEADY_WIN MS_TO_TICK(100)     // 静止等待时间 (100ms)
 
 // ================================= 电机参数结构(独立存储) =================================
 typedef struct
@@ -93,7 +77,6 @@ typedef struct
     float tune_cur_limit; // 电流限幅 (A)
 
     // 控制参数
-
     float bandwidth_current; // 电流滞环带宽
     float bandwidth_speed;   // 速度滞环带宽
     float bandwidth_pos;     // 位置滞环带宽
@@ -148,7 +131,7 @@ typedef struct
     u32 steady_tick;       // 稳态计数
     u32 timeout_tick;      // 超时计数
     u32 align_total_ticks; // 对齐总时长 (tick)，按电流比例缩放
-
+    u8 tune_round;         // 整定轮次: 0=第一轮(电压), 1=第二轮(电流评估)
     // 电阻整定上下文 (阈值在进入阶段时一次预计算)
     struct
     {
@@ -161,9 +144,12 @@ typedef struct
         float v_meas[2];
         float i_meas[2];
         float v_cmd;
+        float ol_rs[3];
+        float ol_u[3];
         u16 hold_cnt;
         u16 step_ticks;
         u8 step;
+        u8 ol_stage;
     } rs_ctx;
 
     // 电感整定上下文 (阈值在进入阶段时一次预计算)
@@ -185,21 +171,19 @@ typedef struct
         // ----- DFT 累加器（无缓冲区，周期累加）-----
         float sum_re;        // 实部累加和
         float sum_im;        // 虚部累加和
-         uint16_t sample_cnt; // 当前周期已采样点数
+        uint16_t sample_cnt; // 当前周期已采样点数
 
         // ----- 多周期平均 -----
         float amp_sum;     // 多个周期的幅值累加
-         uint8_t cycle_cnt; // 已完成的有效周期数
+        uint8_t cycle_cnt; // 已完成的有效周期数
 
     } ls_ctx;
 
-    // 角度偏移上下文 (阈值在进入阶段时一次预计算)
+    // 编码器校准上下文 (阈值在进入阶段时一次预计算)
     struct
     {
         float theta_elec;
-        float v_out;     // 当前施加电压幅值 (V)
-        float v_out_max; // 电压上限 (V)
-
+        float cur_test;    // 当前试探电流 (A)
         float theta_e_acc;    // 连续电角度
         float theta_e_raw;    // 上一次电角度
         float theta_m_unwrap; // 解包后的连续机械角度
@@ -224,20 +208,11 @@ typedef struct
 
     } encoder_ctx;
 
-    // 极对数上下文
-    struct
-    {
-        float omega_ref;
-        float sum_ratio;
-        u16 valid_cnt;
-        bool steady_flag;
-    } pole_ctx;
-
     // 磁链上下文
     struct
     {
         float sum_e_mag;
-        float sum_omega;
+        float sum_vel;
         u16 valid_cnt;
         bool ready;
     } psi_ctx;
@@ -245,7 +220,7 @@ typedef struct
     // 机械参数上下文
     struct
     {
-        float omega_start;
+        float vel_start;
         float sum_torque;
         float sum_accel;
         u16 sample_cnt;

@@ -27,7 +27,7 @@ void pro_manager_init(tParameter *param)
     g_pro_manager.fault_flag = false;
     g_pro_manager.warning_flag = false;
     g_pro_manager.max_current = param->limit_current;
-    g_pro_manager.max_omega = param->limit_omega;
+    g_pro_manager.max_vel = param->limit_vel;
     g_pro_manager.min_position = param->limit_position_min;
     g_pro_manager.max_position = param->limit_position_max;
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
@@ -42,7 +42,7 @@ void pro_manager_init(tParameter *param)
 void pro_manager_config(tParameter *param)
 {
     g_pro_manager.max_current = param->limit_current;
-    g_pro_manager.max_omega = param->limit_omega;
+    g_pro_manager.max_vel = param->limit_vel;
     g_pro_manager.min_position = param->limit_position_min;
     g_pro_manager.max_position = param->limit_position_max;
     g_pro_manager.tolerance_time_ms = param->tolerance_time;
@@ -155,7 +155,7 @@ void pro_manager_main_loop()
         }
 
         // 2 速度检测
-        if (_tolerance_check(g_pro_manager.foc_val->rpm_fb, g_pro_manager.max_omega, -g_pro_manager.max_omega))
+        if (_tolerance_check(g_pro_manager.foc_val->vel_fb, g_pro_manager.max_vel, -g_pro_manager.max_vel))
         {
             g_pro_manager.warning = WARNING_OVERSPEED;
             g_pro_manager.warning_flag = true;

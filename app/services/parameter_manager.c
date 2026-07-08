@@ -36,12 +36,13 @@ const tParamEntry g_param_table[] = {
     PARAM_ENTRY(KP_POSITION, kp_position),
     PARAM_ENTRY(KI_POSITION, ki_position),
     PARAM_ENTRY(KD_POSITION, kd_position),
+    PARAM_ENTRY(ALPHA_POSITION, alpha_position),
     PARAM_ENTRY(MIT_KP, kp_MIT),
     PARAM_ENTRY(MIT_KD, kd_MIT),
     PARAM_ENTRY(MIT_TMAX, tmax_MIT),
     PARAM_ENTRY(TUNE_CURRENT, tune_current),
     PARAM_ENTRY(LIMIT_CURRENT, limit_current),
-    PARAM_ENTRY(LIMIT_SPEED, limit_omega),
+    PARAM_ENTRY(LIMIT_VELOCITY, limit_vel),
     PARAM_ENTRY(LIMIT_POSITION_MIN, limit_position_min),
     PARAM_ENTRY(LIMIT_POSITION_MAX, limit_position_max),
     PARAM_ENTRY(TOLERANCE_TIME, tolerance_time),
@@ -106,9 +107,10 @@ bool param_init()
         g_Param.kp_position = 0.5f;
         g_Param.ki_position = 0.05f;
         g_Param.kd_position = 0.005f;
+        g_Param.alpha_position = 0.15f;
         g_Param.tune_current = 1.5f;
         g_Param.limit_current = 30;
-        g_Param.limit_omega = 2000;
+        g_Param.limit_vel = 209.44f;
         g_Param.limit_position_min = -15000;
         g_Param.limit_position_max = 15000;
         g_Param.tolerance_time = 1;

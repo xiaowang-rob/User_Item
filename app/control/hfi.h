@@ -7,14 +7,14 @@
 // 具体数值依据见后文参数说明
 
 // 直接以载波频率运行
-#define HFI_OMEGA_E_BANDWIDTH 40.0f // 电转速带宽 (Hz) 大概电角速度 250 deg/s
+#define HFI_VEL_E_BANDWIDTH 40.0f // 电转速带宽 (Hz) 大概电角速度 4.363 rad/s
 
 #define HFI_INJ_VOLT_AMP 2.0f // 注入电压幅值 (V)
 #define HFI_PLL_KP 50.0f      // PLL 比例增益
 #define HFI_PLL_KI 1000.0f    // PLL 积分增益
 
 #define HFI_INIT_VOLT 0.4f     // 初始辨识电压
-#define HFI_MAX_OMEGA_E 150.0f // 最大电转速 (deg/s) 划分 HFI和SMO的界限
+#define HFI_MAX_VEL_E 2.618f // 最大电转速 (rad/s) 划分 HFI和SMO的界限, 原 150°/s
 
 // ================= 数据结构 =================
 typedef struct
@@ -34,10 +34,10 @@ typedef struct
 
     // PLL
     float theta_e; // 电角度 (rad)
-    float omega_e; //
+    float vel_e; //
     float pll_error;
     float pll_integrator;
-    float omega_filtered; // 滤波后角速度
+    float vel_filtered; // 滤波后角速度
 
     // 初始位置
     float id_h;
@@ -56,7 +56,7 @@ void hfi_detect_initial_position(float id, float *ualpha, float *ubeta);
 
 bool hfi_get_status(void);
 void hfi_reset_initial_position(void);
-float hfi_get_omega_elec(void);
+float hfi_get_vel_elec(void);
 float hfi_get_theta_elec(void);
 
 #endif // __HFI_H

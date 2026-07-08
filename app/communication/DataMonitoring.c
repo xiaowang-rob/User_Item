@@ -17,7 +17,7 @@ void stream_data_get(eData_stream stream, float *data)
     case CURRENT_U:
         //        temp_val = get_voltage_u();
         //  temp_val = foc_val->iu;
-        temp_val = g_hfi.omega_filtered;
+        temp_val = g_hfi.vel_filtered;
         memcpy(data, &temp_val, 4);
         break;
     case CURRENT_V:
@@ -55,10 +55,10 @@ void stream_data_get(eData_stream stream, float *data)
         *data = foc_val->id_ref;
         break;
     case SPEED:
-        *data = foc_val->rpm_fb;
+        *data = foc_val->vel_fb;
         break;
     case SPEED_REF:
-        *data = foc_val->rpm_ref;
+        *data = foc_val->vel_ref;
         break;
     case THETA_ELEC:
         *data = foc_val->theta_elec;

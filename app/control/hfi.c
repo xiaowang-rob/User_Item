@@ -54,7 +54,7 @@ void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
 
     // 2. 位置误差解耦 (矢量叉乘)
     float sin_theta, cos_theta;
-    arm_sin_cos_f32(g_hfi.theta_e, &sin_theta, &cos_theta);
+    arm_sin_cos_rad_f32(g_hfi.theta_e, &sin_theta, &cos_theta);
 
     float pll_error = g_hfi.i_hf_alpha * sin_theta -
                       g_hfi.i_hf_beta * cos_theta;
@@ -67,14 +67,14 @@ void hfi_step(float ialpha, float ibeta, float *u_alpha_h, float *u_beta_h)
     float pll_prop = g_hfi.pll_error * Hfi_Kp;
     g_hfi.pll_integrator += g_hfi.pll_error * Hfi_Ki;
 
-    g_hfi.omega_e = pll_prop + g_hfi.pll_integrator;
+    g_hfi.vel_e = pll_prop + g_hfi.pll_integrator;
 
     // 4. 速度滤波
-    g_hfi.omega_filtered = filter_butterworth_process(&speed_lpf_inst, g_hfi.omega_e);
+    g_hfi.vel_filtered = filter_butterworth_process(&speed_lpf_inst, g_hfi.vel_e);
 
     // 5. 角度更新 (积分 + 归一化)
-    g_hfi.theta_e += g_hfi.omega_filtered * T_CON;
-    // g_hfi.theta_e += g_hfi.omega_e * T_CON;
+    g_hfi.theta_e += g_hfi.vel_filtered * T_CON;
+    // g_hfi.theta_e += g_hfi.vel_e * T_CON;
     g_hfi.theta_e = normalize_angle_360(g_hfi.theta_e);
 
     // 6. 更新方波注入信号 (+1/-1 交替)
@@ -103,7 +103,7 @@ void hfi_detect_initial_position(float id, float *ualpha, float *ubeta)
 
     float ud_ref;
     float sin_angle, cos_angle;
-    arm_sin_cos_f32(g_hfi.theta_e, &sin_angle, &cos_angle);
+    arm_sin_cos_rad_f32(g_hfi.theta_e, &sin_angle, &cos_angle);
 
     detect_timer++;
     g_hfi.id_h = (id - 2 * g_hfi.id_z[0] + g_hfi.id_z[1]) / 4;
@@ -141,7 +141,7 @@ void hfi_detect_initial_position(float id, float *ualpha, float *ubeta)
         ud_ref = 0.0f;
         if (g_hfi.init_curr_pos < g_hfi.init_curr_neg)
         {
-            g_hfi.theta_e += 180.0f;
+            g_hfi.theta_e += MATH_PI;
             g_hfi.theta_e = normalize_angle_360(g_hfi.theta_e);
         }
         g_hfi.init_flag = true;
@@ -162,9 +162,9 @@ void hfi_reset_initial_position(void)
     filter_butterworth_reset(&speed_lpf_inst);
 }
 
-float hfi_get_omega_elec(void)
+float hfi_get_vel_elec(void)
 {
-    return g_hfi.omega_filtered;
+    return g_hfi.vel_filtered;
 }
 
 float hfi_get_theta_elec(void)

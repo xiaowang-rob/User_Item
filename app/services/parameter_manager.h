@@ -40,12 +40,13 @@ typedef struct
     float kp_position;
     float ki_position;
     float kd_position;
+    float alpha_position;
     float kp_MIT;
     float kd_MIT;
     float tmax_MIT;
     float tune_current;
     float limit_current;
-    float limit_omega;
+    float limit_vel;
     float limit_position_min;
     float limit_position_max;
     float tolerance_time;

@@ -58,9 +58,9 @@ def gen_usr_config(cfg, bsp_info, coeffs, output_path):
 #define TIC_PWM             {hw["TIC_PWM"]}
 #define T_CON               {f(hw["T_CON"])}
 
-#define FREQ_CURRENT        {f_cur_div}
-#define FREQ_SPEED          {f_spd_div}
-#define FREQ_POSITION       {f_pos_div}
+#define FREQ_HIGH_LOOP      {f_cur_div}
+#define FREQ_MEDIUM_LOOP    {f_spd_div}
+#define FREQ_LOW_LOOP       {f_pos_div}
 
 #define F_CURRENT           {f(f_pwm / f_cur_div)}
 #define F_SPEED             {f(f_pwm / f_cur_div / f_spd_div)}

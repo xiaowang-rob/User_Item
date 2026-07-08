@@ -14,7 +14,7 @@ typedef struct
     bool fault_flag;
     bool warning_flag;
     float max_current;
-    float max_omega;
+    float max_vel;
     float min_position;
     float max_position;
     float tolerance_time_ms;

@@ -5,7 +5,7 @@
 #include "arm_math.h"
 #include "math.h"
 
-//  数学常量定义 
+//  数学常量定义
 #define MATH_PI 3.1415926535f
 #define MATH_2PI 6.2831853f
 #define MATH_SQRT3 1.732050807f
@@ -13,10 +13,8 @@
 #define MATH_INSQRT3 0.5773502693f
 #define MATH_1_SQRT2 0.7071067812f
 #define MATH_1_SQRT3 0.5773502691f
-
-//  函数声明 
-// 一般函数--大型函数 不经常调用
-
+#define F180_PI 57.2957795147f
+//  函数声明
 // 内联函数--小函数 经常调用
 
 // 快速限幅
@@ -40,24 +38,30 @@ static inline u32 fast_roundf(float x)
     return (u32)(x + 0.5f);
 }
 
-// 将角度标准化到 [0, 360) 范围
+// 将角度标准化到 [0, 2π) 范围
 static inline float normalize_angle_360(float angle)
 {
-    angle = fmodf(angle, 360);
+    angle = fmodf(angle, MATH_2PI);
     if (angle < 0.0f)
     {
-        angle += 360;
+        angle += MATH_2PI;
     }
     return angle;
 }
 // 将角度标准化到[-π, π]范围
 static inline float normalize_angle_pi(float angle)
 {
-    //  利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π] 
-    angle = fmodf(angle + 180, 360);
+    //  利用 fmodf 将角度映射到 [-2π, 2π]，再调整到 [-π, π]
+    angle = fmodf(angle + MATH_PI, MATH_2PI);
     if (angle < 0.0f)
-        angle += 360;
-    return angle - 180;
+        angle += MATH_2PI;
+    return angle - MATH_PI;
+}
+
+// arm_sin_cos 弧度版：输入角度为 rad，内部转 deg 后调用 arm_sin_cos_f32
+static inline void arm_sin_cos_rad_f32(float theta_rad, float *pSinVal, float *pCosVal)
+{
+    arm_sin_cos_f32(theta_rad * F180_PI, pSinVal, pCosVal);
 }
 
 // Clark 变换 (abc → αβ)(等幅值)
@@ -92,20 +96,52 @@ static inline void inv_park_transform(float d, float q, float sin_angle, float c
     *beta = d * sin_angle + q * cos_angle;
 }
 
-
 // CRC8 校验 — 替代简单的 sum&0xff，能检测字节顺序错误
-static inline u8 crc8_update(u8 crc, u8 data) {
+static inline u8 crc8_update(u8 crc, u8 data)
+{
     crc ^= data;
     for (int i = 0; i < 8; i++)
         crc = (crc & 0x80) ? (crc << 1) ^ 0x07 : (crc << 1);
     return crc;
 }
 
-static inline u8 crc8(const u8 *data, u8 len) {
+static inline u8 crc8(const u8 *data, u8 len)
+{
     u8 crc = 0;
     for (u8 i = 0; i < len; i++)
         crc = crc8_update(crc, data[i]);
     return crc;
 }
 
-#endif //  __MATH_FAST_H 
+// 普通函数--大型函数
+
+// PI控制器 （离散域）
+typedef struct
+{
+    float dt;
+    float kp, ki;
+    float integral, integral_limit;
+    float output_limit, output;
+} tPI;
+
+// PID控制器（含微分滤波）（离散域）
+typedef struct
+{
+    float dt;
+    float kp, ki, kd;
+    float integral, integral_limit;
+    float last_error;
+    float derivative_filter, derivative_limit;
+    float output, output_limit;
+    float alpha;
+} tPID;
+
+void pi_init(tPI *pi, float kp, float ki, float output_limit, float dt);
+float pi_update(tPI *pi, float ref, float fb);
+void pi_reset(tPI *pi);
+void pid_init(tPID *pid, float kp, float ki_cont, float kd_cont,
+              float output_limit, float alpha, float dt);
+float pid_update(tPID *pid, float ref, float fb);
+void pid_reset(tPID *pid);
+
+#endif //  __MATH_FAST_H

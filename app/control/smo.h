@@ -15,11 +15,11 @@ typedef struct
 {
     float k_sl_base;         // 基础滑模增益 [10.0~30.0]
     float k_sl_min_ratio;    // 高速最小增益比例 [0.3~0.7]
-    float omega_adapt_start; // 自适应起始电角速度 [rad/s]
-    float omega_adapt_end;   // 自适应结束电角速度 [rad/s]
+    float vel_adapt_start; // 自适应起始电角速度 [rad/s]
+    float vel_adapt_end;   // 自适应结束电角速度 [rad/s]
     float delta;             // 边界层厚度 [0.05~0.2]
-    float min_omega_elec;    // 最低有效电角速度 [rad/s]
-    float max_omega_elec;    // 最高有效电角速度 [rad/s]
+    float min_vel_elec;    // 最低有效电角速度 [rad/s]
+    float max_vel_elec;    // 最高有效电角速度 [rad/s]
     float emf_max;           // 反电动势限幅 [V]
 } tSMO_Config;
 
@@ -29,7 +29,7 @@ typedef struct
 
 typedef struct {
     float theta_pll;  // PLL输出角度 [rad]
-    float omega_pll;  // PLL输出电角速度 [rad/s]
+    float vel_pll;  // PLL输出电角速度 [rad/s]
     float kp;         // 比例增益
     float ki;         // 积分增益
     float dt;         // 时间步长 [s]
@@ -62,9 +62,9 @@ typedef struct
     float e_beta_filt;
 
     // === 角度速度输出 ===
-    float theta_elec; // 电角度 [0~360) deg
+    float theta_elec; // 电角度 [0~2π) rad
     float theta_prev;
-    float omega_elec; // 电角速度 [rad/s]
+    float vel_elec; // 电角速度 [rad/s]
 
     // === PLL 状态 ===
     tSmoPll pll;
@@ -85,6 +85,6 @@ void smo_main_loop(float v_alpha, float v_beta, float i_alpha, float i_beta);
 
 // === 数据获取 ===
 float smo_get_theta(void);
-float smo_get_omega(void);
+float smo_get_vel(void);
 
 #endif // __SMO_H

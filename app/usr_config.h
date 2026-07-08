@@ -16,9 +16,9 @@
 #define VECT_TABLE_OFFSET  0x8000U
 
 // ---------- 计算参数 ----------
-#define F_CURRENT           (F_PWM / FREQ_CURRENT)
-#define F_SPEED             (F_CURRENT / FREQ_SPEED)
-#define F_POSITION          (F_SPEED / FREQ_POSITION)
+#define F_CURRENT           (F_PWM / FREQ_HIGH_LOOP)
+#define F_SPEED             (F_CURRENT / FREQ_MEDIUM_LOOP)
+#define F_POSITION          (F_SPEED / FREQ_LOW_LOOP)
 
 // ---------- 速度 LPF 滤波器系数 (2nd Order Butterworth, fc=120Hz, fs=20000Hz) ----------
 // 由 Python 脚本计算，如需修改请运行 tools/filter_coeffs.py

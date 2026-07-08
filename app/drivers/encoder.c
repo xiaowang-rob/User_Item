@@ -47,7 +47,7 @@ static const uint8_t mt6835_cmd_buf[5] __attribute__((aligned(4))) = {0xA0, 0x03
 static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
     [MT6816] = {
         .resolution = 16384,
-        .deg_per_lsb = 360.0f / 16384.0f,
+        .rad_per_lsb = MATH_2PI / 16384.0f,
         .cmd_high = 0x83FF,
         .cmd_low = 0x84FF,
         .cmd_read_angle = 0,
@@ -61,7 +61,7 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
     },
     [AS5047] = {
         .resolution = 16384,
-        .deg_per_lsb = 360.0f / 16384.0f,
+        .rad_per_lsb = MATH_2PI / 16384.0f,
         .cmd_high = 0,
         .cmd_low = 0,
         .cmd_read_angle = 0x7FFF, // 读角度寄存器命令
@@ -74,24 +74,24 @@ static const tEncoderChipDesc chip_descs[CHIP_COUNT] = {
         .dma_state_entry = as5047_main_loop,
     },
     [MT6835] = {
-         .resolution = 16384, // 14-bit 输出 (21-bit 原始 >> 7)
-        .deg_per_lsb = 360.0f / 2097152.0f,
+        .resolution = 16384, // 14-bit 输出 (21-bit 原始 >> 7)
+         .rad_per_lsb = MATH_2PI / 2097152.0f,
         .cmd_high = 0,
         .cmd_low = 0,
         .cmd_read_angle = 0,
         .spi_CPOL = 1, // Mode 3
         .spi_CPHA = 1,
-         .spi_data_size = 8, // 8-bit 模式
+        .spi_data_size = 8, // 8-bit 模式
         .parse_and_check = mt6835_parse_and_check,
         .use_dma_state_machine = true,
-         .dma_post_high_state = ENCODER_STATE_PROCESS_DATA, // 单次交易完成即处理
+        .dma_post_high_state = ENCODER_STATE_PROCESS_DATA, // 单次交易完成即处理
         .dma_state_entry = mt6835_main_loop,
     },
 };
 
 // ------------------ 内部函数前向声明 ---------------------
 static void encoder_recover_from_error(void);
-static void common_angle_velocity_update(void);
+static void common_angle_vel_update(void);
 
 static void mt6816_start_high_read(void);
 static void mt6816_start_low_read(void);
@@ -184,25 +184,25 @@ void encoder_pll_update(float dt)
     enc.pll_theta_delta = enc.angle_abs - enc.pll_theta;
     // 角度归一化到 [-180, 180)
     enc.pll_theta_delta = normalize_angle_pi(enc.pll_theta_delta);
-#define INTEG_LIMIT 10.0f
+#define INTEG_LIMIT 0.1745f
     enc.pll_integ += enc.pll_theta_delta * dt;
-     enc.pll_integ = CLAMP(enc.pll_integ, -INTEG_LIMIT, INTEG_LIMIT); // 限幅
+    enc.pll_integ = CLAMP(enc.pll_integ, -INTEG_LIMIT, INTEG_LIMIT); // 限幅
 
-    float estimated_speed_deg_s = enc.pll_kp * enc.pll_theta_delta + enc.pll_ki * enc.pll_integ;
+    float estimated_speed_rad_s = enc.pll_kp * enc.pll_theta_delta + enc.pll_ki * enc.pll_integ;
 
-    enc.pll_theta += estimated_speed_deg_s * dt;
+    enc.pll_theta += estimated_speed_rad_s * dt;
     enc.pll_theta = normalize_angle_360(enc.pll_theta);
 
-    enc.pll_omega_rpm = estimated_speed_deg_s / 6.0f;
-    if (FABSF(enc.pll_omega_rpm) <= 0.5f)
-        enc.pll_omega_rpm = 0.0f;
+    enc.pll_vel = estimated_speed_rad_s;
+    if (FABSF(enc.pll_vel) <= 0.05f)
+        enc.pll_vel = 0.0f;
 }
 
 // ========== 通用角度/速度更新 (所有芯片共用) ==========
-static void common_angle_velocity_update()
+static void common_angle_vel_update()
 {
     g_device_status.encoder_state = RUNNING;
-    enc.angle_abs = enc.angle_raw * enc.chip_desc->deg_per_lsb;
+    enc.angle_abs = enc.angle_raw * enc.chip_desc->rad_per_lsb;
 
 #ifdef __DEBUG__
     volatile u32 current_time_us = bsp_get_tick_us();
@@ -215,12 +215,12 @@ static void common_angle_velocity_update()
         enc.angle_raw_last = enc.angle_raw;
         enc.num_turns = 0;
         enc.pos_offset = enc.angle_raw;
-        enc.omega_rpm = 0;
+        enc.vel = 0;
         enc.pos = 0;
         enc.pos_last = 0;
         // PLL 初始化
         enc.pll_theta = enc.angle_abs;
-        enc.pll_omega_rpm = 0;
+        enc.pll_vel = 0;
         // Kp = 2 * ζ * ω_n，Ki = ω_n² (ω_n取决于 采样频率 电机最大速度 速度环带宽）
         enc.pll_kp = 80.0f;
         enc.pll_ki = 2000.0f;
@@ -235,10 +235,10 @@ static void common_angle_velocity_update()
     else
     {
         // PLL 发散检测：速度饱和时重置PLL
-        if (enc.pll_omega_rpm >= 99999.0f || enc.pll_omega_rpm <= -99999.0f)
+        if (enc.pll_vel >= 10472.0f || enc.pll_vel <= -10472.0f)
         {
             enc.pll_integ = 0.0f;
-            enc.pll_omega_rpm = 0.0f;
+            enc.pll_vel = 0.0f;
             enc.pll_theta = enc.angle_abs;
         }
 
@@ -250,7 +250,7 @@ static void common_angle_velocity_update()
         else if (angle_raw_delta > 8192)
             enc.num_turns--;
 
-        enc.pos = enc.chip_desc->deg_per_lsb * (int32_t)(enc.angle_raw - enc.pos_offset) + enc.num_turns * 360.0f;
+        enc.pos = enc.chip_desc->rad_per_lsb * (int32_t)(enc.angle_raw - enc.pos_offset) + enc.num_turns * MATH_2PI;
         enc.angle_raw_last = enc.angle_raw;
     }
 }
@@ -280,7 +280,7 @@ static void mt6816_start_high_read(void)
 
     enc.cmd_reg = enc.chip_desc->cmd_high;
     if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
-                                             (u8 *)&enc.shadow_raw[0], 2))
+                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
         return;
@@ -299,7 +299,7 @@ static void mt6816_start_low_read(void)
 
     enc.cmd_reg = enc.chip_desc->cmd_low;
     if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
-                                             (u8 *)&enc.shadow_raw[1], 2))
+                                              (u8 *)&enc.shadow_raw[1], 2))
     {
         encoder_recover_from_error();
         return;
@@ -334,9 +334,9 @@ static void mt6816_process_data(void)
     }
 
     enc.valid = CLAMP(enc.valid - 1, 0, 110);
-     enc.spi_error_rate *= 0.999f; // 成功时衰减
+    enc.spi_error_rate *= 0.999f; // 成功时衰减
     enc.angle_raw = angle_raw;
-    common_angle_velocity_update();
+    common_angle_vel_update();
     enc.state = ENCODER_STATE_START_READ;
 }
 
@@ -396,7 +396,7 @@ static void as5047_start_command(void)
 
     enc.cmd_reg = enc.chip_desc->cmd_read_angle;
     if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
-                                             (u8 *)&enc.shadow_raw[0], 2))
+                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
         return;
@@ -413,9 +413,9 @@ static void as5047_start_nop(void)
     }
     bsp_encoder_cs(BSP_SPI_EXTERNAL, false);
 
-     enc.cmd_reg = 0x0000; // NOP 命令
+    enc.cmd_reg = 0x0000; // NOP 命令
     if (!bsp_encoder_spi_transmit_receive_dma((u8 *)&enc.cmd_reg,
-                                             (u8 *)&enc.shadow_raw[0], 2))
+                                              (u8 *)&enc.shadow_raw[0], 2))
     {
         encoder_recover_from_error();
         return;
@@ -442,10 +442,10 @@ static void as5047_process_data(void)
     }
 
     enc.valid = CLAMP(enc.valid - 1, 0, 110);
-     enc.spi_error_rate *= 0.999f; // 成功时衰减
+    enc.spi_error_rate *= 0.999f; // 成功时衰减
 
     enc.angle_raw = angle_raw;
-    common_angle_velocity_update();
+    common_angle_vel_update();
     enc.state = ENCODER_STATE_START_READ;
 }
 
@@ -509,7 +509,7 @@ static void mt6835_start_read(void)
     }
     bsp_encoder_cs(BSP_SPI_EXTERNAL, false);
     if (!bsp_encoder_spi_transmit_receive_dma((u8 *)mt6835_cmd_buf,
-                                             (u8 *)mt6835_rx_buf, 5))
+                                              (u8 *)mt6835_rx_buf, 5))
     {
         encoder_recover_from_error();
         return;
@@ -550,7 +550,7 @@ static void mt6835_main_loop(void *arg)
         enc->valid = CLAMP(enc->valid - 1, 0, 110);
         enc->spi_error_rate *= 0.999f;
         enc->angle_raw = angle_raw;
-        common_angle_velocity_update();
+        common_angle_vel_update();
         enc->state = ENCODER_STATE_START_READ;
         break;
     }
@@ -572,7 +572,7 @@ void encoder_main_loop_task(void)
 // ========== 对外数据接口 ==========
 float encoder_get_angle_abs(void) { return enc.angle_abs; }
 float encoder_get_angle_inc(void) { return enc.pos; }
-float encoder_get_rpm(void) { return enc.pll_omega_rpm; }
+float encoder_get_vel(void) { return enc.pll_vel; }
 int encoder_get_num_turns(void) { return enc.num_turns; }
 
 void encoder_set_angle_zero(void)

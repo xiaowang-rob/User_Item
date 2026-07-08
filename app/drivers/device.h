@@ -5,6 +5,7 @@
 #include "bsp_spi.h"
 #include "bsp_led.h"
 #include "protocol.h"
+
 // 外设状态
 typedef enum
 {
@@ -29,11 +30,11 @@ extern tDeviceStatus g_device_status;
 // 芯片特性描述
 typedef struct
 {
-     uint16_t resolution;     // 单圈分辨率，如 16384
-    float deg_per_lsb;       // 每 LSB 角度
-     uint16_t cmd_high;       // 读高位命令 (MT6816 专用)
-     uint16_t cmd_low;        // 读低位命令 (MT6816 专用)
-     uint16_t cmd_read_angle; // 单次读角度命令 (如 AS5047)
+    uint16_t resolution;     // 单圈分辨率，如 16384
+    float rad_per_lsb;       // 每 LSB 弧度
+    uint16_t cmd_high;       // 读高位命令 (MT6816 专用)
+    uint16_t cmd_low;        // 读低位命令 (MT6816 专用)
+    uint16_t cmd_read_angle; // 单次读角度命令 (如 AS5047)
     u8 spi_CPOL;             // SPI 时钟极性
     u8 spi_CPHA;             // SPI 时钟相位
     u8 spi_data_size;        // SPI 数据宽度
@@ -46,15 +47,15 @@ typedef struct
 // 编码器全局实例
 typedef struct
 {
-     volatile uint8_t state;        // 状态机当前状态
-     volatile uint16_t no_resp_tic; // 超时计数器
+    volatile uint8_t state;        // 状态机当前状态
+    volatile uint16_t no_resp_tic; // 超时计数器
 
-     volatile uint16_t cmd_reg;       // 待发送命令
-     volatile uint16_t shadow_raw[2]; // DMA 接收缓冲
-     volatile uint16_t data_raw[2];   // 处理用数据副本
+    volatile uint16_t cmd_reg;       // 待发送命令
+    volatile uint16_t shadow_raw[2]; // DMA 接收缓冲
+    volatile uint16_t data_raw[2];   // 处理用数据副本
 
     const tEncoderChipDesc *chip_desc; // 当前芯片描述
-     eEncoderChip chip_type;            // 当前芯片型号
+    eEncoderChip chip_type;            // 当前芯片型号
 
     uint16_t angle_raw;
     uint16_t angle_raw_last;
@@ -62,7 +63,7 @@ typedef struct
     float angle_abs;
     float pos;
     float pos_last;
-    float omega_rpm;
+    float vel;
     int32_t num_turns;
 
     bool first_run;
@@ -70,9 +71,9 @@ typedef struct
     uint8_t rubbish_data_tic;
 
     // PLL 角度/速度联合估计
-    float pll_theta_delta; // PLL 误差 [deg]
-    float pll_theta;       // PLL 输出角度 [deg]
-    float pll_omega_rpm;   // PLL 输出速度 [rpm]
+    float pll_theta_delta; // PLL 误差 [rad]
+    float pll_theta;       // PLL 输出角度 [rad]
+    float pll_vel;         // PLL 输出速度 [rad/s]
     float pll_kp;          // PLL 比例增益
     float pll_ki;          // PLL 积分增益
     float pll_integ;       // PLL 积分累加
@@ -87,7 +88,7 @@ void encoder_main_loop_task(void);
 void encoder_pll_update(float dt);
 float encoder_get_angle_abs(void);
 float encoder_get_angle_inc(void);
-float encoder_get_rpm(void);
+float encoder_get_vel(void);
 int encoder_get_num_turns(void);
 
 void encoder_set_angle_zero(void);
