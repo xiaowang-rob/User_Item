@@ -134,7 +134,7 @@ class Midx:
     sensor_mode = ["编码反馈", "无感观测", "混合模式"]
     encoder_chip = ["MT6816", "MT6835", "AS5047", "芯片数量"]
     run_mode = ["开环电压", "开环电流", "电流模式", "PID速度模式", "PID位置模式", "MIT速度模式", "MIT位置模式", "MIT轨迹模式"]
-    target_type = ["拖动电流/A", "目标速度/rpm", "目标位置/deg", "无"]
+    target_type = ["拖动电流/A", "目标速度/(rad/s)", "目标位置/rad", "无"]
     can_mode = ["实时处理", "队列处理", "实时反馈", "队列反馈"]
     vague_PID_mode = ["禁用", "启动"]
     pvt_mode = ["禁用", "PV", "PT"]

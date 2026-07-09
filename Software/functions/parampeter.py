@@ -32,7 +32,9 @@ class ParameterManager:
 
         self.param_map = self.mw.ui_map.param_map
         self.param_show_map = self.mw.ui_map.param_show_map
-        self.target_val_show = self.mw.control_page.control_target_show
+        self.target_val_show_1 = self.mw.control_page.control_target_show_1
+        self.target_val_show_2 = self.mw.control_page.control_target_show_2
+        
 
     # ---------- 数据打包/解包 ----------
     def _pack_value(self, index, ui_control):

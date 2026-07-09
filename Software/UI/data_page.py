@@ -209,6 +209,16 @@ class DataPage:
         self.position_loop_D_input.setTitle("位置环 d")
         self.position_loop_D_input.setText("0")
 
+        self.position_loop_alpha_input = SiCapsuleLineEdit()
+        self.position_loop_alpha_input.resize(all_W, 40)
+        self.position_loop_alpha_input.setTitleWidthMode(
+            SiCapsuleLineEdit.TitleWidthMode.Fixed
+        )
+        self.position_loop_alpha_input.setTitleFixedWidth(title_W)
+        self.position_loop_alpha_input.setAlignment(Qt.AlignCenter)
+        self.position_loop_alpha_input.setTitle("滤波系数")
+        self.position_loop_alpha_input.setText("0")
+
         Title_mit = SiLabel()
         Title_mit.setStyleSheet("color:#E5E5E5;")
         Title_mit.setText("MIT参数")
@@ -318,24 +328,24 @@ class DataPage:
         self.limit_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.limit_speed.setTitleFixedWidth(title_W)
         self.limit_speed.setAlignment(Qt.AlignCenter)
-        self.limit_speed.setTitle("速度限幅/rpm")
-        self.limit_speed.setText("1000")
+        self.limit_speed.setTitle("速度限幅/(rad/s)")
+        self.limit_speed.setText("104.7")
 
         self.min_position = SiCapsuleLineEdit()
         self.min_position.resize(all_W, 40)
         self.min_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.min_position.setTitleFixedWidth(title_W)
         self.min_position.setAlignment(Qt.AlignCenter)
-        self.min_position.setTitle("最小位置/°")
-        self.min_position.setText("-10000")
+        self.min_position.setTitle("最小位置/rad")
+        self.min_position.setText("-174.5")
 
         self.max_position = SiCapsuleLineEdit()
         self.max_position.resize(all_W, 40)
         self.max_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.max_position.setTitleFixedWidth(title_W)
         self.max_position.setAlignment(Qt.AlignCenter)
-        self.max_position.setTitle("最大位置/°")
-        self.max_position.setText("10000")
+        self.max_position.setTitle("最大位置/rad")
+        self.max_position.setText("174.5")
 
         self.tolerance_time = SiCapsuleLineEdit()
         self.tolerance_time.resize(all_W, 40)
@@ -362,6 +372,7 @@ class DataPage:
         control_layout_scroll.addWidget(self.position_loop_P_input)
         control_layout_scroll.addWidget(self.position_loop_I_input)
         control_layout_scroll.addWidget(self.position_loop_D_input)
+        control_layout_scroll.addWidget(self.position_loop_alpha_input)
         control_layout_scroll.addWidget(Title_mit)
         control_layout_scroll.addWidget(self.mit_kp_input)
         control_layout_scroll.addWidget(self.mit_kd_input)
@@ -486,7 +497,7 @@ class DataPage:
         self.offsetangle_input.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.offsetangle_input.setTitleFixedWidth(title_W)
         self.offsetangle_input.setAlignment(Qt.AlignCenter)
-        self.offsetangle_input.setTitle("偏转角度/°")
+        self.offsetangle_input.setTitle("偏转角度/rad")
         self.offsetangle_input.setText("0")
 
         self.motor_polepairs_input = SiCapsuleLineEdit()
@@ -810,7 +821,7 @@ class DataPage:
         self.speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.speed.setTitleFixedWidth(title_W)
         self.speed.setAlignment(Qt.AlignCenter)
-        self.speed.setTitle("速度/RPM")
+        self.speed.setTitle("速度/(rad/s)")
 
         self.target_speed = SiCapsuleLineEdit()
         self.target_speed.setReadOnly(True)
@@ -818,7 +829,7 @@ class DataPage:
         self.target_speed.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.target_speed.setTitleFixedWidth(title_W)
         self.target_speed.setAlignment(Qt.AlignCenter)
-        self.target_speed.setTitle("目标速度/RPM")
+        self.target_speed.setTitle("目标速度/(rad/s)")
 
         self.position = SiCapsuleLineEdit()
         self.position.setReadOnly(True)
@@ -826,7 +837,7 @@ class DataPage:
         self.position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.position.setTitleFixedWidth(title_W)
         self.position.setAlignment(Qt.AlignCenter)
-        self.position.setTitle("位置/°")
+        self.position.setTitle("位置/rad")
 
         self.target_position = SiCapsuleLineEdit()
         self.target_position.setReadOnly(True)
@@ -834,7 +845,7 @@ class DataPage:
         self.target_position.setTitleWidthMode(SiCapsuleLineEdit.TitleWidthMode.Fixed)
         self.target_position.setTitleFixedWidth(title_W)
         self.target_position.setAlignment(Qt.AlignCenter)
-        self.target_position.setTitle("目标位置/°")
+        self.target_position.setTitle("目标位置/rad")
 
         log_layout_scroll.addWidget(self.num)
         log_layout_scroll.addWidget(self.time)

@@ -152,8 +152,8 @@
         "run_mode": {
             "enum_name": "eRunMode",
             "items": [
-                { "name": "OPEN_VOL", "comment": "开环电压" },
-                { "name": "OPEN_CUR", "comment": "开环电流" },
+                { "name": "OPEN_VOL", "comment": "电压开环" },
+                { "name": "OPEN_CUR", "comment": "电流开环" },
                 { "name": "CURRENT_MODE", "comment": "电流模式" },
                 { "name": "PID_SPEED", "comment": "PID速度模式" },
                 { "name": "PID_POSITION", "comment": "PID位置模式" },
@@ -162,12 +162,25 @@
                 { "name": "MIT_TRAJ", "comment": "MIT轨迹模式" }
             ]
         },
-        "target_type": {
-            "enum_name": "eTargetType",
+        "target_type_main": {
+            "enum_name": "eTargetType_main",
             "items": [
+                { "name": "V_ALPHA_TARGET", "value": null, "comment": "alpha 电压/V" },
+                { "name": "OL_CUR_TARGET", "value": null, "comment": "开环电流/A" },
                 { "name": "CURRENT_TARGET", "value": null, "comment": "拖动电流/A" },
-                { "name": "SPEED_TARGET", "value": null, "comment": "目标速度/rpm" },
-                { "name": "POSITION_TARGET", "value": null, "comment": "目标位置/deg" },
+                { "name": "SPEED_TARGET", "value": null, "comment": "目标速度/rad/s" },
+                { "name": "POSITION_TARGET", "value": null, "comment": "目标位置/rad" },
+                { "name": "NONE", "value": null, "comment": "无" }
+            ]
+        },
+        "target_type_sub": {
+            "enum_name": "eTargetType_aub",
+            "items": [
+                { "name": "V_BETA_TARGET", "value": null, "comment": "beta 电压/V" },
+                { "name": "OL_VEL_TARGET", "value": null, "comment": "开环速度/(rad/s)" },
+                { "name": "CURRENT_D_TARGET", "value": null, "comment": "堵转电流/A" },
+                { "name": "NONE", "value": null, "comment": "禁用" },
+                { "name": "PVT_VEL", "value": null, "comment": "PVT速度/rad/s" },
                 { "name": "NONE", "value": null, "comment": "无" }
             ]
         },
