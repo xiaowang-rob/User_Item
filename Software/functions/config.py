@@ -5,8 +5,7 @@ import json
 import logging
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
-from siui.components.editbox import SiLabeledLineEdit
-from siui.components.button import SiPushButtonRefactor
+from qfluentwidgets import LineEdit, PushButton
 from functions.message_show import (
     send_custom_message,
     send_simple_message,
@@ -42,7 +41,7 @@ class Pconfig:
         self.save_config_but = self.mw.top_area.save_config
         self.save_config_but.clicked.connect(self.opend_config_input)
         self.remove_config_but = self.mw.top_area.remove_config
-        self.remove_config_but.longPressed.connect(self.delete_selected_config)
+        self.remove_config_but.clicked.connect(self.delete_selected_config)
 
         self.refresh_config_list()
 
@@ -78,42 +77,51 @@ class Pconfig:
 
     def opend_config_input(self):
         """弹出配置名输入框"""
-        input_widget = QWidget()
-        input_widget.setFixedSize(300, 160)
+        from qfluentwidgets import (
+            SubtitleLabel, LineEdit, PushButton,
+            PrimaryPushButton, HorizontalSeparator, FluentStyleSheet
+        )
+        from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QDialog
 
-        layout = QVBoxLayout(input_widget)
-        layout.setContentsMargins(20, 15, 20, 15)
-        layout.setSpacing(15)
-        self._current_msg_widget = input_widget
+        # 直接用 QDialog + qfluentwidgets 样式
+        from qfluentwidgets import FluentStyleSheet
+        dialog = QDialog(self.mw)
+        dialog.setWindowTitle("保存配置")
+        dialog.setFixedSize(380, 200)
+        FluentStyleSheet.DIALOG.apply(dialog)
 
-        name_input = SiLabeledLineEdit()
-        name_input.setTitle("配置名")
-        name_input.setPlaceholderText("请输入配置名")
-        name_input.setAlignment(Qt.AlignCenter)
-        name_input.adjustSize()
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(24, 20, 24, 20)
+        layout.setSpacing(12)
 
-        button_widget = QWidget()
-        button_layout = QHBoxLayout(button_widget)
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(15)
-        button_layout.setAlignment(Qt.AlignCenter)
+        title = SubtitleLabel("保存配置")
+        layout.addWidget(title)
+        layout.addWidget(HorizontalSeparator())
 
-        save_but = SiPushButtonRefactor()
-        save_but.setText("保存")
-        save_but.setFixedWidth(100)
-        save_but.clicked.connect(lambda: self.save_current_config(name_input.text()))
-
-        cover_but = SiPushButtonRefactor()
-        cover_but.setText("覆盖")
-        cover_but.setFixedWidth(100)
-        cover_but.clicked.connect(lambda: self.cover_current_config(name_input.text()))
-
-        button_layout.addWidget(save_but)
-        button_layout.addWidget(cover_but)
+        name_input = LineEdit()
+        name_input.setPlaceholderText("输入配置名称…")
+        name_input.setClearButtonEnabled(True)
         layout.addWidget(name_input)
-        layout.addWidget(button_widget)
 
-        send_custom_message(input_widget, MSG_TYPE_INFO)
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(8)
+        save_btn = PrimaryPushButton("保存为新配置")
+        cover_btn = PushButton("覆盖当前")
+        cancel_btn = PushButton("取消")
+        btn_layout.addWidget(save_btn)
+        btn_layout.addWidget(cover_btn)
+        btn_layout.addWidget(cancel_btn)
+        layout.addLayout(btn_layout)
+
+        cancel_btn.clicked.connect(dialog.reject)
+        save_btn.clicked.connect(lambda: (
+            self.save_current_config(name_input.text()), dialog.accept()
+        ))
+        cover_btn.clicked.connect(lambda: (
+            self.cover_current_config(name_input.text()), dialog.accept()
+        ))
+
+        dialog.exec()
 
     def save_current_config(self, config_name=None):
         """保存当前参数到新配置"""

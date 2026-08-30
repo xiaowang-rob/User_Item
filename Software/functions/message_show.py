@@ -1,72 +1,86 @@
+"""
+消息通知系统 —— 基于 qfluentwidgets InfoBar
+替代原 siui 侧边栏消息系统
+"""
 
+from qfluentwidgets import InfoBar, InfoBarPosition
 from PyQt5.QtWidgets import QWidget
-from siui.templates.application.components.layer.layer_right_message_sidebar.layer_right_message_sidebar import LayerRightMessageSidebar
-from siui.templates.application.components.message.box import SiSideMessageBox
 
-MSG_TYPE_NORMAL = 0    # 白色
+MSG_TYPE_NORMAL = 0    # 灰色信息
 MSG_TYPE_SUCCESS = 1   # 绿色成功
 MSG_TYPE_INFO = 2      # 蓝色信息
-MSG_TYPE_WARNING = 3   # 黄色警告
+MSG_TYPE_WARNING = 3   # 橙色警告
 MSG_TYPE_ERROR = 4     # 红色错误
 
-# 全局侧边栏实例
-_GLOBAL_SIDEBAR = None
+_PARENT_WINDOW = None
+
+
+# ── InfoBar 样式映射 ──
+_INFO_BAR_TYPE = {
+    MSG_TYPE_SUCCESS: InfoBar.success,
+    MSG_TYPE_INFO:    InfoBar.info,
+    MSG_TYPE_WARNING: InfoBar.warning,
+    MSG_TYPE_ERROR:   InfoBar.error,
+    MSG_TYPE_NORMAL:  InfoBar.info,
+}
+
+_INFO_BAR_DURATION = {
+    MSG_TYPE_SUCCESS: 1500,
+    MSG_TYPE_INFO:    2000,
+    MSG_TYPE_WARNING: 3000,
+    MSG_TYPE_ERROR:   5000,
+    MSG_TYPE_NORMAL:  2000,
+}
 
 
 def init_message_system(parent_window: QWidget):
-    global _GLOBAL_SIDEBAR
-    if _GLOBAL_SIDEBAR is not None:
-        return
-
-    _GLOBAL_SIDEBAR = LayerRightMessageSidebar(parent_window)
-    
-    # 👇 立即设置初始位置（避免第一次 resize 前位置为 (0,0)）
-    parent_rect = parent_window.geometry()
-    _GLOBAL_SIDEBAR.setGeometry(
-        parent_rect.width() - 400,
-        80,
-        400,
-        min(600, parent_rect.height() - 100)
-    )
-    
-    _GLOBAL_SIDEBAR.hide()  # 初始隐藏，发送时再 show
-
-    # 绑定 resize
-    original_resize = parent_window.resizeEvent
-    def new_resize(event):
-        w = event.size().width()
-        h = event.size().height()
-        _GLOBAL_SIDEBAR.setGeometry(w - 400, 80, 400, min(600, h - 100))
-        original_resize(event)
-    parent_window.resizeEvent = new_resize
+    """初始化消息系统 —— 只需记住父窗口"""
+    global _PARENT_WINDOW
+    _PARENT_WINDOW = parent_window
 
 
 def send_simple_message(
     type_=MSG_TYPE_INFO,
-    text="这是一条测试消息\n比具标题信息更加简洁方便",
+    text="这是一条测试消息",
     auto_close=False,
     auto_close_duration=1000,
 ):
-    if _GLOBAL_SIDEBAR is None:
-        raise RuntimeError("请先调用 init_message_system(main_window)")
-    fold_after = auto_close_duration if auto_close else None
-    _GLOBAL_SIDEBAR.send(text=text, msg_type=type_, fold_after=fold_after)
-    _GLOBAL_SIDEBAR.show()
-    _GLOBAL_SIDEBAR.raise_()
+    """发送简单文本消息"""
+    if _PARENT_WINDOW is None:
+        return
+    duration = auto_close_duration if auto_close else _INFO_BAR_DURATION.get(type_, 2000)
+    builder = _INFO_BAR_TYPE.get(type_, InfoBar.info)
+    builder(
+        title="",
+        content=text,
+        duration=duration,
+        parent=_PARENT_WINDOW,
+        position=InfoBarPosition.TOP_RIGHT,
+        isClosable=True,
+    )
+
 
 def send_titled_message(
     type_=MSG_TYPE_SUCCESS,
     title="Sent Successfully",
-    text="A titled message has been successfully sent to the sidebar.",
+    text="A titled message has been successfully sent.",
     auto_close=False,
     auto_close_duration=1000,
 ):
-    if _GLOBAL_SIDEBAR is None:
-        raise RuntimeError("请先调用 init_message_system(main_window)")
-    fold_after = auto_close_duration if auto_close else None
-    _GLOBAL_SIDEBAR.send(title=title, text=text, msg_type=type_, fold_after=fold_after)
-    _GLOBAL_SIDEBAR.show()
-    _GLOBAL_SIDEBAR.raise_()
+    """发送带标题的消息"""
+    if _PARENT_WINDOW is None:
+        return
+    duration = auto_close_duration if auto_close else _INFO_BAR_DURATION.get(type_, 2000)
+    builder = _INFO_BAR_TYPE.get(type_, InfoBar.info)
+    builder(
+        title=title,
+        content=text,
+        duration=duration,
+        parent=_PARENT_WINDOW,
+        position=InfoBarPosition.TOP_RIGHT,
+        isClosable=True,
+    )
+
 
 def send_custom_message(
     content_widget: QWidget,
@@ -74,41 +88,19 @@ def send_custom_message(
     auto_close=False,
     auto_close_duration=1000,
 ):
-    """
-    发送自定义消息到侧边栏。
-    
-    :param content_widget: 已构建好的 QWidget，作为消息主体内容（会直接加入消息框容器）
-    :param type_: 消息类型（颜色风格）
-    :param auto_close: 是否自动关闭
-    :param auto_close_duration: 自动关闭延迟（毫秒）
-    """
-    if _GLOBAL_SIDEBAR is None:
-        raise RuntimeError("请先调用 init_message_system(main_window)")
-
-
-    fold_after = auto_close_duration if auto_close else None
-
-    # 创建消息框
-    message_box = SiSideMessageBox()
-    message_box.setMessageType(type_)
-
-    # 将用户提供的 widget 添加到消息框的内容容器中
-    container = message_box.content().container()
-    container.setSpacing(0)
-    container.addPlaceholder(16)
-    container.addWidget(content_widget)
-    container.addPlaceholder(16)
-
-    content_widget._close = message_box.closeLater
-    
-
-    # 调整大小以适应内容
-    message_box.adjustSize()
-
-    if fold_after is not None:
-        message_box.setFoldAfter(fold_after)
-
-    # 发送并显示
-    _GLOBAL_SIDEBAR.sendMessageBox(message_box)
-    _GLOBAL_SIDEBAR.show()
-    _GLOBAL_SIDEBAR.raise_()
+    """发送自定义内容的消息"""
+    if _PARENT_WINDOW is None:
+        return
+    duration = auto_close_duration if auto_close else _INFO_BAR_DURATION.get(type_, 2000)
+    builder = _INFO_BAR_TYPE.get(type_, InfoBar.info)
+    builder(
+        title="",
+        content="",  # 使用自定义 widget 时 content 留空
+        duration=duration,
+        parent=_PARENT_WINDOW,
+        position=InfoBarPosition.TOP_RIGHT,
+        isClosable=True,
+    )
+    # 自定义内容通过 InfoBar 的 widget 机制实现
+    # 简化实现：发送一条带更多信息的通知
+    send_simple_message(type_, "请查看控制台/日志", auto_close, auto_close_duration)

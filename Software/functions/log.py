@@ -23,7 +23,7 @@ class LogManager:
 
         # 信号连接
         self.read_log_btn.clicked.connect(self.read_log)
-        self.clear_log_btn.longPressed.connect(self.clear_log)
+        self.clear_log_btn.clicked.connect(self.clear_log)
         self.show_log_btn.clicked.connect(self.show_log)
 
         # 界面映射（用于显示单条日志详情）

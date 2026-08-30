@@ -398,7 +398,7 @@ class Wave:
         self.auto_y_but.setChecked(True)
         self.clear_wave_but = self.pw.clear_wave_button
 
-        self.start_wave_but.toggled.connect(self.handle_start)
+        self.start_wave_but.clicked.connect(self.handle_start)
         self.auto_x_but.toggled.connect(self.waveform_widget.set_auto_x_scale)
         self.auto_y_but.toggled.connect(self.waveform_widget.set_auto_y_scale)
         self.clear_wave_but.clicked.connect(self.clear)
@@ -422,16 +422,12 @@ class Wave:
     def _sync_auto_x_button(self, state: bool):
         self.auto_x_but.blockSignals(True)
         self.auto_x_but.setChecked(state)
-        self.auto_x_but._onButtonToggled(state)
         self.auto_x_but.blockSignals(False)
-        self.auto_x_but.update()
 
     def _sync_auto_y_button(self, state: bool):
         self.auto_y_but.blockSignals(True)
         self.auto_y_but.setChecked(state)
-        self.auto_y_but._onButtonToggled(state)
         self.auto_y_but.blockSignals(False)
-        self.auto_y_but.update()
 
     def clear(self):
         self.waveform_widget.clear_waveforms()
@@ -439,7 +435,7 @@ class Wave:
     def handle_start(self, enable: bool):
         if enable:
             self.waveform_widget.start()
-            self.start_wave_but.setValue("Stop")
+            self.start_wave_but.setText("停止示波")
             self.showindex.clear()
             self.channel_index.clear()
             for i, combo in enumerate(self.combo_boxes):
@@ -450,7 +446,7 @@ class Wave:
             logger.info("波形流已启动，通道映射: %s", self.channel_index)
         else:
             self.waveform_widget.pause()
-            self.start_wave_but.setValue("Start")
+            self.start_wave_but.setText("开始示波")
             self.showindex.clear()
             self.com.send_packet(Cidx.CMD_STREAM_SET, bytes())
             logger.info("波形流已停止")

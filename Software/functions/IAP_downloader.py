@@ -278,12 +278,11 @@ class IAP_downloader(QObject):
         self.download_progress = self.widget.progess_bar
 
         self.comport = self.mw.comport
-        self.download = self.mw.top_area.download_but
-        self.download.clicked.connect(self.handle_download_but_clicked)
-        self.file_select_button.clicked.connect(self._handle_file_select)
-        self.download_start_button.longPressed.connect(self._handle_start_download)
-        self.download_start_button.clicked.connect(self._handle_force_download)
 
+        self.file_select_button.clicked.connect(self._handle_file_select)
+        self.download_start_button.clicked.connect(self._handle_start_download)
+        self._iap_worker = None
+        self.download_start_button.clicked.connect(self._handle_start_download)
         self._iap_worker = None
         self._selected_file = None
         self.bl_mode_ready = False
@@ -293,10 +292,6 @@ class IAP_downloader(QObject):
 
     def set_current_version(self, version: str):
         self.current_version_show.setText(version)
-
-    def handle_download_but_clicked(self):
-        """顶部下载按钮 → 切换页面"""
-        self.mw.showChildPage()
 
     @staticmethod
     def _clean_version_string(text: str) -> str:

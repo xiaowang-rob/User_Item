@@ -50,7 +50,6 @@ class ComPort(QObject):
     # 信号
     packet_valid = pyqtSignal(int, bytes)          # 有效数据包
     connection_lost = pyqtSignal(str, bool)        # 连接丢失（原因，是否物理断开）
-    ui_message = pyqtSignal(int, str, bool, int)   # UI 消息（类型，文本，只显示一次，时长ms）
 
     def __init__(self, mainwindow):
         super().__init__()
@@ -94,7 +93,6 @@ class ComPort(QObject):
         self._handlers = {}
         self.packet_valid.connect(self.handle_received_data)
         self.connection_lost.connect(self._on_connection_lost_ui)
-        self.ui_message.connect(self._on_ui_message)
 
         # 定时器
         self.refresh_timer = QTimer()
@@ -140,13 +138,11 @@ class ComPort(QObject):
         btn = self.connect_but
         if self.is_connected:
             btn.setText("已连接")
-            btn.setValue("断开")
             btn.setChecked(True)
             self.comport_list.setEnabled(False)
         else:
             port = self.comport_list.currentText()
             btn.setText("未连接" if port else "无可用端口")
-            btn.setValue("连接")
             btn.setChecked(False)
             self.comport_list.setEnabled(True)
 
@@ -190,10 +186,12 @@ class ComPort(QObject):
             new_entries.append(entry)
 
         # 重建下拉框
+        combo.blockSignals(True)
         combo.clear()
         self._port_info = new_entries
         for entry in new_entries:
             combo.addItem(entry["display"])
+        combo.blockSignals(False)
 
         # 尝试恢复上次选中项
         if old_device:
@@ -264,7 +262,7 @@ class ComPort(QObject):
 
             # 拦截未知设备（理论上列表已过滤，但保留保护）
             if port_type == "unknown":
-                self.ui_message.emit(
+                send_simple_message(
                     MSG_TYPE_ERROR,
                     "未识别设备：仅支持连接配置列表中的有线设备",
                     True, 3000
@@ -322,13 +320,13 @@ class ComPort(QObject):
                 self.heartbeat_timer.start(self.heartbeat_interval)
             elif self._is_bootloader_mode:
                 self._send_direct_with_retry(Cidx.CMD_BL_CONNECT, bytes(), retries=2)
-                self.ui_message.emit(
+                send_simple_message(
                     MSG_TYPE_SUCCESS, "连接 bootloader，进入 IAP 模式", True, 2000
                 )
                 logger.debug("Bootloader 连接命令已发送")
             else:
                 self._send_direct_with_retry(Cidx.UC_CONNECT, bytes(), retries=2)
-                self.ui_message.emit(
+                send_simple_message(
                     MSG_TYPE_SUCCESS,
                     f"已连接 {device} ({port_type})",
                     True, 1500
@@ -348,11 +346,11 @@ class ComPort(QObject):
                 self._auto_connect_enabled = False
                 p_name = self._port_info[self.comport_list.currentIndex()]["device"] \
                          if self.comport_list.currentIndex() >= 0 else "Unknown"
-                self.ui_message.emit(
+                send_simple_message(
                     MSG_TYPE_ERROR, f"串口被占用或不存在：{p_name}", True, 3000
                 )
             else:
-                self.ui_message.emit(
+                send_simple_message(
                     MSG_TYPE_WARNING, f"连接失败：{error_msg}", True, 2000
                 )
 
@@ -402,7 +400,7 @@ class ComPort(QObject):
         if manual:
             self._auto_connect_enabled = False
             self._update_ui_state()
-            self.ui_message.emit(MSG_TYPE_SUCCESS, "已断开连接", True, 1000)
+            send_simple_message(MSG_TYPE_SUCCESS, "已断开连接", True, 1000)
         else:
             self._update_ui_state()
 
@@ -446,7 +444,7 @@ class ComPort(QObject):
             return True
         except Full:
             logger.warning(f"发送队列满，丢弃 cmd={cmd_id}")
-            self.ui_message.emit(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
+            send_simple_message(MSG_TYPE_WARNING, "发送队列满，数据包已丢弃", True, 1000)
             return False
 
     @staticmethod
@@ -582,10 +580,6 @@ class ComPort(QObject):
         else:
             send_simple_message(MSG_TYPE_ERROR, f"通信异常：{reason}", True, 3000)
 
-    def _on_ui_message(self, msg_type, text, show_once, duration):
-        """UI 消息信号的转发"""
-        send_simple_message(msg_type, text, show_once, duration)
-
     def _monitor_connection(self):
         """定时检查连接健康状态（超时监测）"""
         if not self.is_connected:
@@ -614,7 +608,7 @@ class ComPort(QObject):
 
         self._pending_handshake = False
         self._update_ui_state()
-        self.ui_message.emit(
+        send_simple_message(
             MSG_TYPE_SUCCESS,
             f"设备 {self.comport_list.currentText()} 握手成功，已连接",
             True, 1500
@@ -627,7 +621,7 @@ class ComPort(QObject):
         if self._pending_handshake:
             self._pending_handshake = False
             self.disconnect(manual=False)
-            self.ui_message.emit(
+            send_simple_message(
                 MSG_TYPE_ERROR, "设备握手超时（5s内未收到响应），请重试", True, 3000
             )
             logger.warning("蓝牙握手超时")

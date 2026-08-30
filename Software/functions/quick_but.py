@@ -26,9 +26,8 @@ class QuickBut:
         self.mw = main_window
         self.com = comport
 
-        self.driver_message = self.mw.top_area.system_message
-        self.driver_message.clicked.connect(self._handleSystemMessage)
-
+        self.driver_message = None
+        self.send_buf=[0,0]
         # ── 控制按钮 ──
         self.foc_enable = self.mw.mid_area.ENable_button
         self.foc_disable = self.mw.mid_area.DEnable_button
@@ -49,21 +48,30 @@ class QuickBut:
         self.set_limit_pos.clicked.connect(self.set_limit_position_button_clicked)
 
         # ── 数值控制 ──
-        self.MAX_val_input = self.mw.control_page.MAX_value
-        self.value_slider = self.mw.control_page.value_slider
-        self.target_val_input = self.mw.control_page.target_value
-        self.write_val_button = self.mw.control_page.write_value_button
-        self.target_show = self.mw.control_page.control_target_show
+        self.MAX_val_input_1 = self.mw.control_page.MAX_value_1
+        self.MAX_val_input_2 = self.mw.control_page.MAX_value_2
+        self.value_slider_1 = self.mw.control_page.value_slider_1
+        self.value_slider_2 = self.mw.control_page.value_slider_2
 
-        self.MAX_val_input.textChanged.connect(self.MAX_value_changed)
-        self.value_slider.valueChanged.connect(self.value_slider_changed)
-        self.write_val_button.clicked.connect(self.write_value)
+        self.target_val_input_1 = self.mw.control_page.target_value_1
+        self.target_val_input_2 = self.mw.control_page.target_value_2
+        
+        self.write_val_button_1 = self.mw.control_page.write_value_button_1
+        self.write_val_button_2= self.mw.control_page.write_value_button_2
+
+        self.target_show_1 = self.mw.control_page.control_target_show_1
+        self.target_show_2 = self.mw.control_page.control_target_show_2
+
+        self.MAX_val_input_1.textChanged.connect(self.MAX_value_changed_1)
+        self.MAX_val_input_2.textChanged.connect(self.MAX_value_changed_2)
+
+        self.value_slider_1.valueChanged.connect(self.value_slider_changed_1)
+        self.value_slider_2.valueChanged.connect(self.value_slider_changed_2)
+
+        self.write_val_button_1.clicked.connect(self.write_value_1)
+        self.write_val_button_2.clicked.connect(self.write_value_2)
 
     # ── 辅助 ──
-
-    def _handleSystemMessage(self):
-        """显示设备信息弹窗"""
-        send_titled_message(MSG_TYPE_INFO, "设备信息", self.mw.system_message)
 
     def _log_cmd(self, name):
         """记录命令发送日志"""
@@ -107,47 +115,97 @@ class QuickBut:
 
     def value_slider_mapping(self, rel_value):
         """将滑块相对值 (0-1000) 映射到实际值"""
-        max_val = float(self.MAX_val_input.text())
-        return int((rel_value / 1000) * max_val)
+        pass  # 已废弃，由各通道内联处理
 
-    def MAX_value_changed(self, text):
+    def MAX_value_changed_1(self, text):
         """最大值输入变更时重置滑块"""
         if text == "-":
             return
         try:
             val = abs(float(text))
-            if val < 1:
-                self.MAX_val_input.setText(str(10))
+            if val < 1e-6:
+                self.MAX_val_input_1.setText(str(10))
                 return
-            self.target_val_input.setText(str(0))
-            self.value_slider.setValue(self.value_slider_mapping(0))
+            self.target_val_input_1.setText(str(0))
+            self.value_slider_1.setValue(0)
         except (ValueError, TypeError):
-            self.MAX_val_input.setText(str(10))
+            self.MAX_val_input_1.setText(str(10))
 
-    def value_slider_changed(self, value):
+    def MAX_value_changed_2(self, text):
+        """最大值输入变更时重置滑块"""
+        if text == "-":
+            return
+        try:
+            val = abs(float(text))
+            if val < 1e-6:
+                self.MAX_val_input_2.setText(str(10))
+                return
+            self.target_val_input_2.setText(str(0))
+            self.value_slider_2.setValue(0)
+        except (ValueError, TypeError):
+            self.MAX_val_input_2.setText(str(10))
+
+    def value_slider_changed_1(self, value):
         """滑块拖动 → 更新显示值并发送参考值"""
-        max_val = float(self.MAX_val_input.text())
+        max_val = float(self.MAX_val_input_1.text())
         val = (value / 1000) * max_val
         # 四舍五入到3位有效数字，避免 str -> float 反复转换
         val = round(val, 3) if abs(val) >= 0.001 else val
-        self.value_slider.setText(str(val))
-        self.target_val_input.setText(str(val))
+        self.target_val_input_1.setText(str(val))
         self.send_val_ref()
 
-    def write_value(self):
+    def value_slider_changed_2(self, value):
+        """滑块拖动 → 更新显示值并发送参考值"""
+        max_val = float(self.MAX_val_input_2.text())
+        val = (value / 1000) * max_val
+        # 四舍五入到3位有效数字，避免 str -> float 反复转换
+        val = round(val, 3) if abs(val) >= 0.001 else val
+        self.target_val_input_2.setText(str(val))
+        self.send_val_ref()
+
+    def write_value_1(self):
         """写入目标值（输入框确认）"""
-        max_val = float(self.MAX_val_input.text())
-        target_val = float(self.target_val_input.text())
-        if abs(target_val) > abs(max_val):
-            target_val = max_val if max_val >= 0 else -abs(max_val)
+        max_val = float(self.MAX_val_input_1.text())
+        target_val = float(self.target_val_input_1.text())
+        if max_val>0:# 正滑条
+            if target_val<0:
+                target_val = 0
+            elif target_val>max_val:
+                target_val = max_val
+        else:# 负滑条
+            if target_val>0:
+                target_val = 0
+            elif target_val<max_val:
+                target_val = max_val
         slider_pos = int(abs(target_val) / abs(max_val) * 1000) if max_val != 0 else 0
-        self.value_slider.setValue(min(slider_pos, 1000))
-        self.target_val_input.setText(str(f"{target_val:.3g}"))
+        self.value_slider_1.setValue(min(slider_pos, 1000))
+        self.target_val_input_1.setText(str(f"{target_val:.3g}"))
+        self.send_val_ref()
+
+    def write_value_2(self):
+        """写入目标值（输入框确认）"""
+        max_val = float(self.MAX_val_input_2.text())
+        target_val = float(self.target_val_input_2.text())
+        if max_val>0:# 正滑条
+            if target_val<0:
+                target_val = 0
+            elif target_val>max_val:
+                target_val = max_val
+        else:# 负滑条
+            if target_val>0:
+                target_val = 0
+            elif target_val<max_val:
+                target_val = max_val
+        slider_pos = int(abs(target_val) / abs(max_val) * 1000) if max_val != 0 else 0
+        self.value_slider_2.setValue(min(slider_pos, 1000))
+        self.target_val_input_2.setText(str(f"{target_val:.3g}"))
         self.send_val_ref()
 
     def send_val_ref(self):
         """发送目标参考值到设备"""
-        value = float(self.target_val_input.text())
-        val_ref = struct.pack("<f", value)
+        value_1 = float(self.target_val_input_1.text())
+        value_2 = float(self.target_val_input_2.text())
+        value=[value_1,value_2]
+        val_ref = struct.pack("<f", value_1)+struct.pack("<f", value_2)
         self.com.send_packet(Cidx.CMD_REFVALUE_SET, val_ref)
-        logger.debug("发送参考值: %.3f", value)
+        logger.debug("发送参考值: value_1=%.3f, value_2=%.3f", value_1, value_2)

@@ -28,7 +28,7 @@ class ParameterManager:
         self.all_read_but.clicked.connect(self.read_all)
         self.all_write_but.clicked.connect(self.write_all)
         self.save_flash_but.clicked.connect(self.save_flash)
-        self.erase_flash_but.longPressed.connect(self.erase_flash)
+        self.erase_flash_but.clicked.connect(self.erase_flash)
 
         self.param_map = self.mw.ui_map.param_map
         self.param_show_map = self.mw.ui_map.param_show_map
@@ -132,7 +132,7 @@ class ParameterManager:
                     )
                 # 运行模式特殊处理
                 if index == Pidx.RUN_MODE:
-                    self.target_val_show.setText(Midx.target_type[value])
+                    self.target_val_show_1.setText(Midx.target_type[value])
         elif index < Pidx.THETA_OFFSET:
             # uint32 / int
             self.param_map[index].setText(str(value))
