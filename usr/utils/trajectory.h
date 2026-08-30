@@ -2,12 +2,16 @@
 #define __TRAJECTORY_H
 
 #include "math_fast.h"
-#include "stdbool.h"
-#include "arm_math.h"
-#include "protocol.h"
-//  === 使用 float 32位精度 确保 FPU 优化 === 
+#include <stdbool.h>
 
-//  === 配置参数 === 
+typedef enum
+{
+    TRAJ_DISABLE = 0,   /* 禁用 */
+    TRAJ_TRAPEZOID = 1, /* 梯形 */
+    TRAJ_S_CURVE = 2,   /* S形 */
+} eTrajType;
+
+//  配置参数
 typedef struct
 {
     float limit_d1;  // 一阶限幅 [unit/s]
@@ -18,53 +22,31 @@ typedef struct
 
 } tTraj_Config;
 
-//  === 运行状态 (全局静态) === 
+//  输出结果
 typedef struct
 {
-    float target;  // 目标值
-    float current; // 当前规划值 (输出值)
-    float rate;    // 当前变化率
-    float accel;   // 当前加速度 (仅 S 型需要)
+    float value;   // 核心输出：平滑后的值
+    float rate_d1; // 一阶变化率
+    float rate_d2; // 二阶变化率 (仅 S 型有输出) (用于前馈)
+} tTraj_Out;
+
+//  轨迹规划器
+typedef struct
+{
+    tTraj_Config cfg; // 配置参数
+    tTraj_Out out;    // 输出结果
+    float target;     // 目标值
+    float current;    // 当前规划值
+    float rate;       // 一阶变化率
+    float rate_d2;    // 二阶变化率(仅 S 型需要)
     bool busy;
 
-} tTraj_PosState;
+} tTraj;
 
-typedef struct
-{
-    float target;  // 目标值
-    float current; // 当前规划值 (输出值)
-    float accel;   // 当前加速度
-    float jerk;    // 当前加加速度 (仅 S 型需要)
-    bool busy;
+//  核心 API
+bool traj_init(tTraj *traj, tTraj_Config cfg);
+void traj_reset(tTraj *traj, float current_value);
+void traj_set_target(tTraj *traj, float target);
+void traj_Update(tTraj *traj, float dt);
 
-} tTraj_VelState;
-
-//  === 输出结果 === 
-typedef struct
-{
-    float value; // 核心输出：平滑后的值
-    float rate;  // 当前变化率 (用于前馈)
-    float accel; // 当前加速度 (仅 S 型有输出) (用于前馈)
-    bool done;   // 到达标志
-
-} tTraj_PosOut;
-
-typedef struct
-{
-    float value; // 核心输出：平滑后的值
-    float accel; // 当前加速度 (用于前馈)
-    float jerk;  // 当前加加速度 (仅 S 型有输出) (用于前馈)(一般用不上 除了更高阶的控制)
-    bool done;   // 到达标志
-
-} tTraj_VelOut;
-
-//  === 核心 API  === 
-void traj_init(tTraj_Config cfg);
-void traj_posreset(float current_value);
-void traj_velreset(float current_value);
-void traj_set_postarget(float target);
-void traj_set_veltarget(float target);
-tTraj_PosOut traj_PosUpdate(float dt);
-tTraj_VelOut traj_VelUpdate(float dt);
-
-#endif //  __TRAJECTORY_H 
+#endif //  __TRAJECTORY_H

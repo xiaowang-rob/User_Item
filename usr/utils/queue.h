@@ -1,11 +1,10 @@
 #ifndef __QUEUE_H
 #define __QUEUE_H
 
-#include "bsp_base.h"
+#include <stdbool.h>
 
 // 队列状态枚举
-typedef enum
-{
+typedef enum {
     QUEUE_STATUS_OK = 0,
     QUEUE_STATUS_FULL,
     QUEUE_STATUS_EMPTY,
@@ -13,25 +12,26 @@ typedef enum
 } eQueueStatus;
 
 // 静态队列结构体
-typedef struct
-{
-    u8 *buffer;   // 数据缓冲区
-    u16 front;    // 队首索引
-    u16 rear;     // 队尾索引
-    u16 capacity; // 队列容量
-    u16 count;    // 当前元素数量
+typedef struct {
+    uint8_t *buffer;               // 数据缓冲区
+    volatile uint16_t front;       // 队首索引（读）
+    volatile uint16_t rear;        // 队尾索引（写）
+    volatile uint16_t count;       // 当前元素个数
+    uint16_t capacity;             // 容量（必须为2的幂，最大元素数）
+    uint16_t mask;                 // 容量掩码 = capacity - 1
+    bool cover;                    // 是否允许覆盖旧数据
 } tStaticQueue;
 
 // 函数声明
-eQueueStatus queue_static_init(tStaticQueue *queue, u8 *buffer, u16 capacity);
+eQueueStatus queue_static_init(tStaticQueue *queue, uint8_t *buffer, uint16_t capacity);
 void queue_clear(tStaticQueue *queue);
 bool queue_is_empty(const tStaticQueue *queue);
 bool queue_is_full(const tStaticQueue *queue);
-u16 queue_count(const tStaticQueue *queue);
-u16 queue_remaining(const tStaticQueue *queue);
-eQueueStatus queue_static_enqueue(tStaticQueue *queue, const u8 *data);
-eQueueStatus queue_static_dequeue(tStaticQueue *queue, u8 *data);
-eQueueStatus queue_static_peek(const tStaticQueue *queue, u8 *data);
-eQueueStatus queue_static_peek_at(const tStaticQueue *queue, u16 index, void *data);
+uint16_t queue_count(const tStaticQueue *queue);
+uint16_t queue_remaining(const tStaticQueue *queue);
+eQueueStatus queue_static_enqueue(tStaticQueue *queue, const uint8_t *data);
+eQueueStatus queue_static_dequeue(tStaticQueue *queue, uint8_t *data);
+eQueueStatus queue_static_peek(const tStaticQueue *queue, uint8_t *data);
+eQueueStatus queue_static_peek_at(const tStaticQueue *queue, uint16_t index, uint8_t *data);
 
 #endif // __QUEUE_H

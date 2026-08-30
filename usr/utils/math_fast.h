@@ -1,7 +1,7 @@
 #ifndef __MATH_FAST_H
 #define __MATH_FAST_H
 
-#include "bsp_base.h"
+// 加载目标芯片要使用的数学库头文件
 #include "arm_math.h"
 #include "math.h"
 
@@ -14,10 +14,10 @@
 #define MATH_1_SQRT2 0.7071067812f
 #define MATH_1_SQRT3 0.5773502691f
 #define F180_PI 57.2957795147f
-//  函数声明
-// 内联函数--小函数 经常调用
 
-// 快速限幅
+// 内联函数--小函数 经常调用 -- 牺牲flash 提高代码调用效率
+
+// 限幅
 static inline float CLAMP(float val, float min, float max)
 {
     return (val < min) ? min : ((val > max) ? max : val);
@@ -33,13 +33,13 @@ static inline float FSIGN(float x)
     return (x > 0.0f) - (x < 0.0f); // 分支消除
 }
 // 快速浮点数四舍五入
-static inline u32 fast_roundf(float x)
+static inline uint32_t FROUNDF(float x)
 {
-    return (u32)(x + 0.5f);
+    return (uint32_t)(x + 0.5f);
 }
 
 // 将角度标准化到 [0, 2π) 范围
-static inline float normalize_angle_360(float angle)
+static inline float normalize_angle_2pi(float angle)
 {
     angle = fmodf(angle, MATH_2PI);
     if (angle < 0.0f)
@@ -97,7 +97,7 @@ static inline void inv_park_transform(float d, float q, float sin_angle, float c
 }
 
 // CRC8 校验 — 替代简单的 sum&0xff，能检测字节顺序错误
-static inline u8 crc8_update(u8 crc, u8 data)
+static inline uint8_t crc8_update(uint8_t crc, uint8_t data)
 {
     crc ^= data;
     for (int i = 0; i < 8; i++)
@@ -113,35 +113,6 @@ static inline u8 crc8(const u8 *data, u8 len)
     return crc;
 }
 
-// 普通函数--大型函数
-
-// PI控制器 （离散域）
-typedef struct
-{
-    float dt;
-    float kp, ki;
-    float integral, integral_limit;
-    float output_limit, output;
-} tPI;
-
-// PID控制器（含微分滤波）（离散域）
-typedef struct
-{
-    float dt;
-    float kp, ki, kd;
-    float integral, integral_limit;
-    float last_error;
-    float derivative_filter, derivative_limit;
-    float output, output_limit;
-    float alpha;
-} tPID;
-
-void pi_init(tPI *pi, float kp, float ki, float output_limit, float dt);
-float pi_update(tPI *pi, float ref, float fb);
-void pi_reset(tPI *pi);
-void pid_init(tPID *pid, float kp, float ki_cont, float kd_cont,
-              float output_limit, float alpha, float dt);
-float pid_update(tPID *pid, float ref, float fb);
-void pid_reset(tPID *pid);
+// 普通函数--大型函数 调用少，不需要牺牲体积
 
 #endif //  __MATH_FAST_H
