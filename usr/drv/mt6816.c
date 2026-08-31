@@ -3,6 +3,7 @@
 #include "bsp_spi.h"
 
 #include <stdbool.h>
+#include <string.h>
 
 // MT6816参数配置
 

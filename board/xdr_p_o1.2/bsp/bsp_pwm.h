@@ -19,4 +19,11 @@ void bsp_pwm_set_compare(u16 ticA, u16 ticB, u16 ticC);
 void bsp_pwm_enable(void);
 void bsp_pwm_disable(void);
 
+// ============================================
+// PWM - rgb
+// ============================================
+void bsp_rgb_pwm_start_dma(uint32_t *buf, uint16_t len);
+void bsp_rgb_pwm_stop_dma(void);
+void bsp_rgb_register_callback(void (*callback)(void *));
+
 #endif // __BSP_PWM_H

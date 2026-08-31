@@ -72,3 +72,30 @@ void bsp_pwm_disable(void)
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Stop(&htim8, TIM_CHANNEL_3);
 }
+
+// pwm 驱动的 rgb led
+static void (*usr_callback)(void *) = NULL;
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == RGB_PWM_GET_HTIM.Instance)
+    {
+        if (usr_callback != NULL)
+            usr_callback(NULL);
+    }
+}
+
+void bsp_rgb_pwm_start_dma(uint32_t *buf, uint16_t len)
+{
+    HAL_TIM_PWM_Start_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1,
+                          buf, len);
+}
+void bsp_rgb_pwm_stop_dma(void)
+{
+    HAL_TIM_PWM_Stop_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1);
+}
+
+void bsp_rgb_register_callback(void (*callback)(void *))
+{
+    usr_callback = callback;
+}
