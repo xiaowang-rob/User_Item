@@ -3,24 +3,16 @@
 
 #include "bsp_base.h"
 
-void bsp_encoder_spi_txrx_cplt_callback(void); // SPI传输完成回调函数声明
-void bsp_encoder_spi_error_callback(void);    // SPI错误回调函数声明
-
 // ============================================
 // SPI - 编码器通信
 // ============================================
-typedef enum
-{
-    INTERNAL,
-    EXTERNAL
-} eEncoderType;
 
-// 兼容别名（与 eEncoderType 数值一致）
-#define BSP_SPI_INTERNAL  INTERNAL   // 0
-#define BSP_SPI_EXTERNAL  EXTERNAL   // 1
+void bsp_encoder_register_callback(void (*callback)(void *), void *user_arg);
 
-bool bsp_set_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize);
-void bsp_encoder_cs(eEncoderType type, bool level);
+// 底层配置默认为 CPOL=1, CPHA=1, datasize=16bit
+bool bsp_change_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize);
+void bsp_int_encoder_cs(bool active);
+void bsp_ext_encoder_cs(bool active);
 bool bsp_encoder_spi_is_ready();
 bool bsp_encoder_spi_transmit_receive_dma(u8 *tx, u8 *rx, u16 len);
 void bsp_encoder_spi_abort();

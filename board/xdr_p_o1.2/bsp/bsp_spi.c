@@ -3,35 +3,45 @@
 #include "spi.h"
 #include "board_config.h"
 
-__weak void bsp_encoder_spi_txrx_cplt_callback(void)
-{
-    return;
-}
+// HAL SPI的初始化在 main中已经被调用
 
+// 用户回调转发
+static void (*user_callback)(void *) = NULL;
+static void *callback_arg = NULL;
+
+void bsp_encoder_register_callback(void (*callback)(void *), void *user_arg)
+{
+    user_callback = callback;
+    callback_arg = user_arg;
+}
+// 芯片回调
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi == &ENCODER_SPI_CH)
     {
-        bsp_encoder_spi_txrx_cplt_callback();
+        if (user_callback)
+            user_callback(callback_arg);
     }
-}
-
-__weak void bsp_encoder_spi_error_callback(void)
-{
 }
 
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
     if (hspi == &ENCODER_SPI_CH)
     {
-        bsp_encoder_spi_error_callback();
+        bsp_int_encoder_cs(false);
+        bsp_ext_encoder_cs(false);
+        HAL_SPI_Abort(&ENCODER_SPI_CH);
+        __HAL_SPI_CLEAR_OVRFLAG(&ENCODER_SPI_CH);
+        __HAL_SPI_CLEAR_FREFLAG(&ENCODER_SPI_CH);
+        if (user_callback)
+            user_callback(callback_arg);
     }
 }
 
 // ============================================
 // SPI - 编码器接口
 // ============================================
-bool bsp_set_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize)
+bool bsp_change_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize)
 {
     ENCODER_SPI_CH.Instance = ENCODER_SPI;
     ENCODER_SPI_CH.Init.Mode = SPI_MODE_MASTER;
@@ -59,33 +69,14 @@ bool bsp_set_encoder_spi_config(u8 CPOL, u8 CPHA, u8 datasize)
     return true;
 }
 
-// 内部接口CS
-void bsp_encoder_cs(eEncoderType type, bool level)
+void bsp_int_encoder_cs(bool active)
 {
-    if (type == INTERNAL)
-    {
-        if (level)
-        {
-            HAL_GPIO_WritePin(ENCODER_INT_CS_GPIOx, ENCODER_INT_CS_GPIOx_PIN, GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(ENCODER_INT_CS_GPIOx, ENCODER_INT_CS_GPIOx_PIN, GPIO_PIN_RESET);
-        }
-    }
-    else // EXTERNAL
-    {
-        if (level)
-        {
-            HAL_GPIO_WritePin(ENCODER_EXT_CS_GPIOx, ENCODER_EXT_CS_GPIOx_PIN, GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(ENCODER_EXT_CS_GPIOx, ENCODER_EXT_CS_GPIOx_PIN, GPIO_PIN_RESET);
-        }
-    }
+    HAL_GPIO_WritePin(ENCODER_INT_CS_GPIOx, ENCODER_INT_CS_GPIOx_PIN, active ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
-
+void bsp_ext_encoder_cs(bool active)
+{
+    HAL_GPIO_WritePin(ENCODER_EXT_CS_GPIOx, ENCODER_EXT_CS_GPIOx_PIN, active ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
 bool bsp_encoder_spi_is_ready()
 {
     return HAL_SPI_GetState(&ENCODER_SPI_CH) == HAL_SPI_STATE_READY;
@@ -94,17 +85,6 @@ bool bsp_encoder_spi_is_ready()
 bool bsp_encoder_spi_transmit_receive_dma(u8 *tx, u8 *rx, u16 len)
 {
     return HAL_SPI_TransmitReceive_DMA(&ENCODER_SPI_CH, tx, rx, len) == HAL_OK;
-}
-
-void bsp_encoder_spi_abort()
-{
-    HAL_SPI_Abort(&ENCODER_SPI_CH);
-}
-
-void bsp_encoder_spi_clear_dma_error_flags()
-{
-    __HAL_SPI_CLEAR_OVRFLAG(&ENCODER_SPI_CH);
-    __HAL_SPI_CLEAR_FREFLAG(&ENCODER_SPI_CH);
 }
 
 // ============================================
