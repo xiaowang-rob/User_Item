@@ -24,6 +24,7 @@ typedef struct
     bool (*get_raw_data)(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp); // 获取原始数据（拷贝）
     void (*reset)(EncoderChipHandle handle);                                            // 复位硬件计数器
     void (*set_cs)(EncoderChipHandle handle, bool active);                              // 片选控制（若驱动内部管理可免）
+    uint8_t (*get_Dstate)(EncoderChipHandle handle);                                    // 获取驱动状态
 } tEncoderDriverOps;
 
 typedef struct
@@ -61,12 +62,12 @@ typedef struct
     bool data_valid;       // 数据有效性标志
 } tEncoder;
 
-bool encoder_core_init(tEncoder *enc,
-                       const tEncoderDriverOps *ops,
-                       EncoderChipHandle handle,
-                       eEncoderType type);
+bool encoder_init(tEncoder *enc,
+                  const tEncoderDriverOps *ops,
+                  EncoderChipHandle handle,
+                  eEncoderType type);
 
-void encoder_update(tEncoder *enc);
+void encoder_task(tEncoder *enc);
 void encoder_pll_update(tEncoder *enc, float dt);
 void encoder_set_zero(tEncoder *enc);
 
@@ -74,5 +75,6 @@ static inline float encoder_get_angle_abs(tEncoder *enc) { return enc->angle_abs
 static inline float encoder_get_position(tEncoder *enc) { return enc->pos; }
 static inline float encoder_get_velocity(tEncoder *enc) { return enc->pll_vel; }
 static inline int32_t encoder_get_turns(tEncoder *enc) { return enc->num_turns; }
+uint8_t encoder_get_Dstate(tEncoder *enc);
 
 #endif // __HAL_ENCODER_H

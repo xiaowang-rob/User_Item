@@ -24,6 +24,7 @@ void bsp_pwm_disable(void);
 // ============================================
 void bsp_rgb_pwm_start_dma(uint32_t *buf, uint16_t len);
 void bsp_rgb_pwm_stop_dma(void);
+void bsp_rgb_get_config(uint32_t *pwm_code1, uint32_t *pwm_code0);
 void bsp_rgb_register_callback(void (*callback)(void *));
 
 #endif // __BSP_PWM_H

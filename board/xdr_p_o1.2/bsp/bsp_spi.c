@@ -90,16 +90,9 @@ bool bsp_encoder_spi_transmit_receive_dma(u8 *tx, u8 *rx, u16 len)
 // ============================================
 // SPI - flash接口
 // ============================================
-void bsp_flash_cs(bool level)
+void bsp_flash_cs(bool active)
 {
-    if (level)
-    {
-        HAL_GPIO_WritePin(FLASH_CS_GPIOx, FLASH_CS_GPIOx_PIN, GPIO_PIN_SET);
-    }
-    else
-    {
-        HAL_GPIO_WritePin(FLASH_CS_GPIOx, FLASH_CS_GPIOx_PIN, GPIO_PIN_RESET);
-    }
+    HAL_GPIO_WritePin(FLASH_CS_GPIOx, FLASH_CS_GPIOx_PIN, active ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 bool bsp_flash_spi_transmit(u8 *tx, u16 len, u32 timeout)
 {

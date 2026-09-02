@@ -1,12 +1,7 @@
-#include "encoder.h"
-
+#include "device.h"
 #include "bsp_spi.h"
 
-#include <stdbool.h>
-#include <string.h>
-
 // MT6816参数配置
-
 #define RESOLUTION 16384    // 单圈分辨率
 #define CMD_HIGH 0x83FF     // 高位命令
 #define CMD_LOW 0x84FF      // 低位命令
@@ -17,6 +12,7 @@
 #define MAG_WARN (1 << 1)   // 磁场失效位
 #define PARITY_BIT (1 << 0) // 校验位
 
+// MT6816 驱动上下文
 typedef enum
 {
     ST_IDLE,
@@ -24,9 +20,10 @@ typedef enum
     ST_WAIT_LOW,
     ST_ERR
 } eMT6816_state;
-// MT6816 驱动上下文
+
 typedef struct
 {
+    eDeviceStatus Dstatus; // 设备状态
     eEncoderType enc_type;
     volatile eMT6816_state state;
     uint16_t cmd_high, cmd_low;
@@ -41,6 +38,7 @@ typedef struct
 // MT6816 SPI DMA 回调函数
 static void MT6816_spi_cb(void *arg);
 
+// MT6816 函数操作 声明
 bool MT6816_init(EncoderChipHandle handle, eEncoderType type);
 bool MT6816_get_resolution(EncoderChipHandle handle, uint16_t *res);
 bool MT6816_start_read(EncoderChipHandle handle);
@@ -48,6 +46,7 @@ bool MT6816_is_data_ready(EncoderChipHandle handle);
 bool MT6816_get_raw_data(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp_ms);
 void MT6816_reset(EncoderChipHandle handle);
 void MT6816_set_cs(EncoderChipHandle handle, bool active);
+uint8_t MT6816_get_Dstatus(EncoderChipHandle handle);
 
 tEncoderDriverOps MT6816_driver_ops = {
     .init = MT6816_init,
@@ -57,13 +56,32 @@ tEncoderDriverOps MT6816_driver_ops = {
     .get_raw_data = MT6816_get_raw_data,
     .reset = MT6816_reset,
     .set_cs = MT6816_set_cs,
+    .get_Dstate = MT6816_get_Dstatus // 获取设备状态
 };
+// 驱动句柄创建 销毁
 
+// 新建句柄
+EncoderChipHandle MT6816_create(void)
+{
+    tMT6816_ctx *ctx = (tMT6816_ctx *)calloc(1, sizeof(tMT6816_ctx));
+    return ctx;
+}
+// 销毁驱动句柄
+void MT6816_destroy(EncoderChipHandle handle)
+{
+    free(handle);
+    handle = NULL;
+}
+
+// MT6816 函数操作 实现
 static bool MT6816_init(EncoderChipHandle handle, eEncoderType type)
 {
     tMT6816_ctx *ctx = (tMT6816_ctx *)handle;
     if (!ctx)
+    {
+        ctx->Dstatus = OFFLINE;
         return false;
+    }
     ctx->enc_type = type;
     // 配置 SPI 为 Mode 3 (CPOL=1, CPHA=1), 16bit
     // 和默认配置一样 不需要改动
@@ -79,6 +97,7 @@ static bool MT6816_init(EncoderChipHandle handle, eEncoderType type)
         ctx->set_cs = bsp_int_encoder_cs;
     else
         ctx->set_cs = bsp_ext_encoder_cs;
+    ctx->Dstatus = ONLINE;
     return true;
 }
 
@@ -189,23 +208,20 @@ static void MT6816_spi_cb(void *arg)
         }
         ctx->data_ready = true;
         ctx->state = ST_IDLE;
+
+        ctx->Dstatus = ONLINE;
     }
     else
     {
+        ctx->Dstatus = RUN_ERROR;
         ctx->state = ST_IDLE;
         ctx->data_ready = false;
     }
 }
 
-// 新建句柄
-EncoderChipHandle MT6816_create(void)
+uint8_t MT6816_get_Dstatus(EncoderChipHandle handle)
 {
-    tMT6816_ctx *ctx = (tMT6816_ctx *)calloc(1, sizeof(tMT6816_ctx));
-    return ctx;
-}
-// 销毁驱动句柄
-void MT6816_destroy(EncoderChipHandle handle)
-{
-    free(handle);
-    handle = NULL;
+    if (NULL == handle)
+        return 0;
+    return ((tMT6816_ctx *)handle)->Dstatus; // 获取设备状态
 }

@@ -95,6 +95,11 @@ void bsp_rgb_pwm_stop_dma(void)
     HAL_TIM_PWM_Stop_DMA(&RGB_PWM_GET_HTIM, RGB_PWM_CHANNEL1);
 }
 
+void bsp_rgb_get_config(uint32_t *pwm_code1, uint32_t *pwm_code0)
+{
+    *pwm_code1 = CODE_1;
+    *pwm_code0 = CODE_0;
+}
 void bsp_rgb_register_callback(void (*callback)(void *))
 {
     usr_callback = callback;

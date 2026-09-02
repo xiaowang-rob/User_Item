@@ -5,10 +5,10 @@
 #define ENCODER_PLL_KI 2000.0f
 
 // enc 编码器句柄 ops 驱动操作函数表 handle 驱动句柄 type 编码器类型(内还是外)
-bool encoder_core_init(tEncoder *enc,
-                       const tEncoderDriverOps *ops,
-                       EncoderChipHandle handle,
-                       eEncoderType type)
+bool encoder_init(tEncoder *enc,
+                  const tEncoderDriverOps *ops,
+                  EncoderChipHandle handle,
+                  eEncoderType type)
 {
     if (!enc || !ops || !handle)
         return false;
@@ -31,7 +31,7 @@ bool encoder_core_init(tEncoder *enc,
     return true;
 }
 
-void encoder_core_update(tEncoder *enc)
+void encoder_task(tEncoder *enc)
 {
     if (!enc || !enc->drv_ops)
         return;
@@ -40,7 +40,7 @@ void encoder_core_update(tEncoder *enc)
 
     uint16_t raw;
     uint32_t ts;
-    if (false != enc->drv_ops->get_raw_data(enc->drv_handle, &raw, &ts))
+    if (!enc->drv_ops->get_raw_data(enc->drv_handle, &raw, &ts))
     {
         enc->valid_counter = (enc->valid_counter < 110) ? enc->valid_counter + 10 : 110;
         if (enc->valid_counter > 100)
@@ -93,7 +93,7 @@ void encoder_core_update(tEncoder *enc)
 }
 
 // pll 跟踪速度
-void encoder_core_pll_update(tEncoder *enc, float dt)
+void encoder_pll_update(tEncoder *enc, float dt)
 {
     if (!enc || dt <= 0)
         return;
@@ -117,7 +117,7 @@ void encoder_core_pll_update(tEncoder *enc, float dt)
     }
 }
 
-void encoder_core_set_zero(tEncoder *enc)
+void encoder_set_zero(tEncoder *enc)
 {
     if (!enc)
         return;
@@ -126,4 +126,11 @@ void encoder_core_set_zero(tEncoder *enc)
     enc->pos = 0.0f;
     enc->pll_theta = enc->angle_abs;
     enc->pll_integ = 0.0f;
+}
+
+uint8_t encoder_get_Dstate(tEncoder *enc)
+{
+    if (!enc || !enc->drv_ops)
+        return 0;
+    return enc->drv_ops->get_Dstate(enc->drv_handle);
 }

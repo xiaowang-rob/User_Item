@@ -1,9 +1,5 @@
-#include "drive.h"
-#include "encoder.h"
+#include "device.h"
 #include "bsp_spi.h"
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
 
 // ---------- 芯片参数 ----------
 #define RESOLUTION 16384 // 输出 14-bit 角度（21-bit 原始 >> 7）
@@ -15,17 +11,16 @@
 // MT6835 连续读角度命令（5 字节）
 static const uint8_t MT6835_CMD[5] = {0xA0, 0x03, 0x00, 0x00, 0x00};
 
-// ---------- 状态机 ----------
+// ---------- 上下文 ----------
 typedef enum
 {
     ST_IDLE,
     ST_WAIT,
     ST_ERR
 } eMT6835_state;
-
-// ---------- 上下文 ----------
 typedef struct
 {
+    eDeviceStatus Dstatus; // 设备状态
     eEncoderType enc_type;
     volatile eMT6835_state state;
     volatile uint8_t rx_buf[5];  // 接收 5 字节
@@ -45,7 +40,7 @@ static bool MT6835_is_data_ready(EncoderChipHandle handle);
 static bool MT6835_get_raw_data(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp_ms);
 static void MT6835_reset(EncoderChipHandle handle);
 static void MT6835_set_cs(EncoderChipHandle handle, bool active);
-
+static uint8_t MT6835_get_Dstatus(EncoderChipHandle handle);
 // ---------- 驱动操作表 ----------
 tEncoderDriverOps MT6835_driver_ops = {
     .init = MT6835_init,
@@ -55,7 +50,21 @@ tEncoderDriverOps MT6835_driver_ops = {
     .get_raw_data = MT6835_get_raw_data,
     .reset = MT6835_reset,
     .set_cs = MT6835_set_cs,
+    .get_Dstate = MT6835_get_Dstatus, // 获取设备状态
 };
+
+// ---------- 创建/销毁 ----------
+EncoderChipHandle MT6835_create(void)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)calloc(1, sizeof(tMT6835_ctx));
+    return (EncoderChipHandle)ctx;
+}
+
+void MT6835_destroy(EncoderChipHandle handle)
+{
+    free(handle);
+    handle = NULL;
+}
 
 // ========== 实现 ==========
 static bool MT6835_init(EncoderChipHandle handle, eEncoderType type)
@@ -185,15 +194,9 @@ static void MT6835_spi_cb(void *arg)
     }
 }
 
-// ---------- 创建/销毁 ----------
-EncoderChipHandle MT6835_create(void)
+static uint8_t MT6835_get_Dstatus(EncoderChipHandle handle)
 {
-    tMT6835_ctx *ctx = (tMT6835_ctx *)calloc(1, sizeof(tMT6835_ctx));
-    return (EncoderChipHandle)ctx;
-}
-
-void MT6835_destroy(EncoderChipHandle handle)
-{
-    free(handle);
-    handle = NULL;
+    if (NULL == handle)
+        return 0;
+    return ((tMT6835_ctx *)handle)->Dstatus; // 返回设备状态
 }

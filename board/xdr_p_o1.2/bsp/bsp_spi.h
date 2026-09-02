@@ -21,7 +21,7 @@ void bsp_encoder_spi_clear_dma_error_flags();
 // ============================================
 // SPI - flash通信
 // ============================================
-void bsp_flash_cs(bool level);
+void bsp_flash_cs(bool active);
 bool bsp_flash_spi_transmit(u8 *tx, u16 len, u32 timeout);
 bool bsp_flash_spi_receive(u8 *rx, u16 len, u32 timeout);
 

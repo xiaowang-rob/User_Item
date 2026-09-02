@@ -1,11 +1,8 @@
-#include "drive.h"
-#include "encoder.h"
-#include "bsp_spi.h"
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+#include "device.h"
 
-// ---------- 芯片参数 ----------
+#include "bsp_spi.h"
+
+// ---------- 驱动参数配置 ----------
 #define RESOLUTION 16384
 #define CMD_READ_ANGLE 0x7FFF // 读角度寄存器命令
 #define CMD_NOP 0x0000        // NOP 命令（用于读取数据）
@@ -15,7 +12,7 @@
 #define NO_RESP_MAX 1000     // 超时计数
 #define ERR_FLAG_MASK 0x4000 // bit14 错误标志
 
-// ---------- 状态机 ----------
+// ---------- 上下文结构 ----------
 typedef enum
 {
     ST_IDLE,
@@ -23,10 +20,9 @@ typedef enum
     ST_WAIT_LOW,
     ST_ERR
 } eAS5047_state;
-
-// ---------- 上下文结构 ----------
 typedef struct
 {
+    eDeviceStatus Dstatus; // 设备状态
     eEncoderType enc_type;
     volatile eAS5047_state state;
     uint16_t cmd_high; // 读角度命令
@@ -39,8 +35,9 @@ typedef struct
     void (*set_cs)(bool active);
 } tAS5047_ctx;
 
-// ---------- 静态函数原型 ----------
+// ---------- 驱动回调 声明----------
 static void AS5047_spi_cb(void *arg);
+// ---------- 驱动操作表 声明----------
 static bool AS5047_init(EncoderChipHandle handle, eEncoderType type);
 static bool AS5047_get_resolution(EncoderChipHandle handle, uint16_t *res);
 static bool AS5047_start_read(EncoderChipHandle handle);
@@ -48,8 +45,8 @@ static bool AS5047_is_data_ready(EncoderChipHandle handle);
 static bool AS5047_get_raw_data(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp_ms);
 static void AS5047_reset(EncoderChipHandle handle);
 static void AS5047_set_cs(EncoderChipHandle handle, bool active);
+static uint8_t AS5047_get_Dstate(EncoderChipHandle handle);
 
-// ---------- 驱动操作表 ----------
 tEncoderDriverOps AS5047_driver_ops = {
     .init = AS5047_init,
     .get_resolution = AS5047_get_resolution,
@@ -58,20 +55,39 @@ tEncoderDriverOps AS5047_driver_ops = {
     .get_raw_data = AS5047_get_raw_data,
     .reset = AS5047_reset,
     .set_cs = AS5047_set_cs,
-};
+    .get_Dstate = AS5047_get_Dstate};
 
-// ========== 实现 ==========
+// ---------- 句柄 创建/销毁 ----------
+EncoderChipHandle AS5047_create(void)
+{
+    tAS5047_ctx *ctx = (tAS5047_ctx *)calloc(1, sizeof(tAS5047_ctx));
+    return (EncoderChipHandle)ctx;
+}
+
+void AS5047_destroy(EncoderChipHandle handle)
+{
+    free(handle);
+    handle = NULL;
+}
+
+// ---------- 驱动操作表 定义----------
 static bool AS5047_init(EncoderChipHandle handle, eEncoderType type)
 {
     tAS5047_ctx *ctx = (tAS5047_ctx *)handle;
     if (!ctx)
+    {
+        ctx->Dstatus = OFFLINE;
         return false;
+    }
 
     ctx->enc_type = type;
     // 配置 SPI 模式 (Mode 1: CPOL=0, CPHA=1)
     // 如果 BSP 需要显式配置，取消注释下面一行
     if (!bsp_change_encoder_spi_config(SPI_CPOL, SPI_CPHA, SPI_DATA_SIZE))
+    {
+        ctx->Dstatus = OFFLINE;
         return false;
+    }
 
     bsp_encoder_register_callback(AS5047_spi_cb, ctx);
     ctx->state = ST_IDLE;
@@ -85,6 +101,7 @@ static bool AS5047_init(EncoderChipHandle handle, eEncoderType type)
     else
         ctx->set_cs = bsp_ext_encoder_cs;
 
+    ctx->Dstatus = ONLINE;
     return true;
 }
 
@@ -190,6 +207,7 @@ static void AS5047_spi_cb(void *arg)
     }
     else if (ctx->state == ST_WAIT_LOW)
     {
+        ctx->Dstatus = RUNNING;
         // 第二次传输完成，数据就绪
         ctx->timestamp_ms = bsp_get_tick();
         ctx->data_raw[0] = ctx->shadow_raw[0]; // 第一次无用数据
@@ -200,6 +218,7 @@ static void AS5047_spi_cb(void *arg)
     }
     else
     {
+        ctx->Dstatus = RUN_ERROR;
         // 异常状态恢复
         ctx->state = ST_IDLE;
         ctx->data_ready = false;
@@ -207,15 +226,10 @@ static void AS5047_spi_cb(void *arg)
     }
 }
 
-// ---------- 创建/销毁 ----------
-EncoderChipHandle AS5047_create(void)
+static uint8_t AS5047_get_Dstate(EncoderChipHandle handle)
 {
-    tAS5047_ctx *ctx = (tAS5047_ctx *)calloc(1, sizeof(tAS5047_ctx));
-    return (EncoderChipHandle)ctx;
-}
-
-void AS5047_destroy(EncoderChipHandle handle)
-{
-    free(handle);
-    handle = NULL;
+    tAS5047_ctx *ctx = (tAS5047_ctx *)handle;
+    if (!ctx)
+        return;
+    return ctx->Dstatus;
 }

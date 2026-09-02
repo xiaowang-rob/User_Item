@@ -16,6 +16,7 @@
 #define FLASH_SECTOR_64KB (64 * 1024)
 #define FLASH_SECTOR_128KB (128 * 1024)
 
+#define FLASH_SECTOR_NUM 12 // Flash 总扇区数量
 // STM32F405 扇区起始地址表（共12个扇区）
 static const u32 sector_start_addr[] = {
     0x08000000, // Sector 0   16KB
@@ -30,122 +31,147 @@ static const u32 sector_start_addr[] = {
     0x080A0000, // Sector 9  128KB
     0x080C0000, // Sector 10 128KB
     0x080E0000, // Sector 11 128KB
+    0x08100000  // Flash 结束地址（1MB 容量）
 };
+// 地址分区配置
+#define SECTOR_BL_NUM 2  // Bootloader 占用的扇区数量
+#define SECTOR_APP_NUM 7 // App 占用的扇区数量
+#define SECTOR_USR_NUM 3 // 用户数据占用的扇区数量
 
-// 私有函数声明 ------------------------------------------------------------
-static bool Flash_WaitReady(u32 timeout_ms);
-static u8 Flash_GetSectorNum(u32 addr);
-static bool Flash_EraseSectorByNum(u8 sector_num);
+const uint8_t sector_bl[SECTOR_BL_NUM] = {0, 1};
+const uint8_t sector_app[SECTOR_APP_NUM] = {2, 3, 4, 5, 6, 7, 8};
+const uint8_t sector_usr[SECTOR_USR_NUM] = {9, 10, 11};
 
-// 公有函数 ----------------------------------------------------------------
+// 地址预计算
+const uint32_t bl_start_addr = sector_start_addr[sector_bl[0]];
+const uint32_t bl_end_addr = sector_start_addr[sector_bl[SECTOR_BL_NUM - 1] + 1] - 1;
+const uint32_t app_start_addr = sector_start_addr[sector_app[0]];
+const uint32_t app_end_addr = sector_start_addr[sector_app[SECTOR_APP_NUM - 1] + 1] - 1;
+const uint32_t usr_start_addr = sector_start_addr[sector_usr[0]];
+const uint32_t usr_end_addr = sector_start_addr[sector_usr[SECTOR_USR_NUM - 1] + 1] - 1;
+
+const uint32_t bl_size = bl_end_addr - bl_start_addr + 1;
+const uint32_t app_size = app_end_addr - app_start_addr + 1;
+const uint32_t usr_size = usr_end_addr - usr_start_addr + 1;
+
+// 等待 Flash 就绪并清除错误标志
+static bool Flash_WaitReady(u32 timeout_ms)
+{
+    while ((__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) && (timeout_ms-- > 0))
+        __NOP();
+    if (timeout_ms == 0)
+        return false;
+
+    return true;
+}
+
+// return 扇区号地址
+// num_sectors 返回扇区数量
+uint8_t *bsp_flash_get_bl_config(uint8_t *num_sectors)
+{
+    if (num_sectors)
+        *num_sectors = SECTOR_BL_NUM;
+    return sector_bl;
+}
+uint8_t *bsp_flash_get_app_config(uint8_t *num_sectors)
+{
+    if (num_sectors)
+        *num_sectors = SECTOR_APP_NUM;
+    return sector_app;
+}
+uint8_t *bsp_flash_get_usr_config(uint8_t *num_sectors)
+{
+    if (num_sectors)
+        *num_sectors = SECTOR_USR_NUM;
+    return sector_usr;
+}
+uint32_t bsp_flash_get_sector_size(u8 sector_idx)
+{
+    if (0 > sector_idx || FLASH_SECTOR_NUM <= sector_idx)
+        return 0;
+    return sector_start_addr[sector_idx + 1] - sector_start_addr[sector_idx];
+}
+
+uint32_t bsp_flash_get_sector_start_addr(u8 sector_idx)
+{
+    if (0 > sector_idx || FLASH_SECTOR_NUM <= sector_idx)
+        return NULL;
+    return sector_start_addr[sector_idx]; // 返回扇区起始地址
+}
+
+// 擦除指定的扇区（通过扇区号）
+// sector_num 扇区号（0~11）
+// true 成功
+bool bsp_flash_erase_sector(u8 sector_idx)
+{
+    if (sector_idx >= FLASH_SECTOR_NUM)
+        return false;
+
+    FLASH_EraseInitTypeDef erase = {
+        .TypeErase = FLASH_TYPEERASE_SECTORS,
+        .VoltageRange = FLASH_VOLTAGE_RANGE_3,
+        .Sector = sector_idx,
+        .NbSectors = 1};
+    u32 sector_error;
+    HAL_FLASH_Unlock();
+    HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&erase, &sector_error);
+    HAL_FLASH_Lock();
+
+    // 等待 BSY 清零并清除可能的错误
+    Flash_WaitReady(100);
+    return (status == HAL_OK);
+}
 
 // 读取 Flash 数据
 // pBuffer 输出缓冲区
 // ReadAddr 起始地址
 // NumByteToRead 读取字节数
 // true 成功
-bool bsp_flash_read_data(u8 *pBuffer, u32 ReadAddr, u16 NumByteToRead)
+bool bsp_flash_read_data(u32 ReadAddr, u8 *pBuffer, u16 NumByteToRead)
 {
-    if (!pBuffer || ReadAddr < FLASH_BASE || (ReadAddr + NumByteToRead) > FLASH_END_ADDR)
+    if (!pBuffer || ReadAddr < sector_start_addr[0] || (ReadAddr + NumByteToRead) > sector_start_addr[FLASH_SECTOR_NUM])
         return false;
     memcpy(pBuffer, (u8 *)ReadAddr, NumByteToRead);
     return true;
 }
 
-// 以字（32位）为单位写入 Flash（地址需4字节对齐，长度需4的倍数）
+// 以字节为单位写入 Flash 数据
+bool bsp_flash_write_data(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
+{
+    if (!pBuffer || WriteAddr < sector_start_addr[0] || (WriteAddr + NumByteToWrite) > sector_start_addr[FLASH_SECTOR_NUM])
+        return false;
+    HAL_FLASH_Unlock();
+    for (u16 i = 0; i < NumByteToWrite; i++)
+    {
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, WriteAddr, pBuffer[i]) != HAL_OK)
+        {
+            HAL_FLASH_Lock();
+            return false;
+        }
+        WriteAddr++;
+    }
+    HAL_FLASH_Lock();
+    return true;
+}
+
+// 以字（32位）为单位写入 Flash（会自动调整）
 // pBuffer 数据缓冲区（至少 NumByteToWrite 字节）
-// WriteAddr 起始地址（4字节对齐）
-// NumByteToWrite 写入字节数（4的倍数）
+// WriteAddr 起始地址
+// NumByteToWrite 写入字节数
 // true 成功
-bool bsp_flash_write_word(const u8 *pBuffer, u32 WriteAddr, u16 NumByteToWrite)
+bool bsp_flash_write_word(u32 WriteAddr, const u8 *pBuffer, u16 NumByteToWrite)
 {
-    if ((WriteAddr & 3) || (NumByteToWrite & 3))
-        return false; // 未4字节对齐或长度不是4倍数
-
-    u32 *pSrc = (u32 *)pBuffer;
-    u32 addr = WriteAddr;
-    u16 cnt = NumByteToWrite / 4;
-
-    HAL_FLASH_Unlock();
-    for (u16 i = 0; i < cnt; i++)
-    {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr, pSrc[i]) != HAL_OK)
-        {
-            HAL_FLASH_Lock();
-            return false;
-        }
-        addr += 4;
-    }
-    HAL_FLASH_Lock();
-    return true;
-}
-
-// 擦除指定地址范围涉及的所有扇区（地址边界自动对齐到扇区）
-// start_addr 起始地址（包含）
-// end_addr   结束地址（包含）
-// true 成功
-bool bsp_flash_erase_range(u32 start_addr, u32 end_addr)
-{
-    if (start_addr > end_addr)
-        return false;
-
-    u8 start_sector = Flash_GetSectorNum(start_addr);
-    u8 end_sector = Flash_GetSectorNum(end_addr);
-    if (start_sector == 0xFF || end_sector == 0xFF)
-        return false;
-
-    // 保护 Bootloader 区域（根据 BL_SIZE_KB 动态计算占用的扇区数量）
-    u8 bl_sectors = (BL_SIZE_KB * 1024 + FLASH_SECTOR_16KB - 1) / FLASH_SECTOR_16KB; // 向上取整
-    if (start_sector < bl_sectors)
-         start_sector = bl_sectors; // 至少从 Bootloader 后面的扇区开始，避开该区域
-
-    // 保护配置扇区（存升级标志）
-    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
-    if (end_sector >= cfg_sector)
-        end_sector = cfg_sector - 1;
-
-    if (start_sector > end_sector)
-        return false;
-
-    HAL_FLASH_Unlock();
-    for (u8 s = start_sector; s <= end_sector; s++)
-    {
-        if (!Flash_EraseSectorByNum(s))
-        {
-            HAL_FLASH_Lock();
-            return false;
-        }
-    }
-    HAL_FLASH_Lock();
-    return true;
-}
-
-// 擦除整个 App 区（从 APP_START_ADDR 到 FLASH_END_ADDR，避开配置扇区）
-// bsp_flash_calc_erase_sectors 不再需要，直接调用本函数即可
-// true 成功
-bool bsp_flash_erase_app(void)
-{
-    return bsp_flash_erase_range(APP_START_ADDR, FLASH_END_ADDR);
-}
-
-// 写入 APP 固件（自动处理非4字节对齐的尾部，但建议以4字节块调用）
-// addr 目标地址（必须 >= APP_START_ADDR）
-// data 数据指针
-// len  数据长度（字节）
-// true 成功
-bool bsp_flash_write_app(u32 addr, const u8 *data, u16 len)
-{
-    if (addr < APP_START_ADDR || addr + len > FLASH_END_ADDR)
+    if (!pBuffer || WriteAddr < sector_start_addr[0] || (WriteAddr + NumByteToWrite) > sector_start_addr[FLASH_SECTOR_NUM])
         return false;
 
     HAL_FLASH_Unlock();
     u16 i = 0;
 
     // 先按字（4字节）写入
-    for (; i + 3 < len; i += 4)
+    for (; i + 3 < NumByteToWrite; i += 4)
     {
-        u32 word = data[i] | (data[i + 1] << 8) | (data[i + 2] << 16) | (data[i + 3] << 24);
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr + i, word) != HAL_OK)
+        u32 word = pBuffer[i] | (pBuffer[i + 1] << 8) | (pBuffer[i + 2] << 16) | (pBuffer[i + 3] << 24);
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, WriteAddr + i, word) != HAL_OK)
         {
             HAL_FLASH_Lock();
             return false;
@@ -153,9 +179,9 @@ bool bsp_flash_write_app(u32 addr, const u8 *data, u16 len)
     }
 
     // 处理剩余不足4字节（按字节写入，但注意 STM32F4 的字节编程要求半字对齐？实际支持字节，但效率低）
-    while (i < len)
+    while (i < NumByteToWrite)
     {
-        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, addr + i, data[i]) != HAL_OK)
+        if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, WriteAddr + i, pBuffer[i]) != HAL_OK)
         {
             HAL_FLASH_Lock();
             return false;
@@ -167,27 +193,11 @@ bool bsp_flash_write_app(u32 addr, const u8 *data, u16 len)
     return true;
 }
 
-// 校验 Flash 内容与给定数据是否一致
-// addr 起始地址
-// data 数据缓冲区
-// len  长度
-// true 一致
-bool bsp_flash_verify(u32 addr, const u8 *data, u16 len)
+// 跳转到指定地址执行
+bool bsp_jump_addr(uint32_t addr)
 {
-    for (u16 i = 0; i < len; i++)
-    {
-        if (*(u8 *)(addr + i) != data[i])
-            return false;
-    }
-    return true;
-}
-
-// 跳转到 App 执行
-// true 跳转成功（实际不会返回）
-bool bsp_jump_to_app(void)
-{
-    u32 app_stack = *(__IO u32 *)APP_START_ADDR;
-    u32 app_reset = *(__IO u32 *)(APP_START_ADDR + 4);
+    u32 app_stack = *(__IO u32 *)addr;
+    u32 app_reset = *(__IO u32 *)(addr + 4);
 
     // 简单检查栈指针是否有效（通常栈顶应在 SRAM 范围内）
     if (app_stack >= 0x20000000 && app_stack <= 0x20020000)
@@ -201,162 +211,4 @@ bool bsp_jump_to_app(void)
         ((void (*)(void))app_reset)(); // 跳转，不会返回
     }
     return false;
-}
-
-// 设置升级标志（写入版本字符串到标志区）
-// firm_version 版本字符串
-// version_len  字符串长度（不含终止符）
-// true 成功
-bool bsp_jump_to_bootloader(const u8 *firm_version, u16 version_len)
-{
-    // 限制字符串长度不超过 23 字符（留一个字节给 '\0'）
-    if (version_len > 23)
-        version_len = 23;
-    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
-    // 先擦除配置扇区
-    if (!Flash_EraseSectorByNum(cfg_sector))
-        return false;
-
-    // 写入版本字符串（按字写，不足字的部分留空，填充 0）
-    u8 buf[24] = {0};
-    memcpy(buf, firm_version, version_len);
-    // 确保以 '\0' 结尾（便于作为字符串读取）
-    buf[version_len] = '\0';
-
-    return bsp_flash_write_word(buf, IAP_FLAG_ADDRESS, 24);
-}
-
-// 获取升级标志（读取版本字符串）
-// firm_version 输出缓冲区（至少 24 字节）
-// version_len  输出实际长度
-// true 存在有效的升级标志
-bool bsp_get_upgrade_flag(u8 *firm_version, u16 *version_len)
-{
-    u8 raw[24];
-    if (!bsp_flash_read_data(raw, IAP_FLAG_ADDRESS, 24))
-        return false;
-
-    // 判断是否全为 0xFF（未编程）或全为 0
-    bool all_ff = true, all_00 = true;
-    for (int i = 0; i < 24; i++)
-    {
-        if (raw[i] != 0xFF)
-            all_ff = false;
-        if (raw[i] != 0x00)
-            all_00 = false;
-    }
-    if (all_ff || all_00)
-        return false;
-
-    // 复制到输出，确保以 '\0' 结尾
-    memcpy(firm_version, raw, 24);
-    firm_version[23] = '\0';
-    *version_len = strlen((char *)firm_version);
-    return (*version_len > 0);
-}
-
-// 清除升级标志（擦除配置扇区）
-// true 成功
-bool bsp_clear_upgrade_flag(void)
-{
-    u8 cfg_sector = Flash_GetSectorNum(IAP_FLAG_ADDRESS);
-    return Flash_EraseSectorByNum(cfg_sector);
-}
-
-// 读取参数
-bool bsp_read_param(u8 *pBuffer, u16 NumByteToRead)
-{
-    if (!pBuffer || NumByteToRead > PARAMETER_SIZE_KB * 1024)
-        return false;
-    return bsp_flash_read_data(pBuffer, PARAMETER_LOAD_ADDR, NumByteToRead);
-}
-
-// 擦除参数
-bool bsp_erase_param(void)
-{
-    return Flash_EraseSectorByNum(PARAMETER_SECTOR);
-}
-
-// 写入参数
-bool bsp_write_param(u8 *pBuffer, u16 NumByteToWrite)
-{
-    if (!pBuffer || NumByteToWrite > PARAMETER_SIZE_KB * 1024)
-        return false;
-    return bsp_flash_write_word(pBuffer, PARAMETER_LOAD_ADDR, NumByteToWrite);
-}
-
-// 写入日志
-bool bsp_write_log(u8 *pBuffer, u8 num, u16 NumByteToWrite)
-{
-    if (!pBuffer || NumByteToWrite > LOG_SIZE_KB * 1024)
-        return false;
-    return bsp_flash_write_word(pBuffer, LOG_START_ADDR + num * NumByteToWrite, NumByteToWrite); // 参数空间后移
-}
-
-// 读取日志
-bool bsp_read_log(u8 *pBuffer, u8 num, u16 NumByteToRead)
-{
-    if (!pBuffer || NumByteToRead > LOG_SIZE_KB * 1024)
-        return false;
-    return bsp_flash_read_data(pBuffer, LOG_START_ADDR + num * NumByteToRead, NumByteToRead);
-}
-
-// 擦除日志
-bool bsp_erase_log(void)
-{
-    return Flash_EraseSectorByNum(LOG_SECTOR);
-}
-
-// 私有函数实现 ------------------------------------------------------------
-
-// 等待 Flash 就绪并清除错误标志
-static bool Flash_WaitReady(u32 timeout_ms)
-{
-    while ((__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) != RESET) && (timeout_ms-- > 0))
-        __NOP();
-    if (timeout_ms == 0)
-        return false;
-
-    return true;
-}
-
-// 根据 Flash 地址获取扇区编号（0~11）
-// addr Flash 地址
-// 扇区编号，无效返回 0xFF
-static u8 Flash_GetSectorNum(u32 addr)
-{
-    for (u8 i = 0; i < 12; i++)
-    {
-        if (addr >= sector_start_addr[i])
-        {
-            if (i == 11)
-                return 11;
-            if (addr < sector_start_addr[i + 1])
-                return i;
-        }
-    }
-    return 0xFF;
-}
-
-// 擦除指定的扇区（通过扇区号）
-// sector_num 扇区号（0~11）
-// true 成功
-static bool Flash_EraseSectorByNum(u8 sector_num)
-{
-    if (sector_num > 11)
-        return false;
-
-    FLASH_EraseInitTypeDef erase = {
-        .TypeErase = FLASH_TYPEERASE_SECTORS,
-        .VoltageRange = FLASH_VOLTAGE_RANGE_3,
-        .Sector = sector_num,
-        .NbSectors = 1};
-    u32 sector_error;
-    HAL_FLASH_Unlock();
-    HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&erase, &sector_error);
-    HAL_FLASH_Lock();
-
-    // 等待 BSY 清零并清除可能的错误
-    Flash_WaitReady(100);
-    return (status == HAL_OK);
 }
