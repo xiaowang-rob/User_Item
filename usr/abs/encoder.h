@@ -1,80 +1,113 @@
-#ifndef __HAL_ENCODER_H
-#define __HAL_ENCODER_H
+#ifndef __ABS_ENCODER_H
+#define __ABS_ENCODER_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
-// 编码器位置
-typedef enum
-{
-    ENC_INTERNAL, // 内部编码器
-    ENC_EXTERNAL  // 外部编码器
-} eEncoderType;
+#include "usr/abs/device.h"
 
-// 定义一个空的指针类型，用于声明驱动的句柄
+// ============================================================
+// encoder.h — 编码器（usr/abs）
+//
+// 分两部分：
+//   [驱动契约]  drv 与业务之间的接口形状（句柄 + 语义化 ops 表）
+//   [业务对象]  tEncoder：把"原始角度读数"加工成电机控制所需量：
+//               多圈累计 / 零位 / 位置 / M-T 测速 / PLL 平滑 / 数据有效性
+//
+// 规则：
+//   - 业务对象只依赖 ops 契约，不感知具体芯片与板级资源
+//   - 角度单位 rad；多圈位置连续增长（可负）
+//   - 时间戳由驱动在读数时打上（abs 不直接取时钟）
+// ============================================================
+
+// ==================== 驱动契约 ====================
+
 typedef void *EncoderChipHandle;
 
-// 驱动操作函数表（每个实例一份）
 typedef struct
 {
-    bool (*init)(EncoderChipHandle handle, eEncoderType type);
-    bool (*get_resolution)(EncoderChipHandle handle, uint16_t *res);                    // 驱动初始化
-    bool (*start_read)(EncoderChipHandle handle);                                       // 启动一次异步读取（非阻塞）
-    bool (*is_data_ready)(EncoderChipHandle handle);                                    // 检查是否有新数据
-    bool (*get_raw_data)(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp); // 获取原始数据（拷贝）
-    void (*reset)(EncoderChipHandle handle);                                            // 复位硬件计数器
-    void (*set_cs)(EncoderChipHandle handle, bool active);                              // 片选控制（若驱动内部管理可免）
-    uint8_t (*get_Dstate)(EncoderChipHandle handle);                                    // 获取驱动状态
+    // 芯片初始化（含按芯片协议配置 SPI 模式）
+    bool (*init)(EncoderChipHandle h);
+
+    // 读取一次最新角度（同步）：成功输出 raw（0~分辨率-1）与时间戳(ms)
+    bool (*read_angle)(EncoderChipHandle h, uint16_t *raw, uint32_t *ts_ms);
+
+    // 单圈分辨率，如 16384
+    bool (*get_resolution)(EncoderChipHandle h, uint16_t *res);
+
+    // 复位芯片
+    void (*reset)(EncoderChipHandle h);
+
+    // 设备状态（eDeviceStatus 值）
+    uint8_t (*get_state)(EncoderChipHandle h);
 } tEncoderDriverOps;
 
+// ==================== 业务对象 ====================
+
+// 默认 PLL 增益与错误判定
+#define ENCODER_PLL_KP 80.0f
+#define ENCODER_PLL_KI 2000.0f
+#define ENCODER_PLL_INTEG_LIMIT 0.1745f // ±10°
+#define ENCODER_VEL_PHYS_LIMIT 10472.0f // rad/s 物理上限（≈100k rpm）
+#define ENCODER_ERR_VALID_LIMIT 100     // valid_counter 超过该值判数据无效
+
 typedef struct
 {
-    const tEncoderDriverOps *drv_ops; // 绑定的驱动的函数表
-    EncoderChipHandle drv_handle;     // 驱动句柄
+    const tEncoderDriverOps *drv_ops; // 绑定的芯片驱动 ops
+    EncoderChipHandle drv_handle;     // 芯片句柄
 
-    eEncoderType type;   // 编码器类型
-    uint16_t resolution; // 单圈分辨率，如 16384
+    uint16_t resolution; // 单圈分辨率
     float rad_per_lsb;   // 每 LSB 弧度
 
-    // 业务状态
-    float angle_abs;   // 绝对角度
-    float pos;         // 位置
-    float vel;         // 速度
-    int32_t num_turns; // 转数
+    // ---- 业务状态 ----
+    float angle_abs;    // 本次绝对角度 [0, 2π)
+    float pos;          // 多圈连续位置（rad）
+    float vel;          // M/T 测速（rad/s，未平滑）
+    int32_t num_turns;  // 累计转数
 
-    // 内部变量
-    uint16_t last_raw_angle;    // 上一次原始角度
-    float pos_offset;           // 位置偏移量（用于归零）
-    uint32_t last_timestamp_ms; // 上一次时间戳
-    float last_angle_abs;       // 上一次绝对角度
+    // ---- 内部变量 ----
+    uint16_t last_raw_angle; // 上一次原始角度
+    float pos_offset;        // 零位偏移（原始角度计数）
+    uint32_t last_ts_ms;     // 上一次时间戳
+    float last_angle_abs;    // 上一次绝对角度
 
-    // PLL
+    // ---- PLL（角度/速度平滑） ----
     float pll_theta;       // PLL 输出角度
-    float pll_vel;         // PLL 输出速度
-    float pll_kp;          // PLL 比例增益
-    float pll_ki;          // PLL 积分增益
-    float pll_integ;       // PLL 积分累加
-    float pll_theta_delta; // PLL 误差
+    float pll_vel;         // PLL 输出速度（rad/s）
+    float pll_integ;       // 积分累加
+    float pll_theta_delta; // 误差
 
-    float com_error_rate;  // 通信错误率（指数移动平均）
-    uint8_t valid_counter; // 有效数据计数
-    bool first_run;        // 首次运行标志
-    bool data_valid;       // 数据有效性标志
+    // ---- 数据有效性 ----
+    uint16_t valid_counter; // 有效数据计数（成功-1/失败+10 的滑动指示）
+    bool first_run;         // 首次读数标志
+    bool data_valid;        // 数据有效性
 } tEncoder;
 
-bool encoder_init(tEncoder *enc,
-                  const tEncoderDriverOps *ops,
-                  EncoderChipHandle handle,
-                  eEncoderType type);
+// 绑定驱动并初始化（含调用 ops->init）
+bool encoder_init(tEncoder *enc, const tEncoderDriverOps *ops, EncoderChipHandle handle);
 
-void encoder_task(tEncoder *enc);
+// 每周期调用：读取一次角度并更新多圈位置/测速/有效性
+void encoder_update(tEncoder *enc);
+
+// PLL 平滑更新（由上层按固定周期 dt 调用，输出 pll_vel/pll_theta）
 void encoder_pll_update(tEncoder *enc, float dt);
+
+// 以当前角度为零位
 void encoder_set_zero(tEncoder *enc);
 
+// ---- 查询 ----
 static inline float encoder_get_angle_abs(tEncoder *enc) { return enc->angle_abs; }
 static inline float encoder_get_position(tEncoder *enc) { return enc->pos; }
-static inline float encoder_get_velocity(tEncoder *enc) { return enc->pll_vel; }
+static inline float encoder_get_velocity(tEncoder *enc) { return enc->vel; }
+static inline float encoder_get_pll_velocity(tEncoder *enc) { return enc->pll_vel; }
+static inline float encoder_get_pll_angle(tEncoder *enc) { return enc->pll_theta; }
 static inline int32_t encoder_get_turns(tEncoder *enc) { return enc->num_turns; }
-uint8_t encoder_get_Dstate(tEncoder *enc);
+static inline bool encoder_is_data_valid(tEncoder *enc) { return enc->data_valid; }
+static inline eDeviceStatus encoder_get_dev_state(tEncoder *enc)
+{
+    if (!enc || !enc->drv_ops || !enc->drv_handle)
+        return DEV_OFFLINE;
+    return (eDeviceStatus)enc->drv_ops->get_state(enc->drv_handle);
+}
 
-#endif // __HAL_ENCODER_H
+#endif // __ABS_ENCODER_H

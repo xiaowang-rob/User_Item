@@ -1,5 +1,6 @@
-# XDr-P O1.2 板级 CMakeLists.txt (自包含)
-# HAL 库 + CubeMX 外设初始化 + USB 中间件 + BSP + 启动文件 + 链接脚本
+# XDr-P O1.2 板级 CMakeLists.txt (自包含, 重构副本)
+# HAL 库 + CubeMX 外设初始化 + USB 中间件 + HW 板级适配层 + 启动文件
+# 注：原 bsp 目录已取消，板级适配层为 hw/（库名 board_bsp → board_hw）
 
 # ── HAL 库 ──
 file(GLOB_RECURSE HAL_SOURCES
@@ -51,8 +52,8 @@ target_include_directories(stm32_usb PUBLIC
 )
 target_link_libraries(stm32_usb PUBLIC stm32_hal)
 
-# ── BSP ──
-file(GLOB BSP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/bsp/*.c)
+# ── HW 板级适配层（原 BSP 取消后更名；唯一允许厂商库符号的目录） ──
+file(GLOB HW_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/hw/*.c)
 
 # 板级 USB 描述符（含 VID/PID，覆盖 CubeMX 默认的）
 set(BOARD_USB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/usb/usbd_desc.c)
@@ -60,10 +61,10 @@ set(BOARD_USB_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/usb/usbd_desc.c)
 # 板级启动文件
 set(BOARD_STARTUP ${CMAKE_CURRENT_SOURCE_DIR}/startup_stm32f405xx.s)
 
-add_library(board_bsp STATIC ${BSP_SOURCES} ${BOARD_USB_SOURCES} ${BOARD_STARTUP})
-target_include_directories(board_bsp PUBLIC
+add_library(board_hw STATIC ${HW_SOURCES} ${BOARD_USB_SOURCES} ${BOARD_STARTUP})
+target_include_directories(board_hw PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}          # board_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/bsp      # BSP 头文件
+    ${CMAKE_CURRENT_SOURCE_DIR}/hw       # hw_pinmap.h / hw_base.h
     ${CMAKE_CURRENT_SOURCE_DIR}/usb      # USB 描述符
     ${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32F4xx_HAL_Driver/Inc
@@ -74,6 +75,6 @@ target_include_directories(board_bsp PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/USB_DEVICE/App
     ${CMAKE_CURRENT_SOURCE_DIR}/USB_DEVICE/Target
     ${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Inc
-    ${CMAKE_SOURCE_DIR}/protocol
 )
-target_link_libraries(board_bsp stm32_hal)
+# usr_if：提供 #include "usr/if/..." 接口头（依赖倒置：hw 反向 include usr/if 的唯一入口）
+target_link_libraries(board_hw PUBLIC usr_if stm32_hal)

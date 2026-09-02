@@ -1,8 +1,7 @@
 set(CMAKE_SYSTEM_NAME               Generic)
 set(CMAKE_SYSTEM_PROCESSOR          arm)
 
-set(CMAKE_C_COMPILER_ID GNU)
-set(CMAKE_CXX_COMPILER_ID GNU)
+# 注：不预设 CMAKE_<LANG>_COMPILER_ID（只读变量，预设会使 cmake 3.22 编译器探测失败）
 
 # Some default GCC settings
 # arm-none-eabi- must be part of path environment

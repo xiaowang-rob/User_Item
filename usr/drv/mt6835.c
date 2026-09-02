@@ -1,202 +1,145 @@
-#include "device.h"
-#include "bsp_spi.h"
+// ============================================================
+// mt6835.c — MT6835 编码器驱动（usr/drv，同步读角）
+//
+// 芯片协议：SPI Mode3(CPOL=1,CPHA=1) / 8bit，分辨率 16384
+// 读角序列（一次 CS 周期单段 5 字节，边发边收）：
+//   发送 {0xA0, 0x03, 0x00, 0x00, 0x00}，同时接收 5 字节
+//   角度 21bit：rx[2]<<13 | rx[3]<<5 | rx[4]>>3，输出取高 14 位
+//   status 位（rx[4] bit0..2）：bit1 = 磁场太弱 → 数据不可信
+//
+// 仅依赖 usr/if 接口表与 enc_spi_engine，无任何板级/厂商库依赖。
+// ============================================================
 
-// ---------- 芯片参数 ----------
-#define RESOLUTION 16384 // 输出 14-bit 角度（21-bit 原始 >> 7）
-#define SPI_CPOL 1
-#define SPI_CPHA 1
-#define SPI_DATA_SIZE 8 // 8-bit 模式
-#define NO_RESP_MAX 1000
+#include <stdlib.h>
 
-// MT6835 连续读角度命令（5 字节）
-static const uint8_t MT6835_CMD[5] = {0xA0, 0x03, 0x00, 0x00, 0x00};
+#include "usr/abs/device.h"
+#include "usr/abs/encoder.h"
 
-// ---------- 上下文 ----------
-typedef enum
-{
-    ST_IDLE,
-    ST_WAIT,
-    ST_ERR
-} eMT6835_state;
+#include "enc_spi_engine.h"
+#include "encoder_drivers.h"
+
+#define MT6835_RESOLUTION 16384U
+#define MT6835_FRAME_LEN 5U
+#define MT6835_MAG_WEAK_BIT 0x02U // status bit1：磁场太弱
+
+// 连续读角度命令（8bit）
+static const uint8_t MT6835_CMD[MT6835_FRAME_LEN] = {0xA0U, 0x03U, 0x00U, 0x00U, 0x00U};
+
 typedef struct
 {
-    eDeviceStatus Dstatus; // 设备状态
-    eEncoderType enc_type;
-    volatile eMT6835_state state;
-    volatile uint8_t rx_buf[5];  // 接收 5 字节
-    volatile uint16_t raw_angle; // 解析后的 14-bit 角度
-    uint32_t timestamp_ms;
-    volatile bool data_ready;
-    volatile uint16_t no_resp_tic;
-    void (*set_cs)(bool active);
+    eDeviceStatus dstate;
+    tEncSpiEngine eng;
+
+    uint8_t rx[MT6835_FRAME_LEN]; // 接收缓冲（8bit 字节流）
+
+    uint16_t raw; // 最近一次有效角度
+    uint32_t ts;  // 最近一次有效时间戳(ms)
 } tMT6835_ctx;
 
-// ---------- 静态函数 ----------
-static void MT6835_spi_cb(void *arg);
-static bool MT6835_init(EncoderChipHandle handle, eEncoderType type);
-static bool MT6835_get_resolution(EncoderChipHandle handle, uint16_t *res);
-static bool MT6835_start_read(EncoderChipHandle handle);
-static bool MT6835_is_data_ready(EncoderChipHandle handle);
-static bool MT6835_get_raw_data(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp_ms);
-static void MT6835_reset(EncoderChipHandle handle);
-static void MT6835_set_cs(EncoderChipHandle handle, bool active);
-static uint8_t MT6835_get_Dstatus(EncoderChipHandle handle);
-// ---------- 驱动操作表 ----------
-tEncoderDriverOps MT6835_driver_ops = {
+// ---- ops 实现 ----
+
+static bool MT6835_init(EncoderChipHandle h)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)h;
+    if (!ctx)
+        return false;
+
+    // SPI Mode3(CPOL=1,CPHA=1)/8bit —— 芯片协议事实
+    if (!ctx->eng.bus->set_mode(ctx->eng.bus->ctx, 1U, 1U, 8U))
+        return false;
+
+    ctx->raw = 0U;
+    ctx->ts = 0U;
+    ctx->dstate = DEV_ONLINE;
+    return true;
+}
+
+static bool MT6835_read_angle(EncoderChipHandle h, uint16_t *raw, uint32_t *ts_ms)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)h;
+    if (!ctx || !raw || !ts_ms)
+        return false;
+
+    tEncXferSeg seg;
+    seg.tx = MT6835_CMD;
+    seg.rx = ctx->rx;
+    seg.len = MT6835_FRAME_LEN;
+
+    if (!enc_engine_run(&ctx->eng, &seg, 1U))
+    {
+        ctx->dstate = DEV_RUN_ERROR;
+        return false;
+    }
+
+    // status 位：bit1 = 磁场太弱
+    if (ctx->rx[4] & MT6835_MAG_WEAK_BIT)
+        return false;
+
+    // 21bit 角度 → 高 14 位输出
+    uint32_t angle_21 = ((uint32_t)ctx->rx[2] << 13) |
+                        ((uint32_t)ctx->rx[3] << 5) |
+                        ((uint32_t)ctx->rx[4] >> 3);
+
+    ctx->raw = (uint16_t)(angle_21 >> 7);
+    ctx->ts = ctx->eng.time->get_ms(ctx->eng.time->ctx);
+    ctx->dstate = DEV_RUNNING;
+    *raw = ctx->raw;
+    *ts_ms = ctx->ts;
+    return true;
+}
+
+static bool MT6835_get_resolution(EncoderChipHandle h, uint16_t *res)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)h;
+    if (!ctx || !res)
+        return false;
+    *res = MT6835_RESOLUTION;
+    return true;
+}
+
+static void MT6835_reset(EncoderChipHandle h)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)h;
+    if (!ctx)
+        return;
+    enc_engine_abort(&ctx->eng);
+    ctx->raw = 0U;
+    ctx->ts = 0U;
+    ctx->dstate = DEV_ONLINE;
+}
+
+static uint8_t MT6835_get_state(EncoderChipHandle h)
+{
+    tMT6835_ctx *ctx = (tMT6835_ctx *)h;
+    return (uint8_t)(ctx ? ctx->dstate : DEV_OFFLINE);
+}
+
+const tEncoderDriverOps MT6835_driver_ops = {
     .init = MT6835_init,
+    .read_angle = MT6835_read_angle,
     .get_resolution = MT6835_get_resolution,
-    .start_read = MT6835_start_read,
-    .is_data_ready = MT6835_is_data_ready,
-    .get_raw_data = MT6835_get_raw_data,
     .reset = MT6835_reset,
-    .set_cs = MT6835_set_cs,
-    .get_Dstate = MT6835_get_Dstatus, // 获取设备状态
+    .get_state = MT6835_get_state,
 };
 
-// ---------- 创建/销毁 ----------
-EncoderChipHandle MT6835_create(void)
+// ---- 句柄创建/销毁（资源注入点） ----
+
+EncoderChipHandle MT6835_create(const tSpiBusIf *bus, const tTimeIf *time)
 {
-    tMT6835_ctx *ctx = (tMT6835_ctx *)calloc(1, sizeof(tMT6835_ctx));
+    if (!bus || !time)
+        return NULL;
+
+    tMT6835_ctx *ctx = (tMT6835_ctx *)calloc(1U, sizeof(tMT6835_ctx));
+    if (!ctx)
+        return NULL;
+
+    ctx->dstate = DEV_OFFLINE;
+    ctx->eng.bus = bus;
+    ctx->eng.time = time;
     return (EncoderChipHandle)ctx;
 }
 
-void MT6835_destroy(EncoderChipHandle handle)
+void MT6835_destroy(EncoderChipHandle h)
 {
-    free(handle);
-    handle = NULL;
-}
-
-// ========== 实现 ==========
-static bool MT6835_init(EncoderChipHandle handle, eEncoderType type)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    if (!ctx)
-        return false;
-
-    ctx->enc_type = type;
-    // 配置 SPI 为 Mode 3 (CPOL=1, CPHA=1), 8-bit
-    // if (!bsp_change_encoder_spi_config(SPI_CPOL, SPI_CPHA, SPI_DATA_SIZE)) return false;
-
-    bsp_encoder_register_callback(MT6835_spi_cb, ctx);
-    ctx->state = ST_IDLE;
-    ctx->data_ready = false;
-    ctx->raw_angle = 0;
-
-    if (type == ENC_INTERNAL)
-        ctx->set_cs = bsp_int_encoder_cs;
-    else
-        ctx->set_cs = bsp_ext_encoder_cs;
-
-    return true;
-}
-
-static bool MT6835_get_resolution(EncoderChipHandle handle, uint16_t *res)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    if (!ctx || !res)
-        return false;
-    *res = RESOLUTION;
-    return true;
-}
-
-static bool MT6835_start_read(EncoderChipHandle handle)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    if (!ctx || ctx->state != ST_IDLE)
-        return false;
-
-    if (!bsp_encoder_spi_is_ready())
-    {
-        bsp_encoder_spi_abort();
-        return false;
-    }
-
-    ctx->set_cs(true);
-    ctx->no_resp_tic = 0;
-    // 发送 5 字节命令，同时接收 5 字节数据
-    if (!bsp_encoder_spi_transmit_receive_dma((uint8_t *)MT6835_CMD,
-                                              (uint8_t *)ctx->rx_buf, 5))
-    {
-        ctx->set_cs(false);
-        return false;
-    }
-    ctx->state = ST_WAIT;
-    return true;
-}
-
-static bool MT6835_is_data_ready(EncoderChipHandle handle)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    return ctx ? ctx->data_ready : false;
-}
-
-static bool MT6835_get_raw_data(EncoderChipHandle handle, uint16_t *raw, uint32_t *timestamp_ms)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    if (!ctx || !ctx->data_ready)
-        return false;
-
-    // 解析 21-bit 角度并转为 14-bit
-    uint32_t angle_21 = ((uint32_t)ctx->rx_buf[2] << 13) |
-                        ((uint32_t)ctx->rx_buf[3] << 5) |
-                        (ctx->rx_buf[4] >> 3);
-
-    // 检查 STATUS 位 (rx_buf[4] bit0-2)
-    uint8_t status = ctx->rx_buf[4] & 0x07;
-    if (status & 0x02)
-    { // 磁场太弱
-        return false;
-    }
-
-    *raw = (uint16_t)(angle_21 >> 7); // 取高 14 位
-    *timestamp_ms = ctx->timestamp_ms;
-    ctx->data_ready = false;
-    return true;
-}
-
-static void MT6835_reset(EncoderChipHandle handle)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    if (ctx)
-    {
-        ctx->state = ST_IDLE;
-        ctx->data_ready = false;
-        ctx->set_cs(false);
-        bsp_encoder_spi_abort();
-    }
-}
-
-static void MT6835_set_cs(EncoderChipHandle handle, bool active)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)handle;
-    ctx->set_cs(active);
-}
-
-// ---------- 回调（单次传输完成） ----------
-static void MT6835_spi_cb(void *arg)
-{
-    tMT6835_ctx *ctx = (tMT6835_ctx *)arg;
-    if (!ctx)
-        return;
-
-    if (ctx->state == ST_WAIT)
-    {
-        ctx->timestamp_ms = bsp_get_tick();
-        ctx->set_cs(false); // 传输结束，拉高 CS
-        ctx->data_ready = true;
-        ctx->state = ST_IDLE;
-    }
-    else
-    {
-        ctx->state = ST_IDLE;
-        ctx->data_ready = false;
-        ctx->set_cs(false);
-    }
-}
-
-static uint8_t MT6835_get_Dstatus(EncoderChipHandle handle)
-{
-    if (NULL == handle)
-        return 0;
-    return ((tMT6835_ctx *)handle)->Dstatus; // 返回设备状态
+    free(h);
 }

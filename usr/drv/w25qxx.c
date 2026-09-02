@@ -1,395 +1,332 @@
-// ******************************************************************************
-// W25Q128 Flash存储器驱动实现
-// 实现SPI接口的Flash存储器基本操作
-//          包括初始化、读写、擦除、状态查询等功能
-// ******************************************************************************
-// TODO：均匀磨损策略
-// 最小擦除单位为扇区总共4096个扇区
-// 按照块分256个扇区组（16）
-// 每组16个作为自由分配单元
-// 然后整组定期换块均匀磨损
-// 每个块的第一个扇区存储该块的累积擦除次数
-// 然后在最后一个块中存储 当前块
-// 初始化先从最后一个块开始读取块信息
-// ******************************************************************************
+// ============================================================
+// w25qxx.c — W25Q128 串行 NOR Flash 驱动（usr/drv，同步）
+//
+// 芯片协议（8bit SPI，Mode0/3 均支持）：
+//   - 页编程 256B / 扇区擦除 4KB / 块 64KB / 容量 16MB
+//   - 操作前必须写使能(0x06)，完成后轮询状态寄存器 BUSY 位
+// 本实现把原逐字节轮询改为"整段 xfer"：命令+地址+数据一次总线事务。
+//
+// 仅依赖 usr/if 接口表，无任何板级/厂商库依赖。
+// ============================================================
 
-#include "device.h"
+#include <stdlib.h>
 
-#define W25Q128 0
+#include "usr/abs/device.h"
+#include "usr/abs/flash.h"
 
-// 存储器规格定义 ---------------------------------------------------------
-#define FLASH_SIZE (128 / 8 * 1024 * 1024) ///< 总容量：16MB
-#define FLASH_PAGE_SIZE 256                ///< 页大小：256字节
-#define FLASH_PAGE_NUM 16                  ///< 页数量：16页
-#define FLASH_SECTOR_NUM 16                ///< 扇区数量：16个
-#define FLASH_BLOCK_NUM 256                ///< 块数量：256块
+#include "flash_drivers.h"
 
-#define FLASH_SECTOR_SIZE 0x10000; // 扇区大小：4KB
+// ---- W25Q128 几何 ----
+#define W25_CAPACITY_BYTES (16U * 1024U * 1024U) // 16MB
+#define W25_PAGE_SIZE 256U
+#define W25_SECTOR_SIZE (4U * 1024U) // 4KB
+#define W25_SECTOR_COUNT (W25_CAPACITY_BYTES / W25_SECTOR_SIZE)
 
-const uint32_t sector_start_addr[FLASH_SECTOR_NUM] = {
-    0x00000000,
-    0x00001000,
-    0x00002000,
-    0x00003000,
-    0x00004000,
-    0x00005000,
-    0x00006000,
-    0x00007000,
-    0x00008000,
-    0x00009000,
-    0x0000A000,
-    0x0000B000,
-    0x0000C000,
-    0x0000D000,
-    0x0000E000,
-    0x0000F000,
-};
-// w25qxx配置表
-#define W25Qxx_CHIP W25Q128
+// ---- 命令 ----
+#define FCMD_READ_ID 0x9FU
+#define FCMD_WRITE_ENABLE 0x06U
+#define FCMD_READ_STATUS 0x05U
+#define FCMD_ERASE_SECTOR 0x20U
+#define FCMD_READ_DATA 0x03U
+#define FCMD_WRITE_PAGE 0x02U
 
-#ifdef W25Qxx_CHIP == W25Q128
-const uint8_t W25Q128_CFG[] = {0xEF, 0x40, 0x18}; // W25Q128设备ID
-#define FCMD_READ_ID 0x9F                         // 读取设备ID命令
-#define FCMD_WRITE_ENABLE 0x06                    // 写使能命令
-#define FCMD_WRITE_DISABLE 0x04                   // 写禁止命令
-#define FCMD_READ_STATUS_REG 0x05                 // 读取状态寄存器命令
-#define FCMD_ERASE_SECTOR 0x20                    // 扇区擦除命令（4KB）
-#define FCMD_ERASE_CHIP 0x60                      // 全片擦除命令（64KB）
-#define FCMD_READ_DATA 0x03                       // 读取数据命令
-#define FCMD_WRITE_PAGE 0x02                      // 页编程命令
-#define FBIT_SR_BUSY (0x01 << 0)                  // 状态寄存器BUSY位
-#define FBIT_SR_WEL (0x01 << 1)                   // 状态寄存器WEL位
+#define FBIT_SR_BUSY 0x01U
 
-#define FTIMEOUT_WAIT_FREE 10      // 等待空闲超时（ms）
-#define FTIMEOUT_REASE_SECTOR 1000 // 扇区擦除超时（ms）
-#define FTIMEOUT_ERASE_CHIP 20000  // 全片擦除超时（ms）
-#define FTIMEOUT_WRITE_PAGE 10     // 页编程超时（ms）
+#define FTIMEOUT_OP_MS 1000U // 扇区擦除/页编程典型完成时间远小于此
 
-#endif
+#define READ_CHUNK 32U // 读数据分段长度（tx 补 0xFF 提供时钟）
 
-// 声明驱动上下文结构体
+// W25Q128 JEDEC ID：0xEF 0x40 0x18
+static const uint8_t W25_JEDEC_ID[3] = {0xEFU, 0x40U, 0x18U};
+
 typedef struct
 {
-    eDeviceStatus Dstate;   // 设备状态
-    uint8_t init_fault_tic; // 初始化失败重试计数器
-    uint32_t block_idx;     // 当前块索引
+    eDeviceStatus dstate;
+    const tSpiBusIf *bus;
+    const tTimeIf *time;
+
+    uint8_t tx_buf[4U + W25_PAGE_SIZE]; // 页写/命令+地址 段缓冲
+    uint8_t rx_buf[4U + W25_PAGE_SIZE]; // 对应接收缓冲
+    uint8_t rd_ff[READ_CHUNK];          // 读时钟填充（全 0xFF）
 } tW25Qxx_ctx;
 
-// 函数操作表
-static bool w25qxx_init(FlashHandle handle);
-static uint32_t w25qxx_get_sector_size(FlashHandle handle, uint8_t sec_idx);
-static uint32_t w25qxx_get_sector_addr(FlashHandle handle, uint8_t sec_idx);
-static bool w25qxx_erase_sector(FlashHandle handle, uint8_t sec_idx);
-static bool w25qxx_erase_chip(FlashHandle handle);
-static bool w25qxx_read_data(FlashHandle handle, uint32_t ReadAddr, uint8_t *pBuffer, uint32_t NumByteToRead);
-static bool w25qxx_write_data(FlashHandle handle, uint32_t WriteAddr, const uint8_t *pBuffer, uint32_t NumByteToWrite);
-static uint8_t w25qxx_get_status(FlashHandle handle);
+// ---- 底层原语（CS 由调用处控制） ----
 
-tFlashDriverBaseOps w25qxx_driver_baseops = {
-    .Init = w25qxx_init,
-    .Get_sector_size = w25qxx_get_sector_size,
-    .Get_sector_addr = w25qxx_get_sector_addr,
-    .Erase_sector = w25qxx_erase_sector,
-    .Erase_chip = w25qxx_erase_chip,
-    .Read = w25qxx_read_data,
-    .Write = w25qxx_write_data,
-    .Get_status = w25qxx_get_status};
-
-// 句柄
-FlashHandle w25qxx_create(void)
+static bool w25_tx(tW25Qxx_ctx *ctx, uint16_t len)
 {
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)calloc(1, sizeof(tW25Qxx_ctx));
-    if (NULL == ctx)
-        return NULL; // 内存分配失败
-    return ctx;
-}
-void w25qxx_destroy(FlashHandle handle)
-{
-    if (NULL != handle)
-        free(handle);
-    handle = NULL;
+    return ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, len);
 }
 
-// 内部函数
-static void w25qxx_cs_enable(void)
+static void w25_delay_ms(tW25Qxx_ctx *ctx, uint32_t ms)
 {
-    bsp_flash_cs(true);
-}
-static inline void w25qxx_cs_disable(void)
-{
-    bsp_flash_cs(false);
-}
-static inline bool w25qxx_transmit_one_byte(uint8_t _dataTx)
-{
-    return bsp_flash_spi_transmit(&_dataTx, 1, 1000);
-}
-static inline uint8_t w25qxx_receive_one_byte(void)
-{
-    uint8_t _dataRx = 0;
-    bsp_flash_spi_receive(&_dataRx, 1, 1000);
-    return _dataRx;
-}
-static inline void w25qxx_write_enable(void)
-{
-    w25qxx_cs_enable();
-    w25qxx_transmit_one_byte(FCMD_WRITE_ENABLE); // Write Enable命令
-    w25qxx_cs_disable();
-}
-
-static inline void w25qxx_write_disable(void)
-{
-    w25qxx_cs_enable();
-    w25qxx_transmit_one_byte(FCMD_WRITE_DISABLE); // Write Disable命令
-    w25qxx_cs_disable();
-}
-
-// 读取状态寄存器
-// Bit0: BUSY（忙标志），Bit1: WEL（写使能锁存）
-static inline uint8_t w25qxx_read_sr(void)
-{
-    uint8_t byte = 0;
-    w25qxx_cs_enable();
-    w25qxx_transmit_one_byte(FCMD_READ_STATUS_REG); // Read Status Register命令
-    byte = w25qxx_receive_one_byte();               // 读取状态字节
-    w25qxx_cs_disable();
-    return byte;
-}
-
-// 等待Flash操作完成-flash 操作一定要等
-// 轮询BUSY位，直到操作完成（BUSY=0）
-static inline bool w25qxx_wait_busy(uint32_t timeout_ms)
-{
-    uint32_t timeout = bsp_get_tick() + timeout_ms;
-    while (0x01 == (w25qxx_read_sr() & FBIT_SR_BUSY))
+    uint32_t t0 = ctx->time->get_ms(ctx->time->ctx);
+    while ((ctx->time->get_ms(ctx->time->ctx) - t0) < ms)
     {
-        if (bsp_get_tick() > timeout)
-            return false; // 超时
+    }
+}
+
+// 读状态寄存器（CS 自管理）
+static uint8_t w25_read_sr(tW25Qxx_ctx *ctx)
+{
+    ctx->tx_buf[0] = FCMD_READ_STATUS;
+    ctx->tx_buf[1] = 0xFFU;
+    ctx->bus->cs(ctx->bus->ctx, true);
+    bool ok = ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, 2U);
+    ctx->bus->cs(ctx->bus->ctx, false);
+    return ok ? ctx->rx_buf[1] : 0xFFU;
+}
+
+static bool w25_wait_idle(tW25Qxx_ctx *ctx, uint32_t timeout_ms)
+{
+    uint32_t t0 = ctx->time->get_ms(ctx->time->ctx);
+    while (w25_read_sr(ctx) & FBIT_SR_BUSY)
+    {
+        if ((ctx->time->get_ms(ctx->time->ctx) - t0) >= timeout_ms)
+            return false;
     }
     return true;
 }
 
-// 擦除单个扇区（4KB）
-// Address: 扇区内任意地址
-// 自动对齐到扇区边界，擦除需要一定时间
-static inline bool w25qxx_erase_one_sector(uint32_t Address)
+static bool w25_write_enable(tW25Qxx_ctx *ctx)
 {
-    bool status = false;
-    w25qxx_write_enable();                         // 使能写操作
-    status = w25qxx_wait_busy(FTIMEOUT_WAIT_FREE); // 等待空闲
-    w25qxx_cs_enable();                            // 片选
-    w25qxx_transmit_one_byte(FCMD_ERASE_SECTOR);   // Sector Erase命令（4KB）
-    // 发送24位地址（MSB first）
-    w25qxx_transmit_one_byte((uint8_t)((Address) >> 16));
-    w25qxx_transmit_one_byte((uint8_t)((Address) >> 8));
-    w25qxx_transmit_one_byte((uint8_t)Address);
-    w25qxx_cs_disable();                              // 取消片选
-    status = w25qxx_wait_busy(FTIMEOUT_REASE_SECTOR); // 等待擦除完成（典型时间45ms）
-    return status;
+    ctx->tx_buf[0] = FCMD_WRITE_ENABLE;
+    ctx->tx_buf[1] = 0xFFU; // 时钟填充（rx 忽略）
+    ctx->bus->cs(ctx->bus->ctx, true);
+    bool ok = ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, 2U);
+    ctx->bus->cs(ctx->bus->ctx, false);
+    return ok;
 }
-// 页编程写入数据（单页内）
-// pBuffer: 数据缓冲区
-// WriteAddr: 写入起始地址
-// NumByteToWrite: 写入字节数（≤256）
-// true: 成功，false: 失败
-// 必须在擦除的扇区内写入
-static bool w25qxx_write_word(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
-{
-    uint16_t i;
-    w25qxx_write_enable(); // 写使能
-    w25qxx_cs_enable();    // 片选
 
-    if (!w25qxx_transmit_one_byte(FCMD_WRITE_PAGE)) // Page Program命令
-    {
-        w25qxx_cs_disable();
+// ---- ops 实现 ----
+
+static bool w25_init(FlashChipHandle h)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    if (!ctx)
         return false;
-    }
 
-    // 发送24位地址
-    w25qxx_transmit_one_byte((uint8_t)((WriteAddr) >> 16));
-    w25qxx_transmit_one_byte((uint8_t)((WriteAddr) >> 8));
-    w25qxx_transmit_one_byte((uint8_t)WriteAddr);
-
-    // 连续写入数据
-    for (i = 0; i < NumByteToWrite; i++)
-        w25qxx_transmit_one_byte(pBuffer[i]);
-
-    w25qxx_cs_disable();
-    return w25qxx_wait_busy(FTIMEOUT_WRITE_PAGE); // 等待编程完成（典型时间0.7ms）
-}
-
-// 初始化w25qxx存储器
-// 读取设备ID（0xEF4018）验证连接
-// w25qxx初始化上电慢 失败时最多重试5次
-static bool w25qxx_init(FlashHandle handle)
-{
-    if (NULL == handle)
+    // W25Q 支持 Mode0/3；此处显式声明 Mode3/8bit（与板默认一致）
+    if (!ctx->bus->set_mode(ctx->bus->ctx, 1U, 1U, 8U))
         return false;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
 
-    uint8_t id[3] = {0};
-    w25qxx_cs_enable();                     // 片选
-    bsp_delay(10);                          // 上电延时
-    w25qxx_transmit_one_byte(FCMD_READ_ID); // Read JEDEC ID命令
-    id[0] = w25qxx_receive_one_byte();      // Manufacturer ID
-    id[1] = w25qxx_receive_one_byte();      // Memory Type
-    id[2] = w25qxx_receive_one_byte();      // Capacity
-
-    // 验证是否为W25Q128（Winbond 16MB）
-    if ((id[0] == W25Q128_CFG[0]) && (id[1] == W25Q128_CFG[1]) && (id[2] == W25Q128_CFG[2]))
+    // 上电后芯片可能未就绪，重试读 JEDEC ID
+    for (uint8_t attempt = 0U; attempt < 5U; attempt++)
     {
-        ctx->Dstate = ONLINE; // 设置在线状态
-    }
-    else if (ctx->init_fault_tic < 5) // 重试逻辑
-    {
-        ctx->init_fault_tic++;
-        bsp_delay(10);
-        w25qxx_init((FlashHandle *)ctx); // 递归重试
-    }
-    ctx->init_fault_tic = 0;
-    w25qxx_cs_disable();          // 取消片选
-    ctx->Dstate = OFFLINE;        // 设置离线状态
-    return ctx->Dstate == ONLINE; // 返回初始化状态
-}
+        ctx->tx_buf[0] = FCMD_READ_ID;
+        ctx->tx_buf[1] = 0xFFU;
+        ctx->tx_buf[2] = 0xFFU;
+        ctx->tx_buf[3] = 0xFFU;
 
-static uint32_t w25qxx_get_sector_size(FlashHandle handle, uint8_t sec_idx)
-{
-    if (NULL == handle)
-        return 0;
-    return FLASH_SECTOR_SIZE; // 扇区大小：4KB
-}
-static uint32_t w25qxx_get_sector_addr(FlashHandle handle, uint8_t sec_idx)
-{
-    if (NULL == handle)
-        return 0;
-    return sector_start_addr[sec_idx]; // 扇区起始地址
-}
+        ctx->bus->cs(ctx->bus->ctx, true);
+        bool ok = ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, 4U);
+        ctx->bus->cs(ctx->bus->ctx, false);
 
-static bool w25qxx_erase_sector(FlashHandle handle, uint8_t sec_idx)
-{
-    if (NULL == handle)
-        return false;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
-    // 计算起始和结束扇区
-    uint32_t Address = sector_start_addr[sec_idx]; // 扇区起始地址
-    uint16_t Star_Sector = Address / 4096;         // 起始扇区
-
-    if (!w25qxx_erase_one_sector(Address)) // 擦除当前扇区
-    {
-        ctx->Dstate = RUN_ERROR;
-        return false; // 擦除失败
-    }
-
-    ctx->Dstate = RUNNING;
-    return true;
-}
-
-// 擦除整个芯片
-// 全片擦除，等待时间较长（10-20秒）
-// 非必要不建议使用
-static bool w25qxx_erase_chip(FlashHandle handle)
-{
-    if (NULL == handle)
-        return false;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
-
-    bool status = false;
-    w25qxx_write_enable();                          // 写使能
-    status = w25qxx_wait_busy(FTIMEOUT_WAIT_FREE);  // 等待空闲
-    w25qxx_cs_enable();                             // 片选
-    w25qxx_transmit_one_byte(FCMD_ERASE_CHIP);      // Chip Erase命令
-    w25qxx_cs_disable();                            // 取消片选
-    status = w25qxx_wait_busy(FTIMEOUT_ERASE_CHIP); // 等待擦除完成
-    ctx->Dstate = status ? RUNNING : RUN_ERROR;
-    return status;
-}
-// 从Flash读取数据
-// pBuffer: 数据缓冲区
-// ReadAddr: 读取起始地址
-// NumByteToRead: 读取字节数
-// true: 成功，false: 失败
-static bool w25qxx_read_data(FlashHandle handle,
-                             uint32_t ReadAddr, uint8_t *pBuffer, uint32_t NumByteToRead)
-{
-    if (NULL == handle)
-        return false;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
-
-    uint16_t i = 0;
-    w25qxx_cs_enable();                            // 片选
-    if (!w25qxx_transmit_one_byte(FCMD_READ_DATA)) // Read Data命令
-    {
-        ctx->Dstate = RUN_ERROR;
-        w25qxx_cs_disable();
-        return false;
-    }
-
-    // 发送24位地址
-    w25qxx_transmit_one_byte((uint8_t)((ReadAddr) >> 16));
-    w25qxx_transmit_one_byte((uint8_t)((ReadAddr) >> 8));
-    w25qxx_transmit_one_byte((uint8_t)ReadAddr);
-
-    // 连续读取数据
-    for (; i < NumByteToRead; i++)
-    {
-        pBuffer[i] = w25qxx_receive_one_byte();
-    }
-
-    w25qxx_cs_disable();
-    ctx->Dstate = RUNNING;
-    return true;
-}
-
-// 跨页写入数据（自动处理页边界）
-// pBuffer: 数据缓冲区
-// WriteAddr: 写入起始地址
-// NumByteToWrite: 写入字节数
-// 自动处理跨页情况，支持写入任意长度数据
-static bool w25qxx_write_data(FlashHandle handle,
-                              uint32_t WriteAddr, const uint8_t *pBuffer, uint32_t NumByteToWrite)
-{
-    if (NULL == handle)
-        return false;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
-
-    // 计算当前页剩余空间
-    uint16_t Word_remain = 256 - WriteAddr % 256;
-    if (NumByteToWrite <= Word_remain)
-        Word_remain = NumByteToWrite;
-
-    while (1)
-    {
-        // 写入当前页能容纳的数据
-        if (!w25qxx_write_word(pBuffer, WriteAddr, Word_remain))
+        if (ok && ctx->rx_buf[1] == W25_JEDEC_ID[0] &&
+            ctx->rx_buf[2] == W25_JEDEC_ID[1] &&
+            ctx->rx_buf[3] == W25_JEDEC_ID[2])
         {
-            ctx->Dstate = RUN_ERROR;
+            ctx->dstate = DEV_ONLINE;
+            return true;
+        }
+        w25_delay_ms(ctx, 10U);
+    }
+
+    ctx->dstate = DEV_OFFLINE;
+    return false;
+}
+
+static bool w25_read(FlashChipHandle h, uint32_t addr, uint8_t *data, uint32_t len)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    if (!ctx || !data || (addr + len) > W25_CAPACITY_BYTES)
+        return false;
+
+    ctx->tx_buf[0] = FCMD_READ_DATA;
+    ctx->tx_buf[1] = (uint8_t)(addr >> 16);
+    ctx->tx_buf[2] = (uint8_t)(addr >> 8);
+    ctx->tx_buf[3] = (uint8_t)addr;
+
+    ctx->bus->cs(ctx->bus->ctx, true);
+    if (!w25_tx(ctx, 4U)) // 命令+地址段
+    {
+        ctx->bus->cs(ctx->bus->ctx, false);
+        ctx->dstate = DEV_RUN_ERROR;
+        return false;
+    }
+
+    // 数据段：CS 保持，逐 chunk 收发（tx 全 0xFF 提供时钟）
+    for (uint8_t i = 0U; i < READ_CHUNK; i++)
+        ctx->rd_ff[i] = 0xFFU;
+
+    uint32_t done = 0U;
+    while (done < len)
+    {
+        uint32_t n = len - done;
+        if (n > READ_CHUNK)
+            n = READ_CHUNK;
+
+        if (!ctx->bus->xfer(ctx->bus->ctx, ctx->rd_ff, data + done, (uint16_t)n))
+        {
+            ctx->bus->cs(ctx->bus->ctx, false);
+            ctx->dstate = DEV_RUN_ERROR;
             return false;
         }
-
-        if (NumByteToWrite == Word_remain)
-        {
-            break; // 全部写入完成
-        }
-        else // 需要跨页写入
-        {
-            // 更新指针和地址
-            pBuffer += Word_remain;
-            WriteAddr += Word_remain;
-            NumByteToWrite -= Word_remain;
-
-            // 计算下一页可写入量
-            if (NumByteToWrite > 256)
-                Word_remain = 256; // 下一页可写满
-            else
-                Word_remain = NumByteToWrite; // 最后一页
-        }
+        done += n;
     }
-    ctx->Dstate = RUNNING;
+
+    ctx->bus->cs(ctx->bus->ctx, false);
+    ctx->dstate = DEV_RUNNING;
     return true;
 }
-static uint8_t w25qxx_get_status(FlashHandle handle)
+
+// 单页编程（len <= 256），调用方保证已擦除
+static bool w25_page_program(tW25Qxx_ctx *ctx, uint32_t addr, const uint8_t *data, uint16_t len)
 {
-    if (NULL == handle)
-        return 0;
-    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)handle;
-    return ctx->Dstate;
+    if (len == 0U || len > W25_PAGE_SIZE)
+        return false;
+
+    if (!w25_write_enable(ctx))
+        return false;
+
+    ctx->tx_buf[0] = FCMD_WRITE_PAGE;
+    ctx->tx_buf[1] = (uint8_t)(addr >> 16);
+    ctx->tx_buf[2] = (uint8_t)(addr >> 8);
+    ctx->tx_buf[3] = (uint8_t)addr;
+    for (uint16_t i = 0U; i < len; i++)
+        ctx->tx_buf[4U + i] = data[i];
+
+    ctx->bus->cs(ctx->bus->ctx, true);
+    bool ok = ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, (uint16_t)(4U + len));
+    ctx->bus->cs(ctx->bus->ctx, false);
+
+    if (!ok)
+        return false;
+    return w25_wait_idle(ctx, FTIMEOUT_OP_MS);
+}
+
+static bool w25_write(FlashChipHandle h, uint32_t addr, const uint8_t *data, uint32_t len)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    if (!ctx || !data || (addr + len) > W25_CAPACITY_BYTES)
+        return false;
+
+    // 自动跨页：每次从页边界截断写入
+    uint32_t done = 0U;
+    while (done < len)
+    {
+        uint32_t page_left = W25_PAGE_SIZE - ((addr + done) % W25_PAGE_SIZE);
+        uint32_t n = len - done;
+        if (n > page_left)
+            n = page_left;
+
+        if (!w25_page_program(ctx, addr + done, data + done, (uint16_t)n))
+        {
+            ctx->dstate = DEV_RUN_ERROR;
+            return false;
+        }
+        done += n;
+    }
+
+    ctx->dstate = DEV_RUNNING;
+    return true;
+}
+
+// 扇区擦除（4KB），地址须扇区对齐
+static bool w25_erase_sector_at(tW25Qxx_ctx *ctx, uint32_t sector_addr)
+{
+    if (!w25_write_enable(ctx))
+        return false;
+
+    ctx->tx_buf[0] = FCMD_ERASE_SECTOR;
+    ctx->tx_buf[1] = (uint8_t)(sector_addr >> 16);
+    ctx->tx_buf[2] = (uint8_t)(sector_addr >> 8);
+    ctx->tx_buf[3] = (uint8_t)sector_addr;
+
+    ctx->bus->cs(ctx->bus->ctx, true);
+    bool ok = ctx->bus->xfer(ctx->bus->ctx, ctx->tx_buf, ctx->rx_buf, 4U);
+    ctx->bus->cs(ctx->bus->ctx, false);
+
+    if (!ok)
+        return false;
+    return w25_wait_idle(ctx, FTIMEOUT_OP_MS);
+}
+
+static bool w25_erase(FlashChipHandle h, uint32_t addr, uint32_t len)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    if (!ctx || len == 0U || (addr + len) > W25_CAPACITY_BYTES)
+        return false;
+
+    // 按 4KB 扇区粒度向上取整覆盖 [addr, addr+len)
+    uint32_t first = addr >> 12;
+    uint32_t end = (addr + len + W25_SECTOR_SIZE - 1U) >> 12;
+
+    for (uint32_t i = first; i < end; i++)
+    {
+        if (!w25_erase_sector_at(ctx, i << 12))
+        {
+            ctx->dstate = DEV_RUN_ERROR;
+            return false;
+        }
+    }
+
+    ctx->dstate = DEV_RUNNING;
+    return true;
+}
+
+static uint32_t w25_get_capacity(FlashChipHandle h)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    return ctx ? W25_CAPACITY_BYTES : 0U;
+}
+
+static uint32_t w25_get_page_size(FlashChipHandle h)
+{
+    (void)h;
+    return W25_PAGE_SIZE;
+}
+
+static uint32_t w25_get_sector_size(FlashChipHandle h)
+{
+    (void)h;
+    return W25_SECTOR_SIZE;
+}
+
+static uint8_t w25_get_state(FlashChipHandle h)
+{
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)h;
+    return (uint8_t)(ctx ? ctx->dstate : DEV_OFFLINE);
+}
+
+const tFlashDriverOps w25qxx_driver_ops = {
+    .init = w25_init,
+    .read = w25_read,
+    .write = w25_write,
+    .erase = w25_erase,
+    .get_capacity = w25_get_capacity,
+    .get_page_size = w25_get_page_size,
+    .get_sector_size = w25_get_sector_size,
+    .get_state = w25_get_state,
+};
+
+// ---- 句柄创建/销毁（资源注入点） ----
+
+FlashChipHandle w25qxx_create(const tSpiBusIf *bus, const tTimeIf *time)
+{
+    if (!bus || !time)
+        return NULL;
+
+    tW25Qxx_ctx *ctx = (tW25Qxx_ctx *)calloc(1U, sizeof(tW25Qxx_ctx));
+    if (!ctx)
+        return NULL;
+
+    ctx->dstate = DEV_OFFLINE;
+    ctx->bus = bus;
+    ctx->time = time;
+    return (FlashChipHandle)ctx;
+}
+
+void w25qxx_destroy(FlashChipHandle h)
+{
+    free(h);
 }

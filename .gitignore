@@ -29,3 +29,6 @@ __pycache__/
 
 # 调试文档,数据手册
 docs/
+
+# AI/工具运行痕迹
+.reasonix/
